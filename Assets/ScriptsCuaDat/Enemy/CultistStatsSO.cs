@@ -6,9 +6,10 @@ namespace HeartOfTheNight.Enemy
     public class CultistStatsSO : ScriptableObject
     {
         [Header("Detection")]
-        public float detectRange      = 12f;
-        public float minSafeDistance  = 5f;
-        public float hysteresis       = 0.5f;
+        public float detectRange         = 12f;
+        public float minSafeDistance     = 5f;
+        public float hysteresis          = 0.5f;
+        public float retreatReactionDelay = 1f;
 
         [Header("Movement")]
         public float moveSpeed        = 3.5f;

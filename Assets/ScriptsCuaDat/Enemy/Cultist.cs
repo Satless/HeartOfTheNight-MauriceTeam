@@ -31,6 +31,7 @@ namespace HeartOfTheNight.Enemy
         private SpriteRenderer sprite;
         private State current = State.IdleAim;
         private float fireTimer;
+        private float closeRangeTimer;
         private int   health;
         private int   facing = 1;
 
@@ -115,14 +116,31 @@ namespace HeartOfTheNight.Enemy
         {
             State prev = current;
 
-            if (current == State.IdleAim && distance < stats.minSafeDistance)
-                current = State.Retreat;
+            if (current == State.IdleAim)
+            {
+                if (distance < stats.minSafeDistance)
+                {
+                    closeRangeTimer += Time.deltaTime;
+                    if (closeRangeTimer >= stats.retreatReactionDelay)
+                    {
+                        current         = State.Retreat;
+                        closeRangeTimer = 0f;
+                    }
+                }
+                else
+                {
+                    closeRangeTimer = 0f;
+                }
+            }
             else if (current == State.Retreat &&
                      distance > stats.minSafeDistance + stats.hysteresis)
-                current = State.IdleAim;
+            {
+                current         = State.IdleAim;
+                closeRangeTimer = 0f;
+            }
 
             if (debugLogs && prev != current)
-                Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2}, minSafe={stats.minSafeDistance})", this);
+                Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2}, minSafe={stats.minSafeDistance}, reactionDelay={stats.retreatReactionDelay})", this);
         }
 
         private void TickIdleAim(float distance)
