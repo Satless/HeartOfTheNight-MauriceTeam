@@ -20,9 +20,10 @@ namespace HeartOfTheNight.Enemy
         public int   bulletDamage     = 10;
         public float bulletLifetime   = 4f;
 
-        [Header("Ground / Edge Check")]
-        public Vector2 groundCheckSize = new(0.35f, 0.1f);
-        public Vector2 edgeCheckOffset = new(0.6f, 0f);
-        public Vector2 edgeCheckSize   = new(0.2f, 0.4f);
+        [Header("Ground / Edge Check (offsets are RELATIVE to GroundCheck Transform)")]
+        public Vector2 groundCheckSize  = new(0.35f, 0.1f);
+        public float   edgeCheckForward = 0.6f;
+        public float   wallCheckHeight  = 0.5f;
+        public Vector2 wallCheckSize    = new(0.2f, 0.4f);
     }
 }
