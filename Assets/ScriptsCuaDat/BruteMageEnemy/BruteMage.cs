@@ -292,8 +292,13 @@ namespace HeartOfTheNight.Enemy
             if (myGround.collider == playerGround.collider) return;
 
             int sideDir = facing == 0 ? 1 : -facing;
+            float sideOffset = stats.teleportSideOffset > 0f ? stats.teleportSideOffset : 1.25f;
+            float minDistance = stats.teleportMinDistanceFromPlayer > 0f ? stats.teleportMinDistanceFromPlayer : 2.25f;
+            float desiredOffset = Mathf.Max(sideOffset, minDistance);
+
+            // In melee state, teleport with a clear gap so the enemy has to walk in before attacking.
             Vector2 probeFrom = (Vector2)player.position
-                                + new Vector2(stats.teleportSideOffset * sideDir, stats.teleportProbeHeight);
+                                + new Vector2(desiredOffset * sideDir, stats.teleportProbeHeight);
             RaycastHit2D landing = Physics2D.Raycast(probeFrom, Vector2.down, stats.teleportProbeHeight * 3f, groundLayer);
             if (!landing.collider) return;
 
@@ -302,6 +307,13 @@ namespace HeartOfTheNight.Enemy
                 probeFrom.x,
                 landing.point.y + halfHeight + stats.teleportYPadding,
                 transform.position.z);
+
+            float dxToPlayer = Mathf.Abs(targetPos.x - player.position.x);
+            if (dxToPlayer < minDistance)
+            {
+                float pushDir = targetPos.x >= player.position.x ? 1f : -1f;
+                targetPos.x = player.position.x + pushDir * minDistance;
+            }
 
             transform.position = targetPos;
             rb.linearVelocity = Vector2.zero;

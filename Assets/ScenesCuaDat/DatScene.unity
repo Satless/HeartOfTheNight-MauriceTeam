@@ -415,7 +415,7 @@ Transform:
   m_GameObject: {fileID: 1163748828}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.6, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -783,7 +783,7 @@ Transform:
   m_GameObject: {fileID: 1346057255}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.52, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -832,6 +832,9 @@ MonoBehaviour:
     m_Bits: 64
   maxHealth: 60
   debugLogs: 1
+  showStateColor: 1
+  state1Color: {r: 1, g: 0.55, b: 0.55, a: 1}
+  state2Color: {r: 0.6, g: 0.75, b: 1, a: 1}
 --- !u!61 &1718780867
 BoxCollider2D:
   m_ObjectHideFlags: 0

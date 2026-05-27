@@ -32,6 +32,7 @@ namespace HeartOfTheNight.Enemy
         public bool canTeleportToPlayerPlatform = true;
         public float teleportCooldown = 3f;
         public float teleportSideOffset = 1.25f;
+        public float teleportMinDistanceFromPlayer = 2.25f;
         public float teleportProbeHeight = 3f;
         public float teleportYPadding = 0.05f;
 
