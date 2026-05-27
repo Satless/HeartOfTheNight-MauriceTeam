@@ -32,6 +32,11 @@ namespace HeartOfTheNight.Enemy
         [Header("Debug")]
         [SerializeField] private bool debugLogs = false;
 
+        [Header("State Visual")]
+        [SerializeField] private bool showStateColor = true;
+        [SerializeField] private Color state1Color = new(1f, 0.55f, 0.55f, 1f);
+        [SerializeField] private Color state2Color = new(0.6f, 0.75f, 1f, 1f);
+
         private Rigidbody2D rb;
         private Collider2D col;
         private SpriteRenderer sprite;
@@ -52,6 +57,7 @@ namespace HeartOfTheNight.Enemy
             current = State.Aggressive;
             ScheduleNextStateSwitch();
             LogCurrentState("Initial");
+            ApplyStateVisual();
 
             // Prevent a common setup issue where X is locked in prefab.
             if (rb.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionX))
@@ -131,6 +137,7 @@ namespace HeartOfTheNight.Enemy
             ScheduleNextStateSwitch();
             if (debugLogs) Debug.Log($"[{name}] State: {GetStateLabel(prev)} -> {GetStateLabel(current)}", this);
             LogCurrentState("Enter");
+            ApplyStateVisual();
         }
 
         private void ScheduleNextStateSwitch()
@@ -164,6 +171,12 @@ namespace HeartOfTheNight.Enemy
         {
             if (!debugLogs) return;
             Debug.Log($"[{name}] {phase}: {GetStateLabel(current)}", this);
+        }
+
+        private void ApplyStateVisual()
+        {
+            if (!showStateColor || sprite == null) return;
+            sprite.color = current == State.Aggressive ? state1Color : state2Color;
         }
 
         private void TickAggressive(float distance)
