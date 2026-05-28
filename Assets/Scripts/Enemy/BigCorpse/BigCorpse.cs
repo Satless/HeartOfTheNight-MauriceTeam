@@ -24,8 +24,6 @@ public class BigCorpse : MonoBehaviour
         // TẮT VA CHẠM GIỮA QUÁI VÀ PLAYER (CHO PHÉP ĐI XUYÊN NHAU)
         Collider2D quaiCollider = GetComponent<Collider2D>();
         Collider2D playerCollider = player.GetComponent<Collider2D>();
-        // Tự động tìm nhân vật Player trong game
-        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     void Update()
