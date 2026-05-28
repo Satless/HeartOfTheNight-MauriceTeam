@@ -8,6 +8,7 @@ namespace HeartOfTheNight.Enemy
     public class Cultist : MonoBehaviour, IDamageable
     {
         //as
+        //asdsa
         private enum State { IdleAim, Retreat }
 
         [Header("Data")]
