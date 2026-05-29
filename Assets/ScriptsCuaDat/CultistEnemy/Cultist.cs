@@ -11,6 +11,7 @@ namespace HeartOfTheNight.Enemy
         //asdsa
         //dsadasdkas
         //dasdasdas
+        //đâsdasdsadsa
         private enum State { IdleAim, Retreat }
 
         [Header("Data")]
