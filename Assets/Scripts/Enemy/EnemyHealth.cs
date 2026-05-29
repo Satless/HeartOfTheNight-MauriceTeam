@@ -2,28 +2,29 @@
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int maxHealth = 50;
-    private int currentHealth;
+    public int health = 50;
 
     void Start()
     {
-        currentHealth = maxHealth;
+        // TỰ ĐỘNG TẮT VA CHẠM GIỮA CÁC QUÁI VỚI NHAU
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+
+        // Kiểm tra xem đã có Layer "Enemy" chưa
+        if (enemyLayer != -1)
+        {
+            // Lệnh thần thánh: Cho phép Layer "Enemy" lơ luôn chính Layer "Enemy"
+            Physics2D.IgnoreLayerCollision(enemyLayer, enemyLayer, true);
+        }
     }
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        Debug.Log(gameObject.name + " mất máu! Còn: " + currentHealth);
+        health -= damage;
+        Debug.Log(gameObject.name + " bị chém! Máu còn: " + health);
 
-        if (currentHealth <= 0)
+        if (health <= 0)
         {
-            Die();
+            Destroy(gameObject); // Chết thì xoá quái
         }
-    }
-
-    void Die()
-    {
-        Debug.Log(gameObject.name + " bị tiêu diệt!");
-        Destroy(gameObject); // Xóa quái khỏi map
     }
 }
