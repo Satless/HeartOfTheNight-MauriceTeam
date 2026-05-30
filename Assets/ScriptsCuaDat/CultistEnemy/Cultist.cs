@@ -7,6 +7,7 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class Cultist : MonoBehaviour, IDamageable
     {
+        //dasdasd
         //as
         //asdsa
         //dsadasdkas
