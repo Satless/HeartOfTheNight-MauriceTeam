@@ -7,15 +7,7 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class Cultist : MonoBehaviour, IDamageable
     {
-        //đâsdasdasd
-        //đâsd
-        //dsadasd
-        //dasdasd
-        //as
-        //asdsa
-        //dsadasdkas
-        //dasdasdas
-        //đâsdasdsadsa
+      
         private enum State { IdleAim, Retreat }
 
         [Header("Data")]
