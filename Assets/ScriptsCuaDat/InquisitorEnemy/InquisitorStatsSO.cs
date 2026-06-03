@@ -6,11 +6,14 @@ namespace HeartOfTheNight.Enemy
     public class InquisitorStatsSO : ScriptableObject
     {
         [Header("Detection")]
-        public float detectRange          = 12f;
-        [Tooltip("Player gan hon muc nay -> chay lui (Dead Cells style).")]
-        public float panicDistance        = 4f;
-        public float hysteresis           = 0.5f;
-        public float panicReactionDelay   = 0.15f;
+        public float detectRange        = 12f;
+        [Tooltip("Dung duoi day: chi nhin/ban, khong duoi ngang nua.")]
+        public float chaseStopDistance  = 6f;
+        [Tooltip("Gan hon muc nay 1s -> chay lui.")]
+        public float panicDistance      = 4f;
+        [Tooltip("Phai xa hon panicDistance them khoang nay moi het Retreat (tranh giat).")]
+        public float retreatHysteresis  = 2f;
+        public float panicReactionDelay = 1f;
 
         [Header("Movement")]
         public float chaseSpeed   = 4f;
@@ -18,10 +21,11 @@ namespace HeartOfTheNight.Enemy
         public float groundAccel  = 28f;
 
         [Header("Shooting")]
-        public float fireCooldown   = 1.4f;
-        public float bulletSpeed    = 10f;
-        public int   bulletDamage   = 10;
-        public float bulletLifetime = 4f;
+        public float fireCooldown     = 1.4f;
+        public float bulletSpeed      = 10f;
+        public int   bulletDamage     = 10;
+        public float bulletLifetime   = 4f;
+        public float homingTurnRate   = 4f;
 
         [Header("Room Buff")]
         [Tooltip("Cong them vao suc manh (0.5 = +50% damage & move speed cho quai trong phong).")]

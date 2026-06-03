@@ -4,14 +4,11 @@ using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
 {
-    /// <summary>
-    /// Dead Cells style: duoi player de ban, player ap sat thi chay lui. Dan bay thang.
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     public class Inquisitor : MonoBehaviour, IDamageable
     {
-        private enum State { Chase, Retreat }
+        private enum State { Chase, Aim, Retreat }
 
         [Header("Data")]
         [SerializeField] private InquisitorStatsSO stats;
@@ -65,13 +62,13 @@ namespace HeartOfTheNight.Enemy
             if (stats == null)
                 Debug.LogError($"[{name}] InquisitorStatsSO chua duoc gan trong Inspector.", this);
             if (player == null)
-                Debug.LogError($"[{name}] Khong tim thay Player. Gan truc tiep hoac dat Tag 'Player'.", this);
+                Debug.LogError($"[{name}] Khong tim thay Player.", this);
             if (groundLayer.value == 0)
                 Debug.LogError($"[{name}] Ground Layer chua duoc tick.", this);
             if (bulletPrefab == null)
                 Debug.LogWarning($"[{name}] Bullet Prefab chua duoc gan.", this);
-            if (rb.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionX))
-                Debug.LogError($"[{name}] Rigidbody2D dang khoa FreezePositionX.", this);
+            if (stats != null && stats.chaseStopDistance <= stats.panicDistance)
+                Debug.LogWarning($"[{name}] chaseStopDistance nen lon hon panicDistance de tranh giat state.", this);
         }
 
         private void Update()
@@ -86,66 +83,82 @@ namespace HeartOfTheNight.Enemy
             ApplyRoomBuffToAllies();
             DecideState(distance);
 
-            if (current == State.Chase)
-                TickChase(distance);
-            else
+            if (current == State.Retreat)
                 TickRetreat();
+            else if (PlayerEngaged(distance))
+                TickCombat(distance);
         }
 
         private void FixedUpdate()
         {
-            if (stats == null) return;
+            if (stats == null || player == null) return;
 
-            if (current == State.Retreat)
-                ApplyHorizontalMove(-facing, stats.retreatSpeed);
-            else if (PlayerInChaseRange())
-                ApplyHorizontalMove(facing, stats.chaseSpeed);
-            else
-                Decelerate();
-        }
-
-        private bool PlayerInChaseRange()
-        {
-            if (player == null) return false;
             float distance = Mathf.Abs(player.position.x - transform.position.x);
-            return distance <= stats.detectRange;
+
+            switch (current)
+            {
+                case State.Retreat:
+                    ApplyHorizontalMove(-facing, stats.retreatSpeed);
+                    break;
+                case State.Chase:
+                    if (distance > stats.chaseStopDistance && distance <= stats.detectRange)
+                        ApplyHorizontalMove(facing, stats.chaseSpeed);
+                    else
+                        Decelerate();
+                    break;
+                default:
+                    Decelerate();
+                    break;
+            }
         }
+
+        private bool PlayerEngaged(float distance) => distance <= stats.detectRange;
 
         private void DecideState(float distance)
         {
             State prev = current;
+            float retreatExit = stats.panicDistance + stats.retreatHysteresis;
 
-            if (current == State.Chase)
+            if (current == State.Retreat)
             {
-                if (distance < stats.panicDistance)
+                if (distance > retreatExit)
+                    current = distance > stats.chaseStopDistance ? State.Chase : State.Aim;
+                return;
+            }
+
+            if (distance < stats.panicDistance)
+            {
+                panicTimer += Time.deltaTime;
+                if (panicTimer >= stats.panicReactionDelay)
                 {
-                    panicTimer += Time.deltaTime;
-                    if (panicTimer >= stats.panicReactionDelay)
-                    {
-                        current    = State.Retreat;
-                        panicTimer = 0f;
-                    }
-                }
-                else
-                {
+                    current    = State.Retreat;
                     panicTimer = 0f;
                 }
+                else
+                    current = State.Aim;
+
+                if (debugLogs && prev != current)
+                    Debug.Log($"[{name}] Panic windup {panicTimer:F2}/{stats.panicReactionDelay} -> {current}", this);
+                return;
             }
-            else if (current == State.Retreat &&
-                     distance > stats.panicDistance + stats.hysteresis)
+
+            panicTimer = 0f;
+
+            if (!PlayerEngaged(distance))
             {
-                current    = State.Chase;
-                panicTimer = 0f;
+                if (current != State.Chase) current = State.Chase;
+                return;
             }
+
+            current = distance > stats.chaseStopDistance ? State.Chase : State.Aim;
 
             if (debugLogs && prev != current)
                 Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2})", this);
         }
 
-        private void TickChase(float distance)
+        private void TickCombat(float distance)
         {
             fireTimer -= Time.deltaTime;
-            if (distance > stats.detectRange) return;
             if (fireTimer > 0f) return;
 
             Fire();
@@ -154,7 +167,7 @@ namespace HeartOfTheNight.Enemy
 
         private void TickRetreat()
         {
-            fireTimer = stats.fireCooldown * 0.5f;
+            fireTimer = Mathf.Max(fireTimer, stats.fireCooldown * 0.5f);
         }
 
         private void ApplyRoomBuffToAllies()
@@ -250,7 +263,8 @@ namespace HeartOfTheNight.Enemy
 
             Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
             var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            bullet.Launch(dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
+            bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
+                          stats.bulletDamage, stats.bulletLifetime);
         }
 
         public void TakeDamage(int amount)
@@ -265,6 +279,8 @@ namespace HeartOfTheNight.Enemy
 
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, stats.detectRange);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, stats.chaseStopDistance);
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, stats.panicDistance);
             Gizmos.color = Color.magenta;

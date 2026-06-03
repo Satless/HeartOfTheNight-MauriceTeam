@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: InquisitorStats
   m_EditorClassIdentifier: 
   detectRange: 12
+  chaseStopDistance: 6
   panicDistance: 4
-  hysteresis: 0.5
-  panicReactionDelay: 0.15
+  retreatHysteresis: 2
+  panicReactionDelay: 1
   chaseSpeed: 4
   retreatSpeed: 5.5
   groundAccel: 28
@@ -23,6 +24,7 @@ MonoBehaviour:
   bulletSpeed: 10
   bulletDamage: 10
   bulletLifetime: 4
+  homingTurnRate: 4
   roomBuffBonus: 0.5
   buffRadius: 18
   groundCheckSize: {x: 0.35, y: 0.1}
