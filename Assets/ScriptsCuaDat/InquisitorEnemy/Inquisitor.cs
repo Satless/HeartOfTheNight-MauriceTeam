@@ -264,7 +264,7 @@ namespace HeartOfTheNight.Enemy
             Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
             var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
-                          stats.bulletDamage, stats.bulletLifetime);
+                          stats.homingStopDistance, stats.bulletDamage, stats.bulletLifetime);
         }
 
         public void TakeDamage(int amount)

@@ -26,6 +26,8 @@ namespace HeartOfTheNight.Enemy
         public int   bulletDamage     = 10;
         public float bulletLifetime   = 4f;
         public float homingTurnRate   = 4f;
+        [Tooltip("Gan player hon muc nay thi dan khong bam nua, bay thang.")]
+        public float homingStopDistance = 2.5f;
 
         [Header("Room Buff")]
         [Tooltip("Cong them vao suc manh (0.5 = +50% damage & move speed cho quai trong phong).")]
