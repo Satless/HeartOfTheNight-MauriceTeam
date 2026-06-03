@@ -10,8 +10,6 @@ namespace HeartOfTheNight.Enemy
         private Rigidbody2D rb;
         private int damage;
         private float lifetime;
-        private BruteMage owner;
-
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -23,7 +21,6 @@ namespace HeartOfTheNight.Enemy
 
         public void Launch(BruteMage shooter, Vector2 direction, float speed, int bulletDamage, float life)
         {
-            owner = shooter;
             damage = bulletDamage;
             lifetime = life;
             rb.linearVelocity = direction * speed;
@@ -40,10 +37,10 @@ namespace HeartOfTheNight.Enemy
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (owner != null && other.GetComponentInParent<BruteMage>() == owner) return;
+            if (EnemyCombatRules.IsEnemyCollider(other)) return;
 
-            var target = other.GetComponentInParent<IDamageable>();
-            if (target != null) target.TakeDamage(damage);
+            if (EnemyCombatRules.TryGetPlayerDamageable(other, out var target))
+                target.TakeDamage(damage);
 
             Destroy(gameObject);
         }

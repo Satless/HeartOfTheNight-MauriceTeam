@@ -5,7 +5,7 @@ namespace HeartOfTheNight.Enemy
 {
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
-    public class CultistBullet : MonoBehaviour
+    public class InquisitorBullet : MonoBehaviour
     {
         private Rigidbody2D rb;
         private int   damage;
@@ -24,7 +24,7 @@ namespace HeartOfTheNight.Enemy
         {
             damage   = dmg;
             lifetime = life;
-            rb.linearVelocity = direction * speed;
+            rb.linearVelocity = direction.normalized * speed;
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
