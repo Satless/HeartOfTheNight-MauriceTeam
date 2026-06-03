@@ -40,3 +40,4 @@ public class EnemySpawner : MonoBehaviour
         Debug.Log("Player dẫm bẫy! Đã gọi hội quái ra!");
     }
 }
+////da
