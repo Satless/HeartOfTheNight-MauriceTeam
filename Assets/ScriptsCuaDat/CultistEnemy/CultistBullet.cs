@@ -38,10 +38,10 @@ namespace HeartOfTheNight.Enemy
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.GetComponentInParent<Cultist>() != null) return;
+            if (EnemyCombatRules.IsEnemyCollider(other)) return;
 
-            var target = other.GetComponentInParent<IDamageable>();
-            if (target != null) target.TakeDamage(damage);
+            if (EnemyCombatRules.TryGetPlayerDamageable(other, out var target))
+                target.TakeDamage(damage);
 
             Destroy(gameObject);
         }

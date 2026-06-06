@@ -30,6 +30,7 @@ namespace HeartOfTheNight.Enemy
 
         private Rigidbody2D rb;
         private SpriteRenderer sprite;
+        private EnemyStrengthModifier strengthMod;
         private State current = State.IdleAim;
         private float fireTimer;
         private float closeRangeTimer;
@@ -38,9 +39,10 @@ namespace HeartOfTheNight.Enemy
 
         private void Awake()
         {
-            rb     = GetComponent<Rigidbody2D>();
-            sprite = GetComponentInChildren<SpriteRenderer>();
-            health = maxHealth;
+            rb          = GetComponent<Rigidbody2D>();
+            sprite      = GetComponentInChildren<SpriteRenderer>();
+            strengthMod = GetComponent<EnemyStrengthModifier>();
+            health      = maxHealth;
 
             if (player == null)
             {
@@ -174,7 +176,7 @@ namespace HeartOfTheNight.Enemy
                 return;
             }
 
-            float target = retreatDir * stats.moveSpeed;
+            float target = retreatDir * EffectiveMoveSpeed;
             float newX   = Mathf.MoveTowards(rb.linearVelocity.x, target,
                                              stats.groundAccel * Time.fixedDeltaTime);
             rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
@@ -241,8 +243,15 @@ namespace HeartOfTheNight.Enemy
 
             Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
             var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            bullet.Launch(dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
+            bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
         }
+
+        private float EffectiveMoveSpeed =>
+            stats.moveSpeed * (strengthMod != null ? strengthMod.MoveSpeedMultiplier : 1f);
+
+        private int EffectiveBulletDamage =>
+            Mathf.Max(1, Mathf.RoundToInt(stats.bulletDamage *
+                (strengthMod != null ? strengthMod.DamageMultiplier : 1f)));
 
         public void TakeDamage(int amount)
         {

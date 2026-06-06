@@ -40,6 +40,7 @@ namespace HeartOfTheNight.Enemy
         private Rigidbody2D rb;
         private Collider2D col;
         private SpriteRenderer sprite;
+        private EnemyStrengthModifier strengthMod;
         private State current = State.Aggressive;
         private float fireTimer;
         private float meleeTimer;
@@ -50,10 +51,11 @@ namespace HeartOfTheNight.Enemy
 
         private void Awake()
         {
-            rb = GetComponent<Rigidbody2D>();
-            col = GetComponent<Collider2D>();
-            sprite = GetComponentInChildren<SpriteRenderer>();
-            health = maxHealth;
+            rb          = GetComponent<Rigidbody2D>();
+            col         = GetComponent<Collider2D>();
+            sprite      = GetComponentInChildren<SpriteRenderer>();
+            strengthMod = GetComponent<EnemyStrengthModifier>();
+            health      = maxHealth;
             current = State.Aggressive;
             ScheduleNextStateSwitch();
             LogCurrentState("Initial");
@@ -102,8 +104,8 @@ namespace HeartOfTheNight.Enemy
         private void FixedUpdate()
         {
             if (stats == null || player == null) return;
-            float chaseSpeed = stats.chaseSpeed > 0f ? stats.chaseSpeed : 3.25f;
-            float retreatSpeed = stats.retreatSpeed > 0f ? stats.retreatSpeed : 4f;
+            float chaseSpeed = EffectiveSpeed(stats.chaseSpeed > 0f ? stats.chaseSpeed : 3.25f);
+            float retreatSpeed = EffectiveSpeed(stats.retreatSpeed > 0f ? stats.retreatSpeed : 4f);
             float minKiteDistance = stats.kiteMinDistance > 0f ? stats.kiteMinDistance : 3.5f;
 
             if (current == State.Aggressive)
@@ -208,23 +210,15 @@ namespace HeartOfTheNight.Enemy
             for (int i = 0; i < hits.Length; i++)
             {
                 var hit = hits[i];
-                if (hit == null) continue;
+                if (hit == null || EnemyCombatRules.IsEnemyCollider(hit)) continue;
+                if (!EnemyCombatRules.TryGetPlayerDamageable(hit, out var damageable)) continue;
 
-                var damageable = hit.GetComponentInParent<IDamageable>();
-                if (damageable == null || damageable == this) continue;
-
-                // Prioritize the player to avoid hitting unrelated targets first.
-                if (hit.CompareTag("Player") || hit.transform.root.CompareTag("Player"))
-                {
-                    selected = damageable;
-                    break;
-                }
-
-                if (selected == null) selected = damageable;
+                selected = damageable;
+                break;
             }
 
             if (selected == null) return;
-            selected.TakeDamage(stats.meleeDamage);
+            selected.TakeDamage(EffectiveDamage(stats.meleeDamage));
             meleeTimer = stats.meleeCooldown;
         }
 
@@ -247,8 +241,16 @@ namespace HeartOfTheNight.Enemy
 
             Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
             var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            bullet.Launch(this, dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
+            bullet.Launch(this, dir, stats.bulletSpeed, EffectiveDamage(stats.bulletDamage),
+                          stats.bulletLifetime);
         }
+
+        private float EffectiveSpeed(float baseSpeed) =>
+            baseSpeed * (strengthMod != null ? strengthMod.MoveSpeedMultiplier : 1f);
+
+        private int EffectiveDamage(int baseDamage) =>
+            Mathf.Max(1, Mathf.RoundToInt(baseDamage *
+                (strengthMod != null ? strengthMod.DamageMultiplier : 1f)));
 
         private void ApplyHorizontalMove(int moveDir, float speed)
         {
