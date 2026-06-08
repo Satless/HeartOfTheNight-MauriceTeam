@@ -3,10 +3,7 @@ using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
 {
-    //dsadsa
-    /// <summary>
-    ///dasdas
-    /// </summary>
+    //aa
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     public class Cultist : MonoBehaviour, IDamageable
