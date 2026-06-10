@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
 {
+    //đại lớn đến rồi đừng nhỏ lại
     //aa
     //ss
     [RequireComponent(typeof(Rigidbody2D))]
