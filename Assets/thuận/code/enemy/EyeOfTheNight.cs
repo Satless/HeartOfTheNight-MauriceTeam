@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class EyeOfTheNight : MonoBehaviour
 {
-    [Header("Stats")]
+    [Header("hp")]
     public int hp = 150;
 
-    [Header("Skill")] // thời gian khiên bật
+    [Header("thời gian khiên bật")] 
     public float shieldDuration = 5f;
 
-    [Header("Cooldown")] // thời gian hồi chiêu
+    [Header("thời gian hồi chiêu")] 
     public float cooldown = 10f;
 
     private bool shieldActive;
@@ -18,11 +18,13 @@ public class EyeOfTheNight : MonoBehaviour
     private List<Enemy> protectedEnemies =
         new List<Enemy>();
 
+    [System.Obsolete]
     private void Start()
     {
         StartCoroutine(ShieldLoop());
     }
 
+    [System.Obsolete]
     IEnumerator ShieldLoop()
     {
         while (true)
@@ -38,6 +40,7 @@ public class EyeOfTheNight : MonoBehaviour
         }
     }
 
+    [System.Obsolete]
     void ActivateShield()
     {
         Debug.Log("Shield Activated");
