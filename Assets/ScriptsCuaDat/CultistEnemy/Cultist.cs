@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
 {
+    //dài đến rồi đừng ngắn lại
     //đại lớn đến rồi đừng nhỏ lại
     //aa
     //ss
