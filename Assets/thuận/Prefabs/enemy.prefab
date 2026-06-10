@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 193915876761089687}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.46, z: -0.052008513}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -162,7 +162,7 @@ Transform:
   m_GameObject: {fileID: 2111978023819242012}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.71, y: -2.31, z: 0.052008513}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -239,6 +239,8 @@ MonoBehaviour:
   hp: 100
   shieldPrefab: {fileID: 118813027983608198, guid: c0f725d66f67941418c15cf5c20b6314, type: 3}
   isProtected: 0
+  moveSpeed: 2
+  patrolDistance: 3
 --- !u!50 &426926044090954667
 Rigidbody2D:
   serializedVersion: 5
