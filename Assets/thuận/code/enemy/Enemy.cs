@@ -3,7 +3,7 @@
 public class Enemy : MonoBehaviour
 {
     [Header("HP")]
-    public int hp = 100;
+    public int hp = 150;
 
 
 [Header("Shield")]
