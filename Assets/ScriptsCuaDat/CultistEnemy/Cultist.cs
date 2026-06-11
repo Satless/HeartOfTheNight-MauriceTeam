@@ -7,6 +7,7 @@ namespace HeartOfTheNight.Enemy
     //đại lớn đến rồi đừng nhỏ lại
     //aa
     //ss
+    //ss
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     public class Cultist : MonoBehaviour, IDamageable
