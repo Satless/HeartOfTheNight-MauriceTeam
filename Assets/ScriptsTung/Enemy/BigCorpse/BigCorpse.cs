@@ -1,53 +1,49 @@
 ﻿using UnityEngine;
-using System.Collections; // Bắt buộc thêm thư viện này để dùng Coroutine
+using System.Collections;
 
 public class BigCorpse : MonoBehaviour
 {
+    [Header("Tầm nhìn (Quét Ngang & Dọc)")]
     public float moveSpeed = 3f;
-    public int attackDamage = 10;
-
-    public float detectionRange = 7f;
+    public float detectionRangeX = 7f;
+    public float detectionRangeY = 2.5f;
     public float attackRange = 1.2f;
 
+    [Header("Dịch chuyển")]
     public float platformHeightDiff = 1.5f;
     public float teleportDelay = 0.5f;
+    public float postTeleportDelay = 0.5f;
 
-    [Header("Thời gian chờ sau khi Teleport")]
-    public float postTeleportDelay = 0.5f; // Thời gian cho Player phản ứng (Nửa giây)
-
+    [Header("Sát thương Cận chiến")]
+    public int attackDamage = 10;
     public float attackCooldown = 1.5f;
 
     private Transform player;
     private float nextAttackTime = 0f;
     private float teleportTimer = 0f;
-
-    private bool isBusy = false; // Biến khóa hành động
+    private bool isBusy = false;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
-
-        Collider2D quaiCollider = GetComponent<Collider2D>();
-        Collider2D playerCollider = player.GetComponent<Collider2D>();
     }
 
     void Update()
     {
-        // Nếu Player chết hoặc Quái đang bận dịch chuyển -> Không làm gì cả
         if (player == null || isBusy) return;
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(player.position.y - transform.position.y);
-        float totalDistance = Vector2.Distance(transform.position, player.position);
 
-        if (totalDistance <= detectionRange)
+        // ĐÃ ĐỔI SANG TẦM NHÌN CHỮ NHẬT
+        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
             if (distanceY > platformHeightDiff)
             {
                 teleportTimer += Time.deltaTime;
                 if (teleportTimer >= teleportDelay)
                 {
-                    StartCoroutine(ThucHienTeleport()); // Đổi sang gọi Coroutine
+                    StartCoroutine(ThucHienTeleport());
                     teleportTimer = 0f;
                 }
             }
@@ -75,19 +71,17 @@ public class BigCorpse : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
     }
 
-    // ĐÃ CHUYỂN THÀNH COROUTINE ĐỂ CÓ THỜI GIAN NGHỈ
     IEnumerator ThucHienTeleport()
     {
-        isBusy = true; // Khóa các hành động khác (không cho chém ngay)
+        isBusy = true;
 
         float standBehind = (player.localScale.x > 0) ? -1f : 1f;
         transform.position = new Vector2(player.position.x + standBehind, player.position.y);
         LookAtPlayer();
 
-        // Đứng im tại chỗ chờ người chơi phản ứng
         yield return new WaitForSeconds(postTeleportDelay);
 
-        isBusy = false; // Mở khóa lại để quái có thể tấn công
+        isBusy = false;
     }
 
     void LookAtPlayer()
@@ -95,12 +89,24 @@ public class BigCorpse : MonoBehaviour
         Vector3 scale = transform.localScale;
         if (player.position.x > transform.position.x) scale.x = Mathf.Abs(scale.x);
         else scale.x = -Mathf.Abs(scale.x);
-
         transform.localScale = scale;
     }
 
     void Attack()
     {
-        player.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
+        if (player.GetComponent<PlayerHealth>() != null)
+        {
+            player.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
+        }
+    }
+
+    // ================= VẼ TẦM NHÌN TRONG EDITOR =================
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
