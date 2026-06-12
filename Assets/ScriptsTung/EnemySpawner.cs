@@ -2,6 +2,7 @@
 
 public class EnemySpawner : MonoBehaviour
 {
+    //alo
     [Header("Các loại quái (Kéo Prefab vào đây)")]
     public GameObject[] enemyPrefabs;
 
