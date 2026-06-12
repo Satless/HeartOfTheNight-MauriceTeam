@@ -3,16 +3,17 @@ using System.Collections;
 
 public class Automaton : MonoBehaviour
 {
-    [Header("Tầm nhìn & Di chuyển")]
+    [Header("Tầm nhìn (Quét Ngang & Dọc)")]
     public float moveSpeed = 3f;
-    public float detectionRange = 12f;
+    public float detectionRangeX = 12f; // Nhìn xa theo chiều ngang
+    public float detectionRangeY = 2.5f; // Giới hạn chiều cao
     public float dashRange = 5.5f;
     public float meleeRange = 2f;
 
     [Header("Dịch chuyển (Chuẩn BigCorpse)")]
     public float platformHeightDiff = 0.8f;
     public float teleportDelay = 0.5f;
-    public float postTeleportDelay = 0.6f; // Hồi chiêu sau khi bay tới
+    public float postTeleportDelay = 0.6f;
     public float teleportYOffset = 0f;
 
     private float teleportTimer = 0f;
@@ -53,9 +54,9 @@ public class Automaton : MonoBehaviour
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(player.position.y - transform.position.y);
-        float totalDistance = Vector2.Distance(transform.position, player.position);
 
-        if (totalDistance <= detectionRange)
+        // ĐÃ ĐỔI SANG TẦM NHÌN CHỮ NHẬT
+        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
             if (distanceY > platformHeightDiff || (distanceX <= meleeRange && distanceY > 0.8f))
             {
@@ -133,70 +134,52 @@ public class Automaton : MonoBehaviour
         transform.localScale = scale;
     }
 
-    // ================= CHIÊU THỨC VÀ HÀNH ĐỘNG =================
-
     IEnumerator ThucHienTeleport()
     {
         dangBanRaDon = true;
         StopMoving();
 
-        // 1. TÌM VỊ TRÍ ĐÁP ĐẤT AN TOÀN
         transform.position = TimViTriTeleport();
         LookAtPlayer();
 
-        // 2. Đứng chờ
         yield return new WaitForSeconds(postTeleportDelay);
 
         thoiGianKet = 0f;
         dangBanRaDon = false;
     }
 
-    // --- CÔNG CỤ TÌM MẶT ĐẤT ---
     Vector2 TimViTriTeleport()
     {
         float standBehind = (player.localScale.x > 0) ? -1f : 1f;
         float targetX = player.position.x + standBehind;
 
-        // Ưu tiên 1: Quét xem sau lưng có đất không
-        if (ThuTimDat(targetX, out float groundY))
-        {
-            return new Vector2(targetX, groundY);
-        }
+        if (ThuTimDat(targetX, out float groundY)) return new Vector2(targetX, groundY);
 
-        // Ưu tiên 2: Nếu sau lưng là vực, quét thử đằng TRƯỚC mặt
         float standFront = -standBehind;
         float targetX_Front = player.position.x + standFront;
-        if (ThuTimDat(targetX_Front, out float groundY_Front))
-        {
-            return new Vector2(targetX_Front, groundY_Front);
-        }
+        if (ThuTimDat(targetX_Front, out float groundY_Front)) return new Vector2(targetX_Front, groundY_Front);
 
-        // Ưu tiên 3: Nếu Player đang bay trên không (cả trước và sau đều không có đất), thì bay thẳng vào tọa độ Player
         return new Vector2(player.position.x, player.position.y);
     }
 
-    // Bắn 1 tia từ trên cao xuống đất để dò địa hình
     bool ThuTimDat(float xPos, out float groundY)
     {
         groundY = 0f;
-        Vector2 origin = new Vector2(xPos, player.position.y + 2f); // Bắt đầu quét từ ngang đầu Player
+        Vector2 origin = new Vector2(xPos, player.position.y + 2f);
 
-        // Quét xuyên mọi thứ
         RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.down, 5f);
 
         foreach (RaycastHit2D hit in hits)
         {
-            // Nếu đụng trúng cục gạch (Không phải Player, quái, hay vùng trigger)
             if (!hit.collider.CompareTag("Player") && hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy") && !hit.collider.isTrigger)
             {
                 float nuaChieuCao = GetComponent<Collider2D>().bounds.extents.y;
-                groundY = hit.point.y + nuaChieuCao + teleportYOffset; // Tính ra tọa độ Y chuẩn
+                groundY = hit.point.y + nuaChieuCao + teleportYOffset;
                 return true;
             }
         }
         return false;
     }
-    // ----------------------------
 
     IEnumerator ChemLienHoan()
     {
@@ -245,5 +228,18 @@ public class Automaton : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         dangBanRaDon = false;
+    }
+
+    // ================= VẼ TẦM NHÌN TRONG EDITOR =================
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, dashRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, meleeRange);
     }
 }

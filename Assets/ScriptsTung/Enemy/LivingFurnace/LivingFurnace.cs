@@ -1,31 +1,58 @@
 ﻿using UnityEngine;
-using System.Collections.Generic; // Cần thư viện này để dùng List (Danh sách)
+using System.Collections.Generic;
 
 public class LivingFurnace : MonoBehaviour
 {
-    [Header("Cài đặt Triệu hồi")]
-    public GameObject burningCorpsePrefab; // Kéo Prefab của quái lửa vào đây
-    public int maxSpawns = 4; // Số lượng đệ tử mỗi đợt
-    public float spawnRadius = 1.5f; // Sinh ngẫu nhiên quanh cái lò 1.5 unit để không đè vào nhau
+    [Header("Tầm nhìn (Quét Ngang & Dọc)")]
+    public float detectionRangeX = 15f;  // Khoảng cách phát hiện theo chiều ngang
+    public float detectionRangeY = 5f;   // Giới hạn chiều cao
 
-    // Danh sách lưu trữ các con quái đang sống
+    [Header("Cài đặt Triệu hồi")]
+    public GameObject burningCorpsePrefab;
+    public int maxSpawns = 4;
+    public float spawnRadius = 1.5f;
+    public float spawnDelay = 1f; // Chờ 1 giây sau khi phát hiện mới đẻ quái
+
     private List<GameObject> activeMinions = new List<GameObject>();
+    private Transform player;
+    private float spawnTimer = 0f;
 
     void Start()
     {
-        // Khi cái lò vừa xuất hiện, triệu hồi ngay đợt đầu tiên
-        SpawnBatch();
+        // Xóa lệnh gọi SpawnBatch() ở đây đi để đầu game nó không tự đẻ nữa
+        player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
     void Update()
     {
-        // 1. Dọn dẹp danh sách: Quét qua xem có con nào bị Player chém chết (bị Destroy biến thành null) thì gạch tên nó đi
+        if (player == null) return;
+
+        // 1. Dọn dẹp danh sách quái chết
         activeMinions.RemoveAll(minion => minion == null);
 
-        // 2. Kích hoạt đợt mới: Nếu danh sách rỗng (tức là cả 4 con đều đã chết)
-        if (activeMinions.Count == 0)
+        // 2. Tính khoảng cách giữa lò và người chơi
+        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+        float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+
+        // NẾU PLAYER ĐI VÀO VÙNG PHÁT HIỆN
+        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
-            SpawnBatch();
+            // Và nếu đợt quái cũ đã chết sạch (hoặc chưa đẻ đợt nào)
+            if (activeMinions.Count == 0)
+            {
+                // Bắt đầu đếm ngược thời gian khởi động lò
+                spawnTimer += Time.deltaTime;
+                if (spawnTimer >= spawnDelay)
+                {
+                    SpawnBatch();
+                    spawnTimer = 0f; // Reset đồng hồ sau khi đẻ xong
+                }
+            }
+        }
+        else
+        {
+            // Nếu Player chạy ra khỏi vùng phát hiện -> Tắt lò, reset đồng hồ
+            spawnTimer = 0f;
         }
     }
 
@@ -39,17 +66,26 @@ public class LivingFurnace : MonoBehaviour
 
         for (int i = 0; i < maxSpawns; i++)
         {
-            // Chọn một vị trí X ngẫu nhiên xung quanh cái lò để quái rơi ra đỡ bị tụm lại 1 cục
+            // Chọn vị trí rớt ngẫu nhiên
             float randomX = Random.Range(-spawnRadius, spawnRadius);
             Vector2 spawnPosition = new Vector2(transform.position.x + randomX, transform.position.y);
 
-            // Sinh quái ra màn hình
             GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPosition, Quaternion.identity);
-
-            // Thêm con quái vừa sinh vào danh sách để quản lý
             activeMinions.Add(newMinion);
         }
 
-        Debug.Log("Living Furnace đã triệu hồi 4 con Burning Corpse!");
+        Debug.Log("Living Furnace đã phát hiện Player và triệu hồi " + maxSpawns + " con quái!");
+    }
+
+    // ================= VẼ KHUNG TRONG EDITOR =================
+    void OnDrawGizmosSelected()
+    {
+        // Vẽ Tầm Phát Hiện (Khung vàng)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+
+        // Vẽ Vùng Rớt Quái (Vòng tròn màu cam)
+        Gizmos.color = new Color(1f, 0.5f, 0f);
+        Gizmos.DrawWireSphere(transform.position, spawnRadius);
     }
 }
