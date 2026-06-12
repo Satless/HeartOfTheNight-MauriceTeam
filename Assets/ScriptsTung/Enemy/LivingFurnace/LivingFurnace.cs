@@ -1,16 +1,16 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 public class LivingFurnace : MonoBehaviour
 {
+    [Header("Tầm phát hiện (Chỉ nhả quái khi Player ở gần)")]
+    public float detectionRangeX = 12f;
+    public float detectionRangeY = 3f;
+
     [Header("Cài đặt Triệu hồi")]
     public GameObject burningCorpsePrefab;
     public int maxSpawns = 4;
     public float spawnRadius = 1.5f;
-
-    [Header("Tầm phát hiện (Chỉ nhả quái khi Player ở gần)")]
-    public float detectionRangeX = 12f;
-    public float detectionRangeY = 3f;
 
     private Transform player;
     private List<GameObject> activeMinions = new List<GameObject>();
