@@ -1,31 +1,35 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BigCorpse : MonoBehaviour
 {
-    [Header("Tầm nhìn (Quét Ngang & Dọc)")]
-    public float moveSpeed = 3f;
-    public float detectionRangeX = 7f;
-    public float detectionRangeY = 2.5f;
+    [Header("Tầm nhìn & Di chuyển")]
+    public float moveSpeed = 5f;
+    public float detectionRangeX = 12f;
+    public float detectionRangeY = 3f;
     public float attackRange = 1.2f;
 
-    [Header("Dịch chuyển")]
+    [Header("Dịch chuyển an toàn")]
     public float platformHeightDiff = 1.5f;
     public float teleportDelay = 0.5f;
     public float postTeleportDelay = 0.5f;
 
-    [Header("Sát thương Cận chiến")]
+    [Header("Sát thương & Hiệu ứng cháy")]
     public int attackDamage = 10;
     public float attackCooldown = 1.5f;
 
     private Transform player;
+    private Rigidbody2D rb;
+    private Collider2D myCol;
     private float nextAttackTime = 0f;
     private float teleportTimer = 0f;
     private bool isBusy = false;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        rb = GetComponent<Rigidbody2D>();
+        myCol = GetComponent<Collider2D>();
     }
 
     void Update()
@@ -35,15 +39,15 @@ public class BigCorpse : MonoBehaviour
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-        // ĐÃ ĐỔI SANG TẦM NHÌN CHỮ NHẬT
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
             if (distanceY > platformHeightDiff)
             {
+                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
                 teleportTimer += Time.deltaTime;
                 if (teleportTimer >= teleportDelay)
                 {
-                    StartCoroutine(ThucHienTeleport());
+                    StartCoroutine(ThucHienTeleportAnToan());
                     teleportTimer = 0f;
                 }
             }
@@ -51,59 +55,96 @@ public class BigCorpse : MonoBehaviour
             {
                 teleportTimer = 0f;
 
-                if (distanceX > attackRange)
+                float hitDistance = 999f;
+                Collider2D playerCol = player.GetComponent<Collider2D>();
+                if (myCol != null && playerCol != null)
+                    hitDistance = Physics2D.Distance(myCol, playerCol).distance;
+
+                if (hitDistance > attackRange)
                 {
                     Move();
                 }
-                else if (Time.time >= nextAttackTime)
+                else
                 {
-                    Attack();
-                    nextAttackTime = Time.time + attackCooldown;
+                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+                    if (Time.time >= nextAttackTime)
+                    {
+                        StartCoroutine(AttackRoutine());
+                    }
                 }
             }
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
     }
 
     void Move()
     {
         LookAtPlayer();
-        Vector2 targetPosition = new Vector2(player.position.x, transform.position.y);
-        transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        float dir = (player.position.x > transform.position.x) ? 1 : -1;
+        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
     }
 
-    IEnumerator ThucHienTeleport()
+    IEnumerator AttackRoutine()
     {
         isBusy = true;
-
-        float standBehind = (player.localScale.x > 0) ? -1f : 1f;
-        transform.position = new Vector2(player.position.x + standBehind, player.position.y);
+        rb.linearVelocity = Vector2.zero;
         LookAtPlayer();
 
-        yield return new WaitForSeconds(postTeleportDelay);
+        yield return new WaitForSeconds(0.2f);
 
+        float hitDistance = 999f;
+        Collider2D playerCol = player.GetComponent<Collider2D>();
+        if (myCol != null && playerCol != null)
+            hitDistance = Physics2D.Distance(myCol, playerCol).distance;
+
+        if (hitDistance <= attackRange + 0.5f)
+        {
+            player.GetComponent<PlayerHealth>()?.TakeDamage(attackDamage);
+
+            // Bạn có thể đổi AntiHeal thành script gây sát thương Thiêu Đốt (Burn) tại đây
+            AntiHeal anti = player.GetComponent<AntiHeal>() ?? player.gameObject.AddComponent<AntiHeal>();
+            anti.thoiGianConLai = 6f;
+        }
+
+        yield return new WaitForSeconds(0.3f);
+        nextAttackTime = Time.time + attackCooldown;
+        isBusy = false;
+    }
+
+    IEnumerator ThucHienTeleportAnToan()
+    {
+        isBusy = true;
+        rb.linearVelocity = Vector2.zero;
+
+        float dirSauLung = (player.localScale.x > 0) ? -1f : 1f;
+        Vector2 viTriSauLung = new Vector2(player.position.x + (dirSauLung * 1.2f), player.position.y + 1f);
+
+        RaycastHit2D hit = Physics2D.Raycast(viTriSauLung, Vector2.down, 3f);
+
+        if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
+            transform.position = new Vector2(viTriSauLung.x, player.position.y);
+        else
+            transform.position = player.position;
+
+        LookAtPlayer();
+        yield return new WaitForSeconds(postTeleportDelay);
         isBusy = false;
     }
 
     void LookAtPlayer()
     {
         Vector3 scale = transform.localScale;
-        if (player.position.x > transform.position.x) scale.x = Mathf.Abs(scale.x);
-        else scale.x = -Mathf.Abs(scale.x);
+        scale.x = (player.position.x > transform.position.x) ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;
     }
 
-    void Attack()
-    {
-        if (player.GetComponent<PlayerHealth>() != null)
-        {
-            player.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
-        }
-    }
-
-    // ================= VẼ TẦM NHÌN TRONG EDITOR =================
+    // ================= VẼ GIZMOS MÀU CAM =================
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
+        Gizmos.color = new Color(1f, 0.6f, 0f); // Màu Cam (Orange)
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
 
         Gizmos.color = Color.red;

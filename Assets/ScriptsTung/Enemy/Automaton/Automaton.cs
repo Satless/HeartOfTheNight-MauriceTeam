@@ -1,22 +1,20 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Automaton : MonoBehaviour
 {
-    [Header("Tầm nhìn (Quét Ngang & Dọc)")]
-    public float moveSpeed = 3f;
-    public float detectionRangeX = 12f; // Nhìn xa theo chiều ngang
-    public float detectionRangeY = 2.5f; // Giới hạn chiều cao
+    [Header("Tầm nhìn & Di chuyển")]
+    public float moveSpeed = 4f;
+    public float detectionRangeX = 12f;
+    public float detectionRangeY = 3f;
     public float dashRange = 5.5f;
-    public float meleeRange = 2f;
+    public float attackRange = 2f;
 
-    [Header("Dịch chuyển (Chuẩn BigCorpse)")]
+    [Header("Dịch chuyển an toàn")]
     public float platformHeightDiff = 0.8f;
     public float teleportDelay = 0.5f;
     public float postTeleportDelay = 0.6f;
     public float teleportYOffset = 0f;
-
-    private float teleportTimer = 0f;
 
     [Header("Sát thương")]
     public int meleeDamage = 10;
@@ -27,25 +25,19 @@ public class Automaton : MonoBehaviour
     public float chargeTime = 0.6f;
     public float dashDuration = 0.35f;
     public float dashCooldown = 4f;
-
-    [Header("Thời gian nghỉ chém")]
-    public float meleeCooldown = 2f;
+    public float meleeCooldown = 2f; // Thời gian NGHỈ sau khi chém xong combo
 
     private Transform player;
     private Rigidbody2D rb;
     private bool dangBanRaDon = false;
-
     private float nextDashTime = 0f;
     private float nextMeleeTime = 0f;
-
-    private Vector2 viTriCu;
-    private float thoiGianKet = 0f;
+    private float teleportTimer = 0f;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
-        viTriCu = transform.position;
     }
 
     void Update()
@@ -55,10 +47,9 @@ public class Automaton : MonoBehaviour
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-        // ĐÃ ĐỔI SANG TẦM NHÌN CHỮ NHẬT
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
-            if (distanceY > platformHeightDiff || (distanceX <= meleeRange && distanceY > 0.8f))
+            if (distanceY > platformHeightDiff || (distanceX <= attackRange && distanceY > 0.8f))
             {
                 StopMoving();
                 teleportTimer += Time.deltaTime;
@@ -72,20 +63,20 @@ public class Automaton : MonoBehaviour
             {
                 teleportTimer = 0f;
 
-                if (distanceX <= meleeRange)
+                if (distanceX <= attackRange)
                 {
                     StopMoving();
                     if (Time.time >= nextMeleeTime)
                     {
                         StartCoroutine(ChemLienHoan());
-                        nextMeleeTime = Time.time + meleeCooldown;
+                        // Đã xóa dòng đếm Cooldown ở đây
                     }
                 }
-                else if (distanceX <= dashRange && distanceX > meleeRange && Time.time >= nextDashTime)
+                else if (distanceX <= dashRange && distanceX > attackRange && Time.time >= nextDashTime)
                 {
                     StopMoving();
                     StartCoroutine(GongVaLuot());
-                    nextDashTime = Time.time + dashCooldown;
+                    // Đã xóa dòng đếm Cooldown ở đây
                 }
                 else
                 {
@@ -104,47 +95,25 @@ public class Automaton : MonoBehaviour
         LookAtPlayer();
         float huong = (player.position.x > transform.position.x) ? 1f : -1f;
         rb.linearVelocity = new Vector2(huong * moveSpeed, rb.linearVelocity.y);
-
-        if (Mathf.Abs(transform.position.x - viTriCu.x) < 0.005f)
-        {
-            thoiGianKet += Time.deltaTime;
-            if (thoiGianKet >= 0.3f)
-            {
-                StartCoroutine(ThucHienTeleport());
-                thoiGianKet = 0f;
-            }
-        }
-        else
-        {
-            thoiGianKet = 0f;
-        }
-        viTriCu = transform.position;
     }
 
     void StopMoving()
     {
         rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-        thoiGianKet = 0f;
     }
 
     void LookAtPlayer()
     {
-        Vector3 scale = transform.localScale;
-        scale.x = (player.position.x > transform.position.x) ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
-        transform.localScale = scale;
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
     IEnumerator ThucHienTeleport()
     {
         dangBanRaDon = true;
         StopMoving();
-
         transform.position = TimViTriTeleport();
         LookAtPlayer();
-
         yield return new WaitForSeconds(postTeleportDelay);
-
-        thoiGianKet = 0f;
         dangBanRaDon = false;
     }
 
@@ -152,29 +121,22 @@ public class Automaton : MonoBehaviour
     {
         float standBehind = (player.localScale.x > 0) ? -1f : 1f;
         float targetX = player.position.x + standBehind;
-
         if (ThuTimDat(targetX, out float groundY)) return new Vector2(targetX, groundY);
-
         float standFront = -standBehind;
         float targetX_Front = player.position.x + standFront;
         if (ThuTimDat(targetX_Front, out float groundY_Front)) return new Vector2(targetX_Front, groundY_Front);
-
         return new Vector2(player.position.x, player.position.y);
     }
 
     bool ThuTimDat(float xPos, out float groundY)
     {
         groundY = 0f;
-        Vector2 origin = new Vector2(xPos, player.position.y + 2f);
-
-        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, Vector2.down, 5f);
-
+        RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector2(xPos, player.position.y + 2f), Vector2.down, 5f);
         foreach (RaycastHit2D hit in hits)
         {
             if (!hit.collider.CompareTag("Player") && hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy") && !hit.collider.isTrigger)
             {
-                float nuaChieuCao = GetComponent<Collider2D>().bounds.extents.y;
-                groundY = hit.point.y + nuaChieuCao + teleportYOffset;
+                groundY = hit.point.y + GetComponent<Collider2D>().bounds.extents.y + teleportYOffset;
                 return true;
             }
         }
@@ -184,40 +146,41 @@ public class Automaton : MonoBehaviour
     IEnumerator ChemLienHoan()
     {
         dangBanRaDon = true;
+        StopMoving(); // Đảm bảo quái khựng lại khi chém
 
         for (int i = 0; i < 3; i++)
         {
             LookAtPlayer();
-            if (Vector2.Distance(transform.position, player.position) <= meleeRange + 0.5f)
-            {
-                player.GetComponent<PlayerHealth>().TakeDamage(meleeDamage);
-            }
+            if (Mathf.Abs(player.position.x - transform.position.x) <= attackRange + 0.5f)
+                player.GetComponent<PlayerHealth>()?.TakeDamage(meleeDamage);
+
             yield return new WaitForSeconds(0.4f);
         }
 
+        // CHÌA KHÓA: Bắt đầu tính Cooldown sau khi combo kết thúc
+        nextMeleeTime = Time.time + meleeCooldown;
         dangBanRaDon = false;
     }
 
     IEnumerator GongVaLuot()
     {
         dangBanRaDon = true;
+        StopMoving(); // Gồng là phải đứng im
         LookAtPlayer();
 
         yield return new WaitForSeconds(chargeTime);
 
         rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-
-        float huongLuot = Mathf.Sign(transform.localScale.x);
-        rb.linearVelocity = new Vector2(huongLuot * dashSpeed, 0f);
+        rb.linearVelocity = new Vector2(Mathf.Sign(transform.localScale.x) * dashSpeed, 0f);
 
         bool daGayDam = false;
         float thoiGianDaLuot = 0f;
 
         while (thoiGianDaLuot < dashDuration)
         {
-            if (!daGayDam && Vector2.Distance(transform.position, player.position) <= meleeRange)
+            if (!daGayDam && Mathf.Abs(player.position.x - transform.position.x) <= attackRange)
             {
-                player.GetComponent<PlayerHealth>().TakeDamage(dashDamage);
+                player.GetComponent<PlayerHealth>()?.TakeDamage(dashDamage);
                 daGayDam = true;
             }
             thoiGianDaLuot += Time.deltaTime;
@@ -227,19 +190,20 @@ public class Automaton : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
+        // CHÌA KHÓA: Tính Cooldown dash sau khi lướt xong
+        nextDashTime = Time.time + dashCooldown;
         dangBanRaDon = false;
     }
 
-    // ================= VẼ TẦM NHÌN TRONG EDITOR =================
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
+        Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, dashRange);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, meleeRange);
     }
 }
