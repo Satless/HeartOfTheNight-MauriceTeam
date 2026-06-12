@@ -564,6 +564,13 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       spawnPoint: {fileID: 744659316}
     spawnInterval: 0
+  - waveName: Dot 1
+    enemies:
+    - enemyPrefab: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
+      spawnPoint: {fileID: 1150583932}
+    - enemyPrefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
+      spawnPoint: {fileID: 744659316}
+    spawnInterval: 0
   doors: []
   closeDoorsOnStart: 1
   onRoomStarted:
