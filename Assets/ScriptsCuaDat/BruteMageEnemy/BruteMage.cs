@@ -8,7 +8,7 @@ namespace HeartOfTheNight.Enemy
     public class BruteMage : MonoBehaviour, IDamageable
     {
         //dung de dieu khien trang thai cua enemy
-        //lenght: 2
+        //lenght:C
         private enum State
         {
             Aggressive,
