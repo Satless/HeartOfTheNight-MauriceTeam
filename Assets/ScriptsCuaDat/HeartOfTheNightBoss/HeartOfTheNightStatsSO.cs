@@ -64,6 +64,8 @@ namespace HeartOfTheNight.Enemy
         public float laserVolleyRotationStep = 22.5f;
         [Tooltip("Goc lech ban dau cho ca chum laze (degrees).")]
         public float laserAngleOffset = 0f;
+        [Tooltip("Tu dong xoay ca chum sao cho player nam giua khe 2 tia luc canh bao (de player luon co duong ne).")]
+        public bool laserSafeGapTowardPlayer = true;
         [Tooltip("Thoi gian canh bao (tia mo) truoc khi laze gay sat thuong.")]
         public float laserWarnTime = 0.6f;
         [Tooltip("Thoi gian laze gay sat thuong.")]
@@ -81,6 +83,8 @@ namespace HeartOfTheNight.Enemy
         public float pillarChargeTime = 1.4f;
         [Tooltip("Vong tron mau co bam theo chan player trong luc quay khong. Tat = khoa vi tri ngay tu dau.")]
         public bool pillarFollowPlayer = true;
+        [Tooltip("Khoa vi tri vong tron ssom bao nhieu giay TRUOC khi lua xuat hien -> tao cua so de player ne ra.")]
+        public float pillarLockLeadTime = 0.45f;
         [Tooltip("Cot lua keo dai bao lau (giay) sau khi xuat hien.")]
         public float pillarFireTime = 0.6f;
         [Tooltip("Be rong vung sat thuong cua cot lua.")]

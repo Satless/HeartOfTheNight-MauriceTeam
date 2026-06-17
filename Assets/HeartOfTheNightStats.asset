@@ -22,7 +22,7 @@ MonoBehaviour:
   - 1
   - 1
   - 0.6
-  bulletPrefab: {fileID: 0}
+  bulletPrefab: {fileID: 4327832435691129050, guid: 0360d68402de09a46903e6a722853256, type: 3}
   barrageBulletCount: 6
   barrageBetweenShots: 0.18
   barrageSpreadAngle: 18
@@ -34,7 +34,8 @@ MonoBehaviour:
   laserVolleys: 1
   laserVolleyRotationStep: 22.5
   laserAngleOffset: 0
-  laserWarnTime: 0.6
+  laserSafeGapTowardPlayer: 1
+  laserWarnTime: 0.9
   laserFireTime: 0.35
   laserLength: 30
   laserWidth: 0.35
@@ -43,6 +44,7 @@ MonoBehaviour:
   pillarCooldown: 3
   pillarChargeTime: 1.4
   pillarFollowPlayer: 1
+  pillarLockLeadTime: 0.45
   pillarFireTime: 0.6
   pillarWidth: 1.4
   pillarHeight: 18
@@ -50,11 +52,17 @@ MonoBehaviour:
   telegraphRadius: 1.1
   telegraphSpinStart: 120
   telegraphSpinEnd: 1440
-  summons: []
+  summons:
+  - prefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
+    count: 2
+  - prefab: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
+    count: 1
+  - prefab: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+    count: 1
   maxActiveSummons: 6
   summonScatterRadius: 4
   summonCooldown: 12
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   groundProbeDistance: 30

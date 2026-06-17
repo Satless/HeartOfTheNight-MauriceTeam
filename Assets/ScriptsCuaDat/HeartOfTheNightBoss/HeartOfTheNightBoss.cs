@@ -234,14 +234,28 @@ namespace HeartOfTheNight.Enemy
             float warn = stats.laserWarnTime * SpeedMul;
             float fire = stats.laserFireTime;
 
+            float gap = 360f / dirs;
+
             for (int v = 0; v < volleys; v++)
             {
                 float baseOffset = stats.laserAngleOffset + v * stats.laserVolleyRotationStep;
                 Vector2 origin = FireOrigin;
 
+                // Xoay ca chum sao cho player nam chinh giua khe 2 tia -> luon co duong ne.
+                if (stats.laserSafeGapTowardPlayer && player != null)
+                {
+                    Vector2 toPlayer = (Vector2)player.position - origin;
+                    if (toPlayer.sqrMagnitude > 0.0001f)
+                    {
+                        float angleToPlayer = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
+                        float rel = Mathf.Repeat(angleToPlayer - baseOffset, gap);
+                        baseOffset += (gap * 0.5f) - rel;
+                    }
+                }
+
                 for (int i = 0; i < dirs; i++)
                 {
-                    float deg = baseOffset + (360f / dirs) * i;
+                    float deg = baseOffset + gap * i;
                     Vector2 dir = Rotate(Vector2.right, deg);
                     SpawnLaser(origin, dir, stats.laserLength, stats.laserWidth, stats.laserDamage, warn, fire);
                 }
@@ -256,6 +270,9 @@ namespace HeartOfTheNight.Enemy
             if (player == null) yield break;
 
             float charge = stats.pillarChargeTime * SpeedMul;
+            // Ngung bam theo player o cuoi qua trinh charge -> player co cua so de chay ra khoi vung lua.
+            float lockLead = Mathf.Clamp(stats.pillarLockLeadTime, 0f, charge * 0.9f);
+            float followUntil = charge - lockLead;
 
             Vector2 spot = player.position;
             var telegraphGo = new GameObject("HotN_Telegraph");
@@ -269,10 +286,10 @@ namespace HeartOfTheNight.Enemy
                 timer += Time.deltaTime;
                 if (telegraphGo == null) break;
 
-                Vector2 follow = stats.pillarFollowPlayer && player != null
-                    ? (Vector2)player.position
-                    : spot;
-                telegraphGo.transform.position = GroundUnder(follow);
+                // Chi bam theo player trong giai doan dau; sau followUntil thi khoa vi tri (vong tron dung yen, quay nhanh nhat).
+                if (stats.pillarFollowPlayer && player != null && timer < followUntil)
+                    telegraphGo.transform.position = GroundUnder(player.position);
+
                 yield return null;
             }
 
