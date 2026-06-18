@@ -16,7 +16,8 @@ namespace HeartOfTheNight.Enemy
 
             return other.GetComponentInParent<Cultist>() != null
                 || other.GetComponentInParent<Inquisitor>() != null
-                || other.GetComponentInParent<BruteMage>() != null;
+                || other.GetComponentInParent<BruteMage>() != null
+                || other.GetComponentInParent<HeartOfTheNightBoss>() != null;
         }
 
         public static bool IsPlayerCollider(Collider2D other)
