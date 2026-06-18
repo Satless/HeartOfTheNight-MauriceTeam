@@ -58,6 +58,7 @@ namespace HeartOfTheNight.Enemy
             sprite      = GetComponentInChildren<SpriteRenderer>();
             strengthMod = GetComponent<EnemyStrengthModifier>();
             health      = maxHealth;
+            EnemySeparation.Ensure(gameObject);
             current = State.Aggressive;
             ScheduleNextStateSwitch();
             LogCurrentState("Initial");
