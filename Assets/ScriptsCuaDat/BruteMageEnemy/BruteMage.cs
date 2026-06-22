@@ -7,6 +7,8 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class BruteMage : MonoBehaviour, IDamageable
     {
+        //ádasdsa
+        //ádasd
         //state:
         //adasd
         //dung de dieu khien trang thai cua enemy
