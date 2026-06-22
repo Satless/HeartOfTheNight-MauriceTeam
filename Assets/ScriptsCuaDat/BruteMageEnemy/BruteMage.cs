@@ -7,6 +7,7 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class BruteMage : MonoBehaviour, IDamageable
     {
+        //dsadsa
         //ádasdsa
         //ádasd
         //state:
