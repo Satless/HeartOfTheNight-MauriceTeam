@@ -950,7 +950,7 @@ GameObject:
   - component: {fileID: 1313344656}
   - component: {fileID: 1313344655}
   - component: {fileID: 1313344660}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -1129,16 +1129,18 @@ MonoBehaviour:
   moveSpeed: 7
   groundAccel: 60
   airAccel: 30
-  jumpForce: 14
+  airMoveMultiplier: 0.6
+  jumpForce: 8
   coyoteTime: 0.1
   jumpBuffer: 0.1
-  fallGravityMult: 2
-  lowJumpMult: 2
+  fallGravityMult: 5
   groundCheck: {fileID: 1860492974}
   groundCheckSize: {x: 0.5, y: 0.08}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  downThreshold: -0.5
+  dropThroughTime: 0.35
 --- !u!1001 &1319710231
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1197,7 +1199,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1301,13 +1303,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92a0ee2c58d32fa4c93ea28e2a823529, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropThroughTime: 0.35
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  verticalAxis: Vertical
-  jumpButton: Jump
-  downThreshold: -0.5
 --- !u!251 &1636384150
 PlatformEffector2D:
   m_ObjectHideFlags: 0
@@ -1506,13 +1501,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92a0ee2c58d32fa4c93ea28e2a823529, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dropThroughTime: 0.35
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  verticalAxis: Vertical
-  jumpButton: Jump
-  downThreshold: -0.5
 --- !u!251 &1901615741
 PlatformEffector2D:
   m_ObjectHideFlags: 0
@@ -1706,7 +1694,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

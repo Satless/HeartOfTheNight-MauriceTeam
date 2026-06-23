@@ -9,13 +9,15 @@ public class TestPlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed     = 7f;
     [SerializeField] private float groundAccel   = 60f;
     [SerializeField] private float airAccel      = 30f;
+    [Tooltip("Tốc độ ngang tối đa khi đang trên không, theo tỉ lệ của moveSpeed. 1 = như dưới đất, nhỏ hơn = nhảy gần hơn.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float airMoveMultiplier = 0.6f;
 
     [Header("Jump")]
     [SerializeField] private float jumpForce     = 14f;
     [SerializeField] private float coyoteTime    = 0.1f;
     [SerializeField] private float jumpBuffer    = 0.1f;
     [SerializeField] private float fallGravityMult = 2f;
-    [SerializeField] private float lowJumpMult    = 2f;
 
     [Header("Ground Check")]
     [SerializeField] private Transform groundCheck;
@@ -35,8 +37,8 @@ public class TestPlayerController : MonoBehaviour
     private float coyoteCounter;
     private float jumpBufferCounter;
     private float baseGravity;
-    private bool  jumpHeld;
     private bool  isDropping;
+    private bool  wasHoldingDown;
 
     private void Awake()
     {
@@ -50,7 +52,6 @@ public class TestPlayerController : MonoBehaviour
     private void Update()
     {
         inputX   = Input.GetAxisRaw("Horizontal");
-        jumpHeld = Input.GetButton("Jump");
 
         coyoteCounter = IsGrounded()
             ? coyoteTime
@@ -59,26 +60,20 @@ public class TestPlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump")) jumpBufferCounter = jumpBuffer;
         else                              jumpBufferCounter -= Time.deltaTime;
 
-        bool holdingDown = Input.GetAxisRaw("Vertical") <= downThreshold;
-
         if (jumpBufferCounter > 0f && coyoteCounter > 0f)
         {
-            if (holdingDown && !isDropping && TryGetOneWayPlatformBelow(out var platform))
-            {
-                StartCoroutine(DropThrough(platform));
-                jumpBufferCounter = 0f;
-                coyoteCounter     = 0f;
-            }
-            else
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-                jumpBufferCounter = 0f;
-                coyoteCounter     = 0f;
-            }
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            jumpBufferCounter = 0f;
+            coyoteCounter     = 0f;
         }
 
-        if (Input.GetButtonUp("Jump") && rb.linearVelocity.y > 0f)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+        bool holdingDown = Input.GetAxisRaw("Vertical") <= downThreshold;
+        if (holdingDown && !wasHoldingDown && !isDropping
+            && TryGetOneWayPlatformBelow(out var dropPlatform))
+        {
+            StartCoroutine(DropThrough(dropPlatform));
+        }
+        wasHoldingDown = holdingDown;
 
         if (sprite != null && Mathf.Abs(inputX) > 0.01f)
             sprite.flipX = inputX < 0f;
@@ -86,16 +81,15 @@ public class TestPlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float targetSpeed = inputX * moveSpeed;
-        float accelRate   = IsGrounded() ? groundAccel : airAccel;
+        bool  grounded    = IsGrounded();
+        float targetSpeed = inputX * moveSpeed * (grounded ? 1f : airMoveMultiplier);
+        float accelRate   = grounded ? groundAccel : airAccel;
         float newX        = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed,
                                               accelRate * Time.fixedDeltaTime);
         rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
 
         if (rb.linearVelocity.y < 0f)
             rb.gravityScale = baseGravity * fallGravityMult;
-        else if (rb.linearVelocity.y > 0f && !jumpHeld)
-            rb.gravityScale = baseGravity * lowJumpMult;
         else
             rb.gravityScale = baseGravity;
     }
