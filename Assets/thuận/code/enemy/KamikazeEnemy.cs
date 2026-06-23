@@ -46,9 +46,29 @@ public class KamikazeEnemy : MonoBehaviour
     {
         exploding = true;
 
-        Debug.Log("Sắp nổ");
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
 
-        yield return new WaitForSeconds(1f);
+        float timer = 0f;
+        float explodeTime = 1f;
+
+        while (timer < explodeTime)
+        {
+            if (sr != null)
+            {
+                sr.color = Color.red;
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            if (sr != null)
+            {
+                sr.color = Color.white;
+            }
+
+            yield return new WaitForSeconds(0.1f);
+
+            timer += 0.2f;
+        }
 
         Debug.Log("BOOM");
 
