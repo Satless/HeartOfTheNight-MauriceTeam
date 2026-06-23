@@ -66,9 +66,9 @@ public class TestPlayerController : MonoBehaviour
 
         bool holdingDown = Input.GetAxisRaw("Vertical") <= downThreshold;
         if (holdingDown && !wasHoldingDown && !isDropping
-            && TryGetOneWayPlatformBelow(out var dropPlatform))
+            && TryGetOneWayPlatformBelow(out var dropCollider))
         {
-            StartCoroutine(DropThrough(dropPlatform));
+            StartCoroutine(DropThrough(dropCollider));
         }
         wasHoldingDown = holdingDown;
 
@@ -92,31 +92,69 @@ public class TestPlayerController : MonoBehaviour
         return Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
     }
 
-    private bool TryGetOneWayPlatformBelow(out OneWayPlatform platform)
+    private bool TryGetOneWayPlatformBelow(out Collider2D platform)
     {
         platform = null;
         if (groundCheck == null) return false;
 
-        Collider2D hit = Physics2D.OverlapBox(groundCheck.position, groundCheckSize, 0f, groundLayer);
-        if (hit == null) return false;
-
-        platform = hit.GetComponent<OneWayPlatform>();
-        return platform != null;
+        var hits = Physics2D.OverlapBoxAll(groundCheck.position, groundCheckSize, 0f, groundLayer);
+        foreach (var hit in hits)
+        {
+            if (hit == null) continue;
+            if (IsOneWay(hit))
+            {
+                platform = hit;
+                return true;
+            }
+        }
+        return false;
     }
 
-    private IEnumerator DropThrough(OneWayPlatform platform)
+    private static bool IsOneWay(Collider2D col)
+    {
+        if (col.GetComponentInParent<OneWayPlatform>() != null) return true;
+        var effector = col.GetComponent<PlatformEffector2D>();
+        return effector != null && effector.useOneWay;
+    }
+
+    private IEnumerator DropThrough(Collider2D platform)
     {
         isDropping = true;
+        SetIgnore(platform, true);
 
-        foreach (var col in colliders)
-            if (col != null) Physics2D.IgnoreCollision(col, platform.Collider, true);
+        // Wait until the player has actually fallen below the platform, so collision
+        // never re-enables while still overlapping (which would pop the player back up).
+        float timeout = Mathf.Max(dropThroughTime, 1f);
+        while (timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            if (GetPlayerTopY() < platform.bounds.min.y) break;
+            yield return null;
+        }
 
-        yield return new WaitForSeconds(dropThroughTime);
+        yield return new WaitForSeconds(0.05f);
 
-        foreach (var col in colliders)
-            if (col != null) Physics2D.IgnoreCollision(col, platform.Collider, false);
-
+        SetIgnore(platform, false);
         isDropping = false;
+    }
+
+    private void SetIgnore(Collider2D platform, bool ignore)
+    {
+        foreach (var col in colliders)
+            if (col != null) Physics2D.IgnoreCollision(col, platform, ignore);
+    }
+
+    private float GetPlayerTopY()
+    {
+        float top   = float.NegativeInfinity;
+        bool  found  = false;
+        foreach (var col in colliders)
+        {
+            if (col == null || col.isTrigger) continue;
+            top   = Mathf.Max(top, col.bounds.max.y);
+            found = true;
+        }
+        return found ? top : transform.position.y;
     }
 
     private void OnDrawGizmosSelected()
