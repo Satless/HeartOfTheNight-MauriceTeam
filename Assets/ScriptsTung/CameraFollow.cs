@@ -15,7 +15,7 @@ public class CameraFollow : MonoBehaviour
     void LateUpdate()
     {
         if (target == null) return;
-
+        //
         // Tính toán vị trí đích đến
         Vector3 targetPosition = target.position + offset;
 

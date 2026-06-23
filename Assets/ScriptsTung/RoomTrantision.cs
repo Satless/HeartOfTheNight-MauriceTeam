@@ -56,7 +56,7 @@ public class RoomTransition : MonoBehaviour
             blackScreen.color = c;
             yield return null;
         }
-
+        //as
         blackScreen.gameObject.SetActive(false);
 
         // ==========================================
