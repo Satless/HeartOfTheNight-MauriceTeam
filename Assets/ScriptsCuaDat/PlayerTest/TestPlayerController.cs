@@ -17,7 +17,6 @@ public class TestPlayerController : MonoBehaviour
     [SerializeField] private float jumpForce     = 14f;
     [SerializeField] private float coyoteTime    = 0.1f;
     [SerializeField] private float jumpBuffer    = 0.1f;
-    [SerializeField] private float fallGravityMult = 2f;
 
     [Header("Ground Check")]
     [SerializeField] private Transform groundCheck;
@@ -36,7 +35,6 @@ public class TestPlayerController : MonoBehaviour
     private float inputX;
     private float coyoteCounter;
     private float jumpBufferCounter;
-    private float baseGravity;
     private bool  isDropping;
     private bool  wasHoldingDown;
 
@@ -45,7 +43,6 @@ public class TestPlayerController : MonoBehaviour
         rb          = GetComponent<Rigidbody2D>();
         sprite      = GetComponentInChildren<SpriteRenderer>();
         colliders   = GetComponentsInChildren<Collider2D>();
-        baseGravity = rb.gravityScale;
         rb.freezeRotation = true;
     }
 
@@ -87,11 +84,6 @@ public class TestPlayerController : MonoBehaviour
         float newX        = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed,
                                               accelRate * Time.fixedDeltaTime);
         rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
-
-        if (rb.linearVelocity.y < 0f)
-            rb.gravityScale = baseGravity * fallGravityMult;
-        else
-            rb.gravityScale = baseGravity;
     }
 
     private bool IsGrounded()
