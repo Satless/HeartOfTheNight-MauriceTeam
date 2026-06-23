@@ -8,13 +8,13 @@ public class TestPlayerController : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float moveSpeed     = 7f;
     [SerializeField] private float groundAccel   = 60f;
-    [SerializeField] private float airAccel      = 30f;
-    [Tooltip("Tốc độ ngang tối đa khi đang trên không, theo tỉ lệ của moveSpeed. 1 = như dưới đất, nhỏ hơn = nhảy gần hơn.")]
+    [SerializeField] private float airAccel      = 60f;
+    [Tooltip("Tốc độ ngang tối đa khi đang trên không, theo tỉ lệ của moveSpeed. 1 = bằng dưới đất.")]
     [Range(0f, 1f)]
-    [SerializeField] private float airMoveMultiplier = 0.6f;
+    [SerializeField] private float airMoveMultiplier = 1f;
 
     [Header("Jump")]
-    [SerializeField] private float jumpForce     = 14f;
+    [SerializeField] private float jumpForce     = 13f;
     [SerializeField] private float coyoteTime    = 0.1f;
     [SerializeField] private float jumpBuffer    = 0.1f;
 
