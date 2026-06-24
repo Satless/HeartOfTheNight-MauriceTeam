@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace HeartOfTheNight.Common
 {
+    //dsads
     //ádsad
     /// <summary>
     /// Marks a platform as one-way: the player can jump up through it and stand on top.
