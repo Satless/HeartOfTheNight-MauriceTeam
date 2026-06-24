@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-public class HealthPoint : MonoBehaviour
+public class EnemyHealthPoint : MonoBehaviour
 {
     [SerializeField] private float startingHealth;
     public float currentHealth { get; private set; }
@@ -31,8 +31,8 @@ public class HealthPoint : MonoBehaviour
         {
             if (!dead)
             {
-                gameObject.SetActive(false);
                 dead = true;
+                Die();
             }
         }
     }
@@ -44,5 +44,8 @@ public class HealthPoint : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-
+    private void Die()
+    {
+        Destroy(gameObject);
+    }
 }
