@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace HeartOfTheNight.Common
 {
+    //ádsad
     /// <summary>
     /// Marks a platform as one-way: the player can jump up through it and stand on top.
     /// Auto-configures the Collider2D + PlatformEffector2D for upward pass-through.
