@@ -7,6 +7,11 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class BruteMage : MonoBehaviour, IDamageable
     {
+        //dsadsa
+        //ádasdsa
+        //ádasd
+        //state:
+        //adasd
         //dung de dieu khien trang thai cua enemy
         //lenght:C
         private enum State
@@ -58,6 +63,7 @@ namespace HeartOfTheNight.Enemy
             sprite      = GetComponentInChildren<SpriteRenderer>();
             strengthMod = GetComponent<EnemyStrengthModifier>();
             health      = maxHealth;
+            EnemySeparation.Ensure(gameObject);
             current = State.Aggressive;
             ScheduleNextStateSwitch();
             LogCurrentState("Initial");
