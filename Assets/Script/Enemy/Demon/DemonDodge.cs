@@ -3,9 +3,16 @@ using UnityEngine;
 public class DemonDodge : MonoBehaviour
 {
     [SerializeField] public Transform player; 
-    [SerializeField] public float minDistance = 2.0f; 
-    [SerializeField] public float dodgeSpeed = 3.0f; 
+    [SerializeField] public float minDistance = 2.0f;
+    [SerializeField] public float dodgeSpeed = 3.0f;
+    [SerializeField] public LayerMask wallLayer;
 
+    private DemonController controller;
+
+    private void Awake()
+    {
+        controller = GetComponent<DemonController>();
+    }
     private void Update()
     {
         if (player == null) return;
@@ -20,13 +27,20 @@ public class DemonDodge : MonoBehaviour
         }
     }
 
-    public void ExecuteDodge()
+    public bool ExecuteDodge()
     {
-        // calculate the direction of player so that demon can move
-        Vector2 direction = (transform.position - player.position).normalized;
+        // if attack then do NOT dodge
+        if (controller.currentState == DemonController.DemonState.Attacking) return false;
 
-        // move demon in that direction
-        transform.position += (Vector3)direction * dodgeSpeed * Time.deltaTime;
+        Vector2 direction = (transform.position - player.position).normalized;
+        Vector2 targetPos = (Vector2)transform.position + direction * dodgeSpeed * Time.deltaTime;
+
+        if (!Physics2D.OverlapCircle(targetPos, 0.5f, wallLayer))
+        {
+            transform.position = targetPos;
+            return true;
+        }
+        return false; // wall block
     }
     private void OnDrawGizmosSelected()
     {

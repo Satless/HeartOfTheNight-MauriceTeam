@@ -9,7 +9,6 @@ public class FireDamage : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        Debug.Log("Đang chạm vào: " + collision.name + " với tag: " + collision.tag);
         if (collision.CompareTag("Player") && canTakeDamage)
         {
             if (collision.TryGetComponent<HealthPoint>(out HealthPoint playerHealth))

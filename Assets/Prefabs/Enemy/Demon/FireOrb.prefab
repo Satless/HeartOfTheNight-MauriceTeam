@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: -4508123499965068642}
   - component: {fileID: -1548816117024861665}
   - component: {fileID: 9093474896205958845}
-  - component: {fileID: 988203727064986188}
+  - component: {fileID: -3772362238545656687}
   m_Layer: 8
   m_Name: FireOrb
   m_TagString: Untagged
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: -4470536024754745269, guid: 296dfc8df2f991a41997e70ddbebb6f0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -121,7 +121,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireDuration: 3
---- !u!114 &988203727064986188
+--- !u!114 &-3772362238545656687
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -176,7 +176,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1986674326360183494}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d22e41d1d834d574a87ec92ef7b35f28, type: 3}
+  m_Script: {fileID: 11500000, guid: 6da09e40d13d1f24e8fc2de71d24f3df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10

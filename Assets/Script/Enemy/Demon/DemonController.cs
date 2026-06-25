@@ -12,6 +12,8 @@ public class DemonController : MonoBehaviour
     private DemonAttack demonAttack;
     private DemonDodge demonDodge;
 
+    private bool isStuck = false;
+
     private void Awake()
     {
         demonAttack = GetComponent<DemonAttack>();
@@ -24,27 +26,43 @@ public class DemonController : MonoBehaviour
 
         switch (currentState)
         {
-            case DemonState.Idle:
-                idleTimer += Time.deltaTime;
-                // if player is in dodge distance, dodge
-                if (dist < demonDodge.minDistance)
+            case DemonState.Attacking:
+                // if attack, do not swith to idle or dodge state
+                return;
+
+            case DemonState.Dodging:
+                // only dodge when not attack
+                bool moved = demonDodge.ExecuteDodge();
+
+                // condition to dodge: 
+                // 1. Player has gotten far away
+                // 2. OR get stuck at wall
+                if (dist >= demonDodge.minDistance + 1.0f)
                 {
-                    currentState = DemonState.Dodging;
+                    isStuck = false; // reset stuck if player got far away
+                    currentState = DemonState.Idle;
+                    idleTimer = 0;
                 }
-                // if stand still in the range and long enough, attack
-                else if (idleTimer >= idleDuration && dist < demonAttack.attackRange)
+                else if (!moved)
                 {
-                    StartCoroutine(PerformAttack());
+                    // if stuck but player doesnt get far, temporarily stay idle
                 }
                 break;
 
-            case DemonState.Dodging:
-                demonDodge.ExecuteDodge(); 
-                // if player from dodge distance, return to idle
-                if (dist > demonDodge.minDistance + 0.5f) // avoid shaking
+            case DemonState.Idle:
+                // dodge more than attack
+                if (dist < demonDodge.minDistance && !isStuck)
                 {
-                    currentState = DemonState.Idle;
-                    idleTimer = 0;
+                    currentState = DemonState.Dodging;
+                }
+                else
+                {
+                    // only count time when NOT in dodge hitbox
+                    idleTimer += Time.deltaTime;
+                    if (idleTimer >= idleDuration && dist < demonAttack.attackRange)
+                    {
+                        StartCoroutine(PerformAttack());
+                    }
                 }
                 break;
         }
@@ -53,8 +71,11 @@ public class DemonController : MonoBehaviour
     private IEnumerator PerformAttack()
     {
         currentState = DemonState.Attacking;
-        yield return StartCoroutine(demonAttack.AttackSequence()); // call courptine for attack again
+        yield return StartCoroutine(demonAttack.AttackSequence());
+
         currentState = DemonState.Idle;
         idleTimer = 0;
     }
+
+    
 }

@@ -2549,7 +2549,7 @@ GameObject:
   - component: {fileID: 1925509454}
   - component: {fileID: 1925509453}
   - component: {fileID: 1925509452}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Right wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -2774,7 +2774,7 @@ GameObject:
   - component: {fileID: 2137891926}
   - component: {fileID: 2137891925}
   - component: {fileID: 2137891924}
-  m_Layer: 6
+  m_Layer: 9
   m_Name: Left wall
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -3227,8 +3227,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 8111591288672361657}
-  minDistance: 12
+  minDistance: 10
   dodgeSpeed: 5
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!114 &6138432627838959443
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3242,11 +3245,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   warningRingPrefab: {fileID: 374378674083431727, guid: d1adc91f273fcfc439893917e1111f6e, type: 3}
+  dangerSignPrefab: {fileID: 8685038011698213953, guid: f7128b2877d3cd14aaf405c9edc8b285, type: 3}
   firePrefab: {fileID: 1986674326360183494, guid: 88cbbcd082da5f14384adbdabd61b978, type: 3}
   player: {fileID: 8111591288672361657}
   attackRange: 20
   cooldown: 10
   warningDuration: 5
+  signDuration: 0.5
 --- !u!114 &6138432627838959444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3260,7 +3265,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
-  idleDuration: 3
+  idleDuration: 2
 --- !u!70 &6851231667368955790
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -3307,7 +3312,7 @@ Transform:
   m_GameObject: {fileID: 1983357943691146857}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.98364395, y: 1.85, z: 0}
+  m_LocalPosition: {x: -7.92, y: 1.85, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

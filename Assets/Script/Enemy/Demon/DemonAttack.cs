@@ -5,32 +5,34 @@ public class DemonAttack : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private GameObject warningRingPrefab;
+    [SerializeField] private GameObject dangerSignPrefab;
     [SerializeField] private GameObject firePrefab;
     [SerializeField] private Transform player;
     [SerializeField] public float attackRange = 7f;
     [SerializeField] private float cooldown = 3f;
     [SerializeField] private float warningDuration = 1.5f;
+    [SerializeField] private float signDuration = 0.5f;
 
     private Vector3 lastPosition;
     private float lastAttackTime;
     private bool isAttacking = false;
 
-    private void Update()
-    {
-        // if current position is the same as old position
-        bool isStationary = Vector3.Distance(transform.position, lastPosition) < 0.01f;
-        lastPosition = transform.position;
+    //private void Update()
+    //{
+    //    // if current position is the same as old position
+    //    bool isStationary = Vector3.Distance(transform.position, lastPosition) < 0.01f;
+    //    lastPosition = transform.position;
 
-        // condition: stand still + no cooldown + enough range to prepare for attack
-        if (isStationary && !isAttacking && Time.time >= lastAttackTime + cooldown)
-        {
-            float distance = Vector2.Distance(transform.position, player.position);
-            if (distance <= attackRange)
-            {
-                StartCoroutine(AttackSequence());
-            }
-        }
-    }
+    //    // condition: stand still + no cooldown + enough range to prepare for attack
+    //    if (isStationary && !isAttacking && Time.time >= lastAttackTime + cooldown)
+    //    {
+    //        float distance = Vector3.Distance(transform.position, player.position);
+    //        if (distance <= attackRange)
+    //        {
+    //            StartCoroutine(AttackSequence());
+    //        }
+    //    }
+    //}
 
     public IEnumerator AttackSequence()
     {
@@ -48,11 +50,18 @@ public class DemonAttack : MonoBehaviour
             elapsed += Time.deltaTime;
             yield return null; //wait for next frame
         }
+        Destroy(warning);
+
+        //create danger sign
+        Vector3 spawnPosition = player.position;
+        GameObject sign = Instantiate(dangerSignPrefab, spawnPosition, Quaternion.identity);
+
+        yield return new WaitForSeconds(signDuration); //indication duration
+
+        Destroy(sign);
 
         // at the last position, create fire
-        Vector3 firePosition = player.position;
-        Destroy(warning);
-        Instantiate(firePrefab, firePosition, Quaternion.identity);
+        Instantiate(firePrefab, spawnPosition, Quaternion.identity);
 
         isAttacking = false;
     }
