@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - Wall
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -13,6 +15,9 @@ TagManager:
   - Water
   - UI
   - Ground
+  - Player
+  - DemonFire
+  - Wall
   - Enemy
   - Player
   - 
@@ -43,4 +48,5 @@ TagManager:
     uniqueID: 0
     locked: 0
   m_RenderingLayers:
+  - Default
   - Default
