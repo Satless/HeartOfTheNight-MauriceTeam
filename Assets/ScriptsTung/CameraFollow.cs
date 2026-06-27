@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿/*using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
@@ -22,4 +22,4 @@ public class CameraFollow : MonoBehaviour
         // Hàm SmoothDamp giúp camera lướt đi cực kỳ êm ái, không bị giật cục
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
     }
-}
+}*/

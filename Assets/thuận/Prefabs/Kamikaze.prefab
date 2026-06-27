@@ -176,7 +176,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
-  detectionRange: 8
+  detectionRangeX: 6
+  detectionRangeY: 3
   explodeRange: 1.5
+  explodeDelay: 0.2
+  flashInterval: 0.1
   damage: 30
   hp: 1

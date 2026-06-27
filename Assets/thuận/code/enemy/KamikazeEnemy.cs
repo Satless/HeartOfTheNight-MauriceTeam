@@ -3,19 +3,30 @@ using UnityEngine;
 
 public class KamikazeEnemy : MonoBehaviour
 {
-    public float speed = 4f;
-    public float detectionRange = 8f;
-    public float explodeRange = 1.5f;
+    [Header("Movement")]
+    public float speed = 6f;
+
+    [Header("Detection Circle")]
+    public float detectionRange = 6f;
+
+    [Header("Explosion")]
+    public float explodeRange = 1.5f;  //Khoảng cách bắt đầu kích nổ
+    public float explodeDelay = 1.5f;  //Thời gian nhấp nháy trước khi nổ
+    public float flashInterval = 0.1f;  // Tốc độ nhấp nháy
 
     public int damage = 30;
     public int hp = 1;
 
     private Transform player;
-    private bool exploding;
+    private bool chasing = false;
+    private bool exploding = false;
 
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject obj = GameObject.FindGameObjectWithTag("Player");
+
+        if (obj != null)
+            player = obj.transform;
     }
 
     private void Update()
@@ -23,22 +34,29 @@ public class KamikazeEnemy : MonoBehaviour
         if (player == null || exploding)
             return;
 
-        float distance =
-            Vector2.Distance(transform.position,
-                             player.position);
+        float distance = Vector2.Distance(transform.position, player.position);
 
+        // Player vào vùng tròn thì bắt đầu đuổi
         if (distance <= detectionRange)
         {
-            transform.position =
-                Vector2.MoveTowards(
-                    transform.position,
-                    player.position,
-                    speed * Time.deltaTime);
+            chasing = true;
         }
 
-        if (distance <= explodeRange)
+        // Bay đuổi Player
+        if (chasing)
         {
-            StartCoroutine(Explode());
+            transform.position = Vector2.MoveTowards(
+                transform.position,
+                player.position,
+                speed * Time.deltaTime);
+
+            distance = Vector2.Distance(transform.position, player.position);
+
+            // Đến gần thì bắt đầu nổ
+            if (distance <= explodeRange)
+            {
+                StartCoroutine(Explode());
+            }
         }
     }
 
@@ -49,37 +67,25 @@ public class KamikazeEnemy : MonoBehaviour
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
 
         float timer = 0f;
-        float explodeTime = 1f;
 
-        while (timer < explodeTime)
+        while (timer < explodeDelay)
         {
             if (sr != null)
-            {
                 sr.color = Color.red;
-            }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(flashInterval);
 
             if (sr != null)
-            {
                 sr.color = Color.white;
-            }
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(flashInterval);
 
-            timer += 0.2f;
+            timer += flashInterval * 2f;
         }
 
-        Debug.Log("BOOM");
-
-        float distance =
-            Vector2.Distance(transform.position,
-                             player.position);
-
-        if (distance <= explodeRange)
+        if (Vector2.Distance(transform.position, player.position) <= explodeRange)
         {
-            PlayerHealth health =
-                player.GetComponent<PlayerHealth>();
+            PlayerHealth health = player.GetComponent<PlayerHealth>();
 
             if (health != null)
             {
@@ -98,5 +104,16 @@ public class KamikazeEnemy : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Vùng phát hiện
+        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        // Vùng nổ
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explodeRange);
     }
 }
