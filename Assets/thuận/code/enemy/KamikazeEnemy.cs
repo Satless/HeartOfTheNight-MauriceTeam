@@ -1,16 +1,19 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class KamikazeEnemy : MonoBehaviour
 {
     [Header("Movement")]
-    public float speed = 4f;
+    public float speed = 6f;
 
-    [Header("Detection")]
-    public float detectionRange = 8f;
+    [Header("Detection Circle")]
+    public float detectionRange = 6f;
 
     [Header("Explosion")]
-    public float explodeRange = 1.5f;
+    public float explodeRange = 1.5f;  //Khoảng cách bắt đầu kích nổ
+    public float explodeDelay = 1.5f;  //Thời gian nhấp nháy trước khi nổ
+    public float flashInterval = 0.1f;  // Tốc độ nhấp nháy
+
     public int damage = 30;
     public int hp = 1;
 
@@ -33,7 +36,7 @@ public class KamikazeEnemy : MonoBehaviour
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // Player vào vùng phát hiện
+        // Player vào vùng tròn thì bắt đầu đuổi
         if (distance <= detectionRange)
         {
             chasing = true;
@@ -47,9 +50,9 @@ public class KamikazeEnemy : MonoBehaviour
                 player.position,
                 speed * Time.deltaTime);
 
-            // Kiểm tra khoảng cách để nổ
             distance = Vector2.Distance(transform.position, player.position);
 
+            // Đến gần thì bắt đầu nổ
             if (distance <= explodeRange)
             {
                 StartCoroutine(Explode());
@@ -64,26 +67,23 @@ public class KamikazeEnemy : MonoBehaviour
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
 
         float timer = 0f;
-        float explodeTime = 1f;
 
-        while (timer < explodeTime)
+        while (timer < explodeDelay)
         {
             if (sr != null)
                 sr.color = Color.red;
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(flashInterval);
 
             if (sr != null)
                 sr.color = Color.white;
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(flashInterval);
 
-            timer += 0.2f;
+            timer += flashInterval * 2f;
         }
 
-        float distance = Vector2.Distance(transform.position, player.position);
-
-        if (distance <= explodeRange)
+        if (Vector2.Distance(transform.position, player.position) <= explodeRange)
         {
             PlayerHealth health = player.GetComponent<PlayerHealth>();
 
@@ -108,11 +108,11 @@ public class KamikazeEnemy : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Vùng phát hiện (màu cam)
+        // Vùng phát hiện
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Vùng nổ (màu đỏ)
+        // Vùng nổ
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explodeRange);
     }
