@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class KamikazeEnemy : MonoBehaviour
@@ -85,7 +85,7 @@ public class KamikazeEnemy : MonoBehaviour
 
         if (Vector2.Distance(transform.position, player.position) <= explodeRange)
         {
-            PlayerHealth health = player.GetComponent<PlayerHealth>();
+            HealthPoint health = player.GetComponent<HealthPoint>();
 
             if (health != null)
             {

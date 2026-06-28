@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class KamikazeEnemy : MonoBehaviour
+public class LivingFurnace : MonoBehaviour
 {
     [Header("Movement")]
     public float speed = 4f;
@@ -85,7 +85,7 @@ public class KamikazeEnemy : MonoBehaviour
 
         if (distance <= explodeRange)
         {
-            PlayerHealth health = player.GetComponent<PlayerHealth>();
+            HealthPoint health = player.GetComponent<HealthPoint>();
 
             if (health != null)
             {

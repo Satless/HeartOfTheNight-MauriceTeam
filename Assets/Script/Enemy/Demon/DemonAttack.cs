@@ -9,13 +9,13 @@ public class DemonAttack : MonoBehaviour
     [SerializeField] private GameObject firePrefab;
     [SerializeField] private Transform player;
     [SerializeField] public float attackRange = 7f;
-    [SerializeField] private float cooldown = 3f;
+    // [SerializeField] private float cooldown = 3f;
     [SerializeField] private float warningDuration = 1.5f;
     [SerializeField] private float signDuration = 0.5f;
 
     private Vector3 lastPosition;
     private float lastAttackTime;
-    private bool isAttacking = false;
+    // private bool isAttacking = false;
 
     //private void Update()
     //{
@@ -36,7 +36,7 @@ public class DemonAttack : MonoBehaviour
 
     public IEnumerator AttackSequence()
     {
-        isAttacking = true;
+        // isAttacking = true;
         lastAttackTime = Time.time;
 
         // create warning ring
@@ -63,7 +63,7 @@ public class DemonAttack : MonoBehaviour
         // at the last position, create fire
         Instantiate(firePrefab, spawnPosition, Quaternion.identity);
 
-        isAttacking = false;
+        // isAttacking = false;
     }
 
     //attack range

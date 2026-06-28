@@ -152,7 +152,7 @@ public class Automaton : MonoBehaviour
         {
             LookAtPlayer();
             if (Mathf.Abs(player.position.x - transform.position.x) <= attackRange + 0.5f)
-                player.GetComponent<PlayerHealth>()?.TakeDamage(meleeDamage);
+                player.GetComponent<HealthPoint>()?.TakeDamage(meleeDamage);
 
             yield return new WaitForSeconds(0.4f);
         }
@@ -180,7 +180,7 @@ public class Automaton : MonoBehaviour
         {
             if (!daGayDam && Mathf.Abs(player.position.x - transform.position.x) <= attackRange)
             {
-                player.GetComponent<PlayerHealth>()?.TakeDamage(dashDamage);
+                player.GetComponent<HealthPoint>()?.TakeDamage(dashDamage);
                 daGayDam = true;
             }
             thoiGianDaLuot += Time.deltaTime;

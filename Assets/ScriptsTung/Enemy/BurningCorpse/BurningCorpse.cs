@@ -106,7 +106,7 @@ public class BurningCorpse : MonoBehaviour
 
     void Attack() 
     { 
-        PlayerHealth pHealth = player.GetComponent<PlayerHealth>(); 
+        HealthPoint pHealth = player.GetComponent<HealthPoint>(); 
         if (pHealth != null) 
         { 
             pHealth.TakeDamage(attackDamage); 
@@ -114,7 +114,7 @@ public class BurningCorpse : MonoBehaviour
         } 
     }
 
-    IEnumerator GayHieuUngChay(PlayerHealth pHealth) 
+    IEnumerator GayHieuUngChay(HealthPoint pHealth) 
     { 
         Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>(); 
         for (int i = 0; i < burnTicks; i++) 

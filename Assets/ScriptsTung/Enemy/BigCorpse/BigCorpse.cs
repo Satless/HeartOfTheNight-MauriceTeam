@@ -102,7 +102,7 @@ public class BigCorpse : MonoBehaviour
 
         if (hitDistance <= attackRange + 0.5f)
         {
-            player.GetComponent<PlayerHealth>()?.TakeDamage(attackDamage);
+            player.GetComponent<HealthPoint>()?.TakeDamage(attackDamage);
 
             // Bạn có thể đổi AntiHeal thành script gây sát thương Thiêu Đốt (Burn) tại đây
             AntiHeal anti = player.GetComponent<AntiHeal>() ?? player.gameObject.AddComponent<AntiHeal>();
