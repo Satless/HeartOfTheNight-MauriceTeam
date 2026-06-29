@@ -129,15 +129,26 @@ public class FlyingMass : MonoBehaviour
             firePoint.position,
             Quaternion.identity);
 
-        Rigidbody2D bombRB = bomb.GetComponent<Rigidbody2D>();
+        Rigidbody2D rbBomb = bomb.GetComponent<Rigidbody2D>();
 
-        if (bombRB != null)
-        {
-            Vector2 dir =
-                (player.position - firePoint.position).normalized;
+        if (rbBomb == null)
+            return;
 
-            bombRB.linearVelocity = dir * bombSpeed;
-        }
+        // Bật trọng lực cho bom
+        rbBomb.gravityScale = 1f;
+
+        // Vị trí bắt đầu và mục tiêu
+        Vector2 start = firePoint.position;
+        Vector2 target = player.position;
+
+        // Tính hướng ngang
+        Vector2 direction = target - start;
+
+        // Lực ném
+        float forceX = direction.x * 1.5f;
+        float forceY = 7f;
+
+        rbBomb.linearVelocity = new Vector2(forceX, forceY);
     }
 
     //=========================
