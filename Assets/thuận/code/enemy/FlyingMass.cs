@@ -10,17 +10,20 @@ public class FlyingMass : MonoBehaviour
     // Tốc độ bay
     public float speed = 3f;
 
-    // Nếu Player gần hơn khoảng này thì Flying Mass sẽ bay lùi
-    public float minDistance = 5f;
+    // Vòng đỏ: Player quá gần -> bay lùi
+    public float retreatDistance = 3f;
 
-    // Nếu Player xa hơn khoảng này thì Flying Mass sẽ bay lại gần
-    public float maxDistance = 7f;
+    // Vòng xanh: Đứng yên và tấn công
+    public float attackDistance = 5f;
+
+    // Vòng vàng: Phát hiện Player
+    public float detectionDistance = 7f;
 
     [Header("Attack")]
     // Prefab quả bom
     public GameObject bombPrefab;
 
-    // Vị trí tạo bom
+    // Điểm sinh bom
     public Transform firePoint;
 
     // Thời gian hồi chiêu
@@ -40,10 +43,10 @@ public class FlyingMass : MonoBehaviour
 
     void Start()
     {
-        // Tìm Player
+        // Tìm Player theo Tag
         player = GameObject.FindGameObjectWithTag("Player").transform;
 
-        // Lấy Rigidbody2D
+        // Lấy Rigidbody
         rb = GetComponent<Rigidbody2D>();
 
         // Không chịu trọng lực
@@ -64,39 +67,43 @@ public class FlyingMass : MonoBehaviour
         // Hướng tới Player
         Vector2 dir = (player.position - transform.position).normalized;
 
-        //------------------------
-        // AI di chuyển
-        //------------------------
+        //---------------------------
+        // AI
+        //---------------------------
 
-        // Nếu Player quá gần
-        if (distance < minDistance)
+        // Ngoài vòng vàng -> đứng yên
+        if (distance > detectionDistance)
         {
-            // Bay lùi
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // Trong vòng đỏ -> chạy lùi
+        else if (distance <= retreatDistance)
+        {
             rb.linearVelocity = -dir * speed;
         }
-        // Nếu Player quá xa
-        else if (distance > maxDistance)
+
+        // Trong vòng xanh -> đứng yên và ném bom
+        else if (distance <= attackDistance)
         {
-            // Bay lại gần
-            rb.linearVelocity = dir * speed;
-        }
-        else
-        {
-            // Giữ vị trí
             rb.linearVelocity = Vector2.zero;
 
-            // Hết hồi chiêu thì ném bom
             if (cooldown <= 0)
             {
                 ThrowBomb();
-
                 cooldown = attackCooldown;
             }
         }
 
-        //------------------------
+        // Trong vòng vàng -> bay lại gần
+        else
+        {
+            rb.linearVelocity = dir * speed;
+        }
+
+        //---------------------------
         // Quay mặt về Player
-        //------------------------
+        //---------------------------
 
         if (player.position.x > transform.position.x)
         {
@@ -117,7 +124,6 @@ public class FlyingMass : MonoBehaviour
         if (bombPrefab == null || firePoint == null)
             return;
 
-        // Sinh bom
         GameObject bomb = Instantiate(
             bombPrefab,
             firePoint.position,
@@ -127,11 +133,9 @@ public class FlyingMass : MonoBehaviour
 
         if (bombRB != null)
         {
-            // Hướng về Player
             Vector2 dir =
                 (player.position - firePoint.position).normalized;
 
-            // Cho bom bay
             bombRB.linearVelocity = dir * bombSpeed;
         }
     }
@@ -156,19 +160,19 @@ public class FlyingMass : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Vùng quá gần -> bay lùi
+        // Vòng đỏ - Bay lùi
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, minDistance);
+        Gizmos.DrawWireSphere(transform.position, retreatDistance);
 
-        // Vùng đứng yên và ném bom
+        // Vòng xanh - Tấn công
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, (minDistance + maxDistance) / 2f);
+        Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // Vùng quá xa -> bay lại gần
+        // Vòng vàng - Phát hiện
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, maxDistance);
+        Gizmos.DrawWireSphere(transform.position, detectionDistance);
 
-        // Hiển thị FirePoint
+        // Fire Point
         if (firePoint != null)
         {
             Gizmos.color = Color.cyan;

@@ -417,15 +417,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2835305118011372057, guid: 578a4ce5f24bd264988bb11ec754d7a3, type: 3}
       propertyPath: maxDistance
-      value: 6.89
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2835305118011372057, guid: 578a4ce5f24bd264988bb11ec754d7a3, type: 3}
       propertyPath: minDistance
       value: 4.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2835305118011372057, guid: 578a4ce5f24bd264988bb11ec754d7a3, type: 3}
+      propertyPath: detectionDistance
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 6982899509838838739, guid: 578a4ce5f24bd264988bb11ec754d7a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.75
+      value: 3.09
       objectReference: {fileID: 0}
     - target: {fileID: 6982899509838838739, guid: 578a4ce5f24bd264988bb11ec754d7a3, type: 3}
       propertyPath: m_LocalPosition.y
