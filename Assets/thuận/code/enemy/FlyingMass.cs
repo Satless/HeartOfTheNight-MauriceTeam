@@ -121,34 +121,37 @@ public class FlyingMass : MonoBehaviour
 
     void ThrowBomb()
     {
-        if (bombPrefab == null || firePoint == null)
+        if (bombPrefab == null || firePoint == null || player == null)
             return;
 
-        GameObject bomb = Instantiate(
-            bombPrefab,
-            firePoint.position,
-            Quaternion.identity);
+        GameObject bomb = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
 
-        Rigidbody2D rbBomb = bomb.GetComponent<Rigidbody2D>();
+        Rigidbody2D bombRB = bomb.GetComponent<Rigidbody2D>();
 
-        if (rbBomb == null)
+        if (bombRB == null)
             return;
 
-        // Bật trọng lực cho bom
-        rbBomb.gravityScale = 1f;
+        // Bật trọng lực
+        bombRB.gravityScale = 1f;
 
-        // Vị trí bắt đầu và mục tiêu
         Vector2 start = firePoint.position;
         Vector2 target = player.position;
 
-        // Tính hướng ngang
-        Vector2 direction = target - start;
+        // Thời gian để bom bay tới Player
+        float flightTime = 1.2f;
 
-        // Lực ném
-        float forceX = direction.x * 1.5f;
-        float forceY = 7f;
+        // Gia tốc trọng trường
+        float gravity = Mathf.Abs(Physics2D.gravity.y * bombRB.gravityScale);
 
-        rbBomb.linearVelocity = new Vector2(forceX, forceY);
+        // Tính vận tốc theo trục X
+        float velocityX = (target.x - start.x) / flightTime;
+
+        // Tính vận tốc theo trục Y
+        float velocityY =
+            (target.y - start.y + 0.5f * gravity * flightTime * flightTime)
+            / flightTime;
+
+        bombRB.linearVelocity = new Vector2(velocityX, velocityY);
     }
 
     //=========================
