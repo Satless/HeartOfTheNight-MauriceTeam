@@ -593,8 +593,8 @@ public class PlayerMovement : MonoBehaviour
 
 	private bool CanDash()
 	{
-		// Refill dash khi chạm đất và chưa đầy
-		if (!IsDashing && _dashesLeft < Data.dashAmount && LastOnGroundTime > 0 && !_dashRefilling)
+		// Refill dash khi chạm đất hoặc bám tường
+		if (!IsDashing && _dashesLeft < Data.dashAmount && (LastOnGroundTime > 0 || LastOnWallTime > 0) && !_dashRefilling)
 			StartCoroutine(nameof(RefillDash), 1);
 
 		return _dashesLeft > 0;
