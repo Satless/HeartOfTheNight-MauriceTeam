@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gravityStrength: NaN
   gravityScale: NaN
-  fallGravityMult: 0
-  maxFallSpeed: 0
-  fastFallGravityMult: 0
-  maxFastFallSpeed: 0
-  runMaxSpeed: 0
+  fallGravityMult: 15
+  maxFallSpeed: 20
+  fastFallGravityMult: 15
+  maxFastFallSpeed: 20
+  runMaxSpeed: 5
   runAcceleration: 0.01
-  runAccelAmount: NaN
+  runAccelAmount: 0
   runDecceleration: 0.01
-  runDeccelAmount: NaN
+  runDeccelAmount: 0
   accelInAir: 0
   deccelInAir: 0
   doConserveMomentum: 1

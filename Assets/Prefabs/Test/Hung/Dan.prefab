@@ -168,8 +168,13 @@ MonoBehaviour:
   damage: 0
   _enemyLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   _groundLayer:
     serializedVersion: 2
-    m_Bits: 0
-  _enemyTags: []
+    m_Bits: 64
+  _enemyTags:
+  - Enemy
+  - EnemyGan
+  - EnemyXa
+  - Boss
+  - EnemyBom
