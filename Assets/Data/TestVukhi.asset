@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c29a593a198364bbb6b35d0a164791, type: 3}
+  m_Name: TestVukhi
+  m_EditorClassIdentifier: 
+  fireRate: 0.5
+  bulletSpeed: 50
+  damage: 15
+  bulletPrefab: {fileID: 6979399604055154921, guid: 9d6857206e2dfd648b8819826342d73c, type: 3}
+  bulletLifetime: 20
