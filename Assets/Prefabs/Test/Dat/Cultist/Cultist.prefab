@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 3619845610052017667}
   - component: {fileID: 115430605450393557}
   - component: {fileID: 8812211374794019458}
-  - component: {fileID: 9911223344556677889}
+  - component: {fileID: 9223372036854775807}
   m_Layer: 0
   m_Name: Cultist
   m_TagString: Enemy
@@ -216,10 +216,10 @@ MonoBehaviour:
   bulletPrefab: {fileID: 7046481047240634316, guid: 409fabc81d99b9242808d0c77819e5ba, type: 3}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   maxHealth: 30
   debugLogs: 1
---- !u!114 &9911223344556677889
+--- !u!114 &9223372036854775807
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
