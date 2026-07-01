@@ -13,7 +13,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 	//Scriptable object chứa tất cả các thông số di chuyển — không hardcode
-	public PlayerDataWithDash Data;
+	public PlayerData Data;
 
 	#region COMPONENTS
     public Rigidbody2D RB { get; private set; }

@@ -50,6 +50,9 @@ public class PlayerAttack : MonoBehaviour
 
     private void HandleFire()
     {
+
+        if (_movement.IsSliding) return;
+
         // Giữ chuột trái → bắn liên tục theo fireRate
         // GetMouseButton(0) trả về true từ frame đầu giữ nút nên bao luôn cả click đơn
         if (Input.GetMouseButton(0) && Time.time >= _lastFireTime + Data.fireRate)
@@ -71,5 +74,18 @@ public class PlayerAttack : MonoBehaviour
 
         // Dùng Rigidbody2D đã cache sẵn trong Bullet — không GetComponent runtime
         bullet.RB.AddForce(new Vector2(dirX, 0f) * Data.bulletSpeed, ForceMode2D.Impulse);
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        if (_firePoint != null)
+        {
+            // Tia laser màu đỏ dài 1 unit chỉ thẳng về phía trước
+            Gizmos.color = Color.red;
+            // Vẽ 1 đường thẳng từ nòng súng chỉ sang Phải (hoặc Trái tùy hướng nhân vật)
+            Vector3 direction = transform.localScale.x > 0 ? Vector3.right : Vector3.left;
+            Gizmos.DrawRay(_firePoint.position, direction * 1f);
+        }
     }
 }

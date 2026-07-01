@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Player Data With Dash")] //Tạo một đối tượng playerData mới bằng cách nhấp chuột phải vào Menu Project rồi chọn Create/Player/Player Data và kéo vào người chơi
-public class PlayerDataWithDash : ScriptableObject
+[CreateAssetMenu(menuName = "Player Data")] //Tạo một đối tượng playerData mới bằng cách nhấp chuột phải vào Menu Project rồi chọn Create/Player/Player Data và kéo vào người chơi
+public class PlayerData : ScriptableObject
 {
 	[Header("Gravity")]
 	[HideInInspector] public float gravityStrength; //Lực hướng xuống (trọng lực) cần thiết để đạt được jumpHeight và jumpTimeToApex mong muốn.
