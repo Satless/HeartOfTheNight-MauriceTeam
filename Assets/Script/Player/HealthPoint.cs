@@ -26,6 +26,7 @@ public class HealthPoint : MonoBehaviour
         if (currentHealth > 0)
         {
             StartCoroutine(FlashEffect());
+            SoundManager.Instance.PlaySound3D("Hurt", transform.position);
         }
         else
         {
@@ -33,6 +34,7 @@ public class HealthPoint : MonoBehaviour
             {
                 gameObject.SetActive(false);
                 dead = true;
+                SoundManager.Instance.PlaySound3D("Die", transform.position);
             }
         }
     }

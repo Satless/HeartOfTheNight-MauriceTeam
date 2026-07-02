@@ -143,6 +143,7 @@ namespace TarodevController
             _coyoteUsable = false;
             _frameVelocity.y = _stats.JumpPower;
             Jumped?.Invoke();
+            SoundManager.Instance.PlaySound3D("Jump", transform.position);
         }
 
         #endregion
