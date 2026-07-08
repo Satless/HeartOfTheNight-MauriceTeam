@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class KamikazeEnemy : MonoBehaviour
+public class KamikazeEnemyy : MonoBehaviour
 {
     [Header("Movement")]
     public float speed = 6f;
