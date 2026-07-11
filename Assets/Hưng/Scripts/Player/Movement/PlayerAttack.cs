@@ -40,6 +40,9 @@ public class PlayerAttack : MonoBehaviour
     /// </summary>
     private void HandleFacing()
     {
+        // Khóa ngắm chuột khi đang lướt (Nếu cấu hình không cho phép Moonwalk)
+        if (_movement.IsDashing && _movement.Data.lockFacingToDashDirection) return;
+
         // Khóa ngắm chuột theo điều kiện:
         // Nếu ĐANG bị khóa di chuyển do bật tường VÀ cấu hình yêu cầu lật người theo hướng bật tường (doTurnOnWallJump = true)
         if (_movement.IsWallJumpLocked && _movement.Data.doTurnOnWallJump) return;
@@ -55,6 +58,9 @@ public class PlayerAttack : MonoBehaviour
     {
         // Khóa bắn khi đang bám tường / leo tường
         if (_movement.IsSliding) return;
+
+        // Khóa bắn khi lướt (Nếu cấu hình không cho phép vừa lướt vừa bắn)
+        if (_movement.IsDashing && !_movement.Data.allowShootWhileDashing) return;
 
         // Giữ chuột trái → bắn liên tục theo fireRate
         // GetMouseButton(0) trả về true từ frame đầu giữ nút nên bao luôn cả click đơn

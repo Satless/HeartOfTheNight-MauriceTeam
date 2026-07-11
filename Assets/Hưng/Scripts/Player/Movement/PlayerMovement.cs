@@ -366,7 +366,16 @@ public class PlayerMovement : MonoBehaviour
 	{
 		if (IsDashing)
 		{
-			if (_isDashAttacking) Run(Data.dashEndRunLerp);
+			if (_isDashAttacking)
+			{
+				Debug.Log($"<color=orange>[Dash Phase 1 (dashAttackTime)]</color> _isDashAttacking=TRUE | Vận tốc: {RB.linearVelocity} | Gọi Run({Data.dashEndRunLerp})");
+				Run(Data.dashEndRunLerp);
+			}
+			else
+			{
+				Debug.Log($"<color=green>[Dash Phase 2 (dashEndTime)]</color> _isDashAttacking=FALSE | Vận tốc: {RB.linearVelocity} | Gọi Run({Data.dashEndRunLerp}) -> Trả một phần quyền bẻ lái");
+				Run(Data.dashEndRunLerp);
+			}
 			return;
 		}
 
@@ -503,6 +512,12 @@ public class PlayerMovement : MonoBehaviour
 	{
 		LastOnGroundTime = 0;
 		LastPressedDashTime = 0;
+
+		// Nếu tắt Moonwalk (tức bật lockFacingToDashDirection), ép quay mặt đúng theo hướng lướt ngang
+		if (Data.lockFacingToDashDirection && Mathf.Abs(dir.x) > 0.1f)
+		{
+			CheckDirectionToFace(dir.x > 0);
+		}
 
 		float startTime = Time.time;
 		_dashesLeft--;

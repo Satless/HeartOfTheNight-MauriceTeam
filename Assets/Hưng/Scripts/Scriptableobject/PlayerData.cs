@@ -108,18 +108,23 @@ public class PlayerData : ScriptableObject
 	[Tooltip("Thời lượng duy trì trạng thái lướt (Tính bằng giây, thường rất ngắn).")]
 	public float dashAttackTime; // Thời gian lướt
 	[Space(5)]
-	[Tooltip("Thời gian của giai đoạn 'Chậm dần' sau khi hết lướt, giúp trả lại quyền điều khiển cho người chơi một cách mượt mà.")]
-	public float dashEndTime; // Kết thúc giai đoạn 1, đồng thời trả dần quyền điều khiển cũng như phục hồi trọng lực
+	[Tooltip("Thời gian giữ ở giai đoạn 'kết lướt'. Vận tốc bắt đầu từ dashEndSpeed rồi dịch chuyển dần theo input.\nĐộ bẻ lái giới hạn theo dashEndRunLerp")]
+	public float dashEndTime; 
 	[Tooltip("Vận tốc bị hãm xuống ở cuối giai đoạn lướt (Tạo cảm giác phanh gấp, bám sát cơ chế di chuyển của Celeste).")]
 	public Vector2 dashEndSpeed; //Làm chậm người chơi, giúp lướt (dash) có cảm giác phản hồi tốt hơn (được sử dụng trong Celeste)
-	[Tooltip("Độ ảnh hưởng của phím di chuyển ngang trong giai đoạn cuối lướt (0 = Không thể bẻ lái, 1 = Bẻ lái bình thường).")]
-	[Range(0f, 1f)] public float dashEndRunLerp; //Làm chậm ảnh hưởng của di chuyển của người chơi trong khi đang lướt
+	[Tooltip("Độ bẻ lái ngang, áp dụng cho CẢ 2 giai đoạn lướt: pha xung kích (dashAttackTime) và pha kết lướt (dashEndTime).")]
+	[Range(0f, 1f)] public float dashEndRunLerp;
 	[Space(5)]
 	[Tooltip("Thời gian chờ để hồi lại lượt lướt sau khi chạm đất.")]
 	public float dashRefillTime; // Thời gian hồi lướt
 	[Space(5)]
 	[Tooltip("Input Buffer (Ghi nhớ phím Lướt). Thời gian ghi nhớ phím Lướt dù bấm sớm trước khi chạm đất.")]
 	[Range(0.01f, 0.5f)] public float dashInputBufferTime; //Thời gian châm chước sau khi nhấn nút lướt nơi một lần lướt sẽ được tự động thực hiện ngay khi các yêu cầu (ví dụ: có thể lướt) được đáp ứng.
+	[Space(5)]
+	[Tooltip("Cho phép vừa lướt vừa xả đạn.")]
+	public bool allowShootWhileDashing;
+	[Tooltip("Bật: Khóa mặt nhân vật ép nhìn theo hướng lướt.\nTắt: Cho phép 'Moonwalk Dash' lướt lùi.")]
+	public bool lockFacingToDashDirection;
 	
 
 	//Unity Callback, được gọi khi inspector cập nhật
