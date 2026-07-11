@@ -5,13 +5,34 @@ using UnityEngine.Events;
 
 namespace HeartOfTheNight.Rooms
 {
+    //zz
+    //aaa
+    //cccc
+    //hh
+//Room 1
+    //zzzzzzzzzzzzzz
+    //zzzz
     
+    //zz
+    //xx
+    //zz
+    //cc
+    //xx
+    //cccc
+    //cc
+    //cc
+    //cc
+    //cc
+    //cc
+    //hihi
+    //dd
+
     /// <summary>
     /// Co che phong dau:
     /// 1. Player buoc vao vung trigger -> sinh quai tai cac diem dat san.
     /// 2. (Tuy chon) Dong cua lai de nhot Player trong phong.
     /// 3. Khi tat ca quai trong phong da chet -> mo cua + ban event onRoomCleared.
-    
+
     /// Gan script nay vao 1 GameObject co Collider2D (isTrigger = true) bao trum vung kich hoat.
     /// Khong can sua cac script quai: quai chet goi Destroy(gameObject), tham chieu Unity tro thanh null,
     /// nen ta chi can dem so quai con song.
