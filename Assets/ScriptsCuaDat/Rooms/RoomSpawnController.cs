@@ -5,27 +5,7 @@ using UnityEngine.Events;
 
 namespace HeartOfTheNight.Rooms
 {
-    //zz
-    //aaa
-    //cccc
-    //hh
-//Room 1
-    //zzzzzzzzzzzzzz
-    //zzzz
-    
-    //zz
-    //xx
-    //zz
-    //cc
-    //xx
-    //cccc
-    //cc
-    //cc
-    //cc
-    //cc
-    //cc
-    //hihi
-    //dd
+   
 
     /// <summary>
     /// Co che phong dau:
