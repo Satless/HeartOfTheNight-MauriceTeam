@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace HeartOfTheNight.Rooms
 {
-   
+   //A RoomSpawnController is a component that controls the spawning of enemies in a room.
 
     /// <summary>
     /// Co che phong dau:
