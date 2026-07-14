@@ -5,27 +5,10 @@ using UnityEngine.Events;
 
 namespace HeartOfTheNight.Rooms
 {
-    //zz
-    //aaa
-    //cccc
-    //hh
-//Room 1
-    //zzzzzzzzzzzzzz
-    //zzzz
-    
-    //zz
-    //xx
-    //zz
-    //cc
-    //xx
-    //cccc
-    //cc
-    //cc
-    //cc
-    //cc
-    //cc
-    //hihi
-    //dd
+    //aa
+    //ss
+    //Bai viet: https://gamefromscratch.com/unity-2d-game-tutorial-make-a-platformer-part-10-rooms-enemies-and-rooms-spawner/
+   //A RoomSpawnController is a component that controls the spawning of enemies in a room.
 
     /// <summary>
     /// Co che phong dau:
