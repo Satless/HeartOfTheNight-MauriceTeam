@@ -293,6 +293,16 @@ public class PlayerMovement : MonoBehaviour
 			? _moveInput
 			: (IsFacingRight ? Vector2.right : Vector2.left);
 
+		// Nếu chỉ cho lướt ngang, loại bỏ thành phần dọc
+		if (Data.horizontalDashOnly)
+		{
+			_lastDashDir.y = 0;
+
+			// Nếu người chơi chỉ giữ lên/xuống → fallback về hướng mặt nhân vật
+			if (_lastDashDir.x == 0)
+				_lastDashDir.x = IsFacingRight ? 1 : -1;
+		}
+
 		TransitionToState(PlayerState.Dashing);
 	}
 

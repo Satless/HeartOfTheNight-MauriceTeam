@@ -108,7 +108,7 @@ public class PlayerData : ScriptableObject
 	[Tooltip("Thời lượng duy trì trạng thái lướt (Tính bằng giây, thường rất ngắn).")]
 	public float dashAttackTime; // Thời gian lướt
 	[Space(5)]
-	[Tooltip("Thời gian giữ ở giai đoạn 'kết lướt'. Vận tốc bắt đầu từ dashEndSpeed rồi dịch chuyển dần theo input.\nĐộ bẻ lái giới hạn theo dashEndRunLerp")]
+	[Tooltip("Thời gian giữ ở giai đoạn 'kết lướt'.\nĐầu phase: vận tốc bị kéo về dashEndSpeed theo hướng dash.\nSau đó: Run(dashEndRunLerp) kéo dần velocity ngang về phía input người chơi mỗi FixedUpdate.")]
 	public float dashEndTime; 
 	[Tooltip("Vận tốc bị hãm xuống ở cuối giai đoạn lướt (Tạo cảm giác phanh gấp, bám sát cơ chế di chuyển của Celeste).")]
 	public Vector2 dashEndSpeed; //Làm chậm người chơi, giúp lướt (dash) có cảm giác phản hồi tốt hơn (được sử dụng trong Celeste)
@@ -125,6 +125,8 @@ public class PlayerData : ScriptableObject
 	public bool allowShootWhileDashing;
 	[Tooltip("Bật: Khóa mặt nhân vật ép nhìn theo hướng lướt.\nTắt: Cho phép 'Moonwalk Dash' lướt lùi.")]
 	public bool lockFacingToDashDirection;
+	[Tooltip("Bật: Chỉ cho phép lướt ngang.\nTắt: Lướt theo mọi hướng input.")]
+	public bool horizontalDashOnly;
 	
 
 	//Unity Callback, được gọi khi inspector cập nhật
@@ -137,8 +139,8 @@ public class PlayerData : ScriptableObject
 		gravityScale = gravityStrength / Physics2D.gravity.y;
 
 		//Tính toán lực gia tốc và giảm tốc khi chạy bằng công thức: amount = ((1 / Time.fixedDeltaTime) * acceleration) / runMaxSpeed
-		runAccelAmount = (50 * runAcceleration) / runMaxSpeed;
-		runDeccelAmount = (50 * runDecceleration) / runMaxSpeed;
+		runAccelAmount = ((1 / Time.fixedDeltaTime) * runAcceleration) / runMaxSpeed;
+		runDeccelAmount = ((1 / Time.fixedDeltaTime) * runDecceleration) / runMaxSpeed;
 
 		//Tính toán lực nhảy (jumpForce) bằng công thức (initialJumpVelocity = gravity * timeToJumpApex)
 		jumpForce = Mathf.Abs(gravityStrength) * jumpTimeToApex;
