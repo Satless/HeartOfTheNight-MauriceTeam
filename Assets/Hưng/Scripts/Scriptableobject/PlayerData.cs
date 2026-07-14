@@ -112,7 +112,7 @@ public class PlayerData : ScriptableObject
 	public float dashEndTime; 
 	[Tooltip("Vận tốc bị hãm xuống ở cuối giai đoạn lướt (Tạo cảm giác phanh gấp, bám sát cơ chế di chuyển của Celeste).")]
 	public Vector2 dashEndSpeed; //Làm chậm người chơi, giúp lướt (dash) có cảm giác phản hồi tốt hơn (được sử dụng trong Celeste)
-	[Tooltip("Độ bẻ lái ngang, áp dụng cho CẢ 2 giai đoạn lướt: pha xung kích (dashAttackTime) và pha kết lướt (dashEndTime).")]
+	[Tooltip("Độ bẻ lái ngang sau giai đoạn kết lướt (dashEndTime) để trả dần quyền điều khiển.")]
 	[Range(0f, 1f)] public float dashEndRunLerp;
 	[Space(5)]
 	[Tooltip("Thời gian chờ để hồi lại lượt lướt sau khi chạm đất.")]

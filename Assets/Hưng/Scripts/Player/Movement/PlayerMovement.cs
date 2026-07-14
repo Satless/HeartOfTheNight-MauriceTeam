@@ -364,22 +364,13 @@ public class PlayerMovement : MonoBehaviour
 	/// <summary>Xử lý di chuyển ngang, gọi từ FixedUpdate.</summary>
 	private void HandleRun()
 	{
-		if (IsDashing)
+		if (IsDashing) // Giai đoạn cuối của dash, trả lại một chút quyền điều khiển hướng
 		{
-			if (_isDashAttacking)
-			{
-				Debug.Log($"<color=orange>[Dash Phase 1 (dashAttackTime)]</color> _isDashAttacking=TRUE | Vận tốc: {RB.linearVelocity} | Gọi Run({Data.dashEndRunLerp})");
-				Run(Data.dashEndRunLerp);
-			}
-			else
-			{
-				Debug.Log($"<color=green>[Dash Phase 2 (dashEndTime)]</color> _isDashAttacking=FALSE | Vận tốc: {RB.linearVelocity} | Gọi Run({Data.dashEndRunLerp}) -> Trả một phần quyền bẻ lái");
-				Run(Data.dashEndRunLerp);
-			}
+			Run(Data.dashEndRunLerp);
 			return;
 		}
 
-		Run(IsWallJumping ? Data.wallJumpRunLerp : 1f);
+		Run(IsWallJumping ? Data.wallJumpRunLerp : 1f); // Đang nhảy tường thì trả một chút quyền điều khiển hướng, còn không thì trả full quyền điều khiển hướng
 	}
 	#endregion
 
@@ -534,10 +525,11 @@ public class PlayerMovement : MonoBehaviour
 		startTime = Time.time;
 		_isDashAttacking = false;
 
-		// Phase 2 — dash end: trả lại control nhưng giới hạn acceleration
+		// Phase 2 — dash end: Hãm phanh
 		SetGravityScale(Data.gravityScale);
 		RB.linearVelocity = Data.dashEndSpeed * dir.normalized;
 
+		// Không can thiệp vào linearVelocity của người chơi, nhưng vẫn chờ hết thời gian
 		while (Time.time - startTime <= Data.dashEndTime)
 		{
 			yield return null;
@@ -547,6 +539,7 @@ public class PlayerMovement : MonoBehaviour
 		// → LastOnGroundTime luôn < 0 tại đây. HandleJumpChecks() sẽ tự sửa về
 		// Grounded ở frame tiếp nếu nhân vật đang chạm đất.
 		TransitionToState(PlayerState.Falling);
+		// Hàm HandleRun() trả lại quyền điều khiển hướng cho người chơi trong giai đoạn này
 	}
 
 	private IEnumerator RefillDash(int amount)
