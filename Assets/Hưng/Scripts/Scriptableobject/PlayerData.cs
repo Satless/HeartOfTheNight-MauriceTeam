@@ -70,6 +70,8 @@ public class PlayerData : ScriptableObject
 	[Range(0f, 1.5f)] public float wallJumpTime; //Thời gian sau khi nhảy tường mà di chuyển của người chơi bị làm chậm lại.
 	[Tooltip("Tự động xoay mặt nhân vật hướng ra ngoài khi bật nhảy tường.")]
 	public bool doTurnOnWallJump; //Người chơi sẽ xoay mặt về hướng nhảy tường
+	[Tooltip("Khi nhấn lướt trong khi bám tường, sẽ tự động lướt ra hướng ngược lại.\nKhông làm nút bám tường như Celeste nên dùng kiểu này.")]
+	public bool allowReverseWallClingDash; //Dash ngược hướng bám tường
 
 	[Header("Double Jump")]
 	[Tooltip("Số lượng cú nhảy trên không (Nhảy đôi) cho phép.")]
@@ -123,9 +125,9 @@ public class PlayerData : ScriptableObject
 	[Space(5)]
 	[Tooltip("Cho phép vừa lướt vừa xả đạn.")]
 	public bool allowShootWhileDashing;
-	[Tooltip("Bật: Khóa mặt nhân vật ép nhìn theo hướng lướt.\nTắt: Cho phép 'Moonwalk Dash' lướt lùi.")]
+	[Tooltip("Nhân vật nhìn theo hướng lướt")]
 	public bool lockFacingToDashDirection;
-	[Tooltip("Bật: Chỉ cho phép lướt ngang.\nTắt: Lướt theo mọi hướng input.")]
+	[Tooltip("Chỉ lướt ngang")]
 	public bool horizontalDashOnly;
 	
 

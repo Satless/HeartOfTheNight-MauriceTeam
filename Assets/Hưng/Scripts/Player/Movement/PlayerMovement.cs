@@ -223,23 +223,32 @@ public class PlayerMovement : MonoBehaviour
 	/// <summary>Kiểm tra va chạm ground/wall, cập nhật timer coyote.</summary>
 	private void HandleCollisionChecks()
 	{
-		if (IsDashing || IsJumping) return;
+		if (IsJumping) return;
 
-		// Ground check
-		if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer))
-			LastOnGroundTime = Data.coyoteTime;
+		// Ground check — skip toàn bộ khi đang dash để tránh HandleJumpChecks()
+		// ép state về Grounded giữa chừng trong khi coroutine StartDash vẫn chạy.
+		if (!IsDashing)
+		{
+			if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer))
+				LastOnGroundTime = Data.coyoteTime;
+		}
 
-		// Right wall check
-		if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
-				|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
-			LastOnWallRightTime = Data.coyoteTime;
+		// Wall check — chỉ skip ở Phase 1 (dash attack ghi đè velocity mỗi frame),
+		// cho phép cập nhật timer tường ở Phase 2 để coroutine có thể thoát sớm khi chạm tường.
+		if (!_isDashAttacking)
+		{
+			// Right wall check
+			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
+					|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
+				LastOnWallRightTime = Data.coyoteTime;
 
-		// Left wall check
-		if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
-			|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping)
-			LastOnWallLeftTime = Data.coyoteTime;
+			// Left wall check
+			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
+				|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping)
+				LastOnWallLeftTime = Data.coyoteTime;
 
-		LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
+			LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
+		}
 	}
 
 	/// <summary>Quản lý các điều kiện chuyển trạng thái liên quan đến nhảy.</summary>
@@ -289,18 +298,31 @@ public class PlayerMovement : MonoBehaviour
 		//Đóng băng game một khoảnh khắc để đọc input hướng chính xác
 		Sleep();
 
-		_lastDashDir = (_moveInput != Vector2.zero)
-			? _moveInput
-			: (IsFacingRight ? Vector2.right : Vector2.left);
-
-		// Nếu chỉ cho lướt ngang, loại bỏ thành phần dọc
-		if (Data.horizontalDashOnly)
+		if (IsSliding && _moveInput.y != 0 && !Data.horizontalDashOnly)
 		{
-			_lastDashDir.y = 0;
+			// Lướt dọc khi bám tường (lên/xuống tùy input). Bị horizontalDashOnly chi phối.
+			_lastDashDir = (_moveInput.y > 0) ? Vector2.up : Vector2.down;
+		}
+		else if (IsSliding && Data.allowReverseWallClingDash)
+		{
+			// Bật: Lướt bật ra xa tường (không bị horizontalDashOnly chi phối)
+			_lastDashDir = (LastOnWallRightTime > 0) ? Vector2.left : Vector2.right;
+		}
+		else
+		{
+			_lastDashDir = (_moveInput != Vector2.zero)
+				? _moveInput
+				: (IsFacingRight ? Vector2.right : Vector2.left);
 
-			// Nếu người chơi chỉ giữ lên/xuống → fallback về hướng mặt nhân vật
-			if (_lastDashDir.x == 0)
-				_lastDashDir.x = IsFacingRight ? 1 : -1;
+			// Nếu chỉ cho lướt ngang, loại bỏ thành phần dọc
+			if (Data.horizontalDashOnly)
+			{
+				_lastDashDir.y = 0;
+
+				// Nếu người chơi chỉ giữ lên/xuống → fallback về hướng mặt nhân vật
+				if (_lastDashDir.x == 0)
+					_lastDashDir.x = IsFacingRight ? 1 : -1;
+			}
 		}
 
 		TransitionToState(PlayerState.Dashing);
@@ -539,17 +561,23 @@ public class PlayerMovement : MonoBehaviour
 		SetGravityScale(Data.gravityScale);
 		RB.linearVelocity = Data.dashEndSpeed * dir.normalized;
 
-		// Không can thiệp vào linearVelocity của người chơi, nhưng vẫn chờ hết thời gian
+		// Phase 2: chờ hết dashEndTime, nhưng thoát sớm nếu chạm tường đúng hướng bám
 		while (Time.time - startTime <= Data.dashEndTime)
 		{
+			// Wall check timer đã được HandleCollisionChecks() cập nhật ở Phase 2
+			// (vì !_isDashAttacking). Nếu chạm tường + giữ phím vào tường → bám ngay.
+			bool wallClingReady = ((LastOnWallLeftTime > 0 && _moveInput.x < 0) || (LastOnWallRightTime > 0 && _moveInput.x > 0)) && RB.linearVelocity.y <= 0;
+			if (wallClingReady)
+			{
+				TransitionToState(PlayerState.Sliding);
+				yield break; // Thoát coroutine, không chạy xuống Falling
+			}
 			yield return null;
 		}
 
-		// Lướt xong — luôn Falling vì HandleCollisionChecks() skip khi IsDashing
-		// → LastOnGroundTime luôn < 0 tại đây. HandleJumpChecks() sẽ tự sửa về
-		// Grounded ở frame tiếp nếu nhân vật đang chạm đất.
+		// Lướt xong mà không chạm tường → Falling.
+		// HandleJumpChecks() sẽ tự sửa về Grounded ở frame tiếp nếu đang chạm đất.
 		TransitionToState(PlayerState.Falling);
-		// Hàm HandleRun() trả lại quyền điều khiển hướng cho người chơi trong giai đoạn này
 	}
 
 	private IEnumerator RefillDash(int amount)
