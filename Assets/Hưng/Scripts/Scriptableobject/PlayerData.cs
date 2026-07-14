@@ -80,10 +80,14 @@ public class PlayerData : ScriptableObject
 	[Space(20)]
 
 	[Header("Slide")]
+	[Space(5)]
 	[Tooltip("Tốc độ trượt từ từ xuống tường. Nên đặt số âm để trượt xuống, chứ dương là thành leo đấy.")]
 	public float slideSpeed; // Tốc độ trượt tường (âm = xuống, để dương là thành leo lên đấy)
 	[Tooltip("Gia tốc hãm phanh khi bám tường (Giúp nhân vật từ từ chậm lại thành trượt thay vì rớt tự do).")]
 	public float slideAccel; // Gia tốc trượt tường (dùng để hãm tốc độ khi trượt xuống)
+	[Space(5)]
+	[Tooltip("Vừa bắn vừa bám/trượt tường.")]
+	public bool allowShootWhileSliding;
 
 	[Header("Wall Climb")]
 	[Tooltip("Tốc độ leo tường. Số dương.")]

@@ -56,8 +56,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void HandleFire()
     {
-        // Khóa bắn khi đang bám tường / leo tường
-        if (_movement.IsSliding) return;
+        // Khóa bắn khi đang bám tường (Nếu cấu hình không cho phép vừa bám tường vừa bắn)
+        if (_movement.IsSliding && !_movement.Data.allowShootWhileSliding) return;
 
         // Khóa bắn khi lướt (Nếu cấu hình không cho phép vừa lướt vừa bắn)
         if (_movement.IsDashing && !_movement.Data.allowShootWhileDashing) return;

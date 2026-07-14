@@ -323,6 +323,17 @@ public class PlayerMovement : MonoBehaviour
 				if (_lastDashDir.x == 0)
 					_lastDashDir.x = IsFacingRight ? 1 : -1;
 			}
+
+			// Bảo vệ: Nếu tắt allowReverseWallClingDash mà người chơi lỡ tay bấm Dash
+			// trong lúc hướng lướt đâm thẳng vào tường -> Hủy lướt để khỏi phí lượt.
+			if (IsSliding)
+			{
+				if ((LastOnWallRightTime > 0 && _lastDashDir.x > 0) || (LastOnWallLeftTime > 0 && _lastDashDir.x < 0))
+				{
+					LastPressedDashTime = 0; // Xóa buffer phím lướt
+					return; // Thoát hàm luôn, không tốn lượt dash
+				}
+			}
 		}
 
 		TransitionToState(PlayerState.Dashing);
