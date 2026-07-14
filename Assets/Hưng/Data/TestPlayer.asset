@@ -48,11 +48,11 @@ MonoBehaviour:
   dashAmount: 1
   dashSpeed: 20
   dashSleepTime: 0.05
-  dashAttackTime: 0.15
+  dashAttackTime: 0.21
   dashEndTime: 0.15
-  dashEndSpeed: {x: 15, y: 15}
-  dashEndRunLerp: 0.2
+  dashEndSpeed: {x: 10, y: 15}
+  dashEndRunLerp: 0.13
   dashRefillTime: 0.5
   dashInputBufferTime: 0.1
   allowShootWhileDashing: 0
-  lockFacingToDashDirection: 0
+  lockFacingToDashDirection: 1

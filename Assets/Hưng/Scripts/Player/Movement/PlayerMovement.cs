@@ -510,7 +510,7 @@ public class PlayerMovement : MonoBehaviour
 			CheckDirectionToFace(dir.x > 0);
 		}
 
-		float startTime = Time.time;
+		float startTime = Time.time; // Thời gian bắt đầu giai đoạn 1
 		_dashesLeft--;
 		_isDashAttacking = true;
 		SetGravityScale(0);
@@ -522,7 +522,7 @@ public class PlayerMovement : MonoBehaviour
 			yield return null;
 		}
 
-		startTime = Time.time;
+		startTime = Time.time; // Thời gian bắt đầu giai đoạn 2
 		_isDashAttacking = false;
 
 		// Phase 2 — dash end: Hãm phanh
