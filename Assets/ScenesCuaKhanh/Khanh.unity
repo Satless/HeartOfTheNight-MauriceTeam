@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 4838618}
   - component: {fileID: 4838617}
   m_Layer: 0
-  m_Name: Tilemap (2)
+  m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -195,7 +195,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -5169,7 +5169,7 @@ GameObject:
   - component: {fileID: 868636842}
   - component: {fileID: 868636841}
   m_Layer: 0
-  m_Name: Tilemap (2)
+  m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9946,7 +9946,7 @@ GameObject:
   - component: {fileID: 895201386}
   - component: {fileID: 895201385}
   m_Layer: 0
-  m_Name: Wall
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18445,7 +18445,7 @@ GameObject:
   - component: {fileID: 902772345}
   - component: {fileID: 902772344}
   m_Layer: 0
-  m_Name: Tilemap (1)
+  m_Name: Decor2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18751,7 +18751,7 @@ GameObject:
   - component: {fileID: 1053229448}
   - component: {fileID: 1053229447}
   m_Layer: 0
-  m_Name: Wall
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26676,6 +26676,7 @@ Transform:
   - {fileID: 1053229446}
   - {fileID: 2056236778}
   - {fileID: 902772343}
+  - {fileID: 1882948835}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1297453516
@@ -33779,7 +33780,7 @@ GameObject:
   - component: {fileID: 1882948835}
   - component: {fileID: 1882948834}
   m_Layer: 0
-  m_Name: bg3_0
+  m_Name: background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33848,12 +33849,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1882948833}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 83.7, y: 7.89, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 15.399994, y: 7.89, z: 0}
   m_LocalScale: {x: 0.52109045, y: 0.6467526, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1167659690}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2022286798
 GameObject:
@@ -33916,7 +33917,7 @@ GameObject:
   - component: {fileID: 2056236780}
   - component: {fileID: 2056236779}
   m_Layer: 0
-  m_Name: Tilemap
+  m_Name: Decor1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34322,7 +34323,7 @@ GameObject:
   - component: {fileID: 2118408310}
   - component: {fileID: 2118408309}
   m_Layer: 0
-  m_Name: Tilemap (1)
+  m_Name: Decor2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34386,7 +34387,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -35108,7 +35109,7 @@ GameObject:
   - component: {fileID: 2135303295}
   - component: {fileID: 2135303294}
   m_Layer: 0
-  m_Name: Tilemap
+  m_Name: Decor1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35172,7 +35173,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -43660,4 +43661,3 @@ SceneRoots:
   - {fileID: 1297453518}
   - {fileID: 2071810368}
   - {fileID: 1157150807}
-  - {fileID: 1882948835}
