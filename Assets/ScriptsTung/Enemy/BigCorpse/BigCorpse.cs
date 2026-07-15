@@ -1,4 +1,4 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class BigCorpse : MonoBehaviour
@@ -150,4 +150,4 @@ public class BigCorpse : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
-}
+}*/

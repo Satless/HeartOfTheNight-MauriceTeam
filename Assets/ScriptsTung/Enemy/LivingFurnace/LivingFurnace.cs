@@ -1,62 +1,119 @@
+using System.Collections;
 using UnityEngine;
-using System.Collections.Generic;
 
-public class LivingFurnace : MonoBehaviour
+public class KamikazeEnemy : MonoBehaviour
 {
-    [Header("Tầm phát hiện (Chỉ nhả quái khi Player ở gần)")]
-    public float detectionRangeX = 12f;
-    public float detectionRangeY = 3f;
+    [Header("Movement")]
+    public float speed = 4f;
 
-    [Header("Cài đặt Triệu hồi")]
-    public GameObject burningCorpsePrefab;
-    public int maxSpawns = 4;
-    public float spawnRadius = 1.5f;
+    [Header("Detection")]
+    public float detectionRange = 8f;
+
+    [Header("Explosion")]
+    public float explodeRange = 1.5f;
+    public int damage = 30;
+    public int hp = 1;
 
     private Transform player;
-    private List<GameObject> activeMinions = new List<GameObject>();
+    private bool chasing = false;
+    private bool exploding = false;
 
-    void Start()
+    private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        GameObject obj = GameObject.FindGameObjectWithTag("Player");
+
+        if (obj != null)
+            player = obj.transform;
     }
 
-    void Update()
+    private void Update()
     {
-        if (player == null) return;
+        if (player == null || exploding)
+            return;
 
-        // Dọn dẹp danh sách quái chết
-        activeMinions.RemoveAll(minion => minion == null);
+        float distance = Vector2.Distance(transform.position, player.position);
 
-        // Tính khoảng cách
-        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(player.position.y - transform.position.y);
-
-        // NẾU PLAYER LỌT VÀO VÙNG NHÌN THẤY VÀ HẾT QUÁI -> MỚI TRIỆU HỒI
-        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
+        // Player vào vùng phát hiện
+        if (distance <= detectionRange)
         {
-            if (activeMinions.Count == 0)
+            chasing = true;
+        }
+
+        // Bay đuổi Player
+        if (chasing)
+        {
+            transform.position = Vector2.MoveTowards(
+                transform.position,
+                player.position,
+                speed * Time.deltaTime);
+
+            // Kiểm tra khoảng cách để nổ
+            distance = Vector2.Distance(transform.position, player.position);
+
+            if (distance <= explodeRange)
             {
-                SpawnBatch();
+                StartCoroutine(Explode());
             }
         }
     }
 
-    void SpawnBatch()
+    IEnumerator Explode()
     {
-        if (burningCorpsePrefab == null) return;
+        exploding = true;
 
-        for (int i = 0; i < maxSpawns; i++)
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+        float timer = 0f;
+        float explodeTime = 1f;
+
+        while (timer < explodeTime)
         {
-            float randomX = Random.Range(-spawnRadius, spawnRadius);
-            Vector2 spawnPosition = new Vector2(transform.position.x + randomX, transform.position.y);
-            GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPosition, Quaternion.identity);
-            activeMinions.Add(newMinion);
+            if (sr != null)
+                sr.color = Color.red;
+
+            yield return new WaitForSeconds(0.1f);
+
+            if (sr != null)
+                sr.color = Color.white;
+
+            yield return new WaitForSeconds(0.1f);
+
+            timer += 0.2f;
+        }
+
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        if (distance <= explodeRange)
+        {
+            PlayerHealth health = player.GetComponent<PlayerHealth>();
+
+            if (health != null)
+            {
+                health.TakeDamage(damage);
+            }
+        }
+
+        Destroy(gameObject);
+    }
+
+    public void TakeDamage(int dmg)
+    {
+        hp -= dmg;
+
+        if (hp <= 0)
+        {
+            Destroy(gameObject);
         }
     }
 
-    void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(1f, 0.6f, 0f); // Màu Cam 
-        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+        // Vùng phát hiện (màu cam)
+        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        // Vùng nổ (màu đỏ)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explodeRange);
     }
 }
