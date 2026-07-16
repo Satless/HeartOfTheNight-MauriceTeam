@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -9,16 +10,21 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("Kéo thẳng camera trên hierarchy vào ô này. Dùng để tính tọa độ ngắm bắn ngang theo chuột.")]
     [SerializeField] private Camera _mainCamera;
 
+    [Header("Visuals")]
+    [Tooltip("Kéo child phần thân trên (súng) vào đây (Tren)")]
+    [SerializeField] private Transform _upperBodyVisual;
+
     [Header("References")]
     [Tooltip("Kéo child phần sinh đạn của người chơi vào đây.")]
     [SerializeField] private Transform _firePoint;
     [Tooltip("Kéo cái kho đạn object pooling vào đây.")]
     [SerializeField] private BulletPool _bulletPool;
 
-    // Tái dùng PlayerMovement để gọi CheckDirectionToFace và đọc IsWallJumpLocked
+    // Tái dùng PlayerMovement để đọc IsWallJumpLocked
     private PlayerMovement _movement;
 
     private float _lastFireTime;
+    private bool _isAimingRight = true;
 
     private void Awake()
     {
@@ -48,8 +54,15 @@ public class PlayerAttack : MonoBehaviour
         if (_movement.IsWallJumpLocked && _movement.Data.doTurnOnWallJump) return;
 
         Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        bool mouseIsRight = mouseWorld.x > transform.position.x;
-        _movement.CheckDirectionToFace(mouseIsRight);
+        _isAimingRight = mouseWorld.x > transform.position.x;
+
+        if (_upperBodyVisual != null)
+        {
+            Vector3 scale = _upperBodyVisual.localScale;
+            // Ép scale X dương nếu chuột bên phải, âm nếu chuột bên trái
+            scale.x = _isAimingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+            _upperBodyVisual.localScale = scale;
+        }
     }
 
     // ─── FIRE ────────────────────────────────────────────────────────────────
@@ -78,14 +91,21 @@ public class PlayerAttack : MonoBehaviour
         Bullet bullet = _bulletPool.Get(_firePoint.position);
         bullet.Activate(Data.bulletLifetime, Data.damage);
 
-        // Hướng bắn chỉ theo trục ngang (trái hoặc phải)
-        float dirX = _movement.IsFacingRight ? 1f : -1f;
+        // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
+        float dirX = _isAimingRight ? 1f : -1f;
 
         // Tốc độ gốc của đạn
         float bulletVelocityX = dirX * Data.bulletSpeed;
 
-        // Đã gỡ bỏ cộng dồn vận tốc di chuyển của người chơi (Inherit Velocity).
-        // Do fireRate đã được thiết kế thưa hơn, hiệu ứng Doppler không còn ảnh hưởng đến trải nghiệm.
         bullet.RB.linearVelocity = new Vector2(bulletVelocityX, 0f);
+
+        // --- Hiệu ứng giật súng (Recoil) với DOTween ---
+        if (_upperBodyVisual != null)
+        {
+            _upperBodyVisual.DOKill(); // Dừng tween cũ
+            // Đẩy lùi Transform ngược với hướng bắn
+            Vector3 recoilForce = new Vector3(-dirX * 0.15f, 0.03f, 0f);
+            _upperBodyVisual.DOPunchPosition(recoilForce, 0.1f, 1, 0.5f).SetRelative(true);
+        }
     }
 }

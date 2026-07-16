@@ -122,6 +122,10 @@ public class PlayerMovement : MonoBehaviour
 	#endregion
 
 	#region CHECK PARAMETERS
+	[Header("Visuals")]
+	[Tooltip("Kéo child phần thân dưới (chân) vào đây (Duoi)")]
+	[SerializeField] private Transform _lowerBodyVisual;
+
 	[Header("Checks")] 
 	[Tooltip("Kéo child kiểm tra dưới chân")]
 	[SerializeField] private Transform _groundCheckPoint;
@@ -209,6 +213,9 @@ public class PlayerMovement : MonoBehaviour
 	{
 		_moveInput.x = Input.GetAxisRaw("Horizontal");
 		_moveInput.y = Input.GetAxisRaw("Vertical");
+
+		if (_moveInput.x != 0)
+			CheckDirectionToFace(_moveInput.x > 0);
 
 		if(Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.J))
 			OnJumpInput();
@@ -508,10 +515,35 @@ public class PlayerMovement : MonoBehaviour
 
 	private void Turn()
 	{
-		Vector3 scale = transform.localScale; 
-		scale.x *= -1;
-		transform.localScale = scale;
 		IsFacingRight = !IsFacingRight;
+
+		if (_lowerBodyVisual != null)
+		{
+			Vector3 scale = _lowerBodyVisual.localScale; 
+			scale.x *= -1;
+			_lowerBodyVisual.localScale = scale;
+
+			// Lật vị trí các điểm check để vật lý hoạt động đúng mà không cần lật Root
+			if (_frontWallCheckPoint != null)
+			{
+				Vector3 pos = _frontWallCheckPoint.localPosition;
+				pos.x *= -1;
+				_frontWallCheckPoint.localPosition = pos;
+			}
+			if (_backWallCheckPoint != null)
+			{
+				Vector3 pos = _backWallCheckPoint.localPosition;
+				pos.x *= -1;
+				_backWallCheckPoint.localPosition = pos;
+			}
+		}
+		else
+		{
+			// Fallback an toàn nếu quên chưa kéo Transform
+			Vector3 scale = transform.localScale; 
+			scale.x *= -1;
+			transform.localScale = scale;
+		}
 	}
     #endregion
 
