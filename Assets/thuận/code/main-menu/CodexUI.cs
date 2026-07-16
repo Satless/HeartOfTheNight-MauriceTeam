@@ -27,6 +27,7 @@ public class CodexUI : MonoBehaviour
     public void OpenSetting()
     {
         SettingPanel.SetActive(true);
+        MenuPanel.SetActive(false);
         SaveLostPanel.SetActive(false);
         ControlsPanel.SetActive(false);
     }
@@ -58,6 +59,7 @@ public class CodexUI : MonoBehaviour
     }
     public void CloseSetting()
     {
+        MenuPanel.SetActive(true);
         SettingPanel.SetActive(false);
         ControlsPanel.SetActive(false);
         SaveLostPanel.SetActive(false);
