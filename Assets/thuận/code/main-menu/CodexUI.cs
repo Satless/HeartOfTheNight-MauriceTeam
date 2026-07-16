@@ -23,6 +23,9 @@ public class CodexUI : MonoBehaviour
     public void OpenCredit()
     {
         CreditPanel.SetActive(true);
+        MenuPanel.SetActive(false);
+        SaveLostPanel.SetActive(false);
+        ControlsPanel.SetActive(false);
     }
     public void OpenSetting()
     {
@@ -52,6 +55,7 @@ public class CodexUI : MonoBehaviour
     public void CloseCredit()
     {
         CreditPanel.SetActive(false);
+        MenuPanel.SetActive(true);
     }
     public void CloseCodex()
     {
