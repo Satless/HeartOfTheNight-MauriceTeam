@@ -41,8 +41,31 @@ public class PlayerAnimation : MonoBehaviour
     {
         UpdateGunState();
         HandleBlendTreeParams();
-        HandleMoonwalkAndFacing();
+        HandleMoonwalk();
         HandleStateAnimations();
+    }
+
+    private void LateUpdate()
+    {
+        // Đồng bộ hóa HƯỚNG NHÌN VÀ QUAY MẶT (Visual Facing)
+        // Dùng LateUpdate để đè lên các thay đổi scale từ PlayerMovement.Turn() (nếu có)
+        Vector3 lowerScale = _lowerAnimator.transform.localScale;
+
+        if (_isHoldingGun)
+        {
+            // KHI CÓ SÚNG: Ép phần thân dưới (chân) quay theo hướng súng (chuột)
+            // để tránh hiện tượng vặn xoắn, bất kể PlayerMovement đang đi hướng nào.
+            float upperSign = Mathf.Sign(_upperBodyObject.transform.localScale.x);
+            lowerScale.x = Mathf.Abs(lowerScale.x) * upperSign;
+        }
+        else
+        {
+            // KHI CẤT SÚNG: Trả phần thân dưới quay theo hướng vật lý (IsFacingRight của PlayerMovement)
+            float moveSign = _movement.IsFacingRight ? 1f : -1f;
+            lowerScale.x = Mathf.Abs(lowerScale.x) * moveSign;
+        }
+
+        _lowerAnimator.transform.localScale = lowerScale;
     }
 
     private void UpdateGunState()
@@ -63,11 +86,8 @@ public class PlayerAnimation : MonoBehaviour
         _lowerAnimator.SetFloat(VelocityYKey, _movement.RB.linearVelocity.y);
     }
 
-    private void HandleMoonwalkAndFacing()
+    private void HandleMoonwalk()
     {
-        // Lấy hướng ngắm súng (từ scale của UpperBody)
-        bool isAimingRight = _upperBodyObject.transform.localScale.x > 0;
-
         // Nếu không cầm súng, nhân vật cứ chạy bình thường tiến về phía trước
         if (!_isHoldingGun) 
         {
@@ -77,18 +97,16 @@ public class PlayerAnimation : MonoBehaviour
 
         bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f;
 
-        if (!isMoving && _movement.CurrentState == PlayerMovement.PlayerState.Grounded)
+        if (!isMoving || _movement.CurrentState != PlayerMovement.PlayerState.Grounded)
         {
-            // Khi ĐỨNG IM và CÓ SÚNG: Ép phần thân dưới (chân) quay theo hướng chuột
-            // để tránh hiện tượng vặn xoắn (chân một nẻo, súng một nẻo)
-            _movement.CheckDirectionToFace(isAimingRight);
-            
-            // Đã đứng im thì tốc độ phát anim là 1 (bình thường)
+            // Không di chuyển hoặc trên không thì tốc độ phát anim là 1 (bình thường)
             _lowerAnimator.SetFloat(RunSpeedKey, 1f);
         }
         else
         {
-            // Khi CÓ DI CHUYỂN: So sánh hướng ngắm súng và hướng di chuyển của chân
+            // Khi CÓ DI CHUYỂN: So sánh hướng ngắm súng và hướng di chuyển vật lý
+            bool isAimingRight = _upperBodyObject.transform.localScale.x > 0;
+            
             // Nếu ngắm và chạy ngược hướng nhau -> Moonwalk
             bool isMoonwalk = (isAimingRight != _movement.IsFacingRight);
 
