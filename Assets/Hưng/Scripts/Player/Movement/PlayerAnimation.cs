@@ -41,7 +41,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         UpdateGunState();
         HandleBlendTreeParams();
-        HandleMoonwalk();
+        HandleMoonwalkAndFacing();
         HandleStateAnimations();
     }
 
@@ -63,8 +63,11 @@ public class PlayerAnimation : MonoBehaviour
         _lowerAnimator.SetFloat(VelocityYKey, _movement.RB.linearVelocity.y);
     }
 
-    private void HandleMoonwalk()
+    private void HandleMoonwalkAndFacing()
     {
+        // Lấy hướng ngắm súng (từ scale của UpperBody)
+        bool isAimingRight = _upperBodyObject.transform.localScale.x > 0;
+
         // Nếu không cầm súng, nhân vật cứ chạy bình thường tiến về phía trước
         if (!_isHoldingGun) 
         {
@@ -72,15 +75,26 @@ public class PlayerAnimation : MonoBehaviour
             return;
         }
 
-        // Lấy hướng ngắm súng (từ scale của UpperBody)
-        bool isAimingRight = _upperBodyObject.transform.localScale.x > 0;
-        
-        // So sánh với hướng di chuyển của chân (IsFacingRight của Movement)
-        // Nếu ngắm và chạy ngược hướng nhau -> Moonwalk
-        bool isMoonwalk = (isAimingRight != _movement.IsFacingRight);
+        bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f;
 
-        // Gán vào biến RunSpeed trong Animator (Multiplier của node ThanDuoi-dichuyen)
-        _lowerAnimator.SetFloat(RunSpeedKey, isMoonwalk ? -1f : 1f);
+        if (!isMoving && _movement.CurrentState == PlayerMovement.PlayerState.Grounded)
+        {
+            // Khi ĐỨNG IM và CÓ SÚNG: Ép phần thân dưới (chân) quay theo hướng chuột
+            // để tránh hiện tượng vặn xoắn (chân một nẻo, súng một nẻo)
+            _movement.CheckDirectionToFace(isAimingRight);
+            
+            // Đã đứng im thì tốc độ phát anim là 1 (bình thường)
+            _lowerAnimator.SetFloat(RunSpeedKey, 1f);
+        }
+        else
+        {
+            // Khi CÓ DI CHUYỂN: So sánh hướng ngắm súng và hướng di chuyển của chân
+            // Nếu ngắm và chạy ngược hướng nhau -> Moonwalk
+            bool isMoonwalk = (isAimingRight != _movement.IsFacingRight);
+
+            // Gán vào biến RunSpeed trong Animator (Multiplier của node ThanDuoi-dichuyen)
+            _lowerAnimator.SetFloat(RunSpeedKey, isMoonwalk ? -1f : 1f);
+        }
     }
 
     private void HandleStateAnimations()
@@ -100,8 +114,6 @@ public class PlayerAnimation : MonoBehaviour
         }
 
         // --- KHÔNG DÙNG MŨI TÊN - GỌI TRỰC TIẾP QUA CODE ---
-        // Nếu state thay đổi, hoặc đang ở Grounded nhưng đổi từ đứng im sang chạy, HOẶC trạng thái súng thay đổi
-        // Cần update liên tục ở Grounded để chuyển đổi kịp thời giữa lúc rút/cất súng
         if (state != _lastState || state == PlayerMovement.PlayerState.Grounded)
         {
             switch (state)
