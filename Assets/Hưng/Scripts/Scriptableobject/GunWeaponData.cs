@@ -10,7 +10,6 @@ public class GunWeaponData : ScriptableObject
     public float bulletSpeed;
     [Tooltip("Sát thương cơ bản của mỗi viên đạn")]
     public int damage;
-
     [Tooltip("Đạn tự tắt khi không trúng gì cả")]
     public float bulletLifetime;
 }

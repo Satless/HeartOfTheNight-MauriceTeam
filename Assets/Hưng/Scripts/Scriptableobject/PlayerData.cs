@@ -70,6 +70,8 @@ public class PlayerData : ScriptableObject
 	[Range(0f, 1.5f)] public float wallJumpTime; //Thời gian sau khi nhảy tường mà di chuyển của người chơi bị làm chậm lại.
 	[Tooltip("Tự động xoay mặt nhân vật hướng ra ngoài khi bật nhảy tường.")]
 	public bool doTurnOnWallJump; //Người chơi sẽ xoay mặt về hướng nhảy tường
+	[Tooltip("Khi nhấn lướt trong khi bám tường, sẽ tự động lướt ra hướng ngược lại.\nKhông làm nút bám tường như Celeste nên dùng kiểu này.")]
+	public bool allowReverseWallClingDash; //Dash ngược hướng bám tường
 
 	[Header("Double Jump")]
 	[Tooltip("Số lượng cú nhảy trên không (Nhảy đôi) cho phép.")]
@@ -78,10 +80,14 @@ public class PlayerData : ScriptableObject
 	[Space(20)]
 
 	[Header("Slide")]
+	[Space(5)]
 	[Tooltip("Tốc độ trượt từ từ xuống tường. Nên đặt số âm để trượt xuống, chứ dương là thành leo đấy.")]
 	public float slideSpeed; // Tốc độ trượt tường (âm = xuống, để dương là thành leo lên đấy)
 	[Tooltip("Gia tốc hãm phanh khi bám tường (Giúp nhân vật từ từ chậm lại thành trượt thay vì rớt tự do).")]
 	public float slideAccel; // Gia tốc trượt tường (dùng để hãm tốc độ khi trượt xuống)
+	[Space(5)]
+	[Tooltip("Vừa bắn vừa bám/trượt tường.")]
+	public bool allowShootWhileSliding;
 
 	[Header("Wall Climb")]
 	[Tooltip("Tốc độ leo tường. Số dương.")]
@@ -108,11 +114,11 @@ public class PlayerData : ScriptableObject
 	[Tooltip("Thời lượng duy trì trạng thái lướt (Tính bằng giây, thường rất ngắn).")]
 	public float dashAttackTime; // Thời gian lướt
 	[Space(5)]
-	[Tooltip("Thời gian giữ ở giai đoạn 'kết lướt'. Vận tốc bắt đầu từ dashEndSpeed rồi dịch chuyển dần theo input.\nĐộ bẻ lái giới hạn theo dashEndRunLerp")]
+	[Tooltip("Thời gian giữ ở giai đoạn 'kết lướt'.\nĐầu phase: vận tốc bị kéo về dashEndSpeed theo hướng dash.\nSau đó: Run(dashEndRunLerp) kéo dần velocity ngang về phía input người chơi mỗi FixedUpdate.")]
 	public float dashEndTime; 
 	[Tooltip("Vận tốc bị hãm xuống ở cuối giai đoạn lướt (Tạo cảm giác phanh gấp, bám sát cơ chế di chuyển của Celeste).")]
 	public Vector2 dashEndSpeed; //Làm chậm người chơi, giúp lướt (dash) có cảm giác phản hồi tốt hơn (được sử dụng trong Celeste)
-	[Tooltip("Độ bẻ lái ngang, áp dụng cho CẢ 2 giai đoạn lướt: pha xung kích (dashAttackTime) và pha kết lướt (dashEndTime).")]
+	[Tooltip("Độ bẻ lái ngang sau giai đoạn kết lướt (dashEndTime) để trả dần quyền điều khiển.")]
 	[Range(0f, 1f)] public float dashEndRunLerp;
 	[Space(5)]
 	[Tooltip("Thời gian chờ để hồi lại lượt lướt sau khi chạm đất.")]
@@ -123,8 +129,10 @@ public class PlayerData : ScriptableObject
 	[Space(5)]
 	[Tooltip("Cho phép vừa lướt vừa xả đạn.")]
 	public bool allowShootWhileDashing;
-	[Tooltip("Bật: Khóa mặt nhân vật ép nhìn theo hướng lướt.\nTắt: Cho phép 'Moonwalk Dash' lướt lùi.")]
+	[Tooltip("Nhân vật nhìn theo hướng lướt")]
 	public bool lockFacingToDashDirection;
+	[Tooltip("Chỉ lướt ngang")]
+	public bool horizontalDashOnly;
 	
 
 	//Unity Callback, được gọi khi inspector cập nhật
@@ -137,8 +145,8 @@ public class PlayerData : ScriptableObject
 		gravityScale = gravityStrength / Physics2D.gravity.y;
 
 		//Tính toán lực gia tốc và giảm tốc khi chạy bằng công thức: amount = ((1 / Time.fixedDeltaTime) * acceleration) / runMaxSpeed
-		runAccelAmount = (50 * runAcceleration) / runMaxSpeed;
-		runDeccelAmount = (50 * runDecceleration) / runMaxSpeed;
+		runAccelAmount = ((1 / Time.fixedDeltaTime) * runAcceleration) / runMaxSpeed;
+		runDeccelAmount = ((1 / Time.fixedDeltaTime) * runDecceleration) / runMaxSpeed;
 
 		//Tính toán lực nhảy (jumpForce) bằng công thức (initialJumpVelocity = gravity * timeToJumpApex)
 		jumpForce = Mathf.Abs(gravityStrength) * jumpTimeToApex;
