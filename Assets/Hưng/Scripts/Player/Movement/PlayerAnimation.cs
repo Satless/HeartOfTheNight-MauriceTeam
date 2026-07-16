@@ -24,6 +24,7 @@ public class PlayerAnimation : MonoBehaviour
     
     // Hỗ trợ logic cất súng
     private float _lastShootInputTime;
+    private bool _isHoldingGun;
 
     private void Awake()
     {
@@ -38,9 +39,22 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Update()
     {
+        UpdateGunState();
         HandleBlendTreeParams();
         HandleMoonwalk();
         HandleStateAnimations();
+    }
+
+    private void UpdateGunState()
+    {
+        // 1. XỬ LÝ LOGIC HIỆN/ẨN THÂN TRÊN CẦM SÚNG
+        if (Input.GetMouseButton(0))
+        {
+            _lastShootInputTime = Time.time;
+        }
+
+        // Kiểm tra xem người chơi có đang trong trạng thái "Rút súng" không
+        _isHoldingGun = Time.time - _lastShootInputTime <= _keepGunOutDuration;
     }
 
     private void HandleBlendTreeParams()
@@ -51,9 +65,9 @@ public class PlayerAnimation : MonoBehaviour
 
     private void HandleMoonwalk()
     {
-        if (!_upperBodyObject.activeSelf) 
+        // Nếu không cầm súng, nhân vật cứ chạy bình thường tiến về phía trước
+        if (!_isHoldingGun) 
         {
-            // Nếu không cầm súng, nhân vật cứ chạy bình thường tiến về phía trước
             _lowerAnimator.SetFloat(RunSpeedKey, 1f);
             return;
         }
@@ -65,7 +79,7 @@ public class PlayerAnimation : MonoBehaviour
         // Nếu ngắm và chạy ngược hướng nhau -> Moonwalk
         bool isMoonwalk = (isAimingRight != _movement.IsFacingRight);
 
-        // Gán vào biến RunSpeed trong Animator (Multiplier của node Duoi-move)
+        // Gán vào biến RunSpeed trong Animator (Multiplier của node ThanDuoi-dichuyen)
         _lowerAnimator.SetFloat(RunSpeedKey, isMoonwalk ? -1f : 1f);
     }
 
@@ -73,38 +87,44 @@ public class PlayerAnimation : MonoBehaviour
     {
         var state = _movement.CurrentState;
 
-        // 1. XỬ LÝ LOGIC HIỆN/ẨN THÂN TRÊN CẦM SÚNG
-        if (Input.GetMouseButton(0))
-        {
-            _lastShootInputTime = Time.time;
-        }
-
-        // Kiểm tra xem người chơi có đang trong trạng thái "Rút súng" không
-        bool isHoldingGun = Time.time - _lastShootInputTime <= _keepGunOutDuration;
-
         // Các hành động full-body bắt buộc cất súng
         bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
                                      (state == PlayerMovement.PlayerState.Sliding);
         
         // Chỉ hiện thân trên khi: Đang rút súng VÀ Không làm hành động full-body
-        bool shouldShowUpperBody = isHoldingGun && !isDoingFullBodyAction;
+        bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
 
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
         {
             _upperBodyObject.SetActive(shouldShowUpperBody);
         }
 
-        // 2. KHÔNG DÙNG MŨI TÊN - GỌI TRỰC TIẾP QUA CODE
+        // --- KHÔNG DÙNG MŨI TÊN - GỌI TRỰC TIẾP QUA CODE ---
+        // Nếu state thay đổi, hoặc đang ở Grounded nhưng đổi từ đứng im sang chạy, HOẶC trạng thái súng thay đổi
+        // Cần update liên tục ở Grounded để chuyển đổi kịp thời giữa lúc rút/cất súng
         if (state != _lastState || state == PlayerMovement.PlayerState.Grounded)
         {
             switch (state)
             {
                 case PlayerMovement.PlayerState.Grounded:
-                    // Nếu có input di chuyển ngang thì chạy, không thì đứng im
-                    if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f)
-                        _lowerAnimator.Play("Duoi-move");
+                    bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f;
+                    
+                    if (_isHoldingGun)
+                    {
+                        // Đang cầm súng
+                        if (isMoving)
+                            _lowerAnimator.Play("ThanDuoi-dichuyen");
+                        else
+                            _lowerAnimator.Play("ThanDuoi-dungban");
+                    }
                     else
-                        _lowerAnimator.Play("Duoi-ide");
+                    {
+                        // Đã cất súng (Full body)
+                        if (isMoving)
+                            _lowerAnimator.Play("Duoi-move");
+                        else
+                            _lowerAnimator.Play("Duoi-ide");
+                    }
                     break;
 
                 case PlayerMovement.PlayerState.Jumping:
