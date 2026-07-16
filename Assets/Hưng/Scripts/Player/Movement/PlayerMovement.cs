@@ -407,9 +407,10 @@ public class PlayerMovement : MonoBehaviour
 	/// <summary>Xử lý di chuyển ngang, gọi từ FixedUpdate.</summary>
 	private void HandleRun()
 	{
-		if (IsDashing) // Giai đoạn cuối của dash, trả lại một chút quyền điều khiển hướng
+		if (IsDashing)
 		{
-			Run(Data.dashEndRunLerp);
+			if (!_isDashAttacking) // Chỉ trả lại một chút quyền bẻ lái ở Phase 2. Ở Phase 1 Coroutine đã ép chết vận tốc.
+				Run(Data.dashEndRunLerp);
 			return;
 		}
 
@@ -440,11 +441,15 @@ public class PlayerMovement : MonoBehaviour
 	// -------------------------------------------------------------------------
 
     #region GENERAL METHODS
-    public void SetGravityScale(float scale)
+    /// <summary>Gán hệ số trọng lực cho Rigidbody. Dùng để tăng/giảm trọng lực theo ngữ cảnh
+	/// (vd: giảm khi ở đỉnh nhảy, tăng khi rơi, tắt hẳn khi dash).</summary>
+	public void SetGravityScale(float scale)
 	{
 		RB.gravityScale = scale;
 	}
 
+	/// <summary>Đóng băng game trong khoảnh khắc (hiệu ứng "Hit Stop / Freeze Frame").
+	/// Gọi trước khi Dash để người chơi có thời gian chọn hướng lướt chính xác.</summary>
 	private void Sleep()
     {
 		StartCoroutine(nameof(PerformSleep));
@@ -452,9 +457,9 @@ public class PlayerMovement : MonoBehaviour
 
 	private IEnumerator PerformSleep()
     {
-		Time.timeScale = 0;
-		yield return _sleepWait;
-		Time.timeScale = 1;
+		Time.timeScale = 0; // Dừng toàn bộ game (vật lý, animation, timer)
+		yield return _sleepWait; // Chờ dashSleepTime giây THỰC (dùng WaitForSecondsRealtime vì timeScale = 0)
+		Time.timeScale = 1; // Trả game về tốc độ bình thường
 	}
     #endregion
 
@@ -463,31 +468,42 @@ public class PlayerMovement : MonoBehaviour
     #region RUN METHODS
     private void Run(float lerpAmount)
 	{
+		// Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
 		float targetSpeed = _moveInput.x * Data.runMaxSpeed;
+		// Nội suy giữa vận tốc hiện tại và tốc độ mục tiêu.
+		// lerpAmount = 1 → nhảy thẳng sang targetSpeed (full quyền điều khiển).
+		// lerpAmount = 0 → giữ nguyên vận tốc hiện tại (không cho bẻ lái).
+		// lerpAmount ở giữa (vd: 0.13, 0.4) → chỉ trả một phần quyền bẻ lái (dùng cho dash end, wall jump).
 		targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
-		// nơi điều chỉnh tốc độ mục tiêu theo nội suy tuyến tính đồng thời ban lệnh quyền di chuyển
 
-		// Chọn acceleration dựa trên trạng thái mặt đất / trên không
+		// Chọn tỷ lệ gia tốc: đang giữ phím → dùng Accel (tăng tốc), buông phím → dùng Deccel (phanh).
+		// Trên không thì nhân thêm hệ số accelInAir/deccelInAir để giảm kiểm soát trên không trung.
 		float accelRate;
 		if (LastOnGroundTime > 0)
 			accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount : Data.runDeccelAmount;
 		else
 			accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? Data.runAccelAmount * Data.accelInAir : Data.runDeccelAmount * Data.deccelInAir;
 
-		// Tăng acceleration & maxSpeed ở đỉnh jump (hang time)
+		// Buff ở đỉnh nhảy (hang time): khi gần đỉnh, tốc độ dọc ≈ 0 → tăng gia tốc và tốc độ tối đa
+		// để người chơi có cảm giác "lơ lửng" và dễ điều khiển hơn ở khoảnh khắc đỉnh nhảy.
 		if ((IsJumping || IsWallJumping || _isJumpFalling) && Mathf.Abs(RB.linearVelocity.y) < Data.jumpHangTimeThreshold)
 		{
 			accelRate *= Data.jumpHangAccelerationMult;
 			targetSpeed *= Data.jumpHangMaxSpeedMult;
 		}
 
-		// Bảo toàn momentum — không giảm tốc nếu đang di chuyển nhanh hơn maxSpeed
-		if(Data.doConserveMomentum && Mathf.Abs(RB.linearVelocity.x) > Mathf.Abs(targetSpeed) && Mathf.Sign(RB.linearVelocity.x) == Mathf.Sign(targetSpeed) && Mathf.Abs(targetSpeed) > 0.01f && LastOnGroundTime < 0)
-			accelRate = 0;
+		// Bảo toàn quán tính — Nếu nhân vật đang bay nhanh hơn tốc độ tối đa (vd: sau Dash, knockback),
+		// và người chơi giữ phím cùng hướng bay, thì KHÔNG phanh lại. Chỉ áp dụng trên không.
+		if(Data.doConserveMomentum
+			&& Mathf.Abs(RB.linearVelocity.x) > Mathf.Abs(targetSpeed) // Tốc độ hiện tại > tốc độ mục tiêu (đang bay nhanh hơn max)
+			&& Mathf.Sign(RB.linearVelocity.x) == Mathf.Sign(targetSpeed) // Đang bay cùng hướng với phím giữ
+			&& Mathf.Abs(targetSpeed) > 0.01f // Có đang giữ phím di chuyển (trái hoặc phải)
+			&& LastOnGroundTime < 0) // Đang trên không (không chạm đất)
+			accelRate = 0; // Xóa gia tốc → giữ nguyên vận tốc hiện tại
 
-		float speedDif = targetSpeed - RB.linearVelocity.x;
-		float movement = speedDif * accelRate;
-		RB.AddForce(movement * Vector2.right, ForceMode2D.Force); //vừa áp dụng lực vừa là nơi thực thi quyền di chuyển
+		float speedDif = targetSpeed - RB.linearVelocity.x; // Chênh lệch giữa tốc độ mong muốn và tốc độ hiện tại
+		float movement = speedDif * accelRate; // Lực cần áp dụng = chênh lệch × tỷ lệ gia tốc
+		RB.AddForce(movement * Vector2.right, ForceMode2D.Force); // Áp dụng lực ngang lên Rigidbody
 	}
 
 	private void Turn()
@@ -547,7 +563,7 @@ public class PlayerMovement : MonoBehaviour
 		LastOnGroundTime = 0;
 		LastPressedDashTime = 0;
 
-		// Nếu tắt Moonwalk (tức bật lockFacingToDashDirection), ép quay mặt đúng theo hướng lướt ngang
+		// Nếu bật lockFacingToDashDirection, ép quay mặt đúng theo hướng lướt ngang
 		if (Data.lockFacingToDashDirection && Mathf.Abs(dir.x) > 0.1f)
 		{
 			CheckDirectionToFace(dir.x > 0);

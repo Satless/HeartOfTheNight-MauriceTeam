@@ -81,7 +81,11 @@ public class PlayerAttack : MonoBehaviour
         // Hướng bắn chỉ theo trục ngang (trái hoặc phải)
         float dirX = _movement.IsFacingRight ? 1f : -1f;
 
-        // Dùng Rigidbody2D đã cache sẵn trong Bullet — không GetComponent runtime
-        bullet.RB.AddForce(new Vector2(dirX, 0f) * Data.bulletSpeed, ForceMode2D.Impulse);
+        // Tốc độ gốc của đạn
+        float bulletVelocityX = dirX * Data.bulletSpeed;
+
+        // Đã gỡ bỏ cộng dồn vận tốc di chuyển của người chơi (Inherit Velocity).
+        // Do fireRate đã được thiết kế thưa hơn, hiệu ứng Doppler không còn ảnh hưởng đến trải nghiệm.
+        bullet.RB.linearVelocity = new Vector2(bulletVelocityX, 0f);
     }
 }
