@@ -118,7 +118,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -156,7 +156,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -190,6 +190,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -197,12 +210,12 @@ TextureImporter:
       name: Player-Sheet-Movement_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 308
-        width: 18
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 293
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -219,12 +232,12 @@ TextureImporter:
       name: Player-Sheet-Movement_1
       rect:
         serializedVersion: 2
-        x: 10
-        y: 260
-        width: 17
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -241,12 +254,12 @@ TextureImporter:
       name: Player-Sheet-Movement_2
       rect:
         serializedVersion: 2
-        x: 77
-        y: 260
-        width: 16
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 67
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -263,12 +276,12 @@ TextureImporter:
       name: Player-Sheet-Movement_3
       rect:
         serializedVersion: 2
-        x: 144
-        y: 260
-        width: 16
-        height: 28
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 134
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -285,12 +298,12 @@ TextureImporter:
       name: Player-Sheet-Movement_4
       rect:
         serializedVersion: 2
-        x: 211
-        y: 260
-        width: 16
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 201
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -307,12 +320,12 @@ TextureImporter:
       name: Player-Sheet-Movement_5
       rect:
         serializedVersion: 2
-        x: 278
-        y: 260
-        width: 18
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 268
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -329,12 +342,12 @@ TextureImporter:
       name: Player-Sheet-Movement_6
       rect:
         serializedVersion: 2
-        x: 345
-        y: 260
-        width: 16
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 335
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -351,12 +364,12 @@ TextureImporter:
       name: Player-Sheet-Movement_7
       rect:
         serializedVersion: 2
-        x: 411
-        y: 260
-        width: 17
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 402
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -373,12 +386,12 @@ TextureImporter:
       name: Player-Sheet-Movement_8
       rect:
         serializedVersion: 2
-        x: 478
-        y: 260
-        width: 18
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 469
+        y: 245
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.291, y: 0.593}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -396,11 +409,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 212
-        width: 28
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        y: 197
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.8077666, y: 0.585336}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -417,12 +430,12 @@ TextureImporter:
       name: Player-Sheet-Movement_10
       rect:
         serializedVersion: 2
-        x: 28
-        y: 212
+        x: 67
+        y: 197
         width: 67
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        height: 48
+      alignment: 9
+      pivot: {x: 0.8077666, y: 0.585336}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -439,12 +452,12 @@ TextureImporter:
       name: Player-Sheet-Movement_11
       rect:
         serializedVersion: 2
-        x: 95
-        y: 212
-        width: 73
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 134
+        y: 197
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.8077666, y: 0.585336}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -461,12 +474,12 @@ TextureImporter:
       name: Player-Sheet-Movement_12
       rect:
         serializedVersion: 2
-        x: 177
-        y: 212
-        width: 21
-        height: 22
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 201
+        y: 197
+        width: 67
+        height: 48
+      alignment: 9
+      pivot: {x: 0.8077666, y: 0.585336}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -483,12 +496,12 @@ TextureImporter:
       name: Player-Sheet-Movement_13
       rect:
         serializedVersion: 2
-        x: 247
-        y: 212
-        width: 19
-        height: 23
+        x: 0
+        y: 149
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -505,12 +518,12 @@ TextureImporter:
       name: Player-Sheet-Movement_14
       rect:
         serializedVersion: 2
-        x: 15
-        y: 165
-        width: 18
-        height: 26
+        x: 0
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -527,12 +540,12 @@ TextureImporter:
       name: Player-Sheet-Movement_15
       rect:
         serializedVersion: 2
-        x: 18
-        y: 118
-        width: 15
-        height: 31
+        x: 67
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -549,12 +562,12 @@ TextureImporter:
       name: Player-Sheet-Movement_16
       rect:
         serializedVersion: 2
-        x: 85
-        y: 121
-        width: 15
-        height: 26
+        x: 134
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -571,12 +584,12 @@ TextureImporter:
       name: Player-Sheet-Movement_17
       rect:
         serializedVersion: 2
-        x: 152
-        y: 122
-        width: 15
-        height: 25
+        x: 201
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -593,12 +606,12 @@ TextureImporter:
       name: Player-Sheet-Movement_18
       rect:
         serializedVersion: 2
-        x: 219
-        y: 119
-        width: 15
-        height: 28
+        x: 268
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -615,12 +628,12 @@ TextureImporter:
       name: Player-Sheet-Movement_19
       rect:
         serializedVersion: 2
-        x: 286
-        y: 119
-        width: 15
-        height: 30
+        x: 335
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -637,12 +650,12 @@ TextureImporter:
       name: Player-Sheet-Movement_20
       rect:
         serializedVersion: 2
-        x: 353
-        y: 123
-        width: 15
-        height: 24
+        x: 402
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -659,12 +672,12 @@ TextureImporter:
       name: Player-Sheet-Movement_21
       rect:
         serializedVersion: 2
-        x: 420
-        y: 120
-        width: 15
-        height: 26
+        x: 469
+        y: 101
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -681,12 +694,12 @@ TextureImporter:
       name: Player-Sheet-Movement_22
       rect:
         serializedVersion: 2
-        x: 487
-        y: 119
-        width: 15
-        height: 29
+        x: 0
+        y: 53
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -703,12 +716,12 @@ TextureImporter:
       name: Player-Sheet-Movement_23
       rect:
         serializedVersion: 2
-        x: 16
-        y: 66
-        width: 17
-        height: 26
+        x: 67
+        y: 53
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -725,12 +738,12 @@ TextureImporter:
       name: Player-Sheet-Movement_24
       rect:
         serializedVersion: 2
-        x: 81
-        y: 67
-        width: 23
-        height: 26
+        x: 134
+        y: 53
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -747,12 +760,12 @@ TextureImporter:
       name: Player-Sheet-Movement_25
       rect:
         serializedVersion: 2
-        x: 145
-        y: 67
-        width: 28
-        height: 25
+        x: 0
+        y: 5
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -769,12 +782,12 @@ TextureImporter:
       name: Player-Sheet-Movement_26
       rect:
         serializedVersion: 2
-        x: 13
-        y: 22
-        width: 24
-        height: 23
+        x: 67
+        y: 5
+        width: 67
+        height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -787,33 +800,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Player-Sheet-Movement_27
-      rect:
-        serializedVersion: 2
-        x: 77
-        y: 22
-        width: 28
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 580163c4922a8e340800000000000000
-      internalID: 4893339293394014341
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d582f490bb8031d428c5cdaad61b41d3
     internalID: 0
     vertices: []
     indices: 
@@ -843,7 +834,6 @@ TextureImporter:
       Player-Sheet-Movement_24: -4151052864671817928
       Player-Sheet-Movement_25: 1260769606385389690
       Player-Sheet-Movement_26: -3420495137554309043
-      Player-Sheet-Movement_27: 4893339293394014341
       Player-Sheet-Movement_3: 6346324430500868254
       Player-Sheet-Movement_4: 8340070341623859765
       Player-Sheet-Movement_5: -5396736034790952921
