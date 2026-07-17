@@ -1,13 +1,40 @@
-using HeartOfTheNight.Common;
+﻿using HeartOfTheNight.Common;
 using UnityEngine;
 
 public class TestPlayerHealth : MonoBehaviour, IDamageable
 {
-    [SerializeField] private int hp = 100;
-    public void TakeDamage(int amount)
+    [Header("Player HP")]
+    public int maxHP = 100;
+
+    private int currentHP;
+
+    private void Start()
     {
-        hp -= amount;
-        Debug.Log($"Player HP: {hp}");
-        if (hp <= 0) Destroy(gameObject);
+        currentHP = maxHP;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        // Trừ máu
+        currentHP -= damage;
+
+        // Không cho HP âm
+        if (currentHP < 0)
+            currentHP = 0;
+
+        // Thông báo HP còn lại
+        Debug.Log("Player bị mất " + damage + " HP. HP còn lại: " + currentHP + "/" + maxHP);
+
+        // Nếu hết máu
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Player đã chết!");
+        // TODO: Thêm animation chết hoặc Game Over
     }
 }
