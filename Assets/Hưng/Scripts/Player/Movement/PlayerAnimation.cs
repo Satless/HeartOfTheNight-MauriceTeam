@@ -90,6 +90,14 @@ public class PlayerAnimation : MonoBehaviour
         {
             // KHI CẤT SÚNG: Trả phần thân dưới quay theo hướng vật lý (IsFacingRight của PlayerMovement)
             float moveSign = _movement.IsFacingRight ? 1f : -1f;
+
+            // MẸO VISUAL: Khi vừa búng tường, vật lý đã quay mặt ra ngoài,
+            // nhưng ta muốn giữ dáng "đạp tường" hướng vào trong tường.
+            if (_movement.CurrentState == PlayerMovement.PlayerState.WallJumping && _currentAnim == "Duoi-TruotTuong")
+            {
+                moveSign *= -1f;
+            }
+
             lowerScale.x = Mathf.Abs(lowerScale.x) * moveSign;
         }
 
@@ -154,8 +162,11 @@ public class PlayerAnimation : MonoBehaviour
         {
             case PlayerMovement.PlayerState.Jumping:
             case PlayerMovement.PlayerState.Falling:
-            case PlayerMovement.PlayerState.WallJumping:
                 PlayAnim("Nhay");
+                break;
+                
+            case PlayerMovement.PlayerState.WallJumping:
+                PlayAnim("Duoi-TruotTuong");
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
