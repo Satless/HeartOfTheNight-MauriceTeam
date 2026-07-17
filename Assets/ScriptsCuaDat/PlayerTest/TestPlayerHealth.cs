@@ -35,6 +35,6 @@ public class TestPlayerHealth : MonoBehaviour, IDamageable
     private void Die()
     {
         Debug.Log("Player đã chết!");
-        // TODO: Thêm animation chết hoặc Game Over
+        
     }
 }

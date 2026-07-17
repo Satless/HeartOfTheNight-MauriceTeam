@@ -1,7 +1,7 @@
 using HeartOfTheNight.Common;
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour, IDamageable
+public class PlayerHealthh : MonoBehaviour, IDamageable
 {
     [SerializeField] private int hp = 100;
     public void TakeDamage(int amount)
