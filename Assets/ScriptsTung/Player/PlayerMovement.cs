@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovementt : MonoBehaviour
 {
     [Header("Di chuyển cơ bản")]
     public float moveSpeed = 5f;
