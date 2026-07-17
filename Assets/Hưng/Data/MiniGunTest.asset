@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
-  m_Name: TestVukhi
+  m_Name: MiniGunTest
   m_EditorClassIdentifier: 
-  fireRate: 0.5
+  fireRate: 0.2
   bulletSpeed: 30
-  damage: 15
+  damage: 1
   bulletLifetime: 3
-  bulletsPerShot: 0
-  spreadAngle: 1.2
-  weaponAnimator: {fileID: 9100000, guid: ad5575500f8e3cd43a624c0bcaa267b6, type: 2}
+  bulletsPerShot: 3
+  spreadAngle: 3
+  weaponAnimator: {fileID: 9100000, guid: 5e4b6089c26b362409a32581062ed367, type: 2}

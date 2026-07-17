@@ -1,10 +1,28 @@
 using UnityEngine;
 using DG.Tweening;
 
+[System.Serializable]
+public class WeaponSlot
+{
+    public GunWeaponData variant1;
+    public GunWeaponData variant2;
+}
+
 public class PlayerAttack : MonoBehaviour
 {
-    [Tooltip("Kéo thẳng ScriptableObject của súng vào đây")]
-    public GunWeaponData Data;
+    [Header("Weapons (Press 1, 2, 3 to switch, Q to toggle variant)")]
+    [Tooltip("Vũ khí 1 (Phím 1)")]
+    public WeaponSlot Weapon1;
+    [Tooltip("Vũ khí 2 (Phím 2)")]
+    public WeaponSlot Weapon2;
+    [Tooltip("Vũ khí 3 (Phím 3)")]
+    public WeaponSlot Weapon3;
+
+    [HideInInspector]
+    public GunWeaponData Data; // Vũ khí đang cầm hiện tại
+
+    private int _currentSlotIndex = 1;
+    private bool _useVariant2 = false;
 
     [Header("Camera")]
     [Tooltip("Kéo thẳng camera trên hierarchy vào ô này. Dùng để tính tọa độ ngắm bắn ngang theo chuột.")]
@@ -29,12 +47,64 @@ public class PlayerAttack : MonoBehaviour
     private void Awake()
     {
         _movement = GetComponent<PlayerMovement>();
+        EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
     }
 
     private void Update()
     {
+        HandleWeaponSwitching();
         HandleFacing();
         HandleFire();
+    }
+
+    private void HandleWeaponSwitching()
+    {
+        // Đổi súng bằng phím số
+        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipSlot(1);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipSlot(2);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) EquipSlot(3);
+
+        // Đổi biến thể bằng phím Q
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            _useVariant2 = !_useVariant2;
+            EquipSlot(_currentSlotIndex); // Re-equip slot hiện tại với biến thể mới
+        }
+    }
+
+    private void EquipSlot(int slotNumber)
+    {
+        _currentSlotIndex = slotNumber;
+        WeaponSlot slot = slotNumber == 1 ? Weapon1 : (slotNumber == 2 ? Weapon2 : Weapon3);
+        
+        GunWeaponData weaponToEquip = _useVariant2 ? slot.variant2 : slot.variant1;
+        
+        // Nếu biến thể 2 không tồn tại thì tự động lấy biến thể 1 (để khỏi văng lỗi)
+        if (weaponToEquip == null) 
+            weaponToEquip = slot.variant1;
+
+        if (weaponToEquip != null)
+        {
+            EquipWeapon(weaponToEquip, slotNumber);
+        }
+    }
+
+    private void EquipWeapon(GunWeaponData newWeapon, int slotNumber)
+    {
+        if (Data == newWeapon) return;
+
+        Data = newWeapon;
+        Debug.Log($"Đã chuyển sang súng {slotNumber}: {Data.name}");
+
+        // Cập nhật lại hình ảnh súng
+        if (_upperBodyVisual != null && Data.weaponAnimator != null)
+        {
+            Animator anim = _upperBodyVisual.GetComponent<Animator>();
+            if (anim != null)
+            {
+                anim.runtimeAnimatorController = Data.weaponAnimator;
+            }
+        }
     }
 
     // ─── FACING ─────────────────────────────────────────────────────────────
@@ -96,25 +166,50 @@ public class PlayerAttack : MonoBehaviour
     {
         _lastFireTime = Time.time;
 
-        // Lấy đạn từ pool thay vì Instantiate — Zero GC
-        Bullet bullet = _bulletPool.Get(_firePoint.position);
-        bullet.Activate(Data.bulletLifetime, Data.damage);
+        // Bỏ qua nếu chưa trang bị súng
+        if (Data == null) return;
 
         // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
         float dirX = _isAimingRight ? 1f : -1f;
 
-        // Tốc độ gốc của đạn
-        float bulletVelocityX = dirX * Data.bulletSpeed;
+        // Số lượng đạn bắn ra (Pistol=1, Shotgun=5...)
+        int bulletsToShoot = Data.bulletsPerShot > 0 ? Data.bulletsPerShot : 1;
 
-        bullet.RB.linearVelocity = new Vector2(bulletVelocityX, 0f);
+        for (int i = 0; i < bulletsToShoot; i++)
+        {
+            // Lấy đạn từ pool thay vì Instantiate — Zero GC
+            Bullet bullet = _bulletPool.Get(_firePoint.position);
+            bullet.Activate(Data.bulletLifetime, Data.damage);
+
+            // Tính toán góc lệch ngẫu nhiên (spread)
+            float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);
+            
+            // Vector hướng bay gốc
+            Vector2 baseDirection = new Vector2(dirX, 0f);
+            
+            // Xoay vector hướng bay theo spreadAngle
+            Vector2 finalDirection = Quaternion.Euler(0, 0, randomSpread) * baseDirection;
+
+            // Truyền gia tốc cho đạn
+            bullet.RB.linearVelocity = finalDirection.normalized * Data.bulletSpeed;
+        }
 
         // --- Hiệu ứng giật súng (Recoil) với DOTween ---
         if (_upperBodyVisual != null)
         {
+            Animator anim = _upperBodyVisual.GetComponent<Animator>();
+            if (anim != null)
+            {
+                anim.SetTrigger("Fire");
+            }
+
             _upperBodyVisual.DOKill(); // Dừng tween cũ
-            // Đẩy lùi Transform ngược với hướng bắn
+            
+            // Rút ngắn thời gian giật nếu fireRate quá nhanh (như Minigun) để hiệu ứng không đứt gãy
+            float recoilDuration = Mathf.Min(0.1f, Data.fireRate * 0.8f);
+            
             Vector3 recoilForce = new Vector3(-dirX * 0.15f, 0.03f, 0f);
-            _upperBodyVisual.DOPunchPosition(recoilForce, 0.1f, 1, 0.5f).SetRelative(true);
+            _upperBodyVisual.DOPunchPosition(recoilForce, recoilDuration, 1, 0.5f).SetRelative(true);
         }
     }
 }
