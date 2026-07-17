@@ -2,46 +2,66 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Object Pool cho đạn — tái sử dụng thay vì Instantiate/Destroy mỗi phát bắn.
+/// Object Pool đa hình (Multi-Pool) — hỗ trợ nhiều loại đạn khác nhau trong cùng 1 Pool Manager.
 /// Gắn lên một GameObject trống trong Scene, kéo vào PlayerAttack qua Inspector.
 /// </summary>
 public class BulletPool : MonoBehaviour
 {
     [Header("Pool Settings")]
-    [Tooltip("Kéo Prefab đạn vào đây")]
-    [SerializeField] private GameObject _bulletPrefab;
-    [Tooltip("Số đạn tạo sẵn lúc đầu")]
-    [SerializeField] private int _initialSize = 20;
+    [Tooltip("Số đạn tạo sẵn lúc đầu cho MỖI LOẠI súng")]
+    [SerializeField] private int _initialSizePerType = 20;
 
-    // Stack nhanh hơn Queue cho pool vì chỉ cần push/pop — O(1)
-    private readonly Stack<Bullet> _pool = new Stack<Bullet>();
+    // Dictionary lưu trữ nhiều Stack đạn. Khóa (key) là tên của Prefab đạn.
+    private readonly Dictionary<string, Stack<Bullet>> _pools = new Dictionary<string, Stack<Bullet>>();
 
-    private void Start()
+    /// <summary>
+    /// Hàm này để PlayerAttack gọi lúc khởi động, giúp đẻ sẵn đạn ra tránh lag lúc mới bắn.
+    /// </summary>
+    public void Prewarm(Bullet prefab)
     {
-        // Tạo sẵn đạn lúc khởi động — tránh GC spike khi gameplay bắt đầu
-        for (int i = 0; i < _initialSize; i++)
+        if (prefab == null) return;
+        string key = prefab.name;
+
+        if (!_pools.ContainsKey(key))
         {
-            Bullet bullet = CreateBullet();
-            bullet.gameObject.SetActive(false);
-            _pool.Push(bullet);
+            _pools[key] = new Stack<Bullet>();
+            for (int i = 0; i < _initialSizePerType; i++)
+            {
+                Bullet bullet = CreateBullet(prefab, key);
+                bullet.gameObject.SetActive(false);
+                _pools[key].Push(bullet);
+            }
         }
     }
 
     /// <summary>
-    /// Lấy đạn từ pool. Tự tạo thêm nếu pool hết (mở rộng linh hoạt).
+    /// Lấy đạn từ pool. Yêu cầu truyền vào đúng Prefab của loại súng đang cầm.
     /// </summary>
-    public Bullet Get(Vector3 position)
+    public Bullet Get(Bullet prefab, Vector3 position)
     {
+        if (prefab == null)
+        {
+            Debug.LogError("BulletPool: Prefab đạn bị null! Hãy kiểm tra lại ScriptableObject súng.");
+            return null;
+        }
+
+        string key = prefab.name;
+
+        if (!_pools.ContainsKey(key))
+        {
+            _pools[key] = new Stack<Bullet>();
+        }
+
+        Stack<Bullet> pool = _pools[key];
         Bullet bullet;
 
-        if (_pool.Count > 0)
+        if (pool.Count > 0)
         {
-            bullet = _pool.Pop();
+            bullet = pool.Pop();
         }
         else
         {
-            // Pool hết → tạo thêm (hiếm khi xảy ra nếu _initialSize đủ lớn)
-            bullet = CreateBullet();
+            bullet = CreateBullet(prefab, key);
         }
 
         bullet.transform.position = position;
@@ -55,14 +75,21 @@ public class BulletPool : MonoBehaviour
     public void Return(Bullet bullet)
     {
         bullet.gameObject.SetActive(false);
-        _pool.Push(bullet);
+        if (_pools.ContainsKey(bullet.PoolKey))
+        {
+            _pools[bullet.PoolKey].Push(bullet);
+        }
+        else
+        {
+            Debug.LogWarning($"BulletPool: Trả đạn về nhưng không tìm thấy pool '{bullet.PoolKey}'. Đã hủy.");
+            Destroy(bullet.gameObject);
+        }
     }
 
-    private Bullet CreateBullet()
+    private Bullet CreateBullet(Bullet prefab, string key)
     {
-        GameObject go = Instantiate(_bulletPrefab, transform);
-        Bullet bullet = go.GetComponent<Bullet>();
-        bullet.Init(this); // Truyền tham chiếu pool để Bullet tự trả về
+        Bullet bullet = Instantiate(prefab, transform);
+        bullet.Init(this, key); // Truyền key để viên đạn nhớ nhà của nó
         return bullet;
     }
 }
