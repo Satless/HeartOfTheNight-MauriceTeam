@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class Automaton : MonoBehaviour
@@ -206,4 +206,4 @@ public class Automaton : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, dashRange);
     }
-}
+}*/

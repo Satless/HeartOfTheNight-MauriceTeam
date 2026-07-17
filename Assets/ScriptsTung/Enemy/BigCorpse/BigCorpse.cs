@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
-public class Burning : MonoBehaviour
+public class BigCorpse : MonoBehaviour
 {
     [Header("Tầm nhìn & Di chuyển")]
     public float moveSpeed = 5f;
@@ -150,4 +150,4 @@ public class Burning : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
-}
+}*/

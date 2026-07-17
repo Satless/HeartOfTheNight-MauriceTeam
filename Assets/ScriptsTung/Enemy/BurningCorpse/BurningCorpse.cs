@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class BurningCorpse : MonoBehaviour
@@ -88,11 +88,48 @@ public class BurningCorpse : MonoBehaviour
         rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y); // Chống đẩy người chơi
     }
 
-    // Các hàm ThucHienTeleport, LookAtPlayer, Attack, GayHieuUngChay GIỮ NGUYÊN NHƯ CŨ CỦA BẠN...
-    IEnumerator ThucHienTeleport() { isBusy = true; rb.linearVelocity = Vector2.zero; float standBehind = (player.localScale.x > 0) ? -1f : 1f; transform.position = new Vector2(player.position.x + standBehind, player.position.y); LookAtPlayer(); yield return new WaitForSeconds(postTeleportDelay); isBusy = false; }
-    void LookAtPlayer() { transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1); }
-    void Attack() { PlayerHealth pHealth = player.GetComponent<PlayerHealth>(); if (pHealth != null) { pHealth.TakeDamage(attackDamage); StartCoroutine(GayHieuUngChay(pHealth)); } }
-    IEnumerator GayHieuUngChay(PlayerHealth pHealth) { Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>(); for (int i = 0; i < burnTicks; i++) { float thoiGianDaCho = 0f; while (thoiGianDaCho < timeBetweenTicks) { if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break; thoiGianDaCho += Time.deltaTime; yield return null; } if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick); else yield break; } }
+    IEnumerator ThucHienTeleport() 
+    { 
+        isBusy = true; 
+        rb.linearVelocity = Vector2.zero; 
+        float standBehind = (player.localScale.x > 0) ? -1f : 1f; 
+        transform.position = new Vector2(player.position.x + standBehind, player.position.y); 
+        LookAtPlayer(); 
+        yield return new WaitForSeconds(postTeleportDelay); 
+        isBusy = false; 
+    }
+
+    void LookAtPlayer() 
+    { 
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1); 
+    }
+
+    void Attack() 
+    { 
+        PlayerHealth pHealth = player.GetComponent<PlayerHealth>(); 
+        if (pHealth != null) 
+        { 
+            pHealth.TakeDamage(attackDamage); 
+            StartCoroutine(GayHieuUngChay(pHealth)); 
+        } 
+    }
+
+    IEnumerator GayHieuUngChay(PlayerHealth pHealth) 
+    { 
+        Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>(); 
+        for (int i = 0; i < burnTicks; i++) 
+        { 
+            float thoiGianDaCho = 0f; 
+            while (thoiGianDaCho < timeBetweenTicks) 
+            { 
+                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break; 
+                thoiGianDaCho += Time.deltaTime; 
+                yield return null; 
+            } 
+            if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick); 
+            else yield break; 
+        } 
+    }
 
     void OnDrawGizmosSelected()
     {
@@ -101,4 +138,4 @@ public class BurningCorpse : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
-}
+}*/

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿/*using UnityEngine;
 
 public class DoomSkill : MonoBehaviour
 {
@@ -51,4 +51,4 @@ public class DoomSkill : MonoBehaviour
         // Hủy viên đạn
         Destroy(gameObject);
     }
-}
+}*/
