@@ -9,12 +9,12 @@ public class MauTestEnemyData : ScriptableObject
 {
     [Header("Health Stats")]
     [Tooltip("Lượng máu tối đa của quái")]
-    public int maxHealth = 100;
+    public int maxHealth;
 
     [Header("Visual Feedback")]
     [Tooltip("Màu hiển thị khi bị trúng đạn")]
     public Color damageColor = Color.red;
     
     [Tooltip("Thời gian nháy đỏ")]
-    public float damageFlashDuration = 0.1f;
+    public float damageFlashDuration;
 }
