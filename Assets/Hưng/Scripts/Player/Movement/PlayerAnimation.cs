@@ -20,7 +20,7 @@ public class PlayerAnimation : MonoBehaviour
     private static readonly int RunSpeedKey = Animator.StringToHash("RunSpeed");
 
     // Hỗ trợ logic cất súng
-    private float _lastShootInputTime;
+    private float _lastShootInputTime = -999f;
     private bool _isHoldingGun;
 
     private void Awake()
@@ -45,7 +45,7 @@ public class PlayerAnimation : MonoBehaviour
         // -------------------------------------------------------------
         var state = _movement.CurrentState;
         
-        // Các hành động full-body bắt buộc cất súng
+        // Các hành động full-body BẮT BUỘC cất súng (không cho bắn)
         bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
                                      (state == PlayerMovement.PlayerState.Sliding);
         
@@ -54,6 +54,7 @@ public class PlayerAnimation : MonoBehaviour
         {
             _upperBodyObject.SetActive(shouldShowUpperBody);
         }
+
 
         if (state == PlayerMovement.PlayerState.Grounded)
         {
@@ -71,6 +72,24 @@ public class PlayerAnimation : MonoBehaviour
             else
                 PlayAnim("Duoi-TruotTuong");
         }
+        else if (!isDoingFullBodyAction)
+        {
+            // Đang trên không (vì đã lọt qua Grounded và Dashing/Sliding)
+            if (_isHoldingGun)
+            {
+                bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+            }
+            else
+            {
+                // Vừa nhả chuột giữa không trung -> Trả lại animation gốc!
+                if (state == PlayerMovement.PlayerState.WallJumping)
+                    PlayAnim("Duoi-TruotTuong");
+                else 
+                    PlayAnim("Nhay");
+            }
+        }
+
     }
 
     private void LateUpdate()
@@ -107,13 +126,26 @@ public class PlayerAnimation : MonoBehaviour
     private void UpdateGunState()
     {
         // 1. XỬ LÝ LOGIC HIỆN/ẨN THÂN TRÊN CẦM SÚNG
-        if (Input.GetMouseButton(0))
+        bool isShooting = Input.GetMouseButton(0);
+        
+        if (isShooting)
         {
             _lastShootInputTime = Time.time;
         }
 
         // Kiểm tra xem người chơi có đang trong trạng thái "Rút súng" không
-        _isHoldingGun = Time.time - _lastShootInputTime <= _keepGunOutDuration;
+        bool isGrounded = _movement.CurrentState == PlayerMovement.PlayerState.Grounded;
+        
+        if (isGrounded)
+        {
+            // Trên mặt đất: giữ súng thêm một lúc sau khi nhả chuột
+            _isHoldingGun = Time.time - _lastShootInputTime <= _keepGunOutDuration;
+        }
+        else
+        {
+            // Trên không: chỉ rút súng khi đang nhấn/giữ chuột
+            _isHoldingGun = isShooting;
+        }
     }
 
     private void HandleBlendTreeParams()
@@ -157,16 +189,31 @@ public class PlayerAnimation : MonoBehaviour
     /// </summary>
     public void OnStateChanged(PlayerMovement.PlayerState newState)
     {
+        UpdateGunState(); // Ép lấy trạng thái súng chuẩn xác nhất của frame này
+
         // Chỉ xử lý các state One-shot (chỉ kích hoạt 1 lần khi vào state)
         switch (newState)
         {
             case PlayerMovement.PlayerState.Jumping:
             case PlayerMovement.PlayerState.Falling:
-                PlayAnim("Nhay");
+                // Nếu đang rút súng → dùng animation thân dưới cầm súng
+                if (_isHoldingGun)
+                {
+                    bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+                }
+                else
+                    PlayAnim("Nhay");
                 break;
                 
             case PlayerMovement.PlayerState.WallJumping:
-                PlayAnim("Duoi-TruotTuong");
+                if (_isHoldingGun)
+                {
+                    bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+                }
+                else
+                    PlayAnim("Duoi-TruotTuong");
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
