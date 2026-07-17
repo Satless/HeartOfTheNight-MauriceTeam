@@ -218,7 +218,7 @@ public class PlayerMovement : MonoBehaviour
 		_moveInput.x = Input.GetAxisRaw("Horizontal");
 		_moveInput.y = Input.GetAxisRaw("Vertical");
 
-		if (_moveInput.x != 0)
+		if (!IsDashing && _moveInput.x != 0)
 			CheckDirectionToFace(_moveInput.x > 0);
 
 		if(Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.J))
@@ -302,22 +302,30 @@ public class PlayerMovement : MonoBehaviour
 	}
 
 	/// <summary>Kiểm tra và kích hoạt dash.</summary>
-	private void HandleDashChecks()
+	private void HandleDashChecks() 
 	{
 		if (!CanDash() || LastPressedDashTime <= 0) return;
 
 		//Đóng băng game một khoảnh khắc để đọc input hướng chính xác
 		Sleep();
 
-		if (IsSliding && _moveInput.y != 0 && !Data.horizontalDashOnly)
+		// Dùng Coyote Time của tường thay vì IsSliding, vì nếu người chơi vừa bấm nút lùi ra khỏi tường
+		// thì IsSliding sẽ ngay lập tức bị false, làm mất khả năng lướt bật ngược.
+		bool nearWall = (LastOnWallRightTime > 0 || LastOnWallLeftTime > 0) && LastOnGroundTime <= 0;
+
+		if (nearWall && _moveInput.y != 0 && !Data.horizontalDashOnly)
 		{
 			// Lướt dọc khi bám tường (lên/xuống tùy input). Bị horizontalDashOnly chi phối.
 			_lastDashDir = (_moveInput.y > 0) ? Vector2.up : Vector2.down;
 		}
-		else if (IsSliding && Data.allowReverseWallClingDash)
+		else if (nearWall && Data.allowReverseWallClingDash)
 		{
 			// Bật: Lướt bật ra xa tường (không bị horizontalDashOnly chi phối)
 			_lastDashDir = (LastOnWallRightTime > 0) ? Vector2.left : Vector2.right;
+			
+			// Bắt buộc quay mặt ra ngoài tường khi lướt bật ngược,
+			// bất kể người chơi có đang giữ phím ép vào tường hay không.
+			CheckDirectionToFace(_lastDashDir.x > 0);
 		}
 		else
 		{
@@ -337,18 +345,18 @@ public class PlayerMovement : MonoBehaviour
 
 			// Bảo vệ: Nếu tắt allowReverseWallClingDash mà người chơi lỡ tay bấm Dash
 			// trong lúc hướng lướt đâm thẳng vào tường -> Hủy lướt để khỏi phí lượt.
-			if (IsSliding)
+			if (nearWall)
 			{
 				if ((LastOnWallRightTime > 0 && _lastDashDir.x > 0) || (LastOnWallLeftTime > 0 && _lastDashDir.x < 0))
 				{
-					LastPressedDashTime = 0; // Xóa buffer phím lướt
-					return; // Thoát hàm luôn, không tốn lượt dash
-				}
+				LastPressedDashTime = 0; // Xóa buffer phím lướt
+				return; // Thoát hàm luôn, không tốn lượt dash
 			}
 		}
-
-		TransitionToState(PlayerState.Dashing);
 	}
+
+	TransitionToState(PlayerState.Dashing);
+}
 
 	/// <summary>Kiểm tra điều kiện slide wall.</summary>
 	private void HandleSlideChecks()
