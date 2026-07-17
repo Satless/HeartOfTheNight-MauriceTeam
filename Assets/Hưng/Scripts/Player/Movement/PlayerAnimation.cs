@@ -231,7 +231,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         if (_currentAnim == animName) return;
         
-        Debug.Log($"[PlayAnim] Yêu cầu chuyển sang: '{animName}'");
+        // Debug.Log($"[PlayAnim] Yêu cầu chuyển sang: '{animName}'");
         _lowerAnimator.Play(animName);
         _currentAnim = animName;
     }

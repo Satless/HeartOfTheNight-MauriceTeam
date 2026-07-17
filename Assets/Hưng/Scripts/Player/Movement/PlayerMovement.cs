@@ -44,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 		// --- OnExit state cũ ---
 		// (Dashing exit được xử lý trong coroutine StartDash, không cần ở đây)
 
-		Debug.Log($"State: {CurrentState} -> {newState}");
+		// Debug.Log($"State: {CurrentState} -> {newState}");
 		CurrentState = newState;
 		_animation?.OnStateChanged(newState);
 

@@ -58,7 +58,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -72,7 +72,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -96,7 +96,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -130,6 +130,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -137,12 +150,12 @@ TextureImporter:
       name: Player-Shoot-Effect_0
       rect:
         serializedVersion: 2
-        x: 13
-        y: 22
-        width: 197
-        height: 122
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 106
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1397115, y: 0.5442311}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -159,12 +172,12 @@ TextureImporter:
       name: Player-Shoot-Effect_1
       rect:
         serializedVersion: 2
-        x: 16
-        y: 87
-        width: 6
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 110
+        y: 106
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1397115, y: 0.5442311}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -181,12 +194,12 @@ TextureImporter:
       name: Player-Shoot-Effect_2
       rect:
         serializedVersion: 2
-        x: 20
-        y: 89
-        width: 7
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 220
+        y: 106
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1397115, y: 0.5442311}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -203,12 +216,12 @@ TextureImporter:
       name: Player-Shoot-Effect_3
       rect:
         serializedVersion: 2
-        x: 237
-        y: 25
-        width: 83
-        height: 118
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 330
+        y: 106
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1397115, y: 0.5442311}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -225,12 +238,12 @@ TextureImporter:
       name: Player-Shoot-Effect_4
       rect:
         serializedVersion: 2
-        x: 352
-        y: 23
-        width: 412
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 54
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.13282222, y: 0.58686376}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -247,12 +260,12 @@ TextureImporter:
       name: Player-Shoot-Effect_5
       rect:
         serializedVersion: 2
-        x: 16
-        y: 67
-        width: 6
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 110
+        y: 54
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1328222, y: 0.5868638}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -269,12 +282,12 @@ TextureImporter:
       name: Player-Shoot-Effect_6
       rect:
         serializedVersion: 2
-        x: 20
-        y: 74
-        width: 7
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 220
+        y: 54
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1328222, y: 0.5868638}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -291,12 +304,12 @@ TextureImporter:
       name: Player-Shoot-Effect_7
       rect:
         serializedVersion: 2
-        x: 17
-        y: 25
-        width: 21
-        height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 330
+        y: 54
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1328222, y: 0.5868638}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -309,11 +322,165 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.15552436, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46b6338a81a7f144fb462eac37830bc3
+      internalID: -408478668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_9
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1555244, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1c17511be4e6b6b41b1f37b5dc4d4568
+      internalID: -1205846573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_10
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1555244, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b78d264bd366bcc46a52c625a0554f91
+      internalID: 2110389254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_11
+      rect:
+        serializedVersion: 2
+        x: 330
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1555244, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 073bd849faef28a48af3789af56dcdc9
+      internalID: -87667552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_12
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1555244, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ca59273289aaef48ac1717970b5a844
+      internalID: -1218768316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_13
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1555244, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b859b7cb860670e4487a6d7128e5c47d
+      internalID: -1827069007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player-Shoot-Effect_14
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 2
+        width: 110
+        height: 52
+      alignment: 9
+      pivot: {x: 0.1555244, y: 0.6852926}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1f0cce1258f77048a5887ecb5eca2ae
+      internalID: 637403347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 9783a786ed503b749b1fee625bc4cb4d
     internalID: 0
     vertices: []
     indices: 
@@ -325,12 +492,19 @@ TextureImporter:
     nameFileIdTable:
       Player-Shoot-Effect_0: 789244269039659931
       Player-Shoot-Effect_1: -1297466622072812994
+      Player-Shoot-Effect_10: 2110389254
+      Player-Shoot-Effect_11: -87667552
+      Player-Shoot-Effect_12: -1218768316
+      Player-Shoot-Effect_13: -1827069007
+      Player-Shoot-Effect_14: 637403347
       Player-Shoot-Effect_2: 7337688292667653628
       Player-Shoot-Effect_3: -2215494189976663345
       Player-Shoot-Effect_4: -7309579234058325379
       Player-Shoot-Effect_5: -2713153465096513926
       Player-Shoot-Effect_6: -4624924296962907441
       Player-Shoot-Effect_7: 4867529988626308696
+      Player-Shoot-Effect_8: -408478668
+      Player-Shoot-Effect_9: -1205846573
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
