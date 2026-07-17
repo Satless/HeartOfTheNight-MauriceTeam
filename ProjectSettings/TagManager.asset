@@ -2,8 +2,16 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
-  tags: []
+  serializedVersion: 3
+  tags:
+  - Ground
+  - Wall
+  - Enemy
+  - EnemyGan
+  - EnemyXa
+  - Boss
+  - EnemyBom
+  - Dan
   layers:
   - Default
   - TransparentFX
@@ -11,12 +19,12 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ground
+  - Player
+  - DemonFire
+  - Wall
+  - Enemy
+  - Dan
   - 
   - 
   - 
@@ -41,3 +49,11 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: playerLayer
+    uniqueID: 1235969527
+    locked: 0
+  - name: freeLightLayer
+    uniqueID: 3257566225
+    locked: 0
+  m_RenderingLayers:
+  - Default
