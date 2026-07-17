@@ -46,8 +46,17 @@ public class PlayerAttack : MonoBehaviour
     /// </summary>
     private void HandleFacing()
     {
-        // Khóa ngắm chuột khi đang lướt (Nếu cấu hình không cho phép Moonwalk)
-        if (_movement.IsDashing && _movement.Data.lockFacingToDashDirection) return;
+        // Khóa ngắm chuột khi đang lướt (Ép phần trên quay theo hướng vật lý/hướng lướt)
+        if (_movement.IsDashing && _movement.Data.lockFacingToDashDirection)
+        {
+            if (_upperBodyVisual != null)
+            {
+                Vector3 scale = _upperBodyVisual.localScale;
+                scale.x = _movement.IsFacingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+                _upperBodyVisual.localScale = scale;
+            }
+            return;
+        }
 
         // Khóa ngắm chuột theo điều kiện:
         // Nếu ĐANG bị khóa di chuyển do bật tường VÀ cấu hình yêu cầu lật người theo hướng bật tường (doTurnOnWallJump = true)

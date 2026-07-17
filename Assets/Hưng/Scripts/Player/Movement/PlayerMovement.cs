@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
 	#region COMPONENTS
     public Rigidbody2D RB { get; private set; }
+	private PlayerAnimation _animation;
 	#endregion
 
 	#region FSM
@@ -43,7 +44,9 @@ public class PlayerMovement : MonoBehaviour
 		// --- OnExit state cũ ---
 		// (Dashing exit được xử lý trong coroutine StartDash, không cần ở đây)
 
+		Debug.Log($"State: {CurrentState} -> {newState}");
 		CurrentState = newState;
+		_animation?.OnStateChanged(newState);
 
 		// --- OnEnter state mới ---
 		switch (newState)
@@ -157,6 +160,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
 	{
 		RB = GetComponent<Rigidbody2D>();
+		_animation = GetComponent<PlayerAnimation>();
 
 		// Cache coroutine wait — Zero GC Alloc
 		_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);

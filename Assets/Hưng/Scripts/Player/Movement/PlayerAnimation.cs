@@ -19,9 +19,6 @@ public class PlayerAnimation : MonoBehaviour
     private static readonly int VelocityYKey = Animator.StringToHash("VelocityY");
     private static readonly int RunSpeedKey = Animator.StringToHash("RunSpeed");
 
-    // Cache state hiện tại
-    private PlayerMovement.PlayerState _lastState;
-    
     // Hỗ trợ logic cất súng
     private float _lastShootInputTime;
     private bool _isHoldingGun;
@@ -34,7 +31,6 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Start()
     {
-        _lastState = _movement.CurrentState;
     }
 
     private void Update()
@@ -42,7 +38,39 @@ public class PlayerAnimation : MonoBehaviour
         UpdateGunState();
         HandleBlendTreeParams();
         HandleMoonwalk();
-        HandleStateAnimations();
+
+        // -------------------------------------------------------------
+        // XỬ LÝ SUB-STATE LIÊN TỤC (Grounded & Sliding)
+        // Những state này cần thay đổi animation dựa vào Input của người chơi
+        // -------------------------------------------------------------
+        var state = _movement.CurrentState;
+        
+        // Các hành động full-body bắt buộc cất súng
+        bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
+                                     (state == PlayerMovement.PlayerState.Sliding);
+        
+        bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
+        if (_upperBodyObject.activeSelf != shouldShowUpperBody)
+        {
+            _upperBodyObject.SetActive(shouldShowUpperBody);
+        }
+
+        if (state == PlayerMovement.PlayerState.Grounded)
+        {
+            // Kết hợp cả Input và Velocity để giải quyết triệt để lỗi Moonwalk và lỗi trượt Move
+            bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+            if (_isHoldingGun)
+                PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+            else
+                PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+        }
+        else if (state == PlayerMovement.PlayerState.Sliding)
+        {
+            if (Input.GetAxisRaw("Vertical") > 0)
+                PlayAnim("Duoi-leotuong");
+            else
+                PlayAnim("Duoi-TruotTuong");
+        }
     }
 
     private void LateUpdate()
@@ -51,9 +79,9 @@ public class PlayerAnimation : MonoBehaviour
         // Dùng LateUpdate để đè lên các thay đổi scale từ PlayerMovement.Turn() (nếu có)
         Vector3 lowerScale = _lowerAnimator.transform.localScale;
 
-        if (_isHoldingGun)
+        if (_isHoldingGun && _upperBodyObject.activeSelf)
         {
-            // KHI CÓ SÚNG: Ép phần thân dưới (chân) quay theo hướng súng (chuột)
+            // KHI CÓ SÚNG (VÀ ĐANG HIỆN): Ép phần thân dưới (chân) quay theo hướng súng (chuột)
             // để tránh hiện tượng vặn xoắn, bất kể PlayerMovement đang đi hướng nào.
             float upperSign = Mathf.Sign(_upperBodyObject.transform.localScale.x);
             lowerScale.x = Mathf.Abs(lowerScale.x) * upperSign;
@@ -95,7 +123,7 @@ public class PlayerAnimation : MonoBehaviour
             return;
         }
 
-        bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f;
+        bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
 
         if (!isMoving || _movement.CurrentState != PlayerMovement.PlayerState.Grounded)
         {
@@ -115,69 +143,38 @@ public class PlayerAnimation : MonoBehaviour
         }
     }
 
-    private void HandleStateAnimations()
+    /// <summary>
+    /// FSM Callback: Được gọi từ PlayerMovement.TransitionToState() 
+    /// mỗi khi trạng thái vật lý thay đổi.
+    /// </summary>
+    public void OnStateChanged(PlayerMovement.PlayerState newState)
     {
-        var state = _movement.CurrentState;
+        // Chỉ xử lý các state One-shot (chỉ kích hoạt 1 lần khi vào state)
+        switch (newState)
+        {
+            case PlayerMovement.PlayerState.Jumping:
+            case PlayerMovement.PlayerState.Falling:
+            case PlayerMovement.PlayerState.WallJumping:
+                PlayAnim("Nhay");
+                break;
+                
+            case PlayerMovement.PlayerState.Dashing:
+                PlayAnim("Duoi-Dash");
+                break;
+        }
+    }
 
-        // Các hành động full-body bắt buộc cất súng
-        bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
-                                     (state == PlayerMovement.PlayerState.Sliding);
+    private string _currentAnim;
+    
+    /// <summary>
+    /// Hàm helper để gọi Animator.Play mà không làm reset frame nếu anim đang chạy
+    /// </summary>
+    private void PlayAnim(string animName)
+    {
+        if (_currentAnim == animName) return;
         
-        // Chỉ hiện thân trên khi: Đang rút súng VÀ Không làm hành động full-body
-        bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
-
-        if (_upperBodyObject.activeSelf != shouldShowUpperBody)
-        {
-            _upperBodyObject.SetActive(shouldShowUpperBody);
-        }
-
-        // --- KHÔNG DÙNG MŨI TÊN - GỌI TRỰC TIẾP QUA CODE ---
-        if (state != _lastState || state == PlayerMovement.PlayerState.Grounded)
-        {
-            switch (state)
-            {
-                case PlayerMovement.PlayerState.Grounded:
-                    bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f;
-                    
-                    if (_isHoldingGun)
-                    {
-                        // Đang cầm súng
-                        if (isMoving)
-                            _lowerAnimator.Play("ThanDuoi-dichuyen");
-                        else
-                            _lowerAnimator.Play("ThanDuoi-dungban");
-                    }
-                    else
-                    {
-                        // Đã cất súng (Full body)
-                        if (isMoving)
-                            _lowerAnimator.Play("Duoi-move");
-                        else
-                            _lowerAnimator.Play("Duoi-ide");
-                    }
-                    break;
-
-                case PlayerMovement.PlayerState.Jumping:
-                case PlayerMovement.PlayerState.Falling:
-                case PlayerMovement.PlayerState.WallJumping:
-                    // Chuyển quyền điều khiển cho Blend Tree tên "Nhay"
-                    _lowerAnimator.Play("Nhay");
-                    break;
-
-                case PlayerMovement.PlayerState.Dashing:
-                    _lowerAnimator.Play("Luoi-dash");
-                    break;
-
-                case PlayerMovement.PlayerState.Sliding:
-                    // Phân biệt trượt hay leo dựa vào vận tốc Y
-                    if (_movement.RB.linearVelocity.y > 0.1f)
-                        _lowerAnimator.Play("Duoi-leotuong");
-                    else
-                        _lowerAnimator.Play("Duoi-TruotTuong");
-                    break;
-            }
-        }
-
-        _lastState = state;
+        Debug.Log($"[PlayAnim] Yêu cầu chuyển sang: '{animName}'");
+        _lowerAnimator.Play(animName);
+        _currentAnim = animName;
     }
 }
