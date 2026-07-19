@@ -5,74 +5,120 @@ using System.Collections.Generic;
 public class LivingFurnace : MonoBehaviour
 {
     [Header("Cài đặt Triệu hồi (Spawner)")]
-    [Tooltip("Kéo Prefab con Burning Corpse vào đây")]
     public GameObject burningCorpsePrefab;
 
-    public int maxMinions = 4;             // Chỉ tối đa 4 con
-    public float spawnRadius = 2f;         // Khoảng cách đẻ quái xung quanh lò
-    public float delayBetweenWaves = 2f;   // Thời gian nghỉ trước khi đẻ đợt mới (để Player thở)
+    public int maxMinions = 4;
+    public float spawnRadius = 2f;
+    public float delayBetweenWaves = 2f;
 
-    // Danh sách dùng để theo dõi 4 con quái lửa
+    [Header("Tầm phát hiện Player")]
+    public float detectionRangeX = 12f;
+    public float detectionRangeY = 5f;
+
     private List<GameObject> activeMinions = new List<GameObject>();
     private bool isSpawning = false;
 
+    private Transform player;
+    private Collider2D myCol;
+
     void Start()
     {
-        // Vừa vào game là đẻ luôn 4 con đợt đầu tiên
-        StartCoroutine(SpawnWaveRoutine());
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        myCol = GetComponent<Collider2D>();
+        SetupXuyenThau();
     }
 
     void Update()
     {
         if (isSpawning) return;
 
-        // BƯỚC QUAN TRỌNG: 
-        // Khi tụi Burning Corpse bị chém chết (bị Destroy), chúng sẽ biến thành "null" trong game.
-        // Lệnh này sẽ quét danh sách và xóa hết những con "null" đó đi.
+        // Dọn dẹp danh sách quái đã chết
         activeMinions.RemoveAll(minion => minion == null);
 
-        // KIỂM TRA ĐIỀU KIỆN: Nếu 4 con đều đã chết (danh sách bị xóa sạch về 0)
-        if (activeMinions.Count == 0)
+        if (player != null)
         {
-            // Thì gọi hàm sinh ra 4 con mới
-            StartCoroutine(SpawnWaveRoutine());
+            // Đo khoảng cách giữa Lò ấp và Player
+            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+
+            // NẾU PLAYER BƯỚC VÀO VÙNG PHÁT HIỆN
+            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
+            {
+                // VÀ nếu trên sân không còn con quái nào
+                if (activeMinions.Count == 0)
+                {
+                    // Thì mới bắt đầu đẻ quái
+                    StartCoroutine(SpawnWaveRoutine());
+                }
+            }
         }
     }
 
     IEnumerator SpawnWaveRoutine()
     {
         isSpawning = true;
-
-        // Chờ một chút trước khi đẻ để game không bị quá dồn dập
         yield return new WaitForSeconds(delayBetweenWaves);
+
+        float pivotOffset = 0f;
+        Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
+        if (prefabCol != null)
+        {
+            pivotOffset = burningCorpsePrefab.transform.position.y - prefabCol.bounds.min.y;
+        }
 
         for (int i = 0; i < maxMinions; i++)
         {
-            // Tìm một vị trí ngẫu nhiên xung quanh cái Lò
-            Vector2 randomPos = (Vector2)transform.position + Random.insideUnitCircle * spawnRadius;
+            float randomX = transform.position.x + Random.Range(-spawnRadius, spawnRadius);
+            Vector2 rayStart = new Vector2(randomX, transform.position.y + 3f);
+            RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, 10f);
 
-            // Ép quái rớt xuống đất nếu nó bay lơ lửng trên không (Dùng Raycast bắn xuống đất)
-            RaycastHit2D hit = Physics2D.Raycast(randomPos, Vector2.down, 5f);
+            Vector2 spawnPos = new Vector2(randomX, transform.position.y);
+
             if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
             {
-                randomPos.y = hit.point.y + 0.5f; // Nâng lên 1 tí cho khỏi kẹt sàn
+                spawnPos = new Vector2(randomX, hit.point.y + pivotOffset + 0.05f);
             }
 
-            // Sinh ra quái và lập tức nạp nó vào Danh Sách để theo dõi mạng sống
-            GameObject newMinion = Instantiate(burningCorpsePrefab, randomPos, Quaternion.identity);
+            GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
             activeMinions.Add(newMinion);
 
-            // Khựng lại 0.3s cho mỗi con đẻ ra nhìn cho mượt, tránh đẻ 1 cục đè lên nhau
             yield return new WaitForSeconds(0.3f);
         }
 
         isSpawning = false;
     }
 
+    void SetupXuyenThau()
+    {
+        if (myCol == null) return;
+
+        // 1. Xuyên Player
+        if (player != null)
+        {
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+        }
+
+        // 2. Xuyên tất cả quái vật khác có Tag là "Enemy"
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObj in allEnemies)
+        {
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
+        }
+    }
+
     private void OnDrawGizmosSelected()
     {
-        // Vẽ vòng tròn màu vàng để bạn dễ hình dung khu vực quái sẽ rớt ra
+        // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
+        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+
+        // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, spawnRadius);
+        Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
     }
 }
