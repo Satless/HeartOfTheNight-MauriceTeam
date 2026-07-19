@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 8113873224156500538}
   - component: {fileID: 9024772029028026858}
   - component: {fileID: 8900680286279986136}
-  - component: {fileID: 957165895669532309}
   - component: {fileID: 5034545290902416268}
   m_Layer: 7
   m_Name: BigCorpse
@@ -164,27 +163,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &957165895669532309
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6013350649504234070}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 484765bd3e9ad824f8c228e756945723, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 3
-  detectionRangeX: 12
-  detectionRangeY: 3
-  attackRange: 2
-  platformHeightDiff: 0.8
-  teleportDelay: 1
-  postTeleportDelay: 0.5
-  attackDamage: 1
-  attackCooldown: 2
 --- !u!114 &5034545290902416268
 MonoBehaviour:
   m_ObjectHideFlags: 0

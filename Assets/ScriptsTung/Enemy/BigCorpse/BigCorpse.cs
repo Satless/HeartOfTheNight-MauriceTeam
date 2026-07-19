@@ -5,7 +5,7 @@ public class BigCorpse : MonoBehaviour
 {
     [Header("Hoạt ảnh & Hitbox")]
     public Animator anim;
-    public GameObject attackHitbox; // Kéo cái GameObject AttackHitbox vào đây
+    public GameObject attackHitbox;
 
     [Header("Tầm nhìn & Di chuyển")]
     public float moveSpeed = 5f;
@@ -19,7 +19,7 @@ public class BigCorpse : MonoBehaviour
     public float postTeleportDelay = 0.5f;
 
     [Header("Sát thương")]
-    public int attackDamage = 10; // Giờ nó sẽ truyền sang cho Hitbox
+    public int attackDamage = 10;
     public float attackCooldown = 1.5f;
 
     private Transform player;
@@ -39,28 +39,52 @@ public class BigCorpse : MonoBehaviour
 
         if (anim == null) anim = GetComponent<Animator>();
 
-        // Truyền sát thương sang cho script Hitbox
         if (attackHitbox != null)
         {
             hitboxScript = attackHitbox.GetComponent<EnemyHitbox>();
             if (hitboxScript != null) hitboxScript.attackDamage = attackDamage;
+            attackHitbox.SetActive(false);
+        }
 
-            attackHitbox.SetActive(false); // Chắc chắn hitbox đang tắt khi mới bắt đầu
+        // Kích hoạt tính năng xuyên thấu
+        SetupXuyenThau();
+    }
+
+    void SetupXuyenThau()
+    {
+        if (myCol == null) return;
+        if (player != null)
+        {
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+        }
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObj in allEnemies)
+        {
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
         }
     }
 
     void Update()
     {
-        // Cập nhật thông số Tốc độ cho Animator (để chạy Animation đi bộ/chạy)
         if (anim != null && !isBusy)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
 
-        if (player == null || isBusy) return;
+        if (player == null || isBusy || myCol == null) return;
+        Collider2D playerCol = player.GetComponent<Collider2D>();
+        if (playerCol == null) return;
+
+        float myFeetY = myCol.bounds.min.y;
+        float playerFeetY = playerCol.bounds.min.y;
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+        float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
@@ -78,7 +102,7 @@ public class BigCorpse : MonoBehaviour
             {
                 teleportTimer = 0f;
                 float hitDistance = 999f;
-                Collider2D playerCol = player.GetComponent<Collider2D>();
+
                 if (myCol != null && playerCol != null)
                     hitDistance = Physics2D.Distance(myCol, playerCol).distance;
 
@@ -115,16 +139,10 @@ public class BigCorpse : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         LookAtPlayer();
 
-        // Kích hoạt Animation Đánh
         if (anim != null) anim.SetTrigger("Attack");
 
-        // Đợi một khoảng thời gian vừa đủ để hoàn thành hoạt ảnh đánh
-        // (Bạn có thể điều chỉnh 0.8f này cho khớp với độ dài thực tế clip animation của bạn)
         yield return new WaitForSeconds(0.8f);
-
-        // Đảm bảo hitbox đã được tắt (phòng hờ Event bị miss do giật lag)
         DisableHitbox();
-
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
@@ -134,25 +152,24 @@ public class BigCorpse : MonoBehaviour
         isBusy = true;
         rb.linearVelocity = Vector2.zero;
 
-        // Kích hoạt Animation dịch chuyển (tan biến đi)
         if (anim != null) anim.SetTrigger("Teleport");
-
-        // Đợi cho hoạt ảnh biến mất chiếu xong (tùy chỉnh thời gian)
         yield return new WaitForSeconds(0.3f);
 
         float dirSauLung = (player.localScale.x > 0) ? -1f : 1f;
         Vector2 viTriSauLung = new Vector2(player.position.x + (dirSauLung * 1.2f), player.position.y + 1f);
 
-        RaycastHit2D hit = Physics2D.Raycast(viTriSauLung, Vector2.down, 3f);
+        float pivotToFeetOffset = transform.position.y - myCol.bounds.min.y;
+        RaycastHit2D hit = Physics2D.Raycast(viTriSauLung, Vector2.down, 4f);
 
         if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
-            transform.position = new Vector2(viTriSauLung.x, player.position.y);
+            transform.position = new Vector2(viTriSauLung.x, hit.point.y + pivotToFeetOffset + 0.05f);
         else
-            transform.position = player.position;
+        {
+            float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
+            transform.position = new Vector2(viTriSauLung.x, playerFeet + pivotToFeetOffset);
+        }
 
         LookAtPlayer();
-
-        // Đợi một chút sau khi xuất hiện ở vị trí mới
         yield return new WaitForSeconds(postTeleportDelay);
         isBusy = false;
     }
@@ -164,23 +181,14 @@ public class BigCorpse : MonoBehaviour
         transform.localScale = scale;
     }
 
-    // =======================================================
-    // 2 HÀM NÀY SẼ ĐƯỢC GỌI TỪ ANIMATION EVENT TRONG UNITY
-    // =======================================================
     public void EnableHitbox()
     {
-        if (attackHitbox != null)
-        {
-            attackHitbox.SetActive(true);
-        }
+        if (attackHitbox != null) attackHitbox.SetActive(true);
     }
 
     public void DisableHitbox()
     {
-        if (attackHitbox != null)
-        {
-            attackHitbox.SetActive(false);
-        }
+        if (attackHitbox != null) attackHitbox.SetActive(false);
     }
 
     void OnDrawGizmosSelected()

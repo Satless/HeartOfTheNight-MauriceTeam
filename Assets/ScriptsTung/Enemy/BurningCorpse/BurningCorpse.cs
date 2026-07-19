@@ -30,6 +30,7 @@ public class BurningCorpse : MonoBehaviour
 
     private Transform player;
     private Rigidbody2D rb;
+    private Collider2D myCol;
     private float nextAttackTime = 0f;
     private float teleportTimer = 0f;
     private bool isBusy = false;
@@ -38,27 +39,55 @@ public class BurningCorpse : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        myCol = GetComponent<Collider2D>();
 
         if (anim == null) anim = GetComponent<Animator>();
 
         if (attackHitbox != null)
         {
-            attackHitbox.SetActive(false); // Đảm bảo Hitbox tắt lúc đầu
+            attackHitbox.SetActive(false);
+        }
+
+        // Kích hoạt tính năng xuyên thấu
+        SetupXuyenThau();
+    }
+
+    void SetupXuyenThau()
+    {
+        if (myCol == null) return;
+        if (player != null)
+        {
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+        }
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObj in allEnemies)
+        {
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
         }
     }
 
     void Update()
     {
-        // Điều khiển hoạt ảnh đi bộ
         if (anim != null && !isBusy)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
 
-        if (player == null || isBusy) return;
+        if (player == null || isBusy || myCol == null) return;
+
+        Collider2D playerCol = player.GetComponent<Collider2D>();
+        if (playerCol == null) return;
+
+        float myFeetY = myCol.bounds.min.y;
+        float playerFeetY = playerCol.bounds.min.y;
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+        float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
@@ -75,14 +104,13 @@ public class BurningCorpse : MonoBehaviour
             else
             {
                 teleportTimer = 0f;
-
                 if (distanceX > attackRange)
                 {
                     Move();
                 }
                 else
                 {
-                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Phanh gấp
+                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
                     if (Time.time >= nextAttackTime)
                     {
                         StartCoroutine(AttackRoutine());
@@ -103,10 +131,6 @@ public class BurningCorpse : MonoBehaviour
         rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
     }
 
-    // ==========================================
-    // HỆ THỐNG HOẠT ẢNH & CHIẾN ĐẬU
-    // ==========================================
-
     IEnumerator AttackRoutine()
     {
         isBusy = true;
@@ -115,11 +139,8 @@ public class BurningCorpse : MonoBehaviour
 
         if (anim != null) anim.SetTrigger("Attack");
 
-        // Chờ hoạt ảnh đánh kết thúc (Bạn có thể tinh chỉnh số 0.8f này)
         yield return new WaitForSeconds(0.8f);
-
-        DisableHitbox(); // Đề phòng giật lag rớt Event
-
+        DisableHitbox();
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
@@ -130,19 +151,29 @@ public class BurningCorpse : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
 
         if (anim != null) anim.SetTrigger("Teleport");
-
-        // Chờ quái tan biến (chỉnh thời gian cho khớp clip)
         yield return new WaitForSeconds(0.3f);
 
         float standBehind = (player.localScale.x > 0) ? -1f : 1f;
-        transform.position = new Vector2(player.position.x + standBehind, player.position.y);
-        LookAtPlayer();
+        Vector2 viTriMoi = new Vector2(player.position.x + standBehind, player.position.y + 1f);
 
+        float pivotToFeetOffset = transform.position.y - myCol.bounds.min.y;
+
+        RaycastHit2D hit = Physics2D.Raycast(viTriMoi, Vector2.down, 3f);
+        if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
+        {
+            transform.position = new Vector2(viTriMoi.x, hit.point.y + pivotToFeetOffset + 0.05f);
+        }
+        else
+        {
+            float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
+            transform.position = new Vector2(viTriMoi.x, playerFeet + pivotToFeetOffset);
+        }
+
+        LookAtPlayer();
         yield return new WaitForSeconds(postTeleportDelay);
         isBusy = false;
     }
 
-    // Hàm này được gọi từ cái script BurningHitbox.cs
     public void DealDamageAndBurn(PlayerHealth pHealth)
     {
         pHealth.TakeDamage(attackDamage);
@@ -157,9 +188,7 @@ public class BurningCorpse : MonoBehaviour
             float thoiGianDaCho = 0f;
             while (thoiGianDaCho < timeBetweenTicks)
             {
-                // Nếu Player Lướt (Dash) đủ nhanh -> dập tắt lửa ngay lập tức
                 if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break;
-
                 thoiGianDaCho += Time.deltaTime;
                 yield return null;
             }
@@ -173,9 +202,6 @@ public class BurningCorpse : MonoBehaviour
         transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
-    // =======================================================
-    // 2 HÀM NÀY SẼ ĐƯỢC GỌI TỪ ANIMATION EVENT TRONG UNITY
-    // =======================================================
     public void EnableHitbox()
     {
         if (attackHitbox != null) attackHitbox.SetActive(true);
