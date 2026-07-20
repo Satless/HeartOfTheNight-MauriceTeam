@@ -1,95 +1,112 @@
-using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
 
-public class LivingFurnace : MonoBehaviour
+public class KamikazeEnemy : MonoBehaviour
 {
-    [Header("Cài đặt Triệu hồi (Spawner)")]
-    public GameObject burningCorpsePrefab;
+    [Header("Movement")]
+    public float speed = 4f;
 
-    public int maxMinions = 4;
-    public float spawnRadius = 2f;
-    public float delayBetweenWaves = 2f;
+    [Header("Detection")]
+    public float detectionRange = 8f;
 
-    [Header("Tầm phát hiện Player")]
-    public float detectionRangeX = 12f;
-    public float detectionRangeY = 5f;
-
-    private List<GameObject> activeMinions = new List<GameObject>();
-    private bool isSpawning = false;
+    [Header("Explosion")]
+    public float explodeRange = 1.5f;
+    public int damage = 30;
+    public int hp = 1;
 
     private Transform player;
-    private Collider2D myCol;
+    private bool chasing = false;
+    private bool exploding = false;
 
-    void Start()
+    private void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        myCol = GetComponent<Collider2D>();
+        GameObject obj = GameObject.FindGameObjectWithTag("Player");
 
-        // Kích hoạt tính năng xuyên thấu ngay khi Lò ấp xuất hiện
-        SetupXuyenThau();
+        if (obj != null)
+            player = obj.transform;
 
         // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
+
     }
 
-    void Update()
+    private void Update()
     {
-        if (isSpawning) return;
+        if (player == null || exploding)
+            return;
 
-        // Dọn dẹp danh sách quái đã chết
-        activeMinions.RemoveAll(minion => minion == null);
+        float distance = Vector2.Distance(transform.position, player.position);
 
-        if (player != null)
+        // Player vào vùng phát hiện
+        if (distance <= detectionRange)
         {
-            // Đo khoảng cách giữa Lò ấp và Player
-            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+            chasing = true;
+        }
 
-            // NẾU PLAYER BƯỚC VÀO VÙNG PHÁT HIỆN
-            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
+        // Bay đuổi Player
+        if (chasing)
+        {
+            transform.position = Vector2.MoveTowards(
+                transform.position,
+                player.position,
+                speed * Time.deltaTime);
+
+            // Kiểm tra khoảng cách để nổ
+            distance = Vector2.Distance(transform.position, player.position);
+
+            if (distance <= explodeRange)
             {
-                // VÀ nếu trên sân không còn con quái nào
-                if (activeMinions.Count == 0)
-                {
-                    // Thì mới bắt đầu đẻ quái
-                    StartCoroutine(SpawnWaveRoutine());
-                }
+                StartCoroutine(Explode());
             }
         }
     }
 
-    IEnumerator SpawnWaveRoutine()
+    IEnumerator Explode()
     {
-        isSpawning = true;
-        yield return new WaitForSeconds(delayBetweenWaves);
+        exploding = true;
 
-        float pivotOffset = 0f;
-        Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
-        if (prefabCol != null)
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+        float timer = 0f;
+        float explodeTime = 1f;
+
+        while (timer < explodeTime)
         {
-            pivotOffset = burningCorpsePrefab.transform.position.y - prefabCol.bounds.min.y;
+            if (sr != null)
+                sr.color = Color.red;
+
+            yield return new WaitForSeconds(0.1f);
+
+            if (sr != null)
+                sr.color = Color.white;
+
+            yield return new WaitForSeconds(0.1f);
+
+            timer += 0.2f;
         }
 
-        for (int i = 0; i < maxMinions; i++)
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        if (distance <= explodeRange)
         {
-            float randomX = transform.position.x + Random.Range(-spawnRadius, spawnRadius);
-            Vector2 rayStart = new Vector2(randomX, transform.position.y + 3f);
-            RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, 10f);
+            PlayerHealth health = player.GetComponent<PlayerHealth>();
 
-            Vector2 spawnPos = new Vector2(randomX, transform.position.y);
-
-            if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
+            if (health != null)
             {
-                spawnPos = new Vector2(randomX, hit.point.y + pivotOffset + 0.05f);
+                health.TakeDamage(damage);
             }
-
-            GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
-            activeMinions.Add(newMinion);
-
-            yield return new WaitForSeconds(0.3f);
         }
 
-        isSpawning = false;
+        Destroy(gameObject);
+    }
+
+    public void TakeDamage(int dmg)
+    {
+        hp -= dmg;
+
+        if (hp <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     void SetupXuyenThau()
@@ -117,12 +134,12 @@ public class LivingFurnace : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
+        // Vùng phát hiện (màu cam)
         Gizmos.color = new Color(1f, 0.6f, 0f);
-        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
+        // Vùng nổ (màu đỏ)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explodeRange);
     }
 }

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
+  m_Name: ShortGunTest
+  m_EditorClassIdentifier: 
+  fireRate: 1
+  bulletSpeed: 30
+  damage: 10
+  bulletLifetime: 3
+  bulletsPerShot: 5
+  spreadAngle: 6
+  weaponAnimator: {fileID: 9100000, guid: 534dbc64a14d80a40a01bab7202f50ca, type: 2}

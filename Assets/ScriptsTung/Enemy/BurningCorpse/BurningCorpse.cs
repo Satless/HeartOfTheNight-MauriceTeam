@@ -1,15 +1,11 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class BurningCorpse : MonoBehaviour
 {
-    [Header("Hoạt ảnh & Hitbox")]
-    public Animator anim;
-    public GameObject attackHitbox;
-
     [Header("Tầm nhìn & Di chuyển")]
     public float detectionRangeX = 12f;
-    public float detectionRangeY = 3f;
+    public float detectionRangeY = 3f; // Để 3f cho thoải mái nhảy
     public float moveSpeed = 4f;
     public float attackRange = 2f;
 
@@ -39,6 +35,8 @@ public class BurningCorpse : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+<<<<<<< HEAD
+=======
         myCol = GetComponent<Collider2D>();
 
         if (anim == null) anim = GetComponent<Animator>();
@@ -69,10 +67,14 @@ public class BurningCorpse : MonoBehaviour
                 Physics2D.IgnoreCollision(myCol, enemyCol, true);
             }
         }
+>>>>>>> main
     }
 
     void Update()
     {
+<<<<<<< HEAD
+        if (player == null || isBusy) return;
+=======
         if (anim != null && !isBusy)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
@@ -85,10 +87,12 @@ public class BurningCorpse : MonoBehaviour
 
         float myFeetY = myCol.bounds.min.y;
         float playerFeetY = playerCol.bounds.min.y;
+>>>>>>> main
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
+        // PHÁT HIỆN THEO HÌNH CHỮ NHẬT X, Y
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
             if (distanceY > platformHeightDiff)
@@ -113,14 +117,15 @@ public class BurningCorpse : MonoBehaviour
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
                     if (Time.time >= nextAttackTime)
                     {
-                        StartCoroutine(AttackRoutine());
+                        Attack();
+                        nextAttackTime = Time.time + attackCooldown;
                     }
                 }
             }
         }
         else
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Mất dấu thì đứng im
         }
     }
 
@@ -128,9 +133,52 @@ public class BurningCorpse : MonoBehaviour
     {
         LookAtPlayer();
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y); // Chống đẩy người chơi
     }
 
+<<<<<<< HEAD
+    IEnumerator ThucHienTeleport() 
+    { 
+        isBusy = true; 
+        rb.linearVelocity = Vector2.zero; 
+        float standBehind = (player.localScale.x > 0) ? -1f : 1f; 
+        transform.position = new Vector2(player.position.x + standBehind, player.position.y); 
+        LookAtPlayer(); 
+        yield return new WaitForSeconds(postTeleportDelay); 
+        isBusy = false; 
+    }
+
+    void LookAtPlayer() 
+    { 
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1); 
+    }
+
+    void Attack() 
+    { 
+        PlayerHealth pHealth = player.GetComponent<PlayerHealth>(); 
+        if (pHealth != null) 
+        { 
+            pHealth.TakeDamage(attackDamage); 
+            StartCoroutine(GayHieuUngChay(pHealth)); 
+        } 
+    }
+
+    IEnumerator GayHieuUngChay(PlayerHealth pHealth) 
+    { 
+        Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>(); 
+        for (int i = 0; i < burnTicks; i++) 
+        { 
+            float thoiGianDaCho = 0f; 
+            while (thoiGianDaCho < timeBetweenTicks) 
+            { 
+                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break; 
+                thoiGianDaCho += Time.deltaTime; 
+                yield return null; 
+            } 
+            if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick); 
+            else yield break; 
+        } 
+=======
     IEnumerator AttackRoutine()
     {
         isBusy = true;
@@ -210,13 +258,14 @@ public class BurningCorpse : MonoBehaviour
     public void DisableHitbox()
     {
         if (attackHitbox != null) attackHitbox.SetActive(false);
+>>>>>>> main
     }
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.color = new Color(1f, 0.6f, 0f); // Cam
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
-}
+}*/
