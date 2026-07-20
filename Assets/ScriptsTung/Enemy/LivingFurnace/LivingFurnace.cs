@@ -1,9 +1,31 @@
-using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
 
-public class LivingFurnace : MonoBehaviour
+public class KamikazeEnemy : MonoBehaviour
 {
+<<<<<<< HEAD
+    [Header("Movement")]
+    public float speed = 4f;
+
+    [Header("Detection")]
+    public float detectionRange = 8f;
+
+    [Header("Explosion")]
+    public float explodeRange = 1.5f;
+    public int damage = 30;
+    public int hp = 1;
+
+    private Transform player;
+    private bool chasing = false;
+    private bool exploding = false;
+
+    private void Start()
+    {
+        GameObject obj = GameObject.FindGameObjectWithTag("Player");
+
+        if (obj != null)
+            player = obj.transform;
+=======
     [Header("Cài đặt Triệu hồi (Spawner)")]
     public GameObject burningCorpsePrefab;
 
@@ -26,12 +48,22 @@ public class LivingFurnace : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         myCol = GetComponent<Collider2D>();
         SetupXuyenThau();
+>>>>>>> main
     }
 
-    void Update()
+    private void Update()
     {
-        if (isSpawning) return;
+        if (player == null || exploding)
+            return;
 
+<<<<<<< HEAD
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        // Player vào vùng phát hiện
+        if (distance <= detectionRange)
+        {
+            chasing = true;
+=======
         // Dọn dẹp danh sách quái đã chết
         activeMinions.RemoveAll(minion => minion == null);
 
@@ -51,9 +83,25 @@ public class LivingFurnace : MonoBehaviour
                     StartCoroutine(SpawnWaveRoutine());
                 }
             }
+>>>>>>> main
         }
-    }
 
+<<<<<<< HEAD
+        // Bay đuổi Player
+        if (chasing)
+        {
+            transform.position = Vector2.MoveTowards(
+                transform.position,
+                player.position,
+                speed * Time.deltaTime);
+
+            // Kiểm tra khoảng cách để nổ
+            distance = Vector2.Distance(transform.position, player.position);
+
+            if (distance <= explodeRange)
+            {
+                StartCoroutine(Explode());
+=======
     IEnumerator SpawnWaveRoutine()
     {
         isSpawning = true;
@@ -77,15 +125,65 @@ public class LivingFurnace : MonoBehaviour
             if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
             {
                 spawnPos = new Vector2(randomX, hit.point.y + pivotOffset + 0.05f);
+>>>>>>> main
             }
+        }
+    }
 
+<<<<<<< HEAD
+    IEnumerator Explode()
+    {
+        exploding = true;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+        float timer = 0f;
+        float explodeTime = 1f;
+
+        while (timer < explodeTime)
+        {
+            if (sr != null)
+                sr.color = Color.red;
+
+            yield return new WaitForSeconds(0.1f);
+
+            if (sr != null)
+                sr.color = Color.white;
+
+            yield return new WaitForSeconds(0.1f);
+
+            timer += 0.2f;
+=======
             GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
             activeMinions.Add(newMinion);
 
             yield return new WaitForSeconds(0.3f);
+>>>>>>> main
         }
 
-        isSpawning = false;
+        float distance = Vector2.Distance(transform.position, player.position);
+
+        if (distance <= explodeRange)
+        {
+            PlayerHealth health = player.GetComponent<PlayerHealth>();
+
+            if (health != null)
+            {
+                health.TakeDamage(damage);
+            }
+        }
+
+        Destroy(gameObject);
+    }
+
+    public void TakeDamage(int dmg)
+    {
+        hp -= dmg;
+
+        if (hp <= 0)
+        {
+            Destroy(gameObject);
+        }
     }
 
     void SetupXuyenThau()
@@ -113,6 +211,15 @@ public class LivingFurnace : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+<<<<<<< HEAD
+        // Vùng phát hiện (màu cam)
+        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        // Vùng nổ (màu đỏ)
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explodeRange);
+=======
         // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
@@ -120,5 +227,6 @@ public class LivingFurnace : MonoBehaviour
         // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
+>>>>>>> main
     }
 }

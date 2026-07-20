@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1858479477571892192}
   - component: {fileID: 3238629187985114761}
+  - component: {fileID: 3008171810696463158}
   - component: {fileID: 4925480594606858317}
   - component: {fileID: 8471909785447700775}
-  - component: {fileID: 1176949552515694269}
-  - component: {fileID: 7312011459864475146}
+  - component: {fileID: 4618449271691794978}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -92,6 +92,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &3008171810696463158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5558374834419984214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a69ac8ba323f73d41a2f9285b3793fb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 100
 --- !u!61 &4925480594606858317
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -165,7 +178,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &1176949552515694269
+--- !u!114 &4618449271691794978
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,7 +187,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5558374834419984214}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ea15f8d7d1373e4e90d24a89ea1c037, type: 3}
+  m_Script: {fileID: 11500000, guid: 3d990839a2b74834c986bc331e589b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 7
@@ -190,19 +203,6 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &7312011459864475146
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5558374834419984214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3393fcc5607c225418f05a17af4c7035, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hp: 100
 --- !u!1 &8900439409598104842
 GameObject:
   m_ObjectHideFlags: 0
