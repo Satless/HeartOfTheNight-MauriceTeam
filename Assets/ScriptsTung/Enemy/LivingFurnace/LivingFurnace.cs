@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class KamikazeEnemy : MonoBehaviour
 {
-<<<<<<< HEAD
     [Header("Movement")]
     public float speed = 4f;
 
@@ -25,30 +24,9 @@ public class KamikazeEnemy : MonoBehaviour
 
         if (obj != null)
             player = obj.transform;
-=======
-    [Header("Cài đặt Triệu hồi (Spawner)")]
-    public GameObject burningCorpsePrefab;
 
-    public int maxMinions = 4;
-    public float spawnRadius = 2f;
-    public float delayBetweenWaves = 2f;
+        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
 
-    [Header("Tầm phát hiện Player")]
-    public float detectionRangeX = 12f;
-    public float detectionRangeY = 5f;
-
-    private List<GameObject> activeMinions = new List<GameObject>();
-    private bool isSpawning = false;
-
-    private Transform player;
-    private Collider2D myCol;
-
-    void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        myCol = GetComponent<Collider2D>();
-        SetupXuyenThau();
->>>>>>> main
     }
 
     private void Update()
@@ -56,37 +34,14 @@ public class KamikazeEnemy : MonoBehaviour
         if (player == null || exploding)
             return;
 
-<<<<<<< HEAD
         float distance = Vector2.Distance(transform.position, player.position);
 
         // Player vào vùng phát hiện
         if (distance <= detectionRange)
         {
             chasing = true;
-=======
-        // Dọn dẹp danh sách quái đã chết
-        activeMinions.RemoveAll(minion => minion == null);
-
-        if (player != null)
-        {
-            // Đo khoảng cách giữa Lò ấp và Player
-            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
-
-            // NẾU PLAYER BƯỚC VÀO VÙNG PHÁT HIỆN
-            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
-            {
-                // VÀ nếu trên sân không còn con quái nào
-                if (activeMinions.Count == 0)
-                {
-                    // Thì mới bắt đầu đẻ quái
-                    StartCoroutine(SpawnWaveRoutine());
-                }
-            }
->>>>>>> main
         }
 
-<<<<<<< HEAD
         // Bay đuổi Player
         if (chasing)
         {
@@ -101,36 +56,10 @@ public class KamikazeEnemy : MonoBehaviour
             if (distance <= explodeRange)
             {
                 StartCoroutine(Explode());
-=======
-    IEnumerator SpawnWaveRoutine()
-    {
-        isSpawning = true;
-        yield return new WaitForSeconds(delayBetweenWaves);
-
-        float pivotOffset = 0f;
-        Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
-        if (prefabCol != null)
-        {
-            pivotOffset = burningCorpsePrefab.transform.position.y - prefabCol.bounds.min.y;
-        }
-
-        for (int i = 0; i < maxMinions; i++)
-        {
-            float randomX = transform.position.x + Random.Range(-spawnRadius, spawnRadius);
-            Vector2 rayStart = new Vector2(randomX, transform.position.y + 3f);
-            RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, 10f);
-
-            Vector2 spawnPos = new Vector2(randomX, transform.position.y);
-
-            if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
-            {
-                spawnPos = new Vector2(randomX, hit.point.y + pivotOffset + 0.05f);
->>>>>>> main
             }
         }
     }
 
-<<<<<<< HEAD
     IEnumerator Explode()
     {
         exploding = true;
@@ -153,12 +82,6 @@ public class KamikazeEnemy : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
 
             timer += 0.2f;
-=======
-            GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
-            activeMinions.Add(newMinion);
-
-            yield return new WaitForSeconds(0.3f);
->>>>>>> main
         }
 
         float distance = Vector2.Distance(transform.position, player.position);
@@ -211,7 +134,6 @@ public class KamikazeEnemy : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-<<<<<<< HEAD
         // Vùng phát hiện (màu cam)
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireSphere(transform.position, detectionRange);
@@ -219,14 +141,5 @@ public class KamikazeEnemy : MonoBehaviour
         // Vùng nổ (màu đỏ)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explodeRange);
-=======
-        // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
-        Gizmos.color = new Color(1f, 0.6f, 0f);
-        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
-
-        // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
->>>>>>> main
     }
 }
