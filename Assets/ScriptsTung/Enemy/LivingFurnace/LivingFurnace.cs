@@ -1,115 +1,94 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
-public class KamikazeEnemy : MonoBehaviour
+public class LivingFurnace : MonoBehaviour
 {
-    [Header("Movement")]
-    public float speed = 4f;
+    [Header("Cài đặt Triệu hồi (Spawner)")]
+    public GameObject burningCorpsePrefab;
 
-    [Header("Detection")]
-    public float detectionRange = 8f;
+    public int maxMinions = 4;
+    public float spawnRadius = 2f;
+    public float delayBetweenWaves = 2f;
 
-    [Header("Explosion")]
-    public float explodeRange = 1.5f;
-    public int damage = 30;
-    public int hp = 1;
+    [Header("Tầm phát hiện Player")]
+    public float detectionRangeX = 12f;
+    public float detectionRangeY = 5f;
+
+    private List<GameObject> activeMinions = new List<GameObject>();
+    private bool isSpawning = false;
 
     private Transform player;
-    private Collider2D myCol; // ĐÃ THÊM: Khai báo biến myCol để sửa lỗi CS0103
-    private bool chasing = false;
-    private bool exploding = false;
+    private Collider2D myCol;
 
-    private void Start()
+    void Start()
     {
-        // Khởi gán tham chiếu Collider
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         myCol = GetComponent<Collider2D>();
 
-        GameObject obj = GameObject.FindGameObjectWithTag("Player");
-        if (obj != null)
-            player = obj.transform;
-
-        // ĐÃ THÊM: Gọi hàm thiết lập xuyên thấu ngay khi spawn quái
+        // Kích hoạt tính năng xuyên thấu ngay khi Lò ấp xuất hiện
         SetupXuyenThau();
+
+        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
     }
 
-    private void Update()
+    void Update()
     {
-        if (player == null || exploding)
-            return;
+        if (isSpawning) return;
 
-        float distance = Vector2.Distance(transform.position, player.position);
+        // Dọn dẹp danh sách quái đã chết
+        activeMinions.RemoveAll(minion => minion == null);
 
-        // Player vào vùng phát hiện
-        if (distance <= detectionRange)
+        if (player != null)
         {
-            chasing = true;
-        }
+            // Đo khoảng cách giữa Lò ấp và Player
+            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-        // Bay đuổi Player
-        if (chasing)
-        {
-            transform.position = Vector2.MoveTowards(
-                transform.position,
-                player.position,
-                speed * Time.deltaTime);
-
-            // Kiểm tra khoảng cách để nổ
-            distance = Vector2.Distance(transform.position, player.position);
-
-            if (distance <= explodeRange)
+            // NẾU PLAYER BƯỚC VÀO VÙNG PHÁT HIỆN
+            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                StartCoroutine(Explode());
+                // VÀ nếu trên sân không còn con quái nào
+                if (activeMinions.Count == 0)
+                {
+                    // Thì mới bắt đầu đẻ quái
+                    StartCoroutine(SpawnWaveRoutine());
+                }
             }
         }
     }
 
-    IEnumerator Explode()
+    IEnumerator SpawnWaveRoutine()
     {
-        exploding = true;
+        isSpawning = true;
+        yield return new WaitForSeconds(delayBetweenWaves);
 
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-
-        float timer = 0f;
-        float explodeTime = 1f;
-
-        while (timer < explodeTime)
+        float pivotOffset = 0f;
+        Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
+        if (prefabCol != null)
         {
-            if (sr != null)
-                sr.color = Color.red;
-
-            yield return new WaitForSeconds(0.1f);
-
-            if (sr != null)
-                sr.color = Color.white;
-
-            yield return new WaitForSeconds(0.1f);
-
-            timer += 0.2f;
+            pivotOffset = burningCorpsePrefab.transform.position.y - prefabCol.bounds.min.y;
         }
 
-        float distance = Vector2.Distance(transform.position, player.position);
-
-        if (distance <= explodeRange)
+        for (int i = 0; i < maxMinions; i++)
         {
-            PlayerHealth health = player.GetComponent<PlayerHealth>();
+            float randomX = transform.position.x + Random.Range(-spawnRadius, spawnRadius);
+            Vector2 rayStart = new Vector2(randomX, transform.position.y + 3f);
+            RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, 10f);
 
-            if (health != null)
+            Vector2 spawnPos = new Vector2(randomX, transform.position.y);
+
+            if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
             {
-                health.TakeDamage(damage);
+                spawnPos = new Vector2(randomX, hit.point.y + pivotOffset + 0.05f);
             }
+
+            GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
+            activeMinions.Add(newMinion);
+yield return new WaitForSeconds(0.3f);
         }
 
-        Destroy(gameObject);
-    }
-
-    public void TakeDamage(int dmg)
-    {
-        hp -= dmg;
-
-        if (hp <= 0)
-        {
-            Destroy(gameObject);
-        }
+        isSpawning = false;
     }
 
     void SetupXuyenThau()
@@ -137,12 +116,12 @@ public class KamikazeEnemy : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Vùng phát hiện (màu cam)
+        // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
         Gizmos.color = new Color(1f, 0.6f, 0f);
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
 
-        // Vùng nổ (màu đỏ)
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, explodeRange);
+        // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
     }
 }
