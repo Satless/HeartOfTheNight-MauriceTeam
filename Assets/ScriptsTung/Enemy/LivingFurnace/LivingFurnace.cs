@@ -15,18 +15,21 @@ public class KamikazeEnemy : MonoBehaviour
     public int hp = 1;
 
     private Transform player;
+    private Collider2D myCol; // ĐÃ THÊM: Khai báo biến myCol để sửa lỗi CS0103
     private bool chasing = false;
     private bool exploding = false;
 
     private void Start()
     {
-        GameObject obj = GameObject.FindGameObjectWithTag("Player");
+        // Khởi gán tham chiếu Collider
+        myCol = GetComponent<Collider2D>();
 
+        GameObject obj = GameObject.FindGameObjectWithTag("Player");
         if (obj != null)
             player = obj.transform;
 
-        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
-
+        // ĐÃ THÊM: Gọi hàm thiết lập xuyên thấu ngay khi spawn quái
+        SetupXuyenThau();
     }
 
     private void Update()
