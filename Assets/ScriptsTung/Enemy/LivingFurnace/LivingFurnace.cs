@@ -24,6 +24,9 @@ public class KamikazeEnemy : MonoBehaviour
 
         if (obj != null)
             player = obj.transform;
+
+        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
+
     }
 
     private void Update()
@@ -103,6 +106,29 @@ public class KamikazeEnemy : MonoBehaviour
         if (hp <= 0)
         {
             Destroy(gameObject);
+        }
+    }
+
+    void SetupXuyenThau()
+    {
+        if (myCol == null) return;
+
+        // 1. Xuyên Player
+        if (player != null)
+        {
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+        }
+
+        // 2. Xuyên tất cả quái vật khác có Tag là "Enemy"
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObj in allEnemies)
+        {
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
         }
     }
 
