@@ -25,7 +25,11 @@ public class LivingFurnace : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         myCol = GetComponent<Collider2D>();
+
+        // Kích hoạt tính năng xuyên thấu ngay khi Lò ấp xuất hiện
         SetupXuyenThau();
+
+        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
     }
 
     void Update()

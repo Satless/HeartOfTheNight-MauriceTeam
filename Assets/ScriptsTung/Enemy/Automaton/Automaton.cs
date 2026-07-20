@@ -1,8 +1,16 @@
-/*using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Automaton : MonoBehaviour
 {
+    [Header("Hoạt ảnh & Hình ảnh")]
+    public Animator anim;
+    public SpriteRenderer sr;
+    [Tooltip("Ảnh hiển thị khi lướt trúng người")]
+    public Sprite dashAttackSprite;
+
+    // ĐÃ XÓA SẠCH CÁC BIẾN HITBOX LẰNG NHẰNG Ở ĐÂY
+
     [Header("Tầm nhìn & Di chuyển")]
     public float moveSpeed = 4f;
     public float detectionRangeX = 12f;
@@ -17,18 +25,24 @@ public class Automaton : MonoBehaviour
     public float teleportYOffset = 0f;
 
     [Header("Sát thương")]
-    public int meleeDamage = 10;
+    public int meleeDamage = 10; // Giờ sẽ dùng trực tiếp biến này luôn!
     public int dashDamage = 20;
 
     [Header("Chỉ số Lướt (Dash)")]
     public float dashSpeed = 25f;
-    public float chargeTime = 0.6f;
     public float dashDuration = 0.35f;
     public float dashCooldown = 4f;
-    public float meleeCooldown = 2f; // Thời gian NGHỈ sau khi chém xong combo
+    public float meleeCooldown = 2f;
+
+    [Header("Hệ thống chống kẹt")]
+    public float stuckTimeLimit = 1.2f;
+    private float stuckTimer = 0f;
+    private float lastXPos = 0f;
 
     private Transform player;
     private Rigidbody2D rb;
+    private Collider2D myCol;
+
     private bool dangBanRaDon = false;
     private float nextDashTime = 0f;
     private float nextMeleeTime = 0f;
@@ -38,14 +52,52 @@ public class Automaton : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        myCol = GetComponent<Collider2D>();
+
+        if (anim == null) anim = GetComponent<Animator>();
+        if (sr == null) sr = GetComponent<SpriteRenderer>();
+
+        SetupXuyenThau();
+    }
+
+    void SetupXuyenThau()
+    {
+        if (myCol == null) return;
+
+        if (player != null)
+        {
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+        }
+
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObj in allEnemies)
+        {
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
+        }
     }
 
     void Update()
     {
-        if (player == null || dangBanRaDon) return;
+        if (anim != null && !dangBanRaDon && anim.enabled)
+        {
+            anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+        }
+
+        if (player == null || dangBanRaDon || myCol == null) return;
+
+        Collider2D playerCol = player.GetComponent<Collider2D>();
+        if (playerCol == null) return;
+
+        float myFeetY = myCol.bounds.min.y;
+        float playerFeetY = playerCol.bounds.min.y;
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+        float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
@@ -68,19 +120,32 @@ public class Automaton : MonoBehaviour
                     StopMoving();
                     if (Time.time >= nextMeleeTime)
                     {
-                        StartCoroutine(ChemLienHoan());
-                        // Đã xóa dòng đếm Cooldown ở đây
+                        StartCoroutine(ThucHienDanhThuong());
                     }
                 }
                 else if (distanceX <= dashRange && distanceX > attackRange && Time.time >= nextDashTime)
                 {
                     StopMoving();
-                    StartCoroutine(GongVaLuot());
-                    // Đã xóa dòng đếm Cooldown ở đây
+                    StartCoroutine(ThucHienLuot());
                 }
                 else
                 {
                     Move();
+
+                    if (Mathf.Abs(transform.position.x - lastXPos) < 0.01f)
+                    {
+                        stuckTimer += Time.deltaTime;
+                        if (stuckTimer >= stuckTimeLimit)
+                        {
+                            StartCoroutine(ThucHienTeleport());
+                            stuckTimer = 0f;
+                        }
+                    }
+                    else
+                    {
+                        stuckTimer = 0f;
+                    }
+                    lastXPos = transform.position.x;
                 }
             }
         }
@@ -111,8 +176,13 @@ public class Automaton : MonoBehaviour
     {
         dangBanRaDon = true;
         StopMoving();
+
+        if (anim != null) anim.SetTrigger("Teleport");
+        yield return new WaitForSeconds(0.3f);
+
         transform.position = TimViTriTeleport();
         LookAtPlayer();
+
         yield return new WaitForSeconds(postTeleportDelay);
         dangBanRaDon = false;
     }
@@ -143,46 +213,68 @@ public class Automaton : MonoBehaviour
         return false;
     }
 
-    IEnumerator ChemLienHoan()
+    // ==========================================
+    // CHIẾN ĐẬU
+    // ==========================================
+
+    IEnumerator ThucHienDanhThuong()
     {
         dangBanRaDon = true;
-        StopMoving(); // Đảm bảo quái khựng lại khi chém
+        StopMoving();
+        LookAtPlayer();
 
-        for (int i = 0; i < 3; i++)
-        {
-            LookAtPlayer();
-            if (Mathf.Abs(player.position.x - transform.position.x) <= attackRange + 0.5f)
-                player.GetComponent<PlayerHealth>()?.TakeDamage(meleeDamage);
+        // CHÌA KHÓA Ở ĐÂY: Khóa cứng trục X để quái đứng im phăng phắc, không bị trượt hay bị đẩy
+        rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
 
-            yield return new WaitForSeconds(0.4f);
-        }
+        if (anim != null) anim.SetTrigger("Attack");
 
-        // CHÌA KHÓA: Bắt đầu tính Cooldown sau khi combo kết thúc
+        // Ngồi chờ cho clip chiếu xong
+        yield return new WaitForSeconds(2f);
+
+        // TRẢ LẠI TỰ DO: Mở khóa trục X để quái có thể đi bộ đuổi theo Player tiếp
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         nextMeleeTime = Time.time + meleeCooldown;
         dangBanRaDon = false;
     }
 
-    IEnumerator GongVaLuot()
+    IEnumerator ThucHienLuot()
     {
         dangBanRaDon = true;
-        StopMoving(); // Gồng là phải đứng im
         LookAtPlayer();
 
-        yield return new WaitForSeconds(chargeTime);
-
+        float huongLuot = Mathf.Sign(transform.localScale.x);
         rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-        rb.linearVelocity = new Vector2(Mathf.Sign(transform.localScale.x) * dashSpeed, 0f);
+        rb.linearVelocity = new Vector2(huongLuot * dashSpeed, 0f);
 
-        bool daGayDam = false;
+        if (anim != null) anim.SetFloat("Speed", dashSpeed);
+
         float thoiGianDaLuot = 0f;
+        bool daTrungDon = false;
+        float doRongQuai = myCol.bounds.extents.x;
 
         while (thoiGianDaLuot < dashDuration)
         {
-            if (!daGayDam && Mathf.Abs(player.position.x - transform.position.x) <= attackRange)
+            Vector2 origin = myCol.bounds.center;
+            Vector2 bottomFront = new Vector2(origin.x + (huongLuot * doRongQuai), myCol.bounds.min.y);
+
+            RaycastHit2D wallHit = Physics2D.Raycast(origin, Vector2.right * huongLuot, doRongQuai + 0.5f);
+            RaycastHit2D pitHit = Physics2D.Raycast(bottomFront + new Vector2(huongLuot * 0.2f, 0), Vector2.down, 1.5f);
+
+            bool thayTuong = (wallHit.collider != null && !wallHit.collider.isTrigger && !wallHit.collider.CompareTag("Player") && !wallHit.collider.CompareTag("Enemy"));
+            bool truotChan = (pitHit.collider == null);
+
+            if (thayTuong || truotChan) break;
+
+            if (!daTrungDon && Mathf.Abs(player.position.x - transform.position.x) <= attackRange)
             {
+                daTrungDon = true;
                 player.GetComponent<PlayerHealth>()?.TakeDamage(dashDamage);
-                daGayDam = true;
+
+                if (anim != null) anim.enabled = false;
+                if (sr != null && dashAttackSprite != null) sr.sprite = dashAttackSprite;
             }
+
             thoiGianDaLuot += Time.deltaTime;
             yield return null;
         }
@@ -190,20 +282,39 @@ public class Automaton : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        // CHÌA KHÓA: Tính Cooldown dash sau khi lướt xong
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetFloat("Speed", 0f);
+        }
+
         nextDashTime = Time.time + dashCooldown;
         dangBanRaDon = false;
+    }
+
+    // =======================================================
+    // ANIMATION EVENT: XỬ LÝ CHÉM THƯỜNG TRỰC TIẾP BẰNG CODE
+    // =======================================================
+
+    // Gọi hàm này trong bảng Animation ở frame mà kiếm vung xuống
+    public void DealMeleeDamage()
+    {
+        if (player == null) return;
+
+        // Nếu Player đứng trong tầm chém lúc tay vung xuống -> Trừ máu!
+        if (Mathf.Abs(player.position.x - transform.position.x) <= attackRange + 0.5f)
+        {
+            player.GetComponent<PlayerHealth>()?.TakeDamage(meleeDamage);
+        }
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
-
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
-
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, dashRange);
     }
-}*/
+}
