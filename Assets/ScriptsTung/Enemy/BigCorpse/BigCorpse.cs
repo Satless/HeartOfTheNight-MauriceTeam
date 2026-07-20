@@ -22,6 +22,11 @@ public class BigCorpse : MonoBehaviour
     public int attackDamage = 10;
     public float attackCooldown = 1.5f;
 
+    [Header("Hệ thống chống kẹt")]
+    public float stuckTimeLimit = 1.2f;
+    private float stuckTimer = 0f;
+    private float lastXPos = 0f;
+
     private Transform player;
     private Rigidbody2D rb;
     private Collider2D myCol;
@@ -46,7 +51,6 @@ public class BigCorpse : MonoBehaviour
             attackHitbox.SetActive(false);
         }
 
-        // Kích hoạt tính năng xuyên thấu
         SetupXuyenThau();
     }
 
@@ -109,6 +113,22 @@ public class BigCorpse : MonoBehaviour
                 if (hitDistance > attackRange)
                 {
                     Move();
+
+                    // --- CẢM BIẾN CHỐNG KẸT ---
+                    if (Mathf.Abs(transform.position.x - lastXPos) < 0.01f)
+                    {
+                        stuckTimer += Time.deltaTime;
+                        if (stuckTimer >= stuckTimeLimit)
+                        {
+                            StartCoroutine(ThucHienTeleportAnToan());
+                            stuckTimer = 0f;
+                        }
+                    }
+                    else
+                    {
+                        stuckTimer = 0f;
+                    }
+                    lastXPos = transform.position.x;
                 }
                 else
                 {

@@ -28,6 +28,11 @@ public class BurningCorpse : MonoBehaviour
     [Header("Cảm biến dập lửa")]
     public float dashSpeedThreshold = 12f;
 
+    [Header("Hệ thống chống kẹt")]
+    public float stuckTimeLimit = 1.2f;
+    private float stuckTimer = 0f;
+    private float lastXPos = 0f;
+
     private Transform player;
     private Rigidbody2D rb;
     private Collider2D myCol;
@@ -48,7 +53,6 @@ public class BurningCorpse : MonoBehaviour
             attackHitbox.SetActive(false);
         }
 
-        // Kích hoạt tính năng xuyên thấu
         SetupXuyenThau();
     }
 
@@ -107,6 +111,22 @@ public class BurningCorpse : MonoBehaviour
                 if (distanceX > attackRange)
                 {
                     Move();
+
+                    // --- CẢM BIẾN CHỐNG KẸT ---
+                    if (Mathf.Abs(transform.position.x - lastXPos) < 0.01f)
+                    {
+                        stuckTimer += Time.deltaTime;
+                        if (stuckTimer >= stuckTimeLimit)
+                        {
+                            StartCoroutine(ThucHienTeleport());
+                            stuckTimer = 0f;
+                        }
+                    }
+                    else
+                    {
+                        stuckTimer = 0f;
+                    }
+                    lastXPos = transform.position.x;
                 }
                 else
                 {
