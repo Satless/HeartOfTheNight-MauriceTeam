@@ -18,6 +18,7 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private Transform firePoint;
         [SerializeField] private Transform groundCheck;
         [SerializeField] private InquisitorBullet bulletPrefab;
+        [SerializeField] private Animator anim;
 
         [Header("Layers")]
         [SerializeField] private LayerMask groundLayer;
@@ -33,13 +34,14 @@ namespace HeartOfTheNight.Enemy
         private State current = State.Chase;
         private float fireTimer;
         private float panicTimer;
-        private int   health;
-        private int   facing = 1;
+        private int health;
+        private int facing = 1;
+        private bool isDead = false;
         private readonly List<EnemyStrengthModifier> buffedAllies = new();
 
         private void Awake()
         {
-            rb     = GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody2D>();
             sprite = GetComponentInChildren<SpriteRenderer>();
             health = maxHealth;
             EnemySeparation.Ensure(gameObject);
@@ -51,6 +53,7 @@ namespace HeartOfTheNight.Enemy
             }
 
             ValidateSetup();
+            if (anim == null) anim = GetComponentInChildren<Animator>();
         }
 
         private void OnDestroy()
@@ -74,25 +77,42 @@ namespace HeartOfTheNight.Enemy
 
         private void Update()
         {
-            if (player == null || stats == null) return;
+            if (isDead || player == null || stats == null) return;
 
-            float dx       = player.position.x - transform.position.x;
+            float dx = player.position.x - transform.position.x;
             float distance = Mathf.Abs(dx);
-            facing         = dx >= 0 ? 1 : -1;
+            facing = dx >= 0 ? 1 : -1;
             FaceTarget();
 
             ApplyRoomBuffToAllies();
             DecideState(distance);
 
-            if (current == State.Retreat)
-                TickRetreat();
-            else if (PlayerEngaged(distance))
-                TickCombat(distance);
+            switch (current)
+            {
+                case State.Retreat:
+                    TickRetreat();
+                    if (anim != null) anim.ResetTrigger("Attack");
+                    break;
+                case State.Chase:
+                    if (anim != null) anim.ResetTrigger("Attack");
+                    break;
+            }
+
+            if (PlayerEngaged(distance) && current != State.Chase)
+            {
+                TickCombat();
+            }
+
+            if (anim != null)
+            {
+                bool isMoving = Mathf.Abs(rb.linearVelocity.x) > 0.1f;
+                anim.SetBool("isMoving", isMoving);
+            }
         }
 
         private void FixedUpdate()
         {
-            if (stats == null || player == null) return;
+            if (isDead || stats == null || player == null) return;
 
             float distance = Mathf.Abs(player.position.x - transform.position.x);
 
@@ -132,7 +152,7 @@ namespace HeartOfTheNight.Enemy
                 panicTimer += Time.deltaTime;
                 if (panicTimer >= stats.panicReactionDelay)
                 {
-                    current    = State.Retreat;
+                    current = State.Retreat;
                     panicTimer = 0f;
                 }
                 else
@@ -157,13 +177,14 @@ namespace HeartOfTheNight.Enemy
                 Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2})", this);
         }
 
-        private void TickCombat(float distance)
+        private void TickCombat()
         {
             fireTimer -= Time.deltaTime;
-            if (fireTimer > 0f) return;
-
-            Fire();
-            fireTimer = stats.fireCooldown;
+            if (fireTimer <= 0f)
+            {
+                Fire();
+                fireTimer = stats.fireCooldown;
+            }
         }
 
         private void TickRetreat()
@@ -224,8 +245,8 @@ namespace HeartOfTheNight.Enemy
             }
 
             float target = moveDir * speed;
-            float newX   = Mathf.MoveTowards(rb.linearVelocity.x, target,
-                                             stats.groundAccel * Time.fixedDeltaTime);
+            float newX = Mathf.MoveTowards(rb.linearVelocity.x, target,
+                                           stats.groundAccel * Time.fixedDeltaTime);
             rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
         }
 
@@ -255,23 +276,41 @@ namespace HeartOfTheNight.Enemy
 
         private void FaceTarget()
         {
-            if (sprite != null) sprite.flipX = facing < 0;
+            transform.rotation = facing < 0 ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
         }
 
         private void Fire()
         {
+            if (anim != null) anim.SetTrigger("Attack");
+        }
+
+        public void ExecuteFire()
+        {
             if (bulletPrefab == null || firePoint == null || player == null) return;
 
             Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
-            var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+            var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
                           stats.homingStopDistance, stats.bulletDamage, stats.bulletLifetime);
         }
 
         public void TakeDamage(int amount)
         {
+            if (isDead) return;
+
             health -= amount;
-            if (health <= 0) Destroy(gameObject);
+            if (health <= 0)
+            {
+                isDead = true;
+                if (anim != null) anim.SetTrigger("Die");
+
+                rb.linearVelocity = Vector2.zero;
+                rb.simulated = false;
+                GetComponent<Collider2D>().enabled = false;
+                this.enabled = false;
+
+                Destroy(gameObject, 1.5f);
+            }
         }
 
         private void OnDrawGizmosSelected()

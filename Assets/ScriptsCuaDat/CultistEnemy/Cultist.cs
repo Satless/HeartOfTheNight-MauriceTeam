@@ -9,7 +9,9 @@ namespace HeartOfTheNight.Enemy
     public class Cultist : MonoBehaviour, IDamageable
     {
       
-        private enum State { IdleAim, Retreat }
+        private enum State { Idle, Chase, Attack, Retreat }
+        [Header("Chase Settings")]
+[SerializeField] private float chaseRangeOffset = 4f; // Khoảng cách cộng thêm ngoài vòng vàng để đuổi theo
 
         [Header("Data")]
         [SerializeField] private CultistStatsSO stats;
@@ -19,6 +21,8 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private Transform firePoint;
         [SerializeField] private Transform groundCheck;
         [SerializeField] private CultistBullet bulletPrefab;
+        [SerializeField] private Animator anim;
+
 
         [Header("Layers")]
         [SerializeField] private LayerMask groundLayer;
@@ -32,7 +36,7 @@ namespace HeartOfTheNight.Enemy
         private Rigidbody2D rb;
         private SpriteRenderer sprite;
         private EnemyStrengthModifier strengthMod;
-        private State current = State.IdleAim;
+        private State current = State.Idle;
         private float fireTimer;
         private float closeRangeTimer;
         private int   health;
@@ -53,6 +57,7 @@ namespace HeartOfTheNight.Enemy
             }
 
             ValidateSetup();
+            if (anim == null) anim = GetComponentInChildren<Animator>();
         }
 
         private void ValidateSetup()
@@ -92,97 +97,100 @@ namespace HeartOfTheNight.Enemy
         }
 
         private void Update()
-        {
-            if (player == null || stats == null) return;
+{
+    if (player == null || stats == null) return;
 
-            float dx       = player.position.x - transform.position.x;
-            float distance = Mathf.Abs(dx);
-            facing         = dx >= 0 ? 1 : -1;
-            FaceTarget();
+    // FIX: Tính khoảng cách hình tròn 2D thực tế thay vì chỉ trục X
+    float distance = Vector2.Distance(transform.position, player.position);
+    facing = (player.position.x - transform.position.x) >= 0 ? 1 : -1;
+    FaceTarget();
 
-            DecideState(distance);
+    DecideState(distance);
 
             switch (current)
             {
-                case State.IdleAim: TickIdleAim(distance); break;
-                case State.Retreat: TickRetreat();         break;
-            }
-        }
-
-        private void FixedUpdate()
-        {
-            if (stats == null) return;
-
-            if (current == State.Retreat) ApplyRetreatVelocity();
-            else                          Decelerate();
-        }
-
-        private void DecideState(float distance)
-        {
-            State prev = current;
-
-            if (current == State.IdleAim)
-            {
-                if (distance < stats.minSafeDistance)
-                {
-                    closeRangeTimer += Time.deltaTime;
-                    if (closeRangeTimer >= stats.retreatReactionDelay)
-                    {
-                        current         = State.Retreat;
-                        closeRangeTimer = 0f;
-                    }
-                }
-                else
-                {
-                    closeRangeTimer = 0f;
-                }
-            }
-            else if (current == State.Retreat &&
-                     distance > stats.minSafeDistance + stats.hysteresis)
-            {
-                current         = State.IdleAim;
-                closeRangeTimer = 0f;
+                case State.Idle:
+                case State.Chase:
+                case State.Retreat:
+                    fireTimer = stats.fireCooldown; // Khóa súng khi đang đi/đứng chơi
+                    if (anim != null) anim.ResetTrigger("Attack"); // Xóa lệnh đánh bị kẹt
+                    break;
+                case State.Attack:
+                    TickAttack(distance);
+                    break;
             }
 
-            if (debugLogs && prev != current)
-                Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2}, minSafe={stats.minSafeDistance}, reactionDelay={stats.retreatReactionDelay})", this);
-        }
+            // FIX: Kích hoạt animation đi bộ mượt mà dựa trên vận tốc thực tế
+            if (anim != null)
+    {
+        bool isMoving = Mathf.Abs(rb.linearVelocity.x) > 0.1f;
+        anim.SetBool("isMoving", isMoving);
+    }
+}
+        
 
-        private void TickIdleAim(float distance)
-        {
-            fireTimer -= Time.deltaTime;
-            if (distance <= stats.detectRange && fireTimer <= 0f)
-            {
-                Fire();
-                fireTimer = stats.fireCooldown;
-            }
-        }
+       private void FixedUpdate()
+{
+    if (stats == null) return;
 
-        private void TickRetreat()
-        {
-            fireTimer = stats.fireCooldown;
-        }
+    if (current == State.Retreat) 
+        ApplyVelocity(-facing); // Lùi ngược hướng nhìn
+    else if (current == State.Chase) 
+        ApplyVelocity(facing);  // Tiến theo hướng nhìn
+    else 
+        Decelerate();           // Đứng im (Idle hoặc Attack)
+}
+       private void DecideState(float distance)
 
-        private void ApplyRetreatVelocity()
-        {
-            int retreatDir = -facing;
-            bool hasGround = HasGroundAhead(retreatDir);
-            bool hasWall   = IsWallAhead(retreatDir);
+{
+    if (distance <= stats.minSafeDistance)
+    {
+        // Xử lý delay lùi
+        closeRangeTimer += Time.deltaTime;
+        if (closeRangeTimer >= stats.retreatReactionDelay) 
+            current = State.Retreat;
+    }
+    else
+    {
+        closeRangeTimer = 0f;
+        
+        if (distance <= stats.detectRange) 
+            current = State.Attack; // Trong vòng vàng -> Đứng lại ngắm bắn
+        else if (distance <= stats.detectRange + chaseRangeOffset) 
+            current = State.Chase; // Ngoài vòng vàng nhưng trong tầm nhìn -> Đuổi theo
+        else 
+            current = State.Idle; // Quá xa -> Đứng chơi
+    }
+}
+private void TickAttack(float distance)
+{
+    fireTimer -= Time.deltaTime;
+    if (fireTimer <= 0f)
+    {
+        Fire();
+        fireTimer = stats.fireCooldown;
+    }
+}
+private void ApplyVelocity(int dir)
+{
+    bool hasGround = HasGroundAhead(dir);
+    bool hasWall   = IsWallAhead(dir);
 
-            if (debugLogs)
-                Debug.Log($"[{name}] Retreat dir={retreatDir} hasGroundAhead={hasGround} isWallAhead={hasWall}", this);
+    if (!hasGround || hasWall)
+    {
+        Decelerate();
+        return;
+    }
 
-            if (!hasGround || hasWall)
-            {
-                Decelerate();
-                return;
-            }
+    float target = dir * EffectiveMoveSpeed;
+    float newX   = Mathf.MoveTowards(rb.linearVelocity.x, target, stats.groundAccel * Time.fixedDeltaTime);
+    rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+}
 
-            float target = retreatDir * EffectiveMoveSpeed;
-            float newX   = Mathf.MoveTowards(rb.linearVelocity.x, target,
-                                             stats.groundAccel * Time.fixedDeltaTime);
-            rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
-        }
+       
+
+      
+       
 
         private void Decelerate()
         {
@@ -234,19 +242,25 @@ namespace HeartOfTheNight.Enemy
                       $"=> Vao Inspector Cultist tick dung layer cua platform.", this);
         }
 
-        private void FaceTarget()
-        {
-            if (sprite != null) sprite.flipX = facing < 0;
-        }
+       private void FaceTarget()
+{
+    // Xoay 180 độ theo trục Y để mang theo tất cả child objects (FirePoint, GroundCheck)
+    transform.rotation = facing < 0 ? Quaternion.Euler(0f, 180f, 0f) : Quaternion.identity;
+}
+// Sửa đổi hàm Fire cũ: Giờ chỉ dùng để kích hoạt Animation đánh
+private void Fire()
+{
+    if (anim != null) anim.SetTrigger("Attack");
+}
+// Thêm hàm public này để Animation Event gọi vào đúng frame vung gậy
+        public void ExecuteFire()
+{
+    if (bulletPrefab == null || firePoint == null || player == null) return;
 
-        private void Fire()
-        {
-            if (bulletPrefab == null || firePoint == null || player == null) return;
-
-            Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
-            var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-            bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
-        }
+    Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
+    var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+    bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
+}
 
         private float EffectiveMoveSpeed =>
             stats.moveSpeed * (strengthMod != null ? strengthMod.MoveSpeedMultiplier : 1f);
@@ -255,16 +269,30 @@ namespace HeartOfTheNight.Enemy
             Mathf.Max(1, Mathf.RoundToInt(stats.bulletDamage *
                 (strengthMod != null ? strengthMod.DamageMultiplier : 1f)));
 
-        public void TakeDamage(int amount)
-        {
-            health -= amount;
-            if (health <= 0) Destroy(gameObject);
-        }
+       public void TakeDamage(int amount)
+{
+    if (health <= 0) return; // Tránh dính đòn nhiều lần khi đang chết
 
+    health -= amount;
+    if (health <= 0) 
+    {
+        if (anim != null) anim.SetTrigger("Die");
+        
+        // Vô hiệu hóa vật lý và logic để quái không di chuyển/bắn nữa
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+        GetComponent<Collider2D>().enabled = false;
+        this.enabled = false;
+
+        // Cho delay 1 khoản thời gian để chạy hết animation rồi mới Destroy
+        Destroy(gameObject, 1f); 
+    }
+}
         private void OnDrawGizmosSelected()
         {
             if (stats == null) return;
-
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, stats.detectRange + chaseRangeOffset);
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, stats.detectRange);
             Gizmos.color = Color.red;

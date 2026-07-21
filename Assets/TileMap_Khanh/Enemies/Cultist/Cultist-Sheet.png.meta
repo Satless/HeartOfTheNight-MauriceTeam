@@ -100,7 +100,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -114,7 +114,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -138,7 +138,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -179,12 +179,12 @@ TextureImporter:
       name: Cultist-Sheet_0
       rect:
         serializedVersion: 2
-        x: 21
-        y: 239
-        width: 27
-        height: 42
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 22
+        y: 240
+        width: 25
+        height: 40
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -201,12 +201,12 @@ TextureImporter:
       name: Cultist-Sheet_1
       rect:
         serializedVersion: 2
-        x: 20
-        y: 175
-        width: 28
-        height: 45
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 21
+        y: 176
+        width: 26
+        height: 43
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -223,12 +223,12 @@ TextureImporter:
       name: Cultist-Sheet_2
       rect:
         serializedVersion: 2
-        x: 101
-        y: 175
-        width: 27
-        height: 46
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 102
+        y: 176
+        width: 25
+        height: 44
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -245,12 +245,12 @@ TextureImporter:
       name: Cultist-Sheet_3
       rect:
         serializedVersion: 2
-        x: 180
-        y: 175
-        width: 27
-        height: 45
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 181
+        y: 176
+        width: 25
+        height: 43
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -267,12 +267,12 @@ TextureImporter:
       name: Cultist-Sheet_4
       rect:
         serializedVersion: 2
-        x: 260
-        y: 175
-        width: 27
-        height: 42
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 261
+        y: 176
+        width: 25
+        height: 40
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -289,12 +289,12 @@ TextureImporter:
       name: Cultist-Sheet_5
       rect:
         serializedVersion: 2
-        x: 340
-        y: 175
-        width: 27
-        height: 41
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 341
+        y: 176
+        width: 25
+        height: 39
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -311,12 +311,12 @@ TextureImporter:
       name: Cultist-Sheet_6
       rect:
         serializedVersion: 2
-        x: 420
-        y: 175
-        width: 28
-        height: 41
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 421
+        y: 176
+        width: 26
+        height: 39
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -333,12 +333,12 @@ TextureImporter:
       name: Cultist-Sheet_7
       rect:
         serializedVersion: 2
-        x: 500
-        y: 175
-        width: 30
-        height: 41
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 501
+        y: 176
+        width: 28
+        height: 39
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -355,12 +355,12 @@ TextureImporter:
       name: Cultist-Sheet_8
       rect:
         serializedVersion: 2
-        x: 579
-        y: 175
-        width: 31
-        height: 44
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 580
+        y: 176
+        width: 29
+        height: 42
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -377,12 +377,12 @@ TextureImporter:
       name: Cultist-Sheet_9
       rect:
         serializedVersion: 2
-        x: 13
-        y: 145
-        width: 11
-        height: 16
+        x: 14
+        y: 146
+        width: 9
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -399,12 +399,12 @@ TextureImporter:
       name: Cultist-Sheet_10
       rect:
         serializedVersion: 2
-        x: 17
-        y: 111
-        width: 31
-        height: 37
+        x: 86
+        y: 148
+        width: 14
+        height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -421,12 +421,12 @@ TextureImporter:
       name: Cultist-Sheet_11
       rect:
         serializedVersion: 2
-        x: 85
-        y: 147
-        width: 16
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 86
+        y: 112
+        width: 43
+        height: 46
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -443,12 +443,12 @@ TextureImporter:
       name: Cultist-Sheet_12
       rect:
         serializedVersion: 2
-        x: 98
-        y: 111
-        width: 32
-        height: 38
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 167
+        y: 112
+        width: 41
+        height: 43
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -465,12 +465,12 @@ TextureImporter:
       name: Cultist-Sheet_13
       rect:
         serializedVersion: 2
-        x: 166
-        y: 111
-        width: 43
-        height: 45
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 248
+        y: 112
+        width: 40
+        height: 44
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -487,12 +487,12 @@ TextureImporter:
       name: Cultist-Sheet_14
       rect:
         serializedVersion: 2
-        x: 247
-        y: 111
-        width: 42
-        height: 46
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 332
+        y: 112
+        width: 37
+        height: 40
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -509,12 +509,12 @@ TextureImporter:
       name: Cultist-Sheet_15
       rect:
         serializedVersion: 2
-        x: 331
-        y: 111
-        width: 39
-        height: 42
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 12
+        y: 112
+        width: 37
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -531,12 +531,12 @@ TextureImporter:
       name: Cultist-Sheet_16
       rect:
         serializedVersion: 2
-        x: 413
-        y: 109
-        width: 36
-        height: 39
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 414
+        y: 110
+        width: 34
+        height: 37
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -553,12 +553,12 @@ TextureImporter:
       name: Cultist-Sheet_17
       rect:
         serializedVersion: 2
-        x: 493
-        y: 111
-        width: 36
-        height: 37
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 494
+        y: 112
+        width: 34
+        height: 35
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -575,12 +575,12 @@ TextureImporter:
       name: Cultist-Sheet_18
       rect:
         serializedVersion: 2
-        x: 573
-        y: 111
-        width: 36
-        height: 37
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 574
+        y: 112
+        width: 34
+        height: 35
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -597,12 +597,12 @@ TextureImporter:
       name: Cultist-Sheet_19
       rect:
         serializedVersion: 2
-        x: 18
-        y: 47
-        width: 27
-        height: 43
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 19
+        y: 48
+        width: 25
+        height: 41
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -619,12 +619,12 @@ TextureImporter:
       name: Cultist-Sheet_20
       rect:
         serializedVersion: 2
-        x: 99
-        y: 47
-        width: 25
-        height: 43
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 100
+        y: 48
+        width: 23
+        height: 41
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -641,12 +641,12 @@ TextureImporter:
       name: Cultist-Sheet_21
       rect:
         serializedVersion: 2
-        x: 18
-        y: 9
-        width: 23
-        height: 15
+        x: 19
+        y: 10
+        width: 21
+        height: 13
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -663,7 +663,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2b114f7025d55114287bdf55528ce85d
     internalID: 0
     vertices: []
     indices: 
