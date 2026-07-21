@@ -12,10 +12,25 @@ public class CollectibleItem : MonoBehaviour
     public bool IsCollected { get; private set; }
     private float _currentSpeed;
     private Rigidbody2D _rb;
+    private float _lastPullTime;
 
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+    }
+
+    private void Update()
+    {
+        // Nếu đang lơ lửng (bị hút) nhưng người chơi chạy quá nhanh ra khỏi vùng từ trường
+        if (!IsCollected && _rb != null && _rb.isKinematic)
+        {
+            // PlayerMagnet ngừng gọi PullTowards quá 0.1s -> Rơi xuống lại
+            if (Time.time - _lastPullTime > 0.1f)
+            {
+                _rb.isKinematic = false;
+                _currentSpeed = 0f;
+            }
+        }
     }
 
     /// <summary>
@@ -27,8 +42,10 @@ public class CollectibleItem : MonoBehaviour
         // Nếu chưa gán data thì chặn luôn
         if (IsCollected || data == null) return;
 
+        _lastPullTime = Time.time;
+
         // Tắt vật lý (trọng lực) để đồng tiền bay lơ lửng mượt mà về phía người chơi
-        if (_rb != null)
+        if (_rb != null && !_rb.isKinematic)
         {
             _rb.isKinematic = true;
             _rb.linearVelocity = Vector2.zero;
