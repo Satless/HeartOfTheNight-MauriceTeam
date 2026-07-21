@@ -346,7 +346,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -770,11 +770,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.29
+      value: -15.93
       objectReference: {fileID: 0}
     - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.43
+      value: -2.58
       objectReference: {fileID: 0}
     - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
       propertyPath: m_LocalPosition.z
@@ -812,22 +812,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inquisitor
       objectReference: {fileID: 0}
-    - target: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8812211374794019458, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 1313344659}
-    - target: {fileID: 8812211374794019458, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
-      propertyPath: debugLogs
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8812211374794019458, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
-      propertyPath: groundLayer.m_Bits
-      value: 64
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1462,11 +1450,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3615219200202039323, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.04
+      value: -6.18
       objectReference: {fileID: 0}
     - target: {fileID: 3615219200202039323, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -2.64
       objectReference: {fileID: 0}
     - target: {fileID: 3615219200202039323, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1503,10 +1491,6 @@ PrefabInstance:
     - target: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       propertyPath: m_Name
       value: Cultist
-      objectReference: {fileID: 0}
-    - target: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8812211374794019458, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       propertyPath: player

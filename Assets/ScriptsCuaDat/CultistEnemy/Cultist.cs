@@ -291,7 +291,8 @@ private void Fire()
         private void OnDrawGizmosSelected()
         {
             if (stats == null) return;
-
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, stats.detectRange + chaseRangeOffset);
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, stats.detectRange);
             Gizmos.color = Color.red;
