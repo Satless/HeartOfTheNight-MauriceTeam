@@ -25,6 +25,8 @@ public class Bullet : MonoBehaviour
 
     // Tham chiếu pool để tự trả về — set 1 lần duy nhất qua Init()
     private BulletPool _pool;
+    public string PoolKey { get; private set; }
+
     private float _lifetime;
     private float _spawnTime;
 
@@ -40,9 +42,10 @@ public class Bullet : MonoBehaviour
     /// <summary>
     /// Gọi bởi BulletPool.CreateBullet() — chỉ chạy 1 lần khi tạo đạn.
     /// </summary>
-    public void Init(BulletPool pool)
+    public void Init(BulletPool pool, string poolKey)
     {
         _pool = pool;
+        PoolKey = poolKey;
     }
 
     /// <summary>
@@ -57,6 +60,10 @@ public class Bullet : MonoBehaviour
         RB.linearVelocity = Vector2.zero; // Reset vận tốc từ lần bắn trước
         _lastPosition = RB.position;      // Chụp vị trí khởi điểm để bắt đầu quét từ đây
         _hasHit = false;
+
+        // Xóa Trail rác (nếu có) khi lôi đạn từ pool ra
+        TrailRenderer trail = GetComponent<TrailRenderer>();
+        if (trail != null) trail.Clear();
     }
 
     private void Update()

@@ -50,6 +50,21 @@ public class PlayerAttack : MonoBehaviour
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
     }
 
+    private void Start()
+    {
+        // Khởi tạo trước đạn cho tất cả súng để tránh lag (Zero GC)
+        PrewarmWeapon(Weapon1);
+        PrewarmWeapon(Weapon2);
+        PrewarmWeapon(Weapon3);
+    }
+
+    private void PrewarmWeapon(WeaponSlot slot)
+    {
+        if (slot == null) return;
+        if (slot.variant1 != null && slot.variant1.bulletPrefab != null) _bulletPool.Prewarm(slot.variant1.bulletPrefab);
+        if (slot.variant2 != null && slot.variant2.bulletPrefab != null) _bulletPool.Prewarm(slot.variant2.bulletPrefab);
+    }
+
     private void Update()
     {
         HandleWeaponSwitching();
@@ -177,8 +192,14 @@ public class PlayerAttack : MonoBehaviour
 
         for (int i = 0; i < bulletsToShoot; i++)
         {
-            // Lấy đạn từ pool thay vì Instantiate — Zero GC
-            Bullet bullet = _bulletPool.Get(_firePoint.position);
+            if (Data.bulletPrefab == null)
+            {
+                Debug.LogWarning($"Súng {Data.name} chưa được gắn Bullet Prefab trong ScriptableObject!");
+                return;
+            }
+
+            // Lấy đạn từ pool theo đúng loại của súng đang cầm
+            Bullet bullet = _bulletPool.Get(Data.bulletPrefab, _firePoint.position);
             bullet.Activate(Data.bulletLifetime, Data.damage);
 
             // Tính toán góc lệch ngẫu nhiên (spread)

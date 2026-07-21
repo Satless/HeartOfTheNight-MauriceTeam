@@ -20,6 +20,9 @@ public class GunWeaponData : ScriptableObject
     public float spreadAngle;
 
     [Header("Visuals")]
+    [Tooltip("Kéo Prefab đạn của súng này vào đây")]
+    public Bullet bulletPrefab;
+
     [Tooltip("Kéo Animator Override Controller của súng này vào đây")]
     public RuntimeAnimatorController weaponAnimator;
 }
