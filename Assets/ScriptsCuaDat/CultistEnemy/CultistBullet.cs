@@ -18,6 +18,7 @@ namespace HeartOfTheNight.Enemy
 
             var col = GetComponent<Collider2D>();
             col.isTrigger = true;
+            
         }
 
         public void Launch(Vector2 direction, float speed, int dmg, float life)

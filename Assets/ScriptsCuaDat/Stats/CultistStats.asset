@@ -15,6 +15,7 @@ MonoBehaviour:
   detectRange: 12
   minSafeDistance: 5
   hysteresis: 0.5
+  retreatReactionDelay: 1
   moveSpeed: 3.5
   groundAccel: 25
   fireCooldown: 2
@@ -22,5 +23,6 @@ MonoBehaviour:
   bulletDamage: 10
   bulletLifetime: 4
   groundCheckSize: {x: 0.35, y: 0.1}
-  edgeCheckOffset: {x: 0.6, y: 0}
-  edgeCheckSize: {x: 0.2, y: 0.4}
+  edgeCheckForward: 0.6
+  wallCheckHeight: 0.5
+  wallCheckSize: {x: 0.2, y: 0.4}
