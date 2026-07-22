@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 115430605450393557}
   - component: {fileID: 8812211374794019458}
   - component: {fileID: 6951030675974170772}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Inquisitor
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.5625, y: 4.0625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -190,7 +190,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
     oldSize: {x: 2.5625, y: 4.0625}
-    newSize: {x: 1, y: 1}
+    newSize: {x: 2.5625, y: 4.0625}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -214,7 +214,7 @@ MonoBehaviour:
   firePoint: {fileID: 1324162438888004468}
   groundCheck: {fileID: 6980701853666264586}
   bulletPrefab: {fileID: 7046481047240634316, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-  anim: {fileID: 0}
+  anim: {fileID: 6951030675974170772}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
