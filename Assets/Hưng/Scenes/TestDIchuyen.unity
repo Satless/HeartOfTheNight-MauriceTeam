@@ -119,29 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &49618938 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1721345467516107366, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
-  m_PrefabInstance: {fileID: 966173840}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &49618945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 49618938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bed914b51b55d6c47977e3c00fa592b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  magnetRadius: 5
-  itemLayer:
-    serializedVersion: 2
-    m_Bits: 8192
-  pullSpeed: 0.1
-  pullAcceleration: 0.001
 --- !u!1 &114736794
 GameObject:
   m_ObjectHideFlags: 0
@@ -1897,6 +1874,22 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 8713613886188929098, guid: ecb976ff317c39a4995bcba0907bc465, type: 3}
+    - target: {fileID: 2265503281112699794, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: pullSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2265503281112699794, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: maxPullSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2265503281112699794, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: timeToMaxSpeed
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2265503281112699794, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: pullAcceleration
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5141435882979783124, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: _bulletPool
       value: 
@@ -1964,10 +1957,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1721345467516107366, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 49618945}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
 --- !u!1001 &977525461
 PrefabInstance:

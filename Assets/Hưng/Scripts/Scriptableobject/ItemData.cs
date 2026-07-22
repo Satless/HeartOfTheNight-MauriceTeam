@@ -11,5 +11,5 @@ public class ItemData : ScriptableObject
 
     [Header("Magnet Settings")]
     [Tooltip("Khoảng cách đủ gần để người chơi thực sự nhặt được vật phẩm và biến mất.")]
-    public float collectDistance = 0.5f;
+    public float collectDistance;
 }

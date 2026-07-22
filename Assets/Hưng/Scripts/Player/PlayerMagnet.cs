@@ -13,14 +13,32 @@ public class PlayerMagnet : MonoBehaviour
     [Tooltip("Layer của các vật phẩm có thể hút được. Nhớ tạo Layer 'Item' và gán cho Máu/Tiền.")]
     public LayerMask itemLayer;
     
-    [Tooltip("Tốc độ bay cơ bản của vật phẩm về phía người chơi.")]
+    [Tooltip("Tốc độ bay cơ bản")]
     public float pullSpeed;
     
-    [Tooltip("Gia tốc hút (càng bay lâu càng nhanh để dứt khoát vào túi).")]
+    [Tooltip("Tốc độ bay tối đa")]
+    public float maxPullSpeed;
+    
+    [Tooltip("Thời gian (giây) để tăng tốc từ 'Tốc độ cơ bản' lên đến 'Tốc độ tối đa'.")]
+    public float timeToMaxSpeed;
+
+    // Biến này bị ẩn đi (Design không cần quan tâm nữa), Code sẽ tự tính!
+    [HideInInspector]
     public float pullAcceleration;
 
     // Zero-GC array để lưu kết quả quét va chạm (tối đa hút 20 vật phẩm cùng lúc)
     private Collider2D[] _results = new Collider2D[20];
+
+    private void OnValidate()
+    {
+        // Tự động tính toán và sửa lỗi nếu Design lỡ nhập số 0 hoặc số âm
+        if (pullSpeed <= 0) pullSpeed = 0.1f;
+        if (maxPullSpeed < pullSpeed) maxPullSpeed = pullSpeed * 3f;
+        if (timeToMaxSpeed <= 0) timeToMaxSpeed = 0.1f; // Tránh lỗi chia cho 0
+        
+        // Tự động tính gia tốc (Design sướng rơn vì không cần nhức đầu học Vật lý nữa)
+        pullAcceleration = (maxPullSpeed - pullSpeed) / timeToMaxSpeed;
+    }
 
     private void Update()
     {
@@ -37,7 +55,7 @@ public class PlayerMagnet : MonoBehaviour
                 if (item != null && !item.IsCollected)
                 {
                     // Truyền transform của người chơi để vật phẩm tự bay về
-                    item.PullTowards(transform, pullSpeed, pullAcceleration);
+                    item.PullTowards(transform, pullSpeed, maxPullSpeed, pullAcceleration);
                 }
             }
         }

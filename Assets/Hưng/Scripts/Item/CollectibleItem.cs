@@ -37,7 +37,7 @@ public class CollectibleItem : MonoBehaviour
     /// Được gọi mỗi frame từ PlayerMagnet khi vật phẩm nằm trong từ trường.
     /// Dùng MoveTowards thay vì DOTween để đạn bay theo dấu mục tiêu đang di chuyển liên tục.
     /// </summary>
-    public void PullTowards(Transform target, float baseSpeed, float acceleration)
+    public void PullTowards(Transform target, float baseSpeed, float maxSpeed, float acceleration)
     {
         // Nếu chưa gán data thì chặn luôn
         if (IsCollected || data == null) return;
@@ -51,14 +51,13 @@ public class CollectibleItem : MonoBehaviour
             _rb.linearVelocity = Vector2.zero;
         }
 
-        // Tăng tốc độ bay theo thời gian (gia tốc) để tạo cảm giác hút mạnh
+        // Tăng tốc độ bay theo thời gian (gia tốc) nhưng không vượt quá Tốc độ Tối đa (maxSpeed)
         _currentSpeed += acceleration * Time.deltaTime;
-        float actualSpeed = baseSpeed + _currentSpeed;
+        float actualSpeed = Mathf.Min(baseSpeed + _currentSpeed, maxSpeed);
 
         transform.position = Vector3.MoveTowards(transform.position, target.position, actualSpeed * Time.deltaTime);
 
-        // Nếu đã bay đủ gần người chơi -> Gọi hàm nhặt
-        if (Vector3.Distance(transform.position, target.position) <= data.collectDistance)
+        if (Vector2.Distance(transform.position, target.position) <= data.collectDistance)
         {
             Collect(target.gameObject);
         }
@@ -89,6 +88,15 @@ public class CollectibleItem : MonoBehaviour
         if (_rb != null)
         {
             _rb.isKinematic = false;
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (data != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, data.collectDistance);
         }
     }
 }
