@@ -421,113 +421,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!1001 &302945876
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 869267799982270906, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2897949206191685688, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_Radius
-      value: 0.6867492
-      objectReference: {fileID: 0}
-    - target: {fileID: 2897949206191685688, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_Offset.y
-      value: -0.07059598
-      objectReference: {fileID: 0}
-    - target: {fileID: 5344605478223763971, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_Name
-      value: InquisitorBullet
-      objectReference: {fileID: 0}
-    - target: {fileID: 5344605478223763971, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7046481047240634316, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: hitVfxPrefab
-      value: 
-      objectReference: {fileID: 3402300793523679720, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-    - target: {fileID: 8416434687047598105, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 3119855331577701645, guid: 6c56f5f598423d740a336019b842dbf8, type: 3}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5344605478223763971, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 302945878}
-  m_SourcePrefab: {fileID: 100100000, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
---- !u!1 &302945877 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5344605478223763971, guid: e1f2436589a0b1c2d3e4f50301020304, type: 3}
-  m_PrefabInstance: {fileID: 302945876}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &302945878
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 302945877}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: faaa19fd8578f354c9c4dd2eba84c222, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &682634395
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,17 +808,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5809679222814195061, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
-      propertyPath: m_WasSpriteAssigned
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
       propertyPath: m_Name
       value: Inquisitor
-      objectReference: {fileID: 0}
-    - target: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8812211374794019458, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
       propertyPath: player
@@ -1607,10 +1492,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cultist
       objectReference: {fileID: 0}
-    - target: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8812211374794019458, guid: c60a4f14974efd146baf24f687899a69, type: 3}
       propertyPath: player
       value: 
@@ -2165,67 +2046,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f5a06091e9c07f843a7ce1d43fad827f, type: 3}
---- !u!1001 &8856567705305910494
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1557654272358222431, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3402300793523679720, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_Name
-      value: VFXInquistor
-      objectReference: {fileID: 0}
-    - target: {fileID: 3402300793523679720, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 5adce24784340a44d8b76724f97dc92a, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2244,5 +2064,3 @@ SceneRoots:
   - {fileID: 1901615744}
   - {fileID: 1636384153}
   - {fileID: 1781913068}
-  - {fileID: 8856567705305910494}
-  - {fileID: 302945876}

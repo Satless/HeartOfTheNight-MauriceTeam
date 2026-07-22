@@ -44,7 +44,7 @@ namespace HeartOfTheNight.Enemy
             rb = GetComponent<Rigidbody2D>();
             sprite = GetComponentInChildren<SpriteRenderer>();
             health = maxHealth;
-            EnemySeparation.Ensure(gameObject);
+            //EnemySeparation.Ensure(gameObject);
 
             if (player == null)
             {
