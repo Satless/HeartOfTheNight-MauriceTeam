@@ -124,6 +124,7 @@ GameObject:
   - component: {fileID: 5118176850447827018}
   - component: {fileID: 5141435882979783124}
   - component: {fileID: 890032511126001227}
+  - component: {fileID: 2265503281112699794}
   m_Layer: 7
   m_Name: PlayTestThemAnimation
   m_TagString: Player
@@ -278,6 +279,24 @@ MonoBehaviour:
   _lowerAnimator: {fileID: 2718531295666977125}
   _upperBodyObject: {fileID: 7466514602230273038}
   _keepGunOutDuration: 1.5
+--- !u!114 &2265503281112699794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721345467516107366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bed914b51b55d6c47977e3c00fa592b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  magnetRadius: 5
+  itemLayer:
+    serializedVersion: 2
+    m_Bits: 8192
+  pullSpeed: 0.1
+  pullAcceleration: 0.001
 --- !u!1 &4197812180855436671
 GameObject:
   m_ObjectHideFlags: 0
