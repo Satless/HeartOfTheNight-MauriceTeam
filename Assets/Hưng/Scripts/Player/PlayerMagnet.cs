@@ -32,11 +32,27 @@ public class PlayerMagnet : MonoBehaviour
     private void OnValidate()
     {
         // Tự động tính toán và sửa lỗi nếu Design lỡ nhập số 0 hoặc số âm
+        if (magnetRadius <= 0) magnetRadius = 1f;
         if (pullSpeed <= 0) pullSpeed = 0.1f;
         if (maxPullSpeed < pullSpeed) maxPullSpeed = pullSpeed * 3f;
         if (timeToMaxSpeed <= 0) timeToMaxSpeed = 0.1f; // Tránh lỗi chia cho 0
         
-        // Tự động tính gia tốc (Design sướng rơn vì không cần nhức đầu học Vật lý nữa)
+        RecalculateAcceleration();
+    }
+
+    private void Awake()
+    {
+        // OnValidate() không chạy trong Build, nên tính lại gia tốc ở đây cho an toàn
+        RecalculateAcceleration();
+    }
+
+    /// <summary>
+    /// Tính lại gia tốc hút dựa trên pullSpeed, maxPullSpeed và timeToMaxSpeed.
+    /// Gọi lại hàm này nếu có hệ thống Buff/Power-up thay đổi thông số hút lúc runtime.
+    /// </summary>
+    public void RecalculateAcceleration()
+    {
+        if (timeToMaxSpeed <= 0) timeToMaxSpeed = 0.1f;
         pullAcceleration = (maxPullSpeed - pullSpeed) / timeToMaxSpeed;
     }
 
@@ -50,11 +66,9 @@ public class PlayerMagnet : MonoBehaviour
             Collider2D col = _results[i];
             if (col != null)
             {
-                // Kiểm tra xem vật thể có chứa script CollectibleItem không
-                CollectibleItem item = col.GetComponent<CollectibleItem>();
-                if (item != null && !item.IsCollected)
+                // TryGetComponent nhanh hơn GetComponent + null check (tránh overhead Unity override !=)
+                if (col.TryGetComponent(out CollectibleItem item) && !item.IsCollected)
                 {
-                    // Truyền transform của người chơi để vật phẩm tự bay về
                     item.PullTowards(transform, pullSpeed, maxPullSpeed, pullAcceleration);
                 }
             }
