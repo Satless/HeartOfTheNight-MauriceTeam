@@ -1,8 +1,11 @@
-﻿    using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class DoomBringer : MonoBehaviour
 {
+    [Header("Hoạt ảnh (Animation)")]
+    public Animator anim; // Chỉ giữ lại để nó tự chạy clip Idle của bạn
+
     [Header("Chỉ số Sinh tồn & Giai đoạn")]
     public int maxHealth = 1000;
     private int currentHealth;
@@ -19,10 +22,10 @@ public class DoomBringer : MonoBehaviour
 
     [Header("Chu kỳ Trạng Thái (State Machine)")]
     public float timePerState = 5f;
-    public float transitionDelay = 1f; // THÊM MỚI: Thời gian nghỉ giữa các Form
+    public float transitionDelay = 1f;
     private int currentState = 1;
     private float stateTimer;
-    private bool isTransitioning = false; // THÊM MỚI: Đang trong thời gian nghỉ?
+    private bool isTransitioning = false;
 
     [Header("Vũ khí & Prefabs")]
     public Transform firePoint;
@@ -50,6 +53,8 @@ public class DoomBringer : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
 
+        if (anim == null) anim = GetComponent<Animator>();
+
         currentHealth = maxHealth;
         stateTimer = timePerState;
 
@@ -63,10 +68,8 @@ public class DoomBringer : MonoBehaviour
     {
         if (player == null) return;
 
-        // Boss LUÔN LUÔN di chuyển tiến tới dù đang nghỉ hay đang đánh
         MoveRelentlessly();
 
-        // CHÌA KHÓA: Nếu đang nghỉ chuyển form thì KHÔNG đếm thời gian và KHÔNG đánh
         if (!isTransitioning)
         {
             HandleStateSwitching();
@@ -101,8 +104,6 @@ public class DoomBringer : MonoBehaviour
         bombFireRate *= phase2FireRateMulti;
         laserFireRate *= phase2FireRateMulti;
         attackTimer *= phase2FireRateMulti;
-
-        // Khi điên lên, thời gian nghỉ 1s giữa các form cũng bị rút ngắn lại!
         transitionDelay *= phase2FireRateMulti;
 
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
@@ -130,30 +131,25 @@ public class DoomBringer : MonoBehaviour
 
         if (stateTimer <= 0)
         {
-            // Thay vì chuyển ngay lập tức, gọi Coroutine để nghỉ 1 giây
             StartCoroutine(TransitionRoutine());
         }
     }
 
-    // THÊM MỚI: Coroutine lo việc nghỉ ngơi chuyển dạng
     IEnumerator TransitionRoutine()
     {
-        isTransitioning = true; // Khóa súng lại
+        isTransitioning = true;
         Debug.Log("Boss ngừng bắn, đang nghỉ " + transitionDelay + " giây...");
 
-        // Đứng im chịu đòn (nhưng vẫn tiến tới) trong 1 giây
         yield return new WaitForSeconds(transitionDelay);
 
-        // Đổi sang Trạng thái tiếp theo
         currentState++;
         if (currentState > 3) currentState = 1;
 
-        // Reset lại các thông số cho chu kỳ mới
         stateTimer = timePerState;
         hasSummoned = false;
         attackTimer = 0f;
 
-        isTransitioning = false; // Mở súng ra bắn tiếp
+        isTransitioning = false;
         Debug.Log("Chuyển sang Trạng Thái: " + currentState);
     }
 
