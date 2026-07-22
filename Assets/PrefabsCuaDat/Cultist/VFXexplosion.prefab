@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4346046673515933216}
   - component: {fileID: 6852414705604794155}
   - component: {fileID: 4882458086435770868}
+  - component: {fileID: 6837621699786103393}
   m_Layer: 0
   m_Name: VFXexplosion
   m_TagString: Untagged
@@ -110,3 +111,16 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6837621699786103393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7299314119721816246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f1f1e1cb12f21a4c8dc44b8c45e974e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  delayBuffer: 0
