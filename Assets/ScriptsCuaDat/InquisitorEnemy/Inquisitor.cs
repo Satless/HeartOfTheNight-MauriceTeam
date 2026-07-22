@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HeartOfTheNight.Common;
 using UnityEngine;
 
@@ -9,6 +9,10 @@ namespace HeartOfTheNight.Enemy
     public class Inquisitor : MonoBehaviour, IDamageable
     {
         private enum State { Chase, Aim, Retreat }
+
+        // Test thử Tối ưu hiệu năng quét Buff
+        
+        [SerializeField] private LayerMask enemyLayer;
 
         [Header("Data")]
         [SerializeField] private InquisitorStatsSO stats;
@@ -194,7 +198,9 @@ namespace HeartOfTheNight.Enemy
 
         private void ApplyRoomBuffToAllies()
         {
-            var hits = Physics2D.OverlapCircleAll(transform.position, stats.buffRadius);
+            //var hits = Physics2D.OverlapCircleAll(transform.position, stats.buffRadius);
+            //test thử tối ưu hiệu năng quét buff
+            var hits = Physics2D.OverlapCircleAll(transform.position, stats.buffRadius, enemyLayer);
             var inRange = new HashSet<EnemyStrengthModifier>();
 
             for (int i = 0; i < hits.Length; i++)
