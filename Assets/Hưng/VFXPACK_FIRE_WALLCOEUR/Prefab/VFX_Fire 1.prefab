@@ -4844,6 +4844,7 @@ GameObject:
   - component: {fileID: 7800046302039599656}
   - component: {fileID: 7531185571972932703}
   - component: {fileID: 2662163760916472649}
+  - component: {fileID: 3441842200603037771}
   m_Layer: 0
   m_Name: VFX_Fire 1
   m_TagString: Untagged
@@ -9667,3 +9668,26 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3441842200603037771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5712219488875869251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a56c61775579d4e953d0b193108f13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitboxSize: {x: 8.6, y: 1}
+  hitboxOffset: {x: 4.18, y: 0}
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  _targetTags:
+  - Enemy
+  - EnemyGan
+  - EnemyXa
+  - Boss
+  - EnemyBom

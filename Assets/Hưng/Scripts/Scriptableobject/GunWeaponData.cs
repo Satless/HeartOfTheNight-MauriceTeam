@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Gun Weapon Data")]
+[CreateAssetMenu(fileName = "NewGunWeaponData", menuName = "Data/Gun Weapon Data")]
 public class GunWeaponData : ScriptableObject
 {
     [Header("Fire")]
@@ -20,9 +20,38 @@ public class GunWeaponData : ScriptableObject
     public float spreadAngle;
 
     [Header("Visuals")]
+    [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
+    public float animationSpeedMultiplier;
     [Tooltip("Kéo Prefab đạn của súng này vào đây")]
     public Bullet bulletPrefab;
 
     [Tooltip("Kéo Animator Override Controller của súng này vào đây")]
     public RuntimeAnimatorController weaponAnimator;
+
+    [Header("Explosive / AOE")]
+    [Tooltip("Đạn có phát nổ AOE khi chạm mục tiêu/tường không?")]
+    public bool isExplosive;
+    [Tooltip("Bán kính vụ nổ (0 nếu không nổ)")]
+    public float explosionRadius;
+    [Tooltip("Sát thương nổ lan (cộng dồn với sát thương chính nếu trúng trực tiếp)")]
+    public int explosionDamage;
+
+    [Header("Special Logic")]
+    [Tooltip("Hiệu ứng trạng thái áp dụng lên quái (Ví dụ: Thiêu Đốt)")]
+    public StatusEffectData statusEffect;
+
+    [Tooltip("Số lượng quái vật tối đa đạn có thể bay xuyên qua (0 = không xuyên)")]
+    public int pierceCount;
+    [Tooltip("Tích vào nếu đây là súng bắn liên tục (Súng lửa) - Sẽ không dùng Animation Event")]
+    public bool isContinuousFire = false;
+    [Tooltip("Prefab dùng cho súng bắn liên tục (Súng lửa) - Sẽ thay thế Bullet Prefab")]
+    public GameObject continuousVfxPrefab;
+
+
+    private void OnValidate()
+    {
+        // Rào trước tránh lỗi
+        if (animationSpeedMultiplier <= 0) animationSpeedMultiplier = 1f;
+        if (bulletsPerShot <= 0) bulletsPerShot = 1;
+    }
 }

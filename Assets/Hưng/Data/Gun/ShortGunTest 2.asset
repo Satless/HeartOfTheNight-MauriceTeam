@@ -14,9 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fireRate: 1
   bulletSpeed: 30
-  damage: 30
+  damage: 50
   bulletLifetime: 3
   bulletsPerShot: 1
   spreadAngle: 2
+  animationSpeedMultiplier: 1
   bulletPrefab: {fileID: 437895494315374385, guid: 0a33f90d07331144dab5096eaa00a110, type: 3}
   weaponAnimator: {fileID: 9100000, guid: b796694b72b51cf4bb900339e6b9e128, type: 2}
+  isExplosive: 1
+  explosionRadius: 2.5
+  explosionDamage: 25
+  pierceCount: 0
+  isContinuousFire: 0

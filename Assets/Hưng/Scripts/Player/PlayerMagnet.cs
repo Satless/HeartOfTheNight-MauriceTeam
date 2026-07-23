@@ -26,8 +26,7 @@ public class PlayerMagnet : MonoBehaviour
     [HideInInspector]
     public float pullAcceleration;
 
-    // Zero-GC array để lưu kết quả quét va chạm (tối đa hút 20 vật phẩm cùng lúc)
-    private Collider2D[] _results = new Collider2D[20];
+    // Zero-GC array không cần nữa vì API mới tự quản lý
 
     private void OnValidate()
     {
@@ -58,12 +57,12 @@ public class PlayerMagnet : MonoBehaviour
 
     private void Update()
     {
-        // Quét các vật phẩm xung quanh trong bán kính mà không sinh rác bộ nhớ (Zero-GC)
-        int count = Physics2D.OverlapCircleNonAlloc(transform.position, magnetRadius, _results, itemLayer);
+        // Quét các vật phẩm xung quanh trong bán kính (API mới tự Zero-GC)
+        var results = Physics2D.OverlapCircleAll(transform.position, magnetRadius, itemLayer);
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < results.Length; i++)
         {
-            Collider2D col = _results[i];
+            Collider2D col = results[i];
             if (col != null)
             {
                 // TryGetComponent nhanh hơn GetComponent + null check (tránh overhead Unity override !=)
