@@ -8,9 +8,6 @@ using UnityEngine;
 /// </summary>
 public class Bullet : MonoBehaviour
 {
-    // Damage được set từ PlayerAttack.Fire()
-    [HideInInspector] public int damage;
-
     [Header("Collision Layers & Tags")]
     [Tooltip("Layer va chạm các loại quái")]
     [SerializeField] private LayerMask _enemyLayer;
@@ -33,13 +30,14 @@ public class Bullet : MonoBehaviour
     private BulletPool _pool;
     public string PoolKey { get; private set; }
 
-    private float _lifetime;
+    private GunWeaponData _data;
     private float _spawnTime;
 
     private int _pierceLeft;
     private VfxPool _vfxPool;
     private HashSet<Collider2D> _hitColliders = new HashSet<Collider2D>();
     private static readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[10];
+    private static readonly Collider2D[] _aoeBuffer = new Collider2D[20];
 
     // Linecast anti-tunneling: lưu vị trí frame trước để quét đường đi
     private Vector2 _lastPosition;
@@ -63,14 +61,13 @@ public class Bullet : MonoBehaviour
     /// Gọi bởi PlayerAttack.Fire() mỗi lần lấy đạn từ pool.
     /// Reset trạng thái đạn cho lần sử dụng mới.
     /// </summary>
-    public void Activate(float lifetime, int bulletDamage, int pierceCount, VfxPool vfxPool)
+    public void Activate(GunWeaponData data, VfxPool vfxPool)
     {
-        _lifetime = lifetime;
-        _spawnTime = Time.time;
-        damage = bulletDamage;
-        
-        _pierceLeft = pierceCount;
+        _data = data;
         _vfxPool = vfxPool;
+        
+        _spawnTime = Time.time;
+        _pierceLeft = data.pierceCount;
         _hitColliders.Clear();
 
         RB.linearVelocity = Vector2.zero; // Reset vận tốc từ lần bắn trước
@@ -85,7 +82,7 @@ public class Bullet : MonoBehaviour
     private void Update()
     {
         // Tự trả về pool sau khi hết lifetime — thay thế Destroy(bullet, lifetime)
-        if (Time.time >= _spawnTime + _lifetime)
+        if (_data != null && Time.time >= _spawnTime + _data.bulletLifetime)
         {
             ReturnToPool();
         }
@@ -100,9 +97,12 @@ public class Bullet : MonoBehaviour
         // Quét xuyên nhiều vật thể bằng LinecastNonAlloc (Zero GC)
         int hitCount = Physics2D.LinecastNonAlloc(_lastPosition, currentPosition, _hitBuffer, _enemyLayer | _groundLayer);
         
+        // Vẽ đường đạn để Debug
+        Debug.DrawLine(_lastPosition, currentPosition, hitCount > 0 ? Color.green : Color.red, 0.5f);
+        
         if (hitCount > 1)
         {
-            // Bubble sort đơn giản để đảm bảo xử lý va chạm theo đúng thứ tự gần -> xa (để đạn nổ trúng tường trước khi trúng quái đứng sau tường)
+            // Bubble sort đơn giản để đảm bảo xử lý va chạm theo đúng thứ tự gần -> xa
             for (int i = 0; i < hitCount - 1; i++)
             {
                 for (int j = 0; j < hitCount - i - 1; j++)
@@ -122,7 +122,7 @@ public class Bullet : MonoBehaviour
             RaycastHit2D hit = _hitBuffer[i];
             if (hit.collider != null)
             {
-                bool stopBullet = ProcessCollision(hit.collider, hit.point);
+                bool stopBullet = ProcessCollision(hit.collider, hit.point, hit.normal);
                 if (stopBullet)
                 {
                     _hasHit = true;
@@ -138,7 +138,13 @@ public class Bullet : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_hasHit) return; 
-        bool stopBullet = ProcessCollision(other, transform.position);
+        // Khi trigger, normal lấy là ngược chiều vận tốc để dội lại
+        Vector2 normal = RB.linearVelocity != Vector2.zero ? -RB.linearVelocity.normalized : Vector2.up;
+        
+        // Lấy điểm chạm chính xác trên bề mặt vật thể, thay vì lấy tâm viên đạn
+        Vector2 hitPoint = other.ClosestPoint(transform.position);
+
+        bool stopBullet = ProcessCollision(other, hitPoint, normal);
         if (stopBullet)
         {
             _hasHit = true;
@@ -146,12 +152,19 @@ public class Bullet : MonoBehaviour
         }
     }
 
-    private bool ProcessCollision(Collider2D other, Vector2 hitPoint)
+    private bool ProcessCollision(Collider2D other, Vector2 hitPoint, Vector2 hitNormal)
     {
         // 1. Va chạm Ground
         if (((1 << other.gameObject.layer) & _groundLayer) != 0)
         {
-            SpawnHitVfx(hitPoint);
+            if (_data.isExplosive)
+            {
+                Explode(hitPoint, hitNormal, null);
+            }
+            else
+            {
+                SpawnHitVfx(hitPoint);
+            }
             return true; // Báo hiệu đạn phải nổ ngay lập tức
         }
 
@@ -165,29 +178,83 @@ public class Bullet : MonoBehaviour
                 NhanSatThuong nhanSatThuong = other.GetComponent<NhanSatThuong>();
                 if (nhanSatThuong != null)
                 {
-                    nhanSatThuong.TakeDamage(damage);
+                    nhanSatThuong.TakeDamage(_data.damage);
                 }
             }
             
-            SpawnHitVfx(hitPoint);
             _hitColliders.Add(other); // Đánh dấu đã đâm qua
 
-            _pierceLeft--;
-            if (_pierceLeft < 0) 
+            if (_data.isExplosive)
             {
-                return true; // Hết lượt xuyên -> Báo hiệu nổ đạn
+                // Đạn nổ AOE: không xuyên, nổ ngay
+                Explode(hitPoint, hitNormal, other);
+                return true; 
             }
-            return false; // Còn lượt xuyên -> Cho bay xuyên qua
+            else
+            {
+                SpawnHitVfx(hitPoint);
+                
+                _pierceLeft--;
+                if (_pierceLeft < 0) 
+                {
+                    return true; // Hết lượt xuyên -> Báo hiệu nổ đạn
+                }
+                return false; // Còn lượt xuyên -> Cho bay xuyên qua
+            }
         }
 
         return false;
+    }
+
+    private void Explode(Vector2 hitPoint, Vector2 hitNormal, Collider2D primaryTarget)
+    {
+        // 1. Dời tâm nổ ra một chút ngược hướng va chạm (chỉ dời 0.05f để không bị lệch quá nhiều)
+        Vector2 explosionCenter = hitPoint + hitNormal * 0.05f;
+
+        // Sinh hiệu ứng nổ (VFX)
+        SpawnHitVfx(explosionCenter);
+
+        if (_data.explosionRadius <= 0) return;
+
+        // 2. Quét các mục tiêu trong bán kính nổ
+        int count = Physics2D.OverlapCircleNonAlloc(explosionCenter, _data.explosionRadius, _aoeBuffer, _enemyLayer);
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D col = _aoeBuffer[i];
+            
+            // Bỏ qua nếu là mục tiêu chính đã ăn sát thương gốc
+            if (col == primaryTarget) continue;
+
+            if (HasEnemyTag(col))
+            {
+                // 3. Line of Sight Check (chống nổ xuyên tường/Ground)
+                // Bắn tia từ tâm nổ đến mục tiêu phụ
+                Vector2 targetPos = col.bounds.center;
+                RaycastHit2D blockCheck = Physics2D.Linecast(explosionCenter, targetPos, _groundLayer);
+                
+                // Bị tường/đất chặn ngang -> Không dính AOE
+                if (blockCheck.collider != null)
+                {
+                    continue; 
+                }
+
+                // Gây sát thương nổ lan
+                NhanSatThuong nhanSatThuong = col.GetComponent<NhanSatThuong>();
+                if (nhanSatThuong != null)
+                {
+                    nhanSatThuong.TakeDamage(_data.explosionDamage);
+                }
+            }
+        }
     }
 
     private void SpawnHitVfx(Vector2 position)
     {
         if (_vfxPool != null && _hitVfxPrefab != null)
         {
-            _vfxPool.SpawnVfx(_hitVfxPrefab, position);
+            // Lấy hướng bay hiện tại của đạn (1 là phải, -1 là trái)
+            float dirX = RB.linearVelocity.x != 0 ? Mathf.Sign(RB.linearVelocity.x) : 1f;
+            _vfxPool.SpawnVfx(_hitVfxPrefab, position, dirX);
         }
     }
 

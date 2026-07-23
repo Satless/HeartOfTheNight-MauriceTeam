@@ -38,7 +38,7 @@ public class VfxPool : MonoBehaviour
         return vfxInstance;
     }
 
-    public void SpawnVfx(GameObject prefab, Vector3 position)
+    public void SpawnVfx(GameObject prefab, Vector3 position, float dirX = 1f)
     {
         if (prefab == null) return;
         
@@ -60,6 +60,12 @@ public class VfxPool : MonoBehaviour
         }
 
         vfxInstance.transform.position = position;
+        
+        // Lật hình ảnh theo hướng bay
+        Vector3 scale = vfxInstance.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * Mathf.Sign(dirX);
+        vfxInstance.transform.localScale = scale;
+        
         vfxInstance.gameObject.SetActive(true);
     }
 

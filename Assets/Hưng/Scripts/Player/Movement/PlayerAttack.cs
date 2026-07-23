@@ -249,7 +249,7 @@ public class PlayerAttack : MonoBehaviour
 
             // Lấy đạn từ pool theo đúng loại của súng đang cầm
             Bullet bullet = _bulletPool.Get(Data.bulletPrefab, _firePoint.position);
-            bullet.Activate(Data.bulletLifetime, Data.damage, Data.pierceCount, _vfxPool);
+            bullet.Activate(Data, _vfxPool);
 
             // Tính toán góc lệch ngẫu nhiên (spread)
             float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);

@@ -28,6 +28,14 @@ public class GunWeaponData : ScriptableObject
     [Tooltip("Kéo Animator Override Controller của súng này vào đây")]
     public RuntimeAnimatorController weaponAnimator;
 
+    [Header("Explosive / AOE")]
+    [Tooltip("Đạn có phát nổ AOE khi chạm mục tiêu/tường không?")]
+    public bool isExplosive;
+    [Tooltip("Bán kính vụ nổ (0 nếu không nổ)")]
+    public float explosionRadius;
+    [Tooltip("Sát thương nổ lan (cộng dồn với sát thương chính nếu trúng trực tiếp)")]
+    public int explosionDamage;
+
     [Header("Special Logic")]
     [Tooltip("Số lượng quái vật tối đa đạn có thể bay xuyên qua (0 = không xuyên)")]
     public int pierceCount;
