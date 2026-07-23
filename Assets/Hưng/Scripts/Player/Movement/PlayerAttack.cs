@@ -37,6 +37,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private Transform _firePoint;
     [Tooltip("Kéo cái kho đạn object pooling vào đây.")]
     [SerializeField] private BulletPool _bulletPool;
+    [Tooltip("Kéo kho chứa hiệu ứng nổ VfxPool vào đây.")]
+    [SerializeField] private VfxPool _vfxPool;
 
     // Tái dùng PlayerMovement để đọc IsWallJumpLocked
     private PlayerMovement _movement;
@@ -225,7 +227,7 @@ public class PlayerAttack : MonoBehaviour
 
             // Lấy đạn từ pool theo đúng loại của súng đang cầm
             Bullet bullet = _bulletPool.Get(Data.bulletPrefab, _firePoint.position);
-            bullet.Activate(Data.bulletLifetime, Data.damage);
+            bullet.Activate(Data.bulletLifetime, Data.damage, Data.pierceCount, _vfxPool);
 
             // Tính toán góc lệch ngẫu nhiên (spread)
             float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);

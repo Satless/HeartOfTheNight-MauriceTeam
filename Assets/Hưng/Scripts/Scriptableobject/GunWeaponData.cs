@@ -29,6 +29,8 @@ public class GunWeaponData : ScriptableObject
     public RuntimeAnimatorController weaponAnimator;
 
     [Header("Special Logic")]
+    [Tooltip("Số lượng quái vật tối đa đạn có thể bay xuyên qua (0 = không xuyên)")]
+    public int pierceCount = 0;
     [Tooltip("Tích vào nếu đây là súng bắn liên tục (Súng lửa) - Sẽ không dùng Animation Event")]
     public bool isContinuousFire = false;
 }

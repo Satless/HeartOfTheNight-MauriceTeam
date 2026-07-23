@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -16,6 +17,10 @@ public class Bullet : MonoBehaviour
     [Tooltip("Layer va chạm đất, tường, vật cản, v.v")]
     [SerializeField] private LayerMask _groundLayer;
 
+    [Header("Visuals")]
+    [Tooltip("Kéo Prefab hiệu ứng va chạm/nổ vào đây")]
+    [SerializeField] private GameObject _hitVfxPrefab;
+
     [Tooltip("Danh sách tag được phép gây sát thương")]
     [TagSelector] 
     [SerializeField] private string[] _enemyTags;
@@ -29,6 +34,11 @@ public class Bullet : MonoBehaviour
 
     private float _lifetime;
     private float _spawnTime;
+
+    private int _pierceLeft;
+    private VfxPool _vfxPool;
+    private HashSet<Collider2D> _hitColliders = new HashSet<Collider2D>();
+    private static readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[10];
 
     // Linecast anti-tunneling: lưu vị trí frame trước để quét đường đi
     private Vector2 _lastPosition;
@@ -52,11 +62,16 @@ public class Bullet : MonoBehaviour
     /// Gọi bởi PlayerAttack.Fire() mỗi lần lấy đạn từ pool.
     /// Reset trạng thái đạn cho lần sử dụng mới.
     /// </summary>
-    public void Activate(float lifetime, int bulletDamage)
+    public void Activate(float lifetime, int bulletDamage, int pierceCount, VfxPool vfxPool)
     {
         _lifetime = lifetime;
         _spawnTime = Time.time;
         damage = bulletDamage;
+        
+        _pierceLeft = pierceCount;
+        _vfxPool = vfxPool;
+        _hitColliders.Clear();
+
         RB.linearVelocity = Vector2.zero; // Reset vận tốc từ lần bắn trước
         _lastPosition = RB.position;      // Chụp vị trí khởi điểm để bắt đầu quét từ đây
         _hasHit = false;
@@ -81,63 +96,97 @@ public class Bullet : MonoBehaviour
 
         Vector2 currentPosition = RB.position;
 
-        // Quét đường thẳng giữa vị trí frame trước và frame này — bắt được va chạm
-        // dù đạn bay nhanh cỡ nào, không phụ thuộc CCD của Unity/Box2D.
-        // Physics2D.Linecast (bản trả về 1 kết quả) là Zero-GC.
-        RaycastHit2D hit = Physics2D.Linecast(_lastPosition, currentPosition, _enemyLayer | _groundLayer);
+        // Quét xuyên nhiều vật thể bằng LinecastNonAlloc (Zero GC)
+        int hitCount = Physics2D.LinecastNonAlloc(_lastPosition, currentPosition, _hitBuffer, _enemyLayer | _groundLayer);
         
-        // Vẽ tia Linecast ra Scene View để test trực quan (Màu xanh nếu trúng, màu đỏ nếu trượt, hiển thị 0.5s)
-        Debug.DrawLine(_lastPosition, currentPosition, hit.collider != null ? Color.green : Color.red, 0.5f);
-
-        if (hit.collider != null)
+        if (hitCount > 1)
         {
-            _hasHit = true; // Chặn OnTriggerEnter2D xử lý trùng lặp cùng va chạm này
-            HandleCollision(hit.collider);
+            // Bubble sort đơn giản để đảm bảo xử lý va chạm theo đúng thứ tự gần -> xa (để đạn nổ trúng tường trước khi trúng quái đứng sau tường)
+            for (int i = 0; i < hitCount - 1; i++)
+            {
+                for (int j = 0; j < hitCount - i - 1; j++)
+                {
+                    if (_hitBuffer[j].fraction > _hitBuffer[j + 1].fraction)
+                    {
+                        var temp = _hitBuffer[j];
+                        _hitBuffer[j] = _hitBuffer[j + 1];
+                        _hitBuffer[j + 1] = temp;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit2D hit = _hitBuffer[i];
+            if (hit.collider != null)
+            {
+                bool stopBullet = ProcessCollision(hit.collider, hit.point);
+                if (stopBullet)
+                {
+                    _hasHit = true;
+                    ReturnToPool();
+                    break;
+                }
+            }
         }
 
         _lastPosition = currentPosition;
     }
 
-    /// <summary>
-    /// OnTriggerEnter2D giữ lại làm lớp dự phòng (bắt overlap tĩnh, ví dụ quái đi vào đúng lúc đạn đứng yên).
-    /// Cờ _hasHit đảm bảo không xử lý trùng 2 lần cùng 1 va chạm trong 1 frame.
-    /// </summary>
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (_hasHit) return; // Đã xử lý bởi Linecast rồi thì bỏ qua
-        HandleCollision(other);
+        if (_hasHit) return; 
+        bool stopBullet = ProcessCollision(other, transform.position);
+        if (stopBullet)
+        {
+            _hasHit = true;
+            ReturnToPool();
+        }
     }
 
-    /// <summary>
-    /// Logic va chạm gộp chung — dùng cho cả Linecast và OnTriggerEnter2D.
-    /// Sửa logic damage/enemy chỉ cần sửa 1 chỗ duy nhất.
-    /// </summary>
-    private void HandleCollision(Collider2D other)
+    private bool ProcessCollision(Collider2D other, Vector2 hitPoint)
     {
-        // 1. Va chạm Enemy: Dùng Layer để lọc va chạm vật lý trước (Zero GC, cực nhanh)
+        // 1. Va chạm Ground
+        if (((1 << other.gameObject.layer) & _groundLayer) != 0)
+        {
+            SpawnHitVfx(hitPoint);
+            return true; // Báo hiệu đạn phải nổ ngay lập tức
+        }
+
+        // 2. Va chạm Enemy
         if (((1 << other.gameObject.layer) & _enemyLayer) != 0)
         {
-            // Kiểm tra xem quái này có mang Tag hợp lệ không (hỗ trợ nhiều Tag)
+            if (_hitColliders.Contains(other)) return false; // Đã xuyên qua con này rồi, bỏ qua
+
             if (HasEnemyTag(other))
             {
-                // Gọi interface NhanSatThuong thay vì GetComponent cứng
                 NhanSatThuong nhanSatThuong = other.GetComponent<NhanSatThuong>();
                 if (nhanSatThuong != null)
                 {
-                    // Truyền sát thương động đã nhận từ GunWeaponData qua hàm Activate
-                    nhanSatThuong.TakeDamage(damage); 
+                    nhanSatThuong.TakeDamage(damage);
                 }
             }
             
-            // Cứ chạm trúng Layer Enemy là đạn bị hủy (trả về pool)
-            ReturnToPool();
-            return;
+            SpawnHitVfx(hitPoint);
+            _hitColliders.Add(other); // Đánh dấu đã đâm qua
+
+            _pierceLeft--;
+            if (_pierceLeft < 0) 
+            {
+                return true; // Hết lượt xuyên -> Báo hiệu nổ đạn
+            }
+            return false; // Còn lượt xuyên -> Cho bay xuyên qua
         }
 
-        // 2. Va chạm Ground: Tilemap thường gán sẵn Layer Ground, lọc theo Layer là chuẩn xác nhất
-        if (((1 << other.gameObject.layer) & _groundLayer) != 0)
+        return false;
+    }
+
+    private void SpawnHitVfx(Vector2 position)
+    {
+        if (_vfxPool != null && _hitVfxPrefab != null)
         {
-            ReturnToPool();
+            _vfxPool.SpawnVfx(_hitVfxPrefab, position);
         }
     }
 
