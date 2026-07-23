@@ -15,6 +15,6 @@ public class StatusEffectData : ScriptableObject
     [Tooltip("Thời gian giữa mỗi nhịp giật sát thương (giây). Càng nhỏ giật càng nhanh.")]
     public float tickInterval;
 
-    [Tooltip("Hình ảnh/VFX đính lên người mục tiêu khi dính hiệu ứng này (Tùy chọn)")]
+    [Tooltip("Hình ảnh/VFX đính lên người mục tiêu khi dính hiệu ứng này")]
     public GameObject effectVfxPrefab;
 }
