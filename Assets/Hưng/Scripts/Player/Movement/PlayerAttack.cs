@@ -118,6 +118,8 @@ public class PlayerAttack : MonoBehaviour
             if (anim != null)
             {
                 anim.runtimeAnimatorController = Data.weaponAnimator;
+                // Áp dụng tốc độ chạy hoạt ảnh của súng
+                anim.speed = Data.animationSpeedMultiplier;
             }
         }
     }
@@ -173,14 +175,37 @@ public class PlayerAttack : MonoBehaviour
         // GetMouseButton(0) trả về true từ frame đầu giữ nút nên bao luôn cả click đơn
         if (Input.GetMouseButton(0) && Time.time >= _lastFireTime + Data.fireRate)
         {
-            Fire();
+            TryFire();
         }
     }
 
-    private void Fire()
+    private void TryFire()
     {
         _lastFireTime = Time.time;
 
+        if (Data == null) return;
+
+        // Kích hoạt hoạt ảnh bắn. Khi hoạt ảnh tới đúng frame, nó sẽ gọi event ExecuteShot()
+        if (_upperBodyVisual != null)
+        {
+            Animator anim = _upperBodyVisual.GetComponent<Animator>();
+            if (anim != null)
+            {
+                anim.SetTrigger("Fire");
+            }
+        }
+
+        // Nếu là súng bắn liên tục (Súng lửa), không đợi event mà xử lý logic liên tục tại đây
+        if (Data.isContinuousFire)
+        {
+            // TODO: Bật/Tắt Collider Flamethrower
+            // Tạm thời gọi trực tiếp ExecuteShot để test
+            ExecuteShot();
+        }
+    }
+
+    public void ExecuteShot()
+    {
         // Bỏ qua nếu chưa trang bị súng
         if (Data == null) return;
 
@@ -218,12 +243,6 @@ public class PlayerAttack : MonoBehaviour
         // --- Hiệu ứng giật súng (Recoil) với DOTween ---
         if (_upperBodyVisual != null)
         {
-            Animator anim = _upperBodyVisual.GetComponent<Animator>();
-            if (anim != null)
-            {
-                anim.SetTrigger("Fire");
-            }
-
             _upperBodyVisual.DOKill(); // Dừng tween cũ
             
             // Rút ngắn thời gian giật nếu fireRate quá nhanh (như Minigun) để hiệu ứng không đứt gãy

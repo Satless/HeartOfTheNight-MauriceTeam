@@ -20,9 +20,15 @@ public class GunWeaponData : ScriptableObject
     public float spreadAngle;
 
     [Header("Visuals")]
+    [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
+    public float animationSpeedMultiplier = 1f;
     [Tooltip("Kéo Prefab đạn của súng này vào đây")]
     public Bullet bulletPrefab;
 
     [Tooltip("Kéo Animator Override Controller của súng này vào đây")]
     public RuntimeAnimatorController weaponAnimator;
+
+    [Header("Special Logic")]
+    [Tooltip("Tích vào nếu đây là súng bắn liên tục (Súng lửa) - Sẽ không dùng Animation Event")]
+    public bool isContinuousFire = false;
 }
