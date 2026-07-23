@@ -54,7 +54,19 @@ public class PlayerAttack : MonoBehaviour
 
     private void Start()
     {
-        // Khởi tạo trước đạn cho tất cả súng để tránh lag (Zero GC)
+        // Khởi tạo pool với loại đạn hiện tại
+        if (Data != null && Data.bulletPrefab != null)
+        {
+            if (_bulletPool != null)
+            {
+                _bulletPool.Prewarm(Data.bulletPrefab);
+            }
+            if (_vfxPool != null && Data.bulletPrefab.HitVfxPrefab != null)
+            {
+                _vfxPool.Prewarm(Data.bulletPrefab.HitVfxPrefab);
+            }
+        }
+        
         PrewarmWeapon(Weapon1);
         PrewarmWeapon(Weapon2);
         PrewarmWeapon(Weapon3);
@@ -63,8 +75,18 @@ public class PlayerAttack : MonoBehaviour
     private void PrewarmWeapon(WeaponSlot slot)
     {
         if (slot == null) return;
-        if (slot.variant1 != null && slot.variant1.bulletPrefab != null) _bulletPool.Prewarm(slot.variant1.bulletPrefab);
-        if (slot.variant2 != null && slot.variant2.bulletPrefab != null) _bulletPool.Prewarm(slot.variant2.bulletPrefab);
+        if (slot.variant1 != null && slot.variant1.bulletPrefab != null) 
+        {
+            _bulletPool.Prewarm(slot.variant1.bulletPrefab);
+            if (_vfxPool != null && slot.variant1.bulletPrefab.HitVfxPrefab != null)
+                _vfxPool.Prewarm(slot.variant1.bulletPrefab.HitVfxPrefab);
+        }
+        if (slot.variant2 != null && slot.variant2.bulletPrefab != null) 
+        {
+            _bulletPool.Prewarm(slot.variant2.bulletPrefab);
+            if (_vfxPool != null && slot.variant2.bulletPrefab.HitVfxPrefab != null)
+                _vfxPool.Prewarm(slot.variant2.bulletPrefab.HitVfxPrefab);
+        }
     }
 
     private void Update()

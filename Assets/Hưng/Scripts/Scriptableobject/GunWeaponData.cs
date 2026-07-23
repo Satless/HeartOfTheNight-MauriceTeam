@@ -21,7 +21,7 @@ public class GunWeaponData : ScriptableObject
 
     [Header("Visuals")]
     [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
-    public float animationSpeedMultiplier = 1f;
+    public float animationSpeedMultiplier;
     [Tooltip("Kéo Prefab đạn của súng này vào đây")]
     public Bullet bulletPrefab;
 
@@ -30,7 +30,15 @@ public class GunWeaponData : ScriptableObject
 
     [Header("Special Logic")]
     [Tooltip("Số lượng quái vật tối đa đạn có thể bay xuyên qua (0 = không xuyên)")]
-    public int pierceCount = 0;
+    public int pierceCount;
     [Tooltip("Tích vào nếu đây là súng bắn liên tục (Súng lửa) - Sẽ không dùng Animation Event")]
     public bool isContinuousFire = false;
+
+
+    private void OnValidate()
+    {
+        // Rào trước tránh lỗi
+        if (animationSpeedMultiplier <= 0) animationSpeedMultiplier = 1f;
+        if (bulletsPerShot <= 0) bulletsPerShot = 1;
+    }
 }

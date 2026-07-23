@@ -20,6 +20,7 @@ public class Bullet : MonoBehaviour
     [Header("Visuals")]
     [Tooltip("Kéo Prefab hiệu ứng va chạm/nổ vào đây")]
     [SerializeField] private GameObject _hitVfxPrefab;
+    public GameObject HitVfxPrefab => _hitVfxPrefab;
 
     [Tooltip("Danh sách tag được phép gây sát thương")]
     [TagSelector] 

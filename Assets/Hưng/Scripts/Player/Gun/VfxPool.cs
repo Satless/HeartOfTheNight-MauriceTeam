@@ -3,7 +3,40 @@ using UnityEngine;
 
 public class VfxPool : MonoBehaviour
 {
+    [Header("Pool Settings")]
+    [Tooltip("Số lượng hiệu ứng tạo sẵn lúc đầu cho MỖI LOẠI")]
+    [SerializeField] private int _initialSizePerType;
+
     private readonly Dictionary<string, Stack<HitVfx>> _pools = new Dictionary<string, Stack<HitVfx>>();
+
+    public void Prewarm(GameObject prefab)
+    {
+        if (prefab == null) return;
+        string key = prefab.name;
+
+        if (!_pools.ContainsKey(key))
+        {
+            _pools[key] = new Stack<HitVfx>();
+            for (int i = 0; i < _initialSizePerType; i++)
+            {
+                HitVfx vfxInstance = CreateVfx(prefab, key);
+                vfxInstance.gameObject.SetActive(false);
+                _pools[key].Push(vfxInstance);
+            }
+        }
+    }
+
+    private HitVfx CreateVfx(GameObject prefab, string key)
+    {
+        GameObject obj = Instantiate(prefab, transform);
+        HitVfx vfxInstance = obj.GetComponent<HitVfx>();
+        if (vfxInstance == null)
+        {
+            vfxInstance = obj.AddComponent<HitVfx>();
+        }
+        vfxInstance.Init(this, key);
+        return vfxInstance;
+    }
 
     public void SpawnVfx(GameObject prefab, Vector3 position)
     {
@@ -23,13 +56,7 @@ public class VfxPool : MonoBehaviour
         }
         else
         {
-            GameObject obj = Instantiate(prefab, transform);
-            vfxInstance = obj.GetComponent<HitVfx>();
-            if (vfxInstance == null)
-            {
-                vfxInstance = obj.AddComponent<HitVfx>();
-            }
-            vfxInstance.Init(this, key);
+            vfxInstance = CreateVfx(prefab, key);
         }
 
         vfxInstance.transform.position = position;
