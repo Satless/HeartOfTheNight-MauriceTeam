@@ -1,71 +1,53 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Quản lý logic vùng sát thương của Súng phun lửa.
-/// Gắn script này vào Prefab chứa Particle System phun lửa.
-/// Yêu cầu Prefab phải có BoxCollider2D (Is Trigger = true).
+/// Quản lý logic vùng sát thương của Súng phun lửa bằng Physics2D.OverlapBoxNonAlloc.
+/// KHÔNG CẦN Collider trên Prefab. Zero-GC.
 /// </summary>
 public class FlamethrowerLogic : MonoBehaviour
 {
-    private StatusEffectData _statusEffect;
-    
-    // Danh sách lưu quái đang đứng trong lửa để tránh gọi GetComponent liên tục (Zero-GC)
-    private List<StatusEffectReceiver> _victimsInFire = new List<StatusEffectReceiver>();
+    [Header("Hitbox Cấu hình")]
+    [Tooltip("Kích thước vùng lửa (Rộng x Cao)")]
+    public Vector2 hitboxSize = new Vector2(5f, 2f);
+    [Tooltip("Khoảng cách từ nòng súng đến tâm vùng lửa")]
+    public Vector2 hitboxOffset = new Vector2(2.5f, 0f);
+    [Tooltip("Layer của quái (Nên chọn đúng layer quái để tối ưu)")]
+    public LayerMask targetLayer = ~0;
 
-    /// <summary>
-    /// PlayerAttack gọi hàm này khi bắt đầu bắn súng lửa để truyền Data vào
-    /// </summary>
+    private StatusEffectData _statusEffect;
+    private Collider2D[] _results = new Collider2D[20];
+
     public void Activate(StatusEffectData effectData)
     {
         _statusEffect = effectData;
     }
 
-    private void OnDisable()
-    {
-        // Khi người chơi nhả nút bắn (Tắt lửa), dọn dẹp danh sách
-        _victimsInFire.Clear();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        StatusEffectReceiver victim = other.GetComponent<StatusEffectReceiver>();
-        if (victim != null && !_victimsInFire.Contains(victim))
-        {
-            _victimsInFire.Add(victim);
-            // Áp dụng ngay hiệu ứng cháy khi vừa chạm lửa
-            if (_statusEffect != null)
-            {
-                victim.ApplyStatus(_statusEffect);
-            }
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        StatusEffectReceiver victim = other.GetComponent<StatusEffectReceiver>();
-        if (victim != null)
-        {
-            _victimsInFire.Remove(victim);
-        }
-    }
-
     private void Update()
     {
-        if (_statusEffect == null || _victimsInFire.Count == 0) return;
+        if (_statusEffect == null) return;
 
-        // Liên tục refresh thời gian cháy cho những con quái đang đứng TẬN TRONG luồng lửa
-        for (int i = _victimsInFire.Count - 1; i >= 0; i--)
+        // Tính tâm của Hitbox (hỗ trợ cả xoay Y 180 độ)
+        Vector2 centerPos = (Vector2)transform.position + (Vector2)(transform.right * hitboxOffset.x) + (Vector2)(transform.up * hitboxOffset.y);
+
+        // Quét tất cả collider lọt vào vùng lửa (Zero GC)
+        int count = Physics2D.OverlapBoxNonAlloc(centerPos, hitboxSize, transform.eulerAngles.z, _results, targetLayer);
+
+        for (int i = 0; i < count; i++)
         {
-            // Kiểm tra null an toàn cho Interface (vì Interface không overload == null như MonoBehaviour)
-            if (_victimsInFire[i] == null || _victimsInFire[i] as Object == null)
+            StatusEffectReceiver receiver = _results[i].GetComponent<StatusEffectReceiver>();
+            if (receiver != null)
             {
-                _victimsInFire.RemoveAt(i);
-            }
-            else
-            {
-                _victimsInFire[i].ApplyStatus(_statusEffect);
+                receiver.ApplyStatus(_statusEffect);
             }
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.5f);
+        Vector2 centerPos = (Vector2)transform.position + (Vector2)(transform.right * hitboxOffset.x) + (Vector2)(transform.up * hitboxOffset.y);
+        
+        Gizmos.matrix = Matrix4x4.TRS(centerPos, transform.rotation, Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, hitboxSize);
     }
 }

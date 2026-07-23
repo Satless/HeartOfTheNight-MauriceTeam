@@ -4,16 +4,16 @@ using UnityEngine;
 public class StatusEffectData : ScriptableObject
 {
     [Tooltip("Tên của hiệu ứng (VD: Cháy, Độc)")]
-    public string effectName = "Cháy";
+    public string effectName;
 
     [Tooltip("Tổng thời gian kéo dài hiệu ứng (giây)")]
-    public float duration = 3f;
+    public float duration;
 
     [Tooltip("Sát thương gây ra mỗi nhịp (Tick)")]
-    public int damagePerTick = 5;
+    public int damagePerTick;
 
     [Tooltip("Thời gian giữa mỗi nhịp giật sát thương (giây). Càng nhỏ giật càng nhanh.")]
-    public float tickInterval = 0.5f;
+    public float tickInterval;
 
     [Tooltip("Hình ảnh/VFX đính lên người mục tiêu khi dính hiệu ứng này (Tùy chọn)")]
     public GameObject effectVfxPrefab;
