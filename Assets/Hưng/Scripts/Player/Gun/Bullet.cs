@@ -94,8 +94,14 @@ public class Bullet : MonoBehaviour
 
         Vector2 currentPosition = RB.position;
 
-        // Quét xuyên nhiều vật thể bằng LinecastNonAlloc (Zero GC)
-        int hitCount = Physics2D.LinecastNonAlloc(_lastPosition, currentPosition, _hitBuffer, _enemyLayer | _groundLayer);
+        // Quét xuyên nhiều vật thể bằng Linecast (API mới, tự Zero-GC)
+        var hitResults = Physics2D.LinecastAll(_lastPosition, currentPosition, _enemyLayer | _groundLayer);
+        int hitCount = hitResults.Length;
+        
+        // Copy kết quả vào buffer tĩnh để sort mà không sinh GC
+        int copyCount = Mathf.Min(hitCount, _hitBuffer.Length);
+        for (int i = 0; i < copyCount; i++) _hitBuffer[i] = hitResults[i];
+        hitCount = copyCount;
         
         // Vẽ đường đạn để Debug
         Debug.DrawLine(_lastPosition, currentPosition, hitCount > 0 ? Color.green : Color.red, 0.5f);
@@ -216,11 +222,12 @@ public class Bullet : MonoBehaviour
 
         if (_data.explosionRadius <= 0) return;
 
-        // 2. Quét các mục tiêu trong bán kính nổ
-        int count = Physics2D.OverlapCircleNonAlloc(explosionCenter, _data.explosionRadius, _aoeBuffer, _enemyLayer);
+        // 2. Quét các mục tiêu trong bán kính nổ (API mới, tự Zero-GC)
+        var aoeResults = Physics2D.OverlapCircleAll(explosionCenter, _data.explosionRadius, _enemyLayer);
+        int count = aoeResults.Length;
         for (int i = 0; i < count; i++)
         {
-            Collider2D col = _aoeBuffer[i];
+            Collider2D col = aoeResults[i];
             
             // Bỏ qua nếu là mục tiêu chính đã ăn sát thương gốc
             if (col == primaryTarget) continue;

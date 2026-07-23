@@ -22,12 +22,12 @@ public class CollectibleItem : MonoBehaviour
     private void Update()
     {
         // Nếu đang lơ lửng (bị hút) nhưng người chơi chạy quá nhanh ra khỏi vùng từ trường
-        if (!IsCollected && _rb != null && _rb.isKinematic)
+        if (!IsCollected && _rb != null && _rb.bodyType == RigidbodyType2D.Kinematic)
         {
             // PlayerMagnet ngừng gọi PullTowards quá 0.1s -> Rơi xuống lại
             if (Time.time - _lastPullTime > 0.1f)
             {
-                _rb.isKinematic = false;
+                _rb.bodyType = RigidbodyType2D.Dynamic;
                 _currentSpeed = 0f;
             }
         }
@@ -45,9 +45,9 @@ public class CollectibleItem : MonoBehaviour
         _lastPullTime = Time.time;
 
         // Tắt vật lý (trọng lực) để đồng tiền bay lơ lửng mượt mà về phía người chơi
-        if (_rb != null && !_rb.isKinematic)
+        if (_rb != null && _rb.bodyType != RigidbodyType2D.Kinematic)
         {
-            _rb.isKinematic = true;
+            _rb.bodyType = RigidbodyType2D.Kinematic;
             _rb.linearVelocity = Vector2.zero;
         }
 
@@ -87,7 +87,7 @@ public class CollectibleItem : MonoBehaviour
         // Trả lại vật lý để nó có thể rơi xuống đất lần tiếp theo
         if (_rb != null)
         {
-            _rb.isKinematic = false;
+            _rb.bodyType = RigidbodyType2D.Dynamic;
         }
     }
 

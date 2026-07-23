@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Quản lý logic vùng sát thương của Súng phun lửa bằng Physics2D.OverlapBoxNonAlloc.
-/// KHÔNG CẦN Collider trên Prefab. Zero-GC.
+/// Quản lý logic vùng sát thương của Súng phun lửa bằng Physics2D.OverlapBoxAll.
+/// KHÔNG CẦN Collider trên Prefab.
 /// </summary>
 public class FlamethrowerLogic : MonoBehaviour
 {
@@ -14,8 +14,12 @@ public class FlamethrowerLogic : MonoBehaviour
     [Tooltip("Layer của quái (Nên chọn đúng layer quái để tối ưu)")]
     public LayerMask targetLayer = ~0;
 
+    [Header("Tag Filter")]
+    [Tooltip("Danh sách tag được phép nhận sát thương lửa (VD: Enemy, Boss)")]
+    [TagSelector]
+    [SerializeField] private string[] _targetTags;
+
     private StatusEffectData _statusEffect;
-    private Collider2D[] _results = new Collider2D[20];
 
     public void Activate(StatusEffectData effectData)
     {
@@ -29,17 +33,35 @@ public class FlamethrowerLogic : MonoBehaviour
         // Tính tâm của Hitbox (hỗ trợ cả xoay Y 180 độ)
         Vector2 centerPos = (Vector2)transform.position + (Vector2)(transform.right * hitboxOffset.x) + (Vector2)(transform.up * hitboxOffset.y);
 
-        // Quét tất cả collider lọt vào vùng lửa (Zero GC)
-        int count = Physics2D.OverlapBoxNonAlloc(centerPos, hitboxSize, transform.eulerAngles.z, _results, targetLayer);
+        // Quét tất cả collider lọt vào vùng lửa
+        var results = Physics2D.OverlapBoxAll(centerPos, hitboxSize, transform.eulerAngles.z, targetLayer);
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < results.Length; i++)
         {
-            StatusEffectReceiver receiver = _results[i].GetComponent<StatusEffectReceiver>();
+            // Lọc theo Tag trước khi xử lý
+            if (!HasTargetTag(results[i])) continue;
+
+            StatusEffectReceiver receiver = results[i].GetComponent<StatusEffectReceiver>();
             if (receiver != null)
             {
                 receiver.ApplyStatus(_statusEffect);
             }
         }
+    }
+
+    /// <summary>
+    /// Kiểm tra xem collider có nằm trong danh sách tag cho phép không.
+    /// Nếu _targetTags rỗng (chưa setup) → cho phép tất cả.
+    /// </summary>
+    private bool HasTargetTag(Collider2D col)
+    {
+        if (_targetTags == null || _targetTags.Length == 0) return true;
+
+        for (int i = 0; i < _targetTags.Length; i++)
+        {
+            if (col.CompareTag(_targetTags[i])) return true;
+        }
+        return false;
     }
 
     private void OnDrawGizmosSelected()

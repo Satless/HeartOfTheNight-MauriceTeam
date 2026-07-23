@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 338459666785966017}
   - component: {fileID: 6699831856951561089}
   - component: {fileID: 3985391594867708093}
+  - component: {fileID: 6132491759450446348}
   m_Layer: 10
   m_Name: Square
   m_TagString: EnemyGan
@@ -185,3 +186,15 @@ MonoBehaviour:
   OnDeath:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6132491759450446348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2799984052790319641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

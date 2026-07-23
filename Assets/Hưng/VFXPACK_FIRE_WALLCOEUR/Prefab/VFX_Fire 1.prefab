@@ -9680,8 +9680,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2a56c61775579d4e953d0b193108f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitboxSize: {x: 5, y: 2}
-  hitboxOffset: {x: 2.5, y: 0}
+  hitboxSize: {x: 8.6, y: 1}
+  hitboxOffset: {x: 4.18, y: 0}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1024
+  _targetTags:
+  - Enemy
+  - EnemyGan
+  - EnemyXa
+  - Boss
+  - EnemyBom
