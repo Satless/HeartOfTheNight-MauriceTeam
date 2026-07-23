@@ -13,13 +13,18 @@ MonoBehaviour:
   m_Name: MiniGunTest 2
   m_EditorClassIdentifier: 
   fireRate: 0.2
-  bulletSpeed: 30
-  damage: 1
-  bulletLifetime: 3
-  bulletsPerShot: 3
-  spreadAngle: 5
+  bulletSpeed: 0
+  damage: 0
+  bulletLifetime: 0
+  bulletsPerShot: 1
+  spreadAngle: 0
   animationSpeedMultiplier: 1
-  bulletPrefab: {fileID: 437895494315374385, guid: 9c2148ddd5ecad54da31171edaf3de92, type: 3}
+  bulletPrefab: {fileID: 0}
   weaponAnimator: {fileID: 9100000, guid: f786475421da09748b6dbb9b883c7a91, type: 2}
+  isExplosive: 0
+  explosionRadius: 0
+  explosionDamage: 0
+  statusEffect: {fileID: 11400000, guid: 99fd7d3505ead9e42b46661b40616cae, type: 2}
   pierceCount: 0
   isContinuousFire: 1
+  continuousVfxPrefab: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}

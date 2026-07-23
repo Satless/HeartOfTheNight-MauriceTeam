@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Gun Weapon Data")]
+[CreateAssetMenu(fileName = "NewGunWeaponData", menuName = "Data/Gun Weapon Data")]
 public class GunWeaponData : ScriptableObject
 {
     [Header("Fire")]
@@ -37,10 +37,15 @@ public class GunWeaponData : ScriptableObject
     public int explosionDamage;
 
     [Header("Special Logic")]
+    [Tooltip("Hiệu ứng trạng thái áp dụng lên quái (Ví dụ: Thiêu Đốt)")]
+    public StatusEffectData statusEffect;
+
     [Tooltip("Số lượng quái vật tối đa đạn có thể bay xuyên qua (0 = không xuyên)")]
     public int pierceCount;
     [Tooltip("Tích vào nếu đây là súng bắn liên tục (Súng lửa) - Sẽ không dùng Animation Event")]
     public bool isContinuousFire = false;
+    [Tooltip("Prefab dùng cho súng bắn liên tục (Súng lửa) - Sẽ thay thế Bullet Prefab")]
+    public GameObject continuousVfxPrefab;
 
 
     private void OnValidate()

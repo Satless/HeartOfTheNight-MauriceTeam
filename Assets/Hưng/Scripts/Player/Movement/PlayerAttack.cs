@@ -45,6 +45,7 @@ public class PlayerAttack : MonoBehaviour
 
     private float _lastFireTime;
     private bool _isAimingRight = true;
+    private GameObject _activeFlamethrower; // Tham chiếu đến luồng lửa hiện tại
 
     private void Awake()
     {
@@ -132,6 +133,13 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Data == newWeapon) return;
 
+        // Dọn dẹp súng lửa nếu đang bắn mà đổi súng
+        if (_activeFlamethrower != null)
+        {
+            Destroy(_activeFlamethrower);
+            _activeFlamethrower = null;
+        }
+
         Data = newWeapon;
         Debug.Log($"Đã chuyển sang súng {slotNumber}: {Data.name}");
 
@@ -189,14 +197,63 @@ public class PlayerAttack : MonoBehaviour
 
     private void HandleFire()
     {
-        // Khóa bắn khi đang bám tường (Nếu cấu hình không cho phép vừa bám tường vừa bắn)
-        if (_movement.IsSliding && !_movement.Data.allowShootWhileSliding) return;
+        // Khóa bắn khi đang bám tường hoặc lướt (dọn dẹp súng lửa nếu đang bắn)
+        if ((_movement.IsSliding && !_movement.Data.allowShootWhileSliding) || 
+            (_movement.IsDashing && !_movement.Data.allowShootWhileDashing))
+        {
+            if (_activeFlamethrower != null)
+            {
+                Destroy(_activeFlamethrower);
+                _activeFlamethrower = null;
+            }
+            return;
+        }
 
-        // Khóa bắn khi lướt (Nếu cấu hình không cho phép vừa lướt vừa bắn)
-        if (_movement.IsDashing && !_movement.Data.allowShootWhileDashing) return;
+        // Logic cho Súng bắn liên tục (Súng lửa)
+        if (Data != null && Data.isContinuousFire)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                if (_activeFlamethrower == null && Data.continuousVfxPrefab != null)
+                {
+                    _activeFlamethrower = Instantiate(Data.continuousVfxPrefab, _firePoint.position, Quaternion.identity, _firePoint);
+                    FlamethrowerLogic logic = _activeFlamethrower.GetComponent<FlamethrowerLogic>();
+                    if (logic != null) logic.Activate(Data.statusEffect);
+                }
+                
+                if (_activeFlamethrower != null)
+                {
+                    // Lật hướng dựa trên chuột
+                    float curDirX = _isAimingRight ? 1f : -1f;
+                    Vector3 curScale = _activeFlamethrower.transform.localScale;
+                    curScale.x = Mathf.Abs(curScale.x) * curDirX;
+                    _activeFlamethrower.transform.localScale = curScale;
 
-        // Giữ chuột trái → bắn liên tục theo fireRate
-        // GetMouseButton(0) trả về true từ frame đầu giữ nút nên bao luôn cả click đơn
+                    // Giật súng mượt (DOTween) để có feel khi bắn
+                    if (Time.time >= _lastFireTime + Data.fireRate)
+                    {
+                        _lastFireTime = Time.time;
+                        if (_upperBodyVisual != null)
+                        {
+                            _upperBodyVisual.DOKill();
+                            Vector3 recoilForce = new Vector3(-curDirX * 0.15f, 0.03f, 0f);
+                            _upperBodyVisual.DOPunchPosition(recoilForce, Mathf.Min(0.1f, Data.fireRate * 0.8f), 1, 0.5f).SetRelative(true);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (_activeFlamethrower != null)
+                {
+                    Destroy(_activeFlamethrower);
+                    _activeFlamethrower = null;
+                }
+            }
+            return; // Đã xử lý xong súng lửa, bỏ qua đạn thường
+        }
+
+        // Giữ chuột trái → bắn đạn thường theo fireRate
         if (Input.GetMouseButton(0) && Time.time >= _lastFireTime + Data.fireRate)
         {
             TryFire();
@@ -217,14 +274,6 @@ public class PlayerAttack : MonoBehaviour
             {
                 anim.SetTrigger("Fire");
             }
-        }
-
-        // Nếu là súng bắn liên tục (Súng lửa), không đợi event mà xử lý logic liên tục tại đây
-        if (Data.isContinuousFire)
-        {
-            // TODO: Bật/Tắt Collider Flamethrower
-            // Tạm thời gọi trực tiếp ExecuteShot để test
-            ExecuteShot();
         }
     }
 
