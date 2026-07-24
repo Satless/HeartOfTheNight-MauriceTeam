@@ -1,25 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace HeartOfTheNight.Rooms
 {
-    //sss
-    //Bai viet: https://gamefromscratch.com/unity-2d-game-tutorial-make-a-platformer-part-10-rooms-enemies-and-rooms-spawner/
-    //A RoomSpawnController is a component that controls the spawning of enemies in a room.
-
-    /// <summary>
-    /// Co che phong dau:
-    /// 1. Player buoc vao vung trigger -> sinh quai tai cac diem dat san.
-    /// 2. (Tuy chon) Dong cua lai de nhot Player trong phong.
-    /// 3. Khi tat ca quai trong phong da chet -> mo cua + ban event onRoomCleared.
-
-    /// Gan script nay vao 1 GameObject co Collider2D (isTrigger = true) bao trum vung kich hoat.
-    /// Khong can sua cac script quai: quai chet goi Destroy(gameObject), tham chieu Unity tro thanh null,
-    /// nen ta chi can dem so quai con song.
-    /// </summary>
     [RequireComponent(typeof(Collider2D))]
     public class RoomSpawnController : MonoBehaviour
     {
@@ -28,49 +13,36 @@ namespace HeartOfTheNight.Rooms
         [System.Serializable]
         public class SpawnEntry
         {
-            [Tooltip("Prefab quai se duoc sinh ra.")]
             public GameObject enemyPrefab;
-
-            [Tooltip("Vi tri dat san de sinh quai. De trong = sinh tai vi tri cua RoomSpawnController.")]
             public Transform spawnPoint;
         }
 
         [System.Serializable]
         public class SpawnWave
         {
-            [Tooltip("Ten dot (chi de de doc trong Inspector).")]
             public string waveName = "Wave";
-
-            [Tooltip("Danh sach quai sinh ra trong dot nay.")]
             public List<SpawnEntry> enemies = new();
-
-            [Tooltip("Thoi gian cho giua moi lan sinh quai trong cung 1 dot (giay). 0 = sinh dong loat.")]
             public float spawnInterval = 0f;
         }
 
         [Header("Trigger")]
-        [Tooltip("Tag cua Player de nhan dien khi vao vung trigger.")]
         [SerializeField] private string playerTag = "Player";
-
-        [Tooltip("Chi kich hoat phong 1 lan duy nhat (khong reset khi Player ra/vao lai).")]
         [SerializeField] private bool activateOnce = true;
 
+        [Header("VFX")]
+        [SerializeField] private GameObject spawnVfxPrefab;
+
         [Header("Spawn")]
-        [Tooltip("Cac dot quai. Dot sau chi sinh khi dot truoc da bi tieu diet het. Chi can 1 dot neu muon don gian.")]
         [SerializeField] private List<SpawnWave> waves = new();
+        [Tooltip("Thời gian quái bị khựng lại (không AI, không di chuyển) ngay sau khi sinh ra.")]
+        [SerializeField] private float spawnFreezeDuration = 1.5f;
 
         [Header("Door")]
-        [Tooltip("Cac cua/vat can. Khi phong bat dau se duoc BAT (dong cua); khi sach quai se duoc TAT (mo cua).")]
         [SerializeField] private GameObject[] doors;
-
-        [Tooltip("Dong cua ngay khi phong bat dau (nhot Player lai).")]
         [SerializeField] private bool closeDoorsOnStart = true;
 
         [Header("Events")]
-        [Tooltip("Goi khi Player kich hoat phong (vua bat dau danh).")]
         [SerializeField] private UnityEvent onRoomStarted;
-
-        [Tooltip("Goi khi tat ca quai trong phong da chet (cua mo).")]
         [SerializeField] private UnityEvent onRoomCleared;
 
         [Header("Debug")]
@@ -91,10 +63,7 @@ namespace HeartOfTheNight.Rooms
         {
             var col = GetComponent<Collider2D>();
             if (col != null && !col.isTrigger)
-                Debug.LogWarning($"[{name}] Collider2D nen bat 'Is Trigger' de phat hien Player vao phong.", this);
-
-            if (waves.Count == 0)
-                Debug.LogWarning($"[{name}] Chua cau hinh dot quai nao (Waves rong) - phong se mo cua ngay khi kich hoat.", this);
+                Debug.LogWarning($"[{name}] Collider2D nen bat 'Is Trigger'", this);
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -118,8 +87,7 @@ namespace HeartOfTheNight.Rooms
             currentWaveIndex = -1;
 
             if (closeDoorsOnStart) SetDoorsClosed(true);
-
-            if (debugLogs) Debug.Log($"[{name}] Phong bat dau! Player da vao trigger.", this);
+            if (debugLogs) Debug.Log($"[{name}] Phong bat dau!", this);
             onRoomStarted?.Invoke();
 
             SpawnNextWave();
@@ -133,7 +101,6 @@ namespace HeartOfTheNight.Rooms
 
             if (aliveEnemies.Count > 0) return;
 
-            // Het quai cua dot hien tai -> sang dot tiep, hoac don phong neu het dot.
             if (currentWaveIndex + 1 < waves.Count)
                 SpawnNextWave();
             else
@@ -144,7 +111,6 @@ namespace HeartOfTheNight.Rooms
         {
             for (int i = aliveEnemies.Count - 1; i >= 0; i--)
             {
-                // Unity ghi de == null cho object da Destroy.
                 if (aliveEnemies[i] == null) aliveEnemies.RemoveAt(i);
             }
         }
@@ -166,9 +132,6 @@ namespace HeartOfTheNight.Rooms
             isSpawning = true;
             aliveEnemies.Clear();
 
-            if (debugLogs)
-                Debug.Log($"[{name}] Sinh dot {currentWaveIndex + 1}/{waves.Count} ('{wave.waveName}') - {wave.enemies.Count} quai.", this);
-
             for (int i = 0; i < wave.enemies.Count; i++)
             {
                 SpawnOne(wave.enemies[i]);
@@ -177,23 +140,69 @@ namespace HeartOfTheNight.Rooms
             }
 
             isSpawning = false;
-
-            // Truong hop dot rong: cho Update xu ly chuyen dot/mo cua o frame sau.
         }
 
         private void SpawnOne(SpawnEntry entry)
         {
-            if (entry == null || entry.enemyPrefab == null)
-            {
-                Debug.LogWarning($"[{name}] Co 1 SpawnEntry thieu prefab - bo qua.", this);
-                return;
-            }
+            if (entry == null || entry.enemyPrefab == null) return;
 
             Vector3 pos = entry.spawnPoint != null ? entry.spawnPoint.position : transform.position;
             Quaternion rot = entry.spawnPoint != null ? entry.spawnPoint.rotation : Quaternion.identity;
 
             GameObject enemy = Instantiate(entry.enemyPrefab, pos, rot);
             aliveEnemies.Add(enemy);
+
+            if (spawnVfxPrefab != null)
+            {
+                Vector3 vfxPos = pos;
+                Collider2D col = enemy.GetComponent<Collider2D>();
+                if (col != null) vfxPos = col.bounds.center;
+
+                Instantiate(spawnVfxPrefab, vfxPos, Quaternion.identity);
+            }
+
+            // Gọi logic đóng băng ngay khi sinh ra
+            if (spawnFreezeDuration > 0f)
+            {
+                StartCoroutine(ApplySpawnFreeze(enemy, spawnFreezeDuration));
+            }
+        }
+
+        private IEnumerator ApplySpawnFreeze(GameObject enemy, float duration)
+        {
+            // Tạm tắt toàn bộ các script tự viết (logic AI, di chuyển...) để quái khựng lại
+            var scripts = enemy.GetComponentsInChildren<MonoBehaviour>();
+            var disabledScripts = new List<MonoBehaviour>();
+
+            foreach (var s in scripts)
+            {
+                // Bỏ qua các component gốc của Unity, chỉ lấy script tự code
+                if (s.enabled && (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine")))
+                {
+                    s.enabled = false;
+                    disabledScripts.Add(s);
+                }
+            }
+
+            // Đóng băng vị trí vật lý (không bị trôi hay bị đẩy lùi trong lúc khựng)
+            var rb = enemy.GetComponent<Rigidbody2D>();
+            var oldConstraints = RigidbodyConstraints2D.None;
+            if (rb != null)
+            {
+                oldConstraints = rb.constraints;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            }
+
+            yield return new WaitForSeconds(duration);
+
+            if (enemy == null) yield break;
+
+            // Hết thời gian: Mở khóa vật lý và bật lại toàn bộ script AI
+            if (rb != null) rb.constraints = oldConstraints;
+            foreach (var s in disabledScripts)
+            {
+                if (s != null) s.enabled = true;
+            }
         }
 
         private void ClearRoom()
@@ -203,12 +212,10 @@ namespace HeartOfTheNight.Rooms
             state = RoomState.Cleared;
             SetDoorsClosed(false);
 
-            if (debugLogs) Debug.Log($"[{name}] Da don sach phong! Mo cua.", this);
             onRoomCleared?.Invoke();
 
             if (!activateOnce)
             {
-                // Cho phep kich hoat lai lan sau.
                 state = RoomState.Idle;
                 aliveEnemies.Clear();
                 currentWaveIndex = -1;
@@ -226,7 +233,6 @@ namespace HeartOfTheNight.Rooms
 
         private void OnDrawGizmosSelected()
         {
-            // Ve cac diem spawn de de bo tri trong Scene.
             Gizmos.color = Color.red;
             for (int w = 0; w < waves.Count; w++)
             {
@@ -240,7 +246,6 @@ namespace HeartOfTheNight.Rooms
                 }
             }
 
-            // Ve lien ket toi cac cua.
             Gizmos.color = Color.cyan;
             if (doors != null)
             {

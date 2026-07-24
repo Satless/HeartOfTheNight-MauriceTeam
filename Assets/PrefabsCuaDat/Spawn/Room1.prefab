@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 4173663779559600509}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.32, y: 0, z: 0}
+  m_LocalPosition: {x: 18.82, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -48,7 +48,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &422832137487246584
 Transform:
   m_ObjectHideFlags: 0
@@ -100,7 +100,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 3.7681694, y: 2.826126}
+  m_Offset: {x: 10.026495, y: 4.912236}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -110,7 +110,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 8.536339, y: 6.652252}
+  m_Size: {x: 21.05299, y: 10.824472}
   m_EdgeRadius: 0
 --- !u!114 &1553343613902458788
 MonoBehaviour:
@@ -126,19 +126,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   activateOnce: 1
+  spawnVfxPrefab: {fileID: 7051262803067274898, guid: 7f405a30c8ef2694c82e5c2845189070, type: 3}
   waves:
   - waveName: Dot 1
     enemies:
-    - enemyPrefab: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
+    - enemyPrefab: {fileID: 0}
       spawnPoint: {fileID: 4358217505354415550}
-    - enemyPrefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
-      spawnPoint: {fileID: 6300921235717897511}
-    spawnInterval: 0
-  - waveName: Dot 1
-    enemies:
-    - enemyPrefab: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
-      spawnPoint: {fileID: 4358217505354415550}
-    - enemyPrefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
+    - enemyPrefab: {fileID: 0}
       spawnPoint: {fileID: 6300921235717897511}
     spawnInterval: 0
   doors: []
