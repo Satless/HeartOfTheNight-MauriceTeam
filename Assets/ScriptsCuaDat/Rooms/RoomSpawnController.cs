@@ -1,25 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace HeartOfTheNight.Rooms
 {
-    //sss
-    //Bai viet: https://gamefromscratch.com/unity-2d-game-tutorial-make-a-platformer-part-10-rooms-enemies-and-rooms-spawner/
-    //A RoomSpawnController is a component that controls the spawning of enemies in a room.
-
-    /// <summary>
-    /// Co che phong dau:
-    /// 1. Player buoc vao vung trigger -> sinh quai tai cac diem dat san.
-    /// 2. (Tuy chon) Dong cua lai de nhot Player trong phong.
-    /// 3. Khi tat ca quai trong phong da chet -> mo cua + ban event onRoomCleared.
-
-    /// Gan script nay vao 1 GameObject co Collider2D (isTrigger = true) bao trum vung kich hoat.
-    /// Khong can sua cac script quai: quai chet goi Destroy(gameObject), tham chieu Unity tro thanh null,
-    /// nen ta chi can dem so quai con song.
-    /// </summary>
     [RequireComponent(typeof(Collider2D))]
     public class RoomSpawnController : MonoBehaviour
     {
@@ -55,6 +40,10 @@ namespace HeartOfTheNight.Rooms
         [Tooltip("Chi kich hoat phong 1 lan duy nhat (khong reset khi Player ra/vao lai).")]
         [SerializeField] private bool activateOnce = true;
 
+        [Header("VFX")]
+        [Tooltip("Prefab hiệu ứng Spawn (kéo EnemySpawnerVFX vào đây)")]
+        [SerializeField] private EnemySpawnerVFX spawnVfxPrefab;
+
         [Header("Spawn")]
         [Tooltip("Cac dot quai. Dot sau chi sinh khi dot truoc da bi tieu diet het. Chi can 1 dot neu muon don gian.")]
         [SerializeField] private List<SpawnWave> waves = new();
@@ -80,6 +69,7 @@ namespace HeartOfTheNight.Rooms
         private readonly List<GameObject> aliveEnemies = new();
         private int currentWaveIndex = -1;
         private bool isSpawning;
+        private int pendingSpawns = 0;
 
         private void Reset()
         {
@@ -116,6 +106,7 @@ namespace HeartOfTheNight.Rooms
         {
             state = RoomState.Fighting;
             currentWaveIndex = -1;
+            pendingSpawns = 0;
 
             if (closeDoorsOnStart) SetDoorsClosed(true);
 
@@ -131,9 +122,8 @@ namespace HeartOfTheNight.Rooms
 
             PruneDeadEnemies();
 
-            if (aliveEnemies.Count > 0) return;
+            if (aliveEnemies.Count > 0 || pendingSpawns > 0) return;
 
-            // Het quai cua dot hien tai -> sang dot tiep, hoac don phong neu het dot.
             if (currentWaveIndex + 1 < waves.Count)
                 SpawnNextWave();
             else
@@ -144,7 +134,6 @@ namespace HeartOfTheNight.Rooms
         {
             for (int i = aliveEnemies.Count - 1; i >= 0; i--)
             {
-                // Unity ghi de == null cho object da Destroy.
                 if (aliveEnemies[i] == null) aliveEnemies.RemoveAt(i);
             }
         }
@@ -177,8 +166,6 @@ namespace HeartOfTheNight.Rooms
             }
 
             isSpawning = false;
-
-            // Truong hop dot rong: cho Update xu ly chuyen dot/mo cua o frame sau.
         }
 
         private void SpawnOne(SpawnEntry entry)
@@ -192,8 +179,21 @@ namespace HeartOfTheNight.Rooms
             Vector3 pos = entry.spawnPoint != null ? entry.spawnPoint.position : transform.position;
             Quaternion rot = entry.spawnPoint != null ? entry.spawnPoint.rotation : Quaternion.identity;
 
-            GameObject enemy = Instantiate(entry.enemyPrefab, pos, rot);
-            aliveEnemies.Add(enemy);
+            if (spawnVfxPrefab != null)
+            {
+                pendingSpawns++;
+                EnemySpawnerVFX vfx = Instantiate(spawnVfxPrefab, pos, rot);
+                vfx.Init(entry.enemyPrefab, (realEnemy) =>
+                {
+                    if (realEnemy != null) aliveEnemies.Add(realEnemy);
+                    pendingSpawns--;
+                });
+            }
+            else
+            {
+                GameObject enemy = Instantiate(entry.enemyPrefab, pos, rot);
+                aliveEnemies.Add(enemy);
+            }
         }
 
         private void ClearRoom()
@@ -208,7 +208,6 @@ namespace HeartOfTheNight.Rooms
 
             if (!activateOnce)
             {
-                // Cho phep kich hoat lai lan sau.
                 state = RoomState.Idle;
                 aliveEnemies.Clear();
                 currentWaveIndex = -1;
@@ -226,7 +225,6 @@ namespace HeartOfTheNight.Rooms
 
         private void OnDrawGizmosSelected()
         {
-            // Ve cac diem spawn de de bo tri trong Scene.
             Gizmos.color = Color.red;
             for (int w = 0; w < waves.Count; w++)
             {
@@ -240,7 +238,6 @@ namespace HeartOfTheNight.Rooms
                 }
             }
 
-            // Ve lien ket toi cac cua.
             Gizmos.color = Color.cyan;
             if (doors != null)
             {
