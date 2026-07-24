@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2245613638677027531}
   - component: {fileID: 6032293062853159860}
   - component: {fileID: 5161926340284487957}
-  - component: {fileID: 7051262803067274898}
+  - component: {fileID: -2279213390273495989}
   m_Layer: 0
   m_Name: SpawnVFX
   m_TagString: Untagged
@@ -111,7 +111,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7051262803067274898
+--- !u!114 &-2279213390273495989
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -120,6 +120,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4328365533006917027}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f702d56560a10f742a7afba2dd54a54e, type: 3}
+  m_Script: {fileID: 11500000, guid: 9f1f1e1cb12f21a4c8dc44b8c45e974e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  delayBuffer: 0
