@@ -19,6 +19,15 @@ public class GunWeaponData : ScriptableObject
     [Tooltip("Góc tỏa ngẫu nhiên của đạn (Shotgun = 15-30, Minigun = 2-3, Pistol = 0)")]
     public float spreadAngle;
 
+    [Header("Vertical Multi-shot (Contra Style)")]
+    [Tooltip("Tích vào nếu đạn dàn song song theo trục DỌC thay vì tỏa góc ngang (Kiểu Contra). " +
+             "Khi bật, spreadAngle sẽ bị bỏ qua — dùng verticalSpacing để chỉnh khoảng cách.")]
+    public bool isVerticalSpread;
+    [Tooltip("Khoảng cách giữa mỗi đường đạn dọc (đơn vị Unity). " +
+             "VD: 0.5 = nửa ô, 1.0 = 1 ô. Các đường đạn dàn đều quanh nòng súng.")]
+    [Range(0.1f, 3f)]
+    public float verticalSpacing;
+
     [Header("Visuals")]
     [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
     public float animationSpeedMultiplier;

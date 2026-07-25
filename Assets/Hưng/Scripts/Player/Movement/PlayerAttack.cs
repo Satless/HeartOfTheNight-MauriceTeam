@@ -326,18 +326,36 @@ public class PlayerAttack : MonoBehaviour
                 return;
             }
 
-            // Lấy đạn từ pool theo đúng loại của súng đang cầm
-            Bullet bullet = _bulletPool.Get(Data.bulletPrefab, _firePoint.position);
-            bullet.Activate(Data, _vfxPool);
+            Vector3 spawnPos;
+            Vector2 finalDirection;
 
-            // Tính toán góc lệch ngẫu nhiên (spread)
-            float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);
-            
-            // Vector hướng bay gốc
-            Vector2 baseDirection = new Vector2(dirX, 0f);
-            
-            // Xoay vector hướng bay theo spreadAngle
-            Vector2 finalDirection = Quaternion.Euler(0, 0, randomSpread) * baseDirection;
+            if (Data.isVerticalSpread)
+            {
+                // ═══ VERTICAL MULTI-SHOT (Contra Style) ═══
+                // Dàn đều các viên đạn theo trục Y quanh nòng súng.
+                // VD: 3 viên, spacing = 0.5 → offsets: -0.5, 0.0, +0.5
+                float halfCount = (bulletsToShoot - 1) * 0.5f;
+                float offsetY = (i - halfCount) * Data.verticalSpacing;
+
+                spawnPos = _firePoint.position + new Vector3(0f, offsetY, 0f);
+
+                // Tất cả đạn bay ngang song song (không lệch góc)
+                finalDirection = new Vector2(dirX, 0f);
+            }
+            else
+            {
+                // ═══ SPREAD NGANG (Shotgun / Pistol) ═══
+                spawnPos = _firePoint.position;
+
+                // Tính toán góc lệch ngẫu nhiên (spread)
+                float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);
+                Vector2 baseDirection = new Vector2(dirX, 0f);
+                finalDirection = Quaternion.Euler(0, 0, randomSpread) * baseDirection;
+            }
+
+            // Lấy đạn từ pool theo đúng loại của súng đang cầm
+            Bullet bullet = _bulletPool.Get(Data.bulletPrefab, spawnPos);
+            bullet.Activate(Data, _vfxPool);
 
             // Truyền gia tốc cho đạn
             bullet.RB.linearVelocity = finalDirection.normalized * Data.bulletSpeed;
