@@ -8,6 +8,7 @@ namespace HeartOfTheNight.Rooms
     [RequireComponent(typeof(Collider2D))]
     public class RoomSpawnController : MonoBehaviour
     {
+        //ss
         private enum RoomState { Idle, Fighting, Cleared }
 
         [System.Serializable]
