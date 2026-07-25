@@ -40,6 +40,12 @@ public class StatusEffectReceiver : MonoBehaviour
                     _healthComponent.TakeDamage(_activeStatuses[i].data.damagePerTick);
                 }
 
+                // Cập nhật vị trí bám theo tâm của Parent, không nhận tỷ lệ Scale của Parent để chống méo hình
+                if (_activeStatuses[i].vfxInstance != null)
+                {
+                    _activeStatuses[i].vfxInstance.transform.position = transform.position;
+                }
+
                 if (_activeStatuses[i].durationLeft <= 0)
                 {
                     _activeStatuses[i].isActive = false;
@@ -80,7 +86,8 @@ public class StatusEffectReceiver : MonoBehaviour
 
             if (statusData.effectVfxPrefab != null)
             {
-                _activeStatuses[emptySlot].vfxInstance = Instantiate(statusData.effectVfxPrefab, transform.position, Quaternion.identity, transform);
+                // Instantiate ngoài Root (không truyền transform làm parent) để giữ nguyên tỷ lệ scale
+                _activeStatuses[emptySlot].vfxInstance = Instantiate(statusData.effectVfxPrefab, transform.position, Quaternion.identity);
             }
         }
     }
