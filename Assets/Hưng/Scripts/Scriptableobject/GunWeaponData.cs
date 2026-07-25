@@ -64,6 +64,13 @@ public class GunWeaponData : ScriptableObject
              "Chỉ áp dụng cho súng có isExplosive = true. Hướng đẩy = tâm nổ → mục tiêu.")]
     public float explosionKnockbackForce;
 
+    [Header("Overheat (Quá nhiệt)")]
+    [Tooltip("Tích vào nếu súng này sinh nhiệt khi bắn. " +
+             "Nếu tắt, súng này KHÔNG cộng nhiệt vào thanh chung.")]
+    public bool canOverheat;
+    [Tooltip("Nhiệt cộng vào thanh chung mỗi lần bắn (đạn thường) hoặc mỗi giây (súng lửa). " +
+             "VD: Minigun = 3 (nóng nhanh), Pistol = 1 (nóng chậm), Shotgun = 5 (nóng vừa do bắn chậm)")]
+    public float heatPerShot;
 
     private void OnValidate()
     {
