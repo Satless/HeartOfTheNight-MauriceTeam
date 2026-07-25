@@ -18,6 +18,8 @@ MonoBehaviour:
   bulletLifetime: 0
   bulletsPerShot: 1
   spreadAngle: 0
+  isVerticalSpread: 0
+  verticalSpacing: 0.1
   animationSpeedMultiplier: 1
   bulletPrefab: {fileID: 0}
   weaponAnimator: {fileID: 9100000, guid: f786475421da09748b6dbb9b883c7a91, type: 2}
@@ -28,3 +30,5 @@ MonoBehaviour:
   pierceCount: 0
   isContinuousFire: 1
   continuousVfxPrefab: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+  knockbackForce: 0
+  explosionKnockbackForce: 0

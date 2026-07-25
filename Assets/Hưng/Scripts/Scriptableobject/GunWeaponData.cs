@@ -56,6 +56,14 @@ public class GunWeaponData : ScriptableObject
     [Tooltip("Prefab dùng cho súng bắn liên tục (Súng lửa) - Sẽ thay thế Bullet Prefab")]
     public GameObject continuousVfxPrefab;
 
+    [Header("Knockback (Đẩy lùi)")]
+    [Tooltip("Lực đẩy lùi khi đạn trúng mục tiêu trực tiếp (0 = không đẩy). " +
+             "VD: Lục thường = 5, Minigun = 2, Lục điện/Lửa = 0")]
+    public float knockbackForce;
+    [Tooltip("Lực đẩy lùi từ vụ nổ AOE (0 = không đẩy). " +
+             "Chỉ áp dụng cho súng có isExplosive = true. Hướng đẩy = tâm nổ → mục tiêu.")]
+    public float explosionKnockbackForce;
+
 
     private void OnValidate()
     {
