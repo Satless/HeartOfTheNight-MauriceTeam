@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
+
 
 [System.Serializable]
 public class WeaponSlot
@@ -49,6 +51,33 @@ public class PlayerAttack : MonoBehaviour
     private float _lastFireTime;
     private bool _isAimingRight = true;
 
+    // ─── OVERHEAT ────────────────────────────────────────────────────────────
+
+    [Header("Overheat (Quá nhiệt) — Thanh chung cho tất cả súng")]
+    [Tooltip("Nhiệt lượng tối đa. Đạt mức này = quá nhiệt, khóa bắn.")]
+    [SerializeField] private float _maxHeat = 100f;
+    [Tooltip("Tốc độ nguội (nhiệt/giây) khi KHÔNG bắn.")]
+    [SerializeField] private float _cooldownRate = 15f;
+    [Tooltip("Khi bị quá nhiệt, phải nguội xuống dưới mức này mới được bắn lại (% của maxHeat). " +
+             "VD: 0.3 = phải nguội xuống 30%. Chống flicker bật/tắt liên tục.")]
+    [Range(0f, 0.9f)]
+    [SerializeField] private float _unlockThreshold = 0.3f;
+
+    private float _currentHeat;
+    private bool _isOverheated;
+    private bool _isFiringThisFrame; // Để biết frame này có bắn không → quyết định nguội
+
+    /// <summary> UI đọc để vẽ thanh nhiệt. </summary>
+    public float CurrentHeat => _currentHeat;
+    public float MaxHeat => _maxHeat;
+    public bool IsOverheated => _isOverheated;
+
+    /// <summary> Event cho UI: (currentHeat, maxHeat). </summary>
+    public event Action<float, float> OnHeatChanged;
+    /// <summary> Event cho UI/SFX: true = vừa quá nhiệt, false = vừa nguội xong. </summary>
+    public event Action<bool> OnOverheatStateChanged;
+
+
     private void Awake()
     {
         _movement = GetComponent<PlayerMovement>();
@@ -96,8 +125,12 @@ public class PlayerAttack : MonoBehaviour
     {
         HandleWeaponSwitching();
         HandleFacing();
+
+        _isFiringThisFrame = false;
         HandleFire();
+        HandleOverheatCooldown();
     }
+
 
     private void HandleWeaponSwitching()
     {
@@ -216,7 +249,23 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
+        // Khóa bắn khi quá nhiệt (tắt súng lửa nếu đang bắn)
+        if (_isOverheated)
+        {
+            if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
+            {
+                _flamethrowerInstance.SetActive(false);
+                if (_upperBodyVisual != null)
+                {
+                    Animator anim = _upperBodyVisual.GetComponent<Animator>();
+                    if (anim != null) anim.SetBool("Fire", false);
+                }
+            }
+            return;
+        }
+
         // Logic cho Súng bắn liên tục (Súng lửa)
+
         if (Data != null && Data.isContinuousFire)
         {
             if (Input.GetMouseButton(0))
@@ -244,6 +293,12 @@ public class PlayerAttack : MonoBehaviour
                     // LẬT BẰNG ROTATION Y
                     _flamethrowerInstance.transform.rotation = _isAimingRight ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 180, 0);
 
+                    // Tích nhiệt liên tục (heatPerShot = nhiệt/giây cho súng lửa)
+                    if (Data.canOverheat)
+                    {
+                        AddHeat(Data.heatPerShot * Time.deltaTime);
+                    }
+
                     // Nếu fireRate > 0 thì giật súng (DOTween)
                     if (Data.fireRate > 0 && Time.time >= _lastFireTime + Data.fireRate)
                     {
@@ -257,6 +312,7 @@ public class PlayerAttack : MonoBehaviour
                         }
                     }
                 }
+
             }
             else
             {
@@ -326,21 +382,45 @@ public class PlayerAttack : MonoBehaviour
                 return;
             }
 
-            // Lấy đạn từ pool theo đúng loại của súng đang cầm
-            Bullet bullet = _bulletPool.Get(Data.bulletPrefab, _firePoint.position);
-            bullet.Activate(Data, _vfxPool);
+            Vector3 spawnPos;
+            Vector2 finalDirection;
 
-            // Tính toán góc lệch ngẫu nhiên (spread)
-            float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);
-            
-            // Vector hướng bay gốc
-            Vector2 baseDirection = new Vector2(dirX, 0f);
-            
-            // Xoay vector hướng bay theo spreadAngle
-            Vector2 finalDirection = Quaternion.Euler(0, 0, randomSpread) * baseDirection;
+            if (Data.isVerticalSpread)
+            {
+                // ═══ VERTICAL MULTI-SHOT (Contra Style) ═══
+                // Dàn đều các viên đạn theo trục Y quanh nòng súng.
+                // VD: 3 viên, spacing = 0.5 → offsets: -0.5, 0.0, +0.5
+                float halfCount = (bulletsToShoot - 1) * 0.5f;
+                float offsetY = (i - halfCount) * Data.verticalSpacing;
+
+                spawnPos = _firePoint.position + new Vector3(0f, offsetY, 0f);
+
+                // Tất cả đạn bay ngang song song (không lệch góc)
+                finalDirection = new Vector2(dirX, 0f);
+            }
+            else
+            {
+                // ═══ SPREAD NGANG (Shotgun / Pistol) ═══
+                spawnPos = _firePoint.position;
+
+                // Tính toán góc lệch ngẫu nhiên (spread)
+                float randomSpread = UnityEngine.Random.Range(-Data.spreadAngle, Data.spreadAngle);
+                Vector2 baseDirection = new Vector2(dirX, 0f);
+                finalDirection = Quaternion.Euler(0, 0, randomSpread) * baseDirection;
+            }
+
+            // Lấy đạn từ pool theo đúng loại của súng đang cầm
+            Bullet bullet = _bulletPool.Get(Data.bulletPrefab, spawnPos);
+            bullet.Activate(Data, _vfxPool);
 
             // Truyền gia tốc cho đạn
             bullet.RB.linearVelocity = finalDirection.normalized * Data.bulletSpeed;
+        }
+
+        // Tích nhiệt khi bắn đạn thường (mỗi phát bóp cò = 1 lần cộng)
+        if (Data.canOverheat)
+        {
+            AddHeat(Data.heatPerShot);
         }
 
         // --- Hiệu ứng giật súng (Recoil) với DOTween ---
@@ -355,4 +435,43 @@ public class PlayerAttack : MonoBehaviour
             _upperBodyVisual.DOPunchPosition(recoilForce, recoilDuration, 1, 0.5f).SetRelative(true);
         }
     }
+
+    // ─── OVERHEAT LOGIC ──────────────────────────────────────────────────────
+
+    private void AddHeat(float amount)
+    {
+        _isFiringThisFrame = true;
+        _currentHeat += amount;
+        _currentHeat = Mathf.Min(_currentHeat, _maxHeat);
+        OnHeatChanged?.Invoke(_currentHeat, _maxHeat);
+
+        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: +{amount:F2} nhiệt → {_currentHeat:F1}/{_maxHeat}");
+
+        if (!_isOverheated && _currentHeat >= _maxHeat)
+        {
+            _isOverheated = true;
+            OnOverheatStateChanged?.Invoke(true);
+            Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({_currentHeat}/{_maxHeat}). Khóa bắn cho đến khi nguội xuống {_unlockThreshold * 100}%.");
+        }
+    }
+
+    private void HandleOverheatCooldown()
+    {
+        // Chỉ nguội khi frame này KHÔNG bắn
+        if (!_isFiringThisFrame && _currentHeat > 0)
+        {
+            _currentHeat -= _cooldownRate * Time.deltaTime;
+            _currentHeat = Mathf.Max(_currentHeat, 0f);
+            OnHeatChanged?.Invoke(_currentHeat, _maxHeat);
+        }
+
+        // Mở khóa khi đã nguội đủ (hysteresis chống flicker bật/tắt)
+        if (_isOverheated && _currentHeat <= _maxHeat * _unlockThreshold)
+        {
+            _isOverheated = false;
+            OnOverheatStateChanged?.Invoke(false);
+            Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {_currentHeat:F1}/{_maxHeat}. Mở khóa bắn.");
+        }
+    }
 }
+

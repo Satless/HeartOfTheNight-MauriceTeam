@@ -19,6 +19,15 @@ public class GunWeaponData : ScriptableObject
     [Tooltip("Góc tỏa ngẫu nhiên của đạn (Shotgun = 15-30, Minigun = 2-3, Pistol = 0)")]
     public float spreadAngle;
 
+    [Header("Vertical Multi-shot (Contra Style)")]
+    [Tooltip("Tích vào nếu đạn dàn song song theo trục DỌC thay vì tỏa góc ngang (Kiểu Contra). " +
+             "Khi bật, spreadAngle sẽ bị bỏ qua — dùng verticalSpacing để chỉnh khoảng cách.")]
+    public bool isVerticalSpread;
+    [Tooltip("Khoảng cách giữa mỗi đường đạn dọc (đơn vị Unity). " +
+             "VD: 0.5 = nửa ô, 1.0 = 1 ô. Các đường đạn dàn đều quanh nòng súng.")]
+    [Range(0.1f, 3f)]
+    public float verticalSpacing;
+
     [Header("Visuals")]
     [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
     public float animationSpeedMultiplier;
@@ -47,6 +56,21 @@ public class GunWeaponData : ScriptableObject
     [Tooltip("Prefab dùng cho súng bắn liên tục (Súng lửa) - Sẽ thay thế Bullet Prefab")]
     public GameObject continuousVfxPrefab;
 
+    [Header("Knockback (Đẩy lùi)")]
+    [Tooltip("Lực đẩy lùi khi đạn trúng mục tiêu trực tiếp (0 = không đẩy). " +
+             "VD: Lục thường = 5, Minigun = 2, Lục điện/Lửa = 0")]
+    public float knockbackForce;
+    [Tooltip("Lực đẩy lùi từ vụ nổ AOE (0 = không đẩy). " +
+             "Chỉ áp dụng cho súng có isExplosive = true. Hướng đẩy = tâm nổ → mục tiêu.")]
+    public float explosionKnockbackForce;
+
+    [Header("Overheat (Quá nhiệt)")]
+    [Tooltip("Tích vào nếu súng này sinh nhiệt khi bắn. " +
+             "Nếu tắt, súng này KHÔNG cộng nhiệt vào thanh chung.")]
+    public bool canOverheat;
+    [Tooltip("Nhiệt cộng vào thanh chung mỗi lần bắn (đạn thường) hoặc mỗi giây (súng lửa). " +
+             "VD: Minigun = 3 (nóng nhanh), Pistol = 1 (nóng chậm), Shotgun = 5 (nóng vừa do bắn chậm)")]
+    public float heatPerShot;
 
     private void OnValidate()
     {

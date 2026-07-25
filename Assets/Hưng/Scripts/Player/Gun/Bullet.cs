@@ -186,6 +186,17 @@ public class Bullet : MonoBehaviour
                 {
                     nhanSatThuong.TakeDamage(_data.damage);
                 }
+
+                // Đẩy lùi theo hướng bay của đạn
+                if (_data.knockbackForce > 0)
+                {
+                    INhanKnockback knockback = other.GetComponent<INhanKnockback>();
+                    if (knockback != null)
+                    {
+                        Vector2 knockDir = RB.linearVelocity.normalized;
+                        knockback.ApplyKnockback(knockDir, _data.knockbackForce);
+                    }
+                }
             }
             
             _hitColliders.Add(other); // Đánh dấu đã đâm qua
@@ -250,6 +261,17 @@ public class Bullet : MonoBehaviour
                 if (nhanSatThuong != null)
                 {
                     nhanSatThuong.TakeDamage(_data.explosionDamage);
+                }
+
+                // Đẩy lùi từ tâm nổ ra ngoài
+                if (_data.explosionKnockbackForce > 0)
+                {
+                    INhanKnockback knockback = col.GetComponent<INhanKnockback>();
+                    if (knockback != null)
+                    {
+                        Vector2 knockDir = ((Vector2)targetPos - explosionCenter).normalized;
+                        knockback.ApplyKnockback(knockDir, _data.explosionKnockbackForce);
+                    }
                 }
             }
         }
