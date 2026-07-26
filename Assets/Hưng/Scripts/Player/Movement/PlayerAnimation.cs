@@ -195,6 +195,7 @@ public class PlayerAnimation : MonoBehaviour
         switch (newState)
         {
             case PlayerMovement.PlayerState.Jumping:
+            case PlayerMovement.PlayerState.DroppingThrough:
             case PlayerMovement.PlayerState.Falling:
                 // Nếu đang rút súng → dùng animation thân dưới cầm súng
                 if (_isHoldingGun)

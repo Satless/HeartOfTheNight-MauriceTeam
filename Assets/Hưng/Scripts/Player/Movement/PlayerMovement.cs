@@ -31,7 +31,8 @@ public class PlayerMovement : MonoBehaviour
 		WallJumping,
 		Falling,
 		Dashing,
-		Sliding
+		Sliding,
+		DroppingThrough
 	}
 
 	public PlayerState CurrentState { get; private set; }
@@ -79,6 +80,11 @@ public class PlayerMovement : MonoBehaviour
 
 			case PlayerState.Sliding:
 				// Gravity = 0 được xử lý trong HandleGravity()
+				break;
+
+			case PlayerState.DroppingThrough:
+				LastOnGroundTime = 0;
+				StartCoroutine(nameof(DropThroughRoutine), _ignoredPlatform);
 				break;
 		}
 	}
@@ -155,12 +161,19 @@ public class PlayerMovement : MonoBehaviour
 	private WaitForSecondsRealtime _sleepWait;
 	#endregion
 
+	#region ONEWAY PLATFORM CACHE
+	private Collider2D[] _playerColliders;
+	private Collider2D _ignoredPlatform;
+	private Collider2D[] _overlapResults = new Collider2D[10];
+	#endregion
+
 	// -------------------------------------------------------------------------
 
     private void Awake()
 	{
 		RB = GetComponent<Rigidbody2D>();
 		_animation = GetComponent<PlayerAnimation>();
+		_playerColliders = GetComponentsInChildren<Collider2D>();
 
 		// Cache coroutine wait — Zero GC Alloc
 		_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
@@ -222,7 +235,18 @@ public class PlayerMovement : MonoBehaviour
 			CheckDirectionToFace(_moveInput.x > 0);
 
 		if(Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.J))
-			OnJumpInput();
+		{
+			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
+			{
+				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
+				_ignoredPlatform = platform;
+				TransitionToState(PlayerState.DroppingThrough);
+			}
+			else
+			{
+				OnJumpInput();
+			}
+		}
 
 		if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.C) || Input.GetKeyUp(KeyCode.J))
 			OnJumpUpInput();
@@ -240,7 +264,7 @@ public class PlayerMovement : MonoBehaviour
 		// ép state về Grounded giữa chừng trong khi coroutine StartDash vẫn chạy.
 		if (!IsDashing)
 		{
-			if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer))
+			if (IsSolidGround(_groundCheckPoint.position, _groundCheckSize))
 				LastOnGroundTime = Data.coyoteTime;
 		}
 
@@ -249,13 +273,13 @@ public class PlayerMovement : MonoBehaviour
 		if (!_isDashAttacking)
 		{
 			// Right wall check
-			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)
-					|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)) && !IsWallJumping)
+			if (((IsSolidWall(_frontWallCheckPoint.position, _wallCheckSize) && IsFacingRight)
+					|| (IsSolidWall(_backWallCheckPoint.position, _wallCheckSize) && !IsFacingRight)) && !IsWallJumping)
 				LastOnWallRightTime = Data.coyoteTime;
 
 			// Left wall check
-			if (((Physics2D.OverlapBox(_frontWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && !IsFacingRight)
-				|| (Physics2D.OverlapBox(_backWallCheckPoint.position, _wallCheckSize, 0, _groundLayer) && IsFacingRight)) && !IsWallJumping)
+			if (((IsSolidWall(_frontWallCheckPoint.position, _wallCheckSize) && !IsFacingRight)
+				|| (IsSolidWall(_backWallCheckPoint.position, _wallCheckSize) && IsFacingRight)) && !IsWallJumping)
 				LastOnWallLeftTime = Data.coyoteTime;
 
 			LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
@@ -680,6 +704,131 @@ public class PlayerMovement : MonoBehaviour
 		RB.AddForce(movement * Vector2.up);
 	}
     #endregion
+
+	// -------------------------------------------------------------------------
+
+	#region ONEWAY PLATFORM METHODS
+	private bool TryGetOneWayPlatformBelow(out Collider2D platform)
+	{
+		platform = null;
+		int hitCount = Physics2D.OverlapBoxNonAlloc(_groundCheckPoint.position, _groundCheckSize, 0f, _overlapResults, _groundLayer);
+		for (int i = 0; i < hitCount; i++)
+		{
+			var hit = _overlapResults[i];
+			if (hit.isTrigger) continue;
+			if (hit.GetComponent<HeartOfTheNight.Common.OneWayPlatform>() != null || hit.GetComponent<PlatformEffector2D>() != null)
+			{
+				platform = hit;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private bool IsSolidGround(Vector2 position, Vector2 size)
+	{
+		int hitCount = Physics2D.OverlapBoxNonAlloc(position, size, 0f, _overlapResults, _groundLayer);
+		for (int i = 0; i < hitCount; i++)
+		{
+			var col = _overlapResults[i];
+			if (col.isTrigger) continue;
+			
+			if (col.GetComponent<HeartOfTheNight.Common.OneWayPlatform>() != null || col.GetComponent<PlatformEffector2D>() != null)
+			{
+				// Chỉ tính là mặt đất nếu nhân vật đang RƠI XUỐNG (vy <= 0.01)
+				if (RB.linearVelocity.y <= 0.01f)
+				{
+					// Nếu đang rớt xuyên qua chính miếng ván này thì bỏ qua không tính là đất
+					if (CurrentState == PlayerState.DroppingThrough && _ignoredPlatform == col)
+						continue;
+					
+					return true;
+				}
+			}
+			else
+			{
+				return true; // Mặt đất thường
+			}
+		}
+		return false;
+	}
+
+	private bool IsSolidWall(Vector2 position, Vector2 size)
+	{
+		int hitCount = Physics2D.OverlapBoxNonAlloc(position, size, 0f, _overlapResults, _groundLayer);
+		for (int i = 0; i < hitCount; i++)
+		{
+			var col = _overlapResults[i];
+			if (col.isTrigger) continue;
+			
+			// Wall check bỏ qua hoàn toàn OneWayPlatform (không thể bám tường gỗ)
+			if (col.GetComponent<HeartOfTheNight.Common.OneWayPlatform>() != null || col.GetComponent<PlatformEffector2D>() != null)
+				continue;
+
+			return true; 
+		}
+		return false;
+	}
+
+	private IEnumerator DropThroughRoutine(Collider2D platformCol)
+	{
+		if (platformCol == null) yield break;
+
+		foreach (var col in _playerColliders)
+			if (col != null) Physics2D.IgnoreCollision(col, platformCol, true);
+
+		float timeout = 1f; // Chờ tối đa 1 giây để lọt qua
+		while (timeout > 0f)
+		{
+			timeout -= Time.deltaTime;
+			
+			// Đã rơi lọt hoàn toàn xuống dưới ván
+			if (GetPlayerTopY() < platformCol.bounds.min.y) break;
+			
+			// Hoặc nếu nhảy/dash ngược lên trên và đã ngoi lên hoàn toàn khỏi ván
+			if (CurrentState != PlayerState.DroppingThrough && GetPlayerBottomY() > platformCol.bounds.max.y) break;
+
+			yield return null;
+		}
+
+		yield return new WaitForSeconds(0.05f); // 1 chút delay an toàn
+
+		foreach (var col in _playerColliders)
+			if (col != null) Physics2D.IgnoreCollision(col, platformCol, false);
+
+		if (CurrentState == PlayerState.DroppingThrough)
+			TransitionToState(PlayerState.Falling);
+			
+		if (_ignoredPlatform == platformCol)
+			_ignoredPlatform = null;
+	}
+
+	private float GetPlayerTopY()
+	{
+		float top = float.NegativeInfinity;
+		bool found = false;
+		foreach (var col in _playerColliders)
+		{
+			if (col == null || col.isTrigger) continue;
+			top = Mathf.Max(top, col.bounds.max.y);
+			found = true;
+		}
+		return found ? top : transform.position.y;
+	}
+
+	private float GetPlayerBottomY()
+	{
+		float bottom = float.PositiveInfinity;
+		bool found = false;
+		foreach (var col in _playerColliders)
+		{
+			if (col == null || col.isTrigger) continue;
+			bottom = Mathf.Min(bottom, col.bounds.min.y);
+			found = true;
+		}
+		return found ? bottom : transform.position.y;
+	}
+	#endregion
 
 	// -------------------------------------------------------------------------
 
