@@ -47,7 +47,8 @@ public class PlayerAnimation : MonoBehaviour
         
         // Các hành động full-body BẮT BUỘC cất súng (không cho bắn)
         bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
-                                     (state == PlayerMovement.PlayerState.Sliding);
+                                     (state == PlayerMovement.PlayerState.Sliding) ||
+                                     (state == PlayerMovement.PlayerState.WallJumping);
         
         bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
