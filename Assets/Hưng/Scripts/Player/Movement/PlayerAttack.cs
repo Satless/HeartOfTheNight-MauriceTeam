@@ -233,9 +233,10 @@ public class PlayerAttack : MonoBehaviour
 
     private void HandleFire()
     {
-        // Khóa bắn khi đang bám tường hoặc lướt (tắt súng lửa nếu đang bắn)
+        // Khóa bắn khi đang bám tường, lướt, hoặc bật tường (tắt súng lửa nếu đang bắn)
         if ((_movement.IsSliding && !_movement.Data.allowShootWhileSliding) || 
-            (_movement.IsDashing && !_movement.Data.allowShootWhileDashing))
+            (_movement.IsDashing && !_movement.Data.allowShootWhileDashing) ||
+            _movement.IsWallJumping)
         {
             if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf) 
             {
