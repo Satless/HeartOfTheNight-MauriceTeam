@@ -207,13 +207,7 @@ public class PlayerAnimation : MonoBehaviour
                 break;
                 
             case PlayerMovement.PlayerState.WallJumping:
-                if (_isHoldingGun)
-                {
-                    bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
-                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
-                }
-                else
-                    PlayAnim("Duoi-TruotTuong");
+                PlayAnim("Duoi-TruotTuong");
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
