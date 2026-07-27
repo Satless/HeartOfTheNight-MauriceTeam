@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class CodexUI : MonoBehaviour
 {
+    public GameObject menuPanel;
     public GameObject codexPanel;
     public GameObject CreditPanel;
     public GameObject SettingPanel;
@@ -10,6 +11,12 @@ public class CodexUI : MonoBehaviour
     public GameObject SaveLostPanel;
     public TMP_Text contentText;
 
+
+
+    public void OpenMenu()
+    {
+        menuPanel.SetActive(true);
+    }
     public void OpenCodex()
     {
         codexPanel.SetActive(true);
@@ -37,6 +44,13 @@ public class CodexUI : MonoBehaviour
         SaveLostPanel.SetActive(true);
     }
 
+
+
+
+    public void CloseMenu()
+    {
+        menuPanel.SetActive(false);
+    }
     public void CloseCredit()
     {
         CreditPanel.SetActive(false);
