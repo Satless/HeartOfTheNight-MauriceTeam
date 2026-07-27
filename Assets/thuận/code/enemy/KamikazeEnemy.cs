@@ -84,29 +84,41 @@ public class KamikazeEnemy : MonoBehaviour
     {
         exploding = true;
 
-        // Phát animation Attack
+        // Dừng di chuyển và nhấp nháy trắng trong 1.5 giây
+        float timer = 0f;
+        bool visible = true;
+
+        while (timer < explodeDelay)
+        {
+            if (spriteRenderer != null)
+            {
+                if (visible)
+                    spriteRenderer.color = Color.white;                 // Hiện bình thường
+                else
+                    spriteRenderer.color = new Color(1, 1, 1, 0.2f);    // Mờ trắng
+            }
+
+            visible = !visible;
+
+            yield return new WaitForSeconds(flashInterval);
+
+            timer += flashInterval;
+        }
+
+        // Trả sprite về bình thường
+        if (spriteRenderer != null)
+            spriteRenderer.color = Color.white;
+
+        // Sau 1.5 giây mới phát animation Attack
         if (animator != null)
         {
             animator.SetTrigger("Attack");
         }
 
-        float timer = 0;
+        // Chờ animation Attack chạy (điều chỉnh theo độ dài animation)
+        yield return new WaitForSeconds(0.3f);
 
-        while (timer < explodeDelay)
-        {
-            if (spriteRenderer != null)
-                spriteRenderer.color = Color.red;
-
-            yield return new WaitForSeconds(flashInterval);
-
-            if (spriteRenderer != null)
-                spriteRenderer.color = Color.white;
-
-            yield return new WaitForSeconds(flashInterval);
-
-            timer += flashInterval * 2f;
-        }
-
+        // Gây sát thương
         if (player != null)
         {
             float distance = Vector2.Distance(transform.position, player.position);
