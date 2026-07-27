@@ -93,7 +93,7 @@ public class KamikazeEnemy : MonoBehaviour
             if (spriteRenderer != null)
             {
                 if (visible)
-                    spriteRenderer.color = Color.white;                 // Hiện bình thường
+                    spriteRenderer.color = Color.red;                 // Hiện bình thường
                 else
                     spriteRenderer.color = new Color(1, 1, 1, 0.2f);    // Mờ trắng
             }
