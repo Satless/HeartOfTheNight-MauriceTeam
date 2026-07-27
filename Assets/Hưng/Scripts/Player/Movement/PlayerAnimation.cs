@@ -3,10 +3,10 @@ using UnityEngine;
 public class PlayerAnimation : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("Kéo Animator của phần Dưới (chân/fullbody) vào đây")]
-    [SerializeField] private Animator _lowerAnimator;
-    [Tooltip("Kéo Transform của phần Trên (UpperBody cầm súng) vào đây để bật/tắt")]
+    [Tooltip("Kéo phần Trên vào đây")]
     [SerializeField] private GameObject _upperBodyObject;
+    [Tooltip("Kéo phần Dưới vào đây, lấy cái có animator ấy")]
+    [SerializeField] private Animator _lowerAnimator;
     
     [Header("Settings")]
     [Tooltip("Thời gian giữ súng trên tay sau khi nhả chuột (giây)")]

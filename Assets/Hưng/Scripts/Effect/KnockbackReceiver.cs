@@ -16,21 +16,16 @@ using UnityEngine;
 public class KnockbackReceiver : MonoBehaviour, INhanKnockback
 {
     [Header("Knockback Settings")]
-    [Tooltip("Hệ số kháng knockback (0 = nhận full lực đẩy, 1 = miễn nhiễm hoàn toàn). " +
-             "VD: Quái thường = 0, Mini-boss = 0.5, Boss = 0.8-1.0")]
+    [Tooltip("Hệ số kháng knockback")]
     [Range(0f, 1f)]
     [SerializeField] private float _resistance;
 
-    [Tooltip("Tốc độ giảm tốc của lực đẩy (cao = dừng nhanh, thấp = trượt xa). " +
-             "VD: 10 = dừng gọn, 3 = trượt dài, 25 = dừng gần như tức thì")]
+    [Tooltip("Giảm tốc lực đẩy của knockback")]
     [Range(1f, 30f)]
-    [SerializeField] private float _deceleration = 10f;
+    [SerializeField] private float _deceleration;
 
-    [Header("Stun (Tùy chọn)")]
-    [Tooltip("Thời gian choáng sau khi bị đẩy (giây). " +
-             "0 = không choáng (chỉ đẩy lùi rồi quái tiếp tục đi). " +
-             "0.15 = choáng nhẹ. 0.5 = choáng nặng. " +
-             "Trong thời gian này, IsKnockedBack = true.")]
+    [Header("Choáng")]
+    [Tooltip("Thời gian choáng sau khi bị đẩy (giây)")]
     [SerializeField] private float _stunDuration;
 
     // Cache Rigidbody2D (Zero GC — không GetComponent trong gameplay)

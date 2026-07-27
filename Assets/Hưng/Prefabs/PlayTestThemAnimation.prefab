@@ -234,7 +234,7 @@ MonoBehaviour:
   _groundCheckSize: {x: 0.2, y: 0.2}
   _frontWallCheckPoint: {fileID: 505883896618523437}
   _backWallCheckPoint: {fileID: 1996823155601675452}
-  _wallCheckSize: {x: 0.1, y: 0.87}
+  _wallCheckSize: {x: 0.1, y: 0.3}
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -253,17 +253,33 @@ MonoBehaviour:
   Weapon1:
     variant1: {fileID: 11400000, guid: 83bcbdebf6fa5414fbb9ef7777acc396, type: 2}
     variant2: {fileID: 11400000, guid: 4e09fa0ec78b71a48a175ece19dc8bad, type: 2}
+    maxHeat: 30
+    cooldownRate: 5
+    unlockThreshold: 0.3
+    currentHeat: 0
+    isOverheated: 0
   Weapon2:
     variant1: {fileID: 11400000, guid: c659baa5169f64c45b4a6be8fbba063b, type: 2}
     variant2: {fileID: 11400000, guid: 91efb52a1e06f93499b232613328c463, type: 2}
+    maxHeat: 60
+    cooldownRate: 10
+    unlockThreshold: 0.3
+    currentHeat: 0
+    isOverheated: 0
   Weapon3:
     variant1: {fileID: 11400000, guid: b74db7a724210474f88a8184269f6957, type: 2}
     variant2: {fileID: 11400000, guid: 8779c07c791b26945b81a53f41a2ef3b, type: 2}
+    maxHeat: 100
+    cooldownRate: 20
+    unlockThreshold: 0.3
+    currentHeat: 0
+    isOverheated: 0
   Data: {fileID: 11400000, guid: c659baa5169f64c45b4a6be8fbba063b, type: 2}
   _mainCamera: {fileID: 0}
   _upperBodyVisual: {fileID: 7785440647838262849}
   _firePoint: {fileID: 3145261341872688593}
   _bulletPool: {fileID: 0}
+  _vfxPool: {fileID: 0}
 --- !u!114 &890032511126001227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,8 +311,10 @@ MonoBehaviour:
   itemLayer:
     serializedVersion: 2
     m_Bits: 8192
-  pullSpeed: 0.1
-  pullAcceleration: 0.001
+  pullSpeed: 1
+  maxPullSpeed: 10
+  timeToMaxSpeed: 1.5
+  pullAcceleration: 6
 --- !u!1 &4197812180855436671
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,16 +6,16 @@ using UnityEngine;
 /// </summary>
 public class FlamethrowerLogic : MonoBehaviour
 {
-    [Header("Hitbox Cấu hình")]
-    [Tooltip("Kích thước vùng lửa (Rộng x Cao)")]
+    [Header("Hitbox")]
+    [Tooltip("Kích thước vùng lửa")]
     public Vector2 hitboxSize = new Vector2(5f, 2f);
     [Tooltip("Khoảng cách từ nòng súng đến tâm vùng lửa")]
     public Vector2 hitboxOffset = new Vector2(2.5f, 0f);
-    [Tooltip("Layer của quái (Nên chọn đúng layer quái để tối ưu)")]
+    [Tooltip("Layer mục tiêu")]
     public LayerMask targetLayer = ~0;
 
     [Header("Tag Filter")]
-    [Tooltip("Danh sách tag được phép nhận sát thương lửa (VD: Enemy, Boss)")]
+    [Tooltip("Danh sách tag được phép nhận sát thương lửa")]
     [TagSelector]
     [SerializeField] private string[] _targetTags;
 

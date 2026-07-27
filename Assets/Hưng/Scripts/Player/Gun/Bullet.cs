@@ -9,9 +9,9 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [Header("Collision Layers & Tags")]
-    [Tooltip("Layer va chạm các loại quái")]
+    [Tooltip("Layer enemy")]
     [SerializeField] private LayerMask _enemyLayer;
-    [Tooltip("Layer va chạm đất, tường, vật cản, v.v")]
+    [Tooltip("Layer ground, vật cản...")]
     [SerializeField] private LayerMask _groundLayer;
 
     [Header("Visuals")]
