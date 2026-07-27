@@ -20,16 +20,18 @@ public class CodexUI : MonoBehaviour
     public void OpenCodex()
     {
         codexPanel.SetActive(true);
+        menuPanel.SetActive(false);
     }
     public void OpenCredit()
     {
         CreditPanel.SetActive(true);
+        menuPanel.SetActive(false);
     }
     public void OpenSetting()
     {
         SettingPanel.SetActive(true);
-        SaveLostPanel.SetActive(false);
-        ControlsPanel.SetActive(false);
+        menuPanel.SetActive(false);
+
     }
     public void OpenControls()
     {
@@ -54,16 +56,17 @@ public class CodexUI : MonoBehaviour
     public void CloseCredit()
     {
         CreditPanel.SetActive(false);
+        menuPanel.SetActive(true);
     }
     public void CloseCodex()
     {
         codexPanel.SetActive(false);
+        menuPanel.SetActive(true);
     }
     public void CloseSetting()
     {
         SettingPanel.SetActive(false);
-        ControlsPanel.SetActive(false);
-        SaveLostPanel.SetActive(false);
+        menuPanel.SetActive(true);
     }
     public void CloseControls()
     {
