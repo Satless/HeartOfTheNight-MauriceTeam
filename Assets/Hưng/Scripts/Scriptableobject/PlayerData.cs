@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Player Data")] //Tạo một đối tượng playerData mới bằng cách nhấp chuột phải vào Menu Project rồi chọn Create/Player/Player Data và kéo vào người chơi
+[CreateAssetMenu(fileName = "NewPlayerData", menuName = "Data/Player Data")] //Tạo một đối tượng playerData mới bằng cách nhấp chuột phải vào Menu Project rồi chọn Create/Player/Player Data và kéo vào người chơi
 public class PlayerData : ScriptableObject
 {
 	[Header("Gravity")]

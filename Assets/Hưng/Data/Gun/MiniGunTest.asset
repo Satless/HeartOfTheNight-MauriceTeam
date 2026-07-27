@@ -17,6 +17,20 @@ MonoBehaviour:
   damage: 1
   bulletLifetime: 3
   bulletsPerShot: 3
-  spreadAngle: 3
+  spreadAngle: 0
+  isVerticalSpread: 1
+  verticalSpacing: 0.25
+  animationSpeedMultiplier: 1
   bulletPrefab: {fileID: 437895494315374385, guid: d5ae70dc5fc06ea498b11c8ebb6f3c4c, type: 3}
   weaponAnimator: {fileID: 9100000, guid: 5e4b6089c26b362409a32581062ed367, type: 2}
+  isExplosive: 0
+  explosionRadius: 0
+  explosionDamage: 0
+  statusEffect: {fileID: 0}
+  pierceCount: 0
+  isContinuousFire: 0
+  continuousVfxPrefab: {fileID: 0}
+  knockbackForce: 2
+  explosionKnockbackForce: 0
+  canOverheat: 1
+  heatPerShot: 15

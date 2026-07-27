@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 2250022e1e1590548bdb9dc41d8021ee, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.5294118, b: 0.25882354, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -176,13 +176,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74021565d2290364abda44bb36d35a04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
   _enemyLayer:
     serializedVersion: 2
     m_Bits: 1024
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  _hitVfxPrefab: {fileID: 251511882294739858, guid: ef52703ff702d354e87406e79ca13633, type: 3}
   _enemyTags:
   - Enemy
   - EnemyGan

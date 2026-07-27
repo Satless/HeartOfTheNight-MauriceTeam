@@ -47,7 +47,8 @@ public class PlayerAnimation : MonoBehaviour
         
         // Các hành động full-body BẮT BUỘC cất súng (không cho bắn)
         bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
-                                     (state == PlayerMovement.PlayerState.Sliding);
+                                     (state == PlayerMovement.PlayerState.Sliding) ||
+                                     (state == PlayerMovement.PlayerState.WallJumping);
         
         bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
@@ -195,6 +196,7 @@ public class PlayerAnimation : MonoBehaviour
         switch (newState)
         {
             case PlayerMovement.PlayerState.Jumping:
+            case PlayerMovement.PlayerState.DroppingThrough:
             case PlayerMovement.PlayerState.Falling:
                 // Nếu đang rút súng → dùng animation thân dưới cầm súng
                 if (_isHoldingGun)
@@ -207,13 +209,7 @@ public class PlayerAnimation : MonoBehaviour
                 break;
                 
             case PlayerMovement.PlayerState.WallJumping:
-                if (_isHoldingGun)
-                {
-                    bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
-                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
-                }
-                else
-                    PlayAnim("Duoi-TruotTuong");
+                PlayAnim("Duoi-TruotTuong");
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
