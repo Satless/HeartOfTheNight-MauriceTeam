@@ -141,10 +141,10 @@ public class PlayerMovement : MonoBehaviour
 	[Tooltip("Kích thước hộp kiểm tra dưới chân, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _groundCheckSize = new Vector2(0.49f, 0.03f);
 	[Space(5)]
-	[Tooltip("Kéo child kiểm tra tường trước mặt (bên phải)")]
-	[SerializeField] private Transform _frontWallCheckPoint;
-	[Tooltip("Kéo child kiểm tra tường sau lưng (bên trái)")]
-	[SerializeField] private Transform _backWallCheckPoint;
+	[Tooltip("Kéo child kiểm tra tường bên phải")]
+	[SerializeField] private Transform _rightWallCheckPoint;
+	[Tooltip("Kéo child kiểm tra tường bên trái")]
+	[SerializeField] private Transform _leftWallCheckPoint;
 	[Tooltip("Kích thước hộp kiểm tra tường, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
     #endregion
@@ -273,13 +273,11 @@ public class PlayerMovement : MonoBehaviour
 		if (!_isDashAttacking)
 		{
 			// Right wall check
-			if (((IsSolidWall(_frontWallCheckPoint.position, _wallCheckSize) && IsFacingRight)
-					|| (IsSolidWall(_backWallCheckPoint.position, _wallCheckSize) && !IsFacingRight)) && !IsWallJumping)
+			if (IsSolidWall(_rightWallCheckPoint.position, _wallCheckSize) && !IsWallJumping)
 				LastOnWallRightTime = Data.coyoteTime;
 
 			// Left wall check
-			if (((IsSolidWall(_frontWallCheckPoint.position, _wallCheckSize) && !IsFacingRight)
-				|| (IsSolidWall(_backWallCheckPoint.position, _wallCheckSize) && IsFacingRight)) && !IsWallJumping)
+			if (IsSolidWall(_leftWallCheckPoint.position, _wallCheckSize) && !IsWallJumping)
 				LastOnWallLeftTime = Data.coyoteTime;
 
 			LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
@@ -569,20 +567,6 @@ public class PlayerMovement : MonoBehaviour
 			Vector3 scale = _lowerBodyVisual.localScale; 
 			scale.x *= -1;
 			_lowerBodyVisual.localScale = scale;
-
-			// Lật vị trí các điểm check để vật lý hoạt động đúng mà không cần lật Root
-			if (_frontWallCheckPoint != null)
-			{
-				Vector3 pos = _frontWallCheckPoint.localPosition;
-				pos.x *= -1;
-				_frontWallCheckPoint.localPosition = pos;
-			}
-			if (_backWallCheckPoint != null)
-			{
-				Vector3 pos = _backWallCheckPoint.localPosition;
-				pos.x *= -1;
-				_backWallCheckPoint.localPosition = pos;
-			}
 		}
 		else
 		{
@@ -881,13 +865,13 @@ public class PlayerMovement : MonoBehaviour
 	{
 		// Tìm toạ độ Y của phần hông/chân (nằm giữa wallCheckPoint và dưới cùng chân)
 		float bottomY = GetPlayerBottomY();
-		float waistY = (_frontWallCheckPoint.position.y + bottomY) / 2f;
+		float waistY = (_rightWallCheckPoint.position.y + bottomY) / 2f;
 		
-		Vector2 frontWaistPos = new Vector2(_frontWallCheckPoint.position.x, waistY);
-		Vector2 backWaistPos = new Vector2(_backWallCheckPoint.position.x, waistY);
+		Vector2 rightWaistPos = new Vector2(_rightWallCheckPoint.position.x, waistY);
+		Vector2 leftWaistPos = new Vector2(_leftWallCheckPoint.position.x, waistY);
 		
 		// Trả về true nếu nửa DƯỚI của nhân vật vẫn đang chạm tường ở một trong hai bên
-		return IsSolidWall(frontWaistPos, _wallCheckSize) || IsSolidWall(backWaistPos, _wallCheckSize);
+		return IsSolidWall(rightWaistPos, _wallCheckSize) || IsSolidWall(leftWaistPos, _wallCheckSize);
 	}
 
 	public bool CanSlide() =>
@@ -902,8 +886,8 @@ public class PlayerMovement : MonoBehaviour
 		Gizmos.color = Color.green;
 		Gizmos.DrawWireCube(_groundCheckPoint.position, _groundCheckSize);
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireCube(_frontWallCheckPoint.position, _wallCheckSize);
-		Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSize);
+		Gizmos.DrawWireCube(_rightWallCheckPoint.position, _wallCheckSize);
+		Gizmos.DrawWireCube(_leftWallCheckPoint.position, _wallCheckSize);
 	}
     #endregion
 }
