@@ -523,7 +523,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -537,7 +537,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -561,7 +561,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -603,11 +603,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 14
-        y: 998
-        width: 44
-        height: 21
+        y: 995
+        width: 114
+        height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -624,12 +624,12 @@ TextureImporter:
       name: HeartDemonAttack-Sheet_1
       rect:
         serializedVersion: 2
-        x: 60
-        y: 998
-        width: 70
-        height: 21
+        x: 647
+        y: 990
+        width: 127
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -646,12 +646,12 @@ TextureImporter:
       name: HeartDemonAttack-Sheet_2
       rect:
         serializedVersion: 2
-        x: 330
-        y: 1000
-        width: 48
-        height: 19
+        x: 329
+        y: 994
+        width: 134
+        height: 27
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -665,235 +665,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_3
-      rect:
-        serializedVersion: 2
-        x: 354
-        y: 998
-        width: 11
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9e657f29da54d9ba0800000000000000
-      internalID: -6080627310082959639
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_4
-      rect:
-        serializedVersion: 2
-        x: 377
-        y: 998
-        width: 70
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f34635cf684b75dd0800000000000000
-      internalID: -2497328976501709761
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_5
-      rect:
-        serializedVersion: 2
-        x: 650
-        y: 998
-        width: 67
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8992cbaa7c8211770800000000000000
-      internalID: 8579683603145566616
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_6
-      rect:
-        serializedVersion: 2
-        x: 718
-        y: 998
-        width: 51
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f5435b9941230a500800000000000000
-      internalID: 405379030522868831
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_7
-      rect:
-        serializedVersion: 2
-        x: 965
-        y: 998
-        width: 69
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 035b14af72bed2b20800000000000000
-      internalID: 3111401474517742896
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_8
-      rect:
-        serializedVersion: 2
-        x: 1038
-        y: 998
-        width: 57
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 58632a19933b29550800000000000000
-      internalID: 6166187899661465221
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_9
-      rect:
-        serializedVersion: 2
-        x: 1279
-        y: 998
-        width: 51
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b360929c94a3d0200800000000000000
-      internalID: 147838451355027003
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_10
-      rect:
-        serializedVersion: 2
-        x: 1330
-        y: 998
-        width: 83
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e6bb74449d9832f30800000000000000
-      internalID: 4549631614820793198
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_11
-      rect:
-        serializedVersion: 2
-        x: 1605
-        y: 998
-        width: 53
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0923724571b9899f0800000000000000
-      internalID: -461448437307067760
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_12
-      rect:
-        serializedVersion: 2
-        x: 1660
-        y: 998
-        width: 66
-        height: 21
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d2d8bc5679289a100800000000000000
-      internalID: 119770451861540141
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_13
       rect:
         serializedVersion: 2
-        x: 12
-        y: 719
-        width: 144
-        height: 258
+        x: 13
+        y: 720
+        width: 142
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -910,12 +690,12 @@ TextureImporter:
       name: HeartDemonAttack-Sheet_14
       rect:
         serializedVersion: 2
-        x: 330
-        y: 719
-        width: 148
-        height: 258
+        x: 331
+        y: 720
+        width: 146
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -932,12 +712,12 @@ TextureImporter:
       name: HeartDemonAttack-Sheet_15
       rect:
         serializedVersion: 2
-        x: 659
-        y: 719
-        width: 130
-        height: 258
+        x: 660
+        y: 720
+        width: 128
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -951,37 +731,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_16
-      rect:
-        serializedVersion: 2
-        x: 765
-        y: 949
-        width: 24
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 709ef187838e78b50800000000000000
-      internalID: 6595495508538550535
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_17
       rect:
         serializedVersion: 2
-        x: 979
-        y: 719
-        width: 130
-        height: 258
+        x: 980
+        y: 720
+        width: 128
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -995,59 +753,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_18
-      rect:
-        serializedVersion: 2
-        x: 984
-        y: 969
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e72e276272c0e58f0800000000000000
-      internalID: -549988742204300674
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_19
-      rect:
-        serializedVersion: 2
-        x: 1293
-        y: 934
-        width: 33
-        height: 38
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9f7e3aefcbfb1f760800000000000000
-      internalID: 7489978473740756985
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_20
       rect:
         serializedVersion: 2
-        x: 1324
-        y: 719
-        width: 80
-        height: 258
+        x: 1297
+        y: 720
+        width: 135
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1061,1181 +775,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_21
-      rect:
-        serializedVersion: 2
-        x: 1418
-        y: 935
-        width: 17
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0aad449420a9b6e00800000000000000
-      internalID: 1039093473648892576
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_22
-      rect:
-        serializedVersion: 2
-        x: 1614
-        y: 683
-        width: 140
-        height: 294
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 01cf8d069c56ecab0800000000000000
-      internalID: -4985935821864895472
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_23
-      rect:
-        serializedVersion: 2
-        x: 1614
-        y: 942
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 99d6c83f620c49200800000000000000
-      internalID: 185984758156389785
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_24
-      rect:
-        serializedVersion: 2
-        x: 26
-        y: 940
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 92438533d8b82eac0800000000000000
-      internalID: -3827343294743432151
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_25
-      rect:
-        serializedVersion: 2
-        x: 1089
-        y: 947
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 23facd61dcdf17040800000000000000
-      internalID: 4643771748089376562
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_26
-      rect:
-        serializedVersion: 2
-        x: 1095
-        y: 937
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 311feb04b0a295110800000000000000
-      internalID: 1250076599391285523
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_27
-      rect:
-        serializedVersion: 2
-        x: 667
-        y: 917
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e12e9a90f31165ad0800000000000000
-      internalID: -2713962763001404898
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_28
-      rect:
-        serializedVersion: 2
-        x: 985
-        y: 915
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3b4658762d1a00200800000000000000
-      internalID: 144293113127855283
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_29
-      rect:
-        serializedVersion: 2
-        x: 1296
-        y: 903
-        width: 14
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7a4f6111298b9daa0800000000000000
-      internalID: -6135670079824137049
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_30
-      rect:
-        serializedVersion: 2
-        x: 1402
-        y: 914
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7fba385d412219b40800000000000000
-      internalID: 5445170897344506871
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_31
-      rect:
-        serializedVersion: 2
-        x: 1726
-        y: 911
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3984e7e9b6f021640800000000000000
-      internalID: 5049115087130740883
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_32
-      rect:
-        serializedVersion: 2
-        x: 129
-        y: 908
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 49096fe60ec4c52a0800000000000000
-      internalID: -6747433614889807724
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_33
-      rect:
-        serializedVersion: 2
-        x: 984
-        y: 905
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c76ac09bc3c326d30800000000000000
-      internalID: 4423164015531566716
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_34
-      rect:
-        serializedVersion: 2
-        x: 765
-        y: 885
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a190a7633ece42f60800000000000000
-      internalID: 8008786497987283226
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_35
-      rect:
-        serializedVersion: 2
-        x: 1089
-        y: 883
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5d02c69f1aef09e40800000000000000
-      internalID: 5661304703232516309
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_36
-      rect:
-        serializedVersion: 2
-        x: 1310
-        y: 882
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dee7bc404fc19c380800000000000000
-      internalID: -8950590950044107027
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_37
-      rect:
-        serializedVersion: 2
-        x: 1418
-        y: 871
-        width: 17
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3ca063b3569296810800000000000000
-      internalID: 1758982644226722499
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_38
-      rect:
-        serializedVersion: 2
-        x: 1627
-        y: 879
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a38d541d607840e90800000000000000
-      internalID: -7060369852459526086
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_39
-      rect:
-        serializedVersion: 2
-        x: 26
-        y: 876
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c9f6832a0753303e0800000000000000
-      internalID: -2088767044295561316
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_40
-      rect:
-        serializedVersion: 2
-        x: 1095
-        y: 873
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 835c5e457f1299ca0800000000000000
-      internalID: -6009734881584233160
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_41
-      rect:
-        serializedVersion: 2
-        x: 667
-        y: 853
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c52e3b7fadea0c3a0800000000000000
-      internalID: -6647120794516987300
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_42
-      rect:
-        serializedVersion: 2
-        x: 985
-        y: 851
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 85452625425da2fb0800000000000000
-      internalID: -4671687311465753512
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_43
-      rect:
-        serializedVersion: 2
-        x: 1293
-        y: 839
-        width: 17
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b8227052cb2204990800000000000000
-      internalID: -7403879595926674805
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_44
-      rect:
-        serializedVersion: 2
-        x: 1402
-        y: 850
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1e8f070d489d3fb40800000000000000
-      internalID: 5472957136641259745
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_45
-      rect:
-        serializedVersion: 2
-        x: 1726
-        y: 847
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 06b38de8e5d4f2450800000000000000
-      internalID: 6066152291610147680
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_46
-      rect:
-        serializedVersion: 2
-        x: 129
-        y: 844
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b18e248a5bfe0f840800000000000000
-      internalID: 5255964328632444955
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_47
-      rect:
-        serializedVersion: 2
-        x: 984
-        y: 841
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 71447badbea85e040800000000000000
-      internalID: 4676296533685519383
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_48
-      rect:
-        serializedVersion: 2
-        x: 765
-        y: 821
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 55365796a6ddc9e50800000000000000
-      internalID: 6817567385037661013
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_49
-      rect:
-        serializedVersion: 2
-        x: 1089
-        y: 819
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 371a83a33fff7ecb0800000000000000
-      internalID: -4834614254840012429
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_50
-      rect:
-        serializedVersion: 2
-        x: 1310
-        y: 818
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9c804bacb92d974a0800000000000000
-      internalID: -6595008612744820535
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_51
-      rect:
-        serializedVersion: 2
-        x: 1418
-        y: 807
-        width: 17
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: eed1320fe4ea23160800000000000000
-      internalID: 7003852024574057966
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_52
-      rect:
-        serializedVersion: 2
-        x: 1627
-        y: 815
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 883932cde5098da80800000000000000
-      internalID: -8441838764411350136
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_53
-      rect:
-        serializedVersion: 2
-        x: 26
-        y: 812
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 19a12bd972f6ac930800000000000000
-      internalID: 4164263021397547665
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_54
-      rect:
-        serializedVersion: 2
-        x: 1095
-        y: 809
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9c295d055106073c0800000000000000
-      internalID: -4363882394255256887
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_55
-      rect:
-        serializedVersion: 2
-        x: 667
-        y: 789
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: edf648a26536411a0800000000000000
-      internalID: -6839732712337281058
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_56
-      rect:
-        serializedVersion: 2
-        x: 985
-        y: 787
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d029fc824628f7cf0800000000000000
-      internalID: -252339687416425971
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_57
-      rect:
-        serializedVersion: 2
-        x: 1293
-        y: 775
-        width: 17
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2e08085683d93ba70800000000000000
-      internalID: 8841583359005065442
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_58
-      rect:
-        serializedVersion: 2
-        x: 1402
-        y: 786
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 43c08400f2ef22da0800000000000000
-      internalID: -5970930678118216652
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_59
-      rect:
-        serializedVersion: 2
-        x: 1726
-        y: 783
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b35c6d0418d67cd90800000000000000
-      internalID: -7077567887483419333
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_60
-      rect:
-        serializedVersion: 2
-        x: 129
-        y: 780
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5aaee34de2c18c0a0800000000000000
-      internalID: -6861203044843984219
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_61
-      rect:
-        serializedVersion: 2
-        x: 984
-        y: 777
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fdfb7fa28bccc3190800000000000000
-      internalID: -7981279348240433185
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_62
-      rect:
-        serializedVersion: 2
-        x: 765
-        y: 757
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 41c91c16e29ff0f50800000000000000
-      internalID: 6849967535857703956
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_63
-      rect:
-        serializedVersion: 2
-        x: 1089
-        y: 755
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5201f618829ecea50800000000000000
-      internalID: 6551867918096732197
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_64
-      rect:
-        serializedVersion: 2
-        x: 1310
-        y: 754
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2ad1787a786a55cb0800000000000000
-      internalID: -4875807919997248094
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_65
-      rect:
-        serializedVersion: 2
-        x: 1418
-        y: 743
-        width: 17
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 338636193754878e0800000000000000
-      internalID: -1695528897042225101
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_66
-      rect:
-        serializedVersion: 2
-        x: 1627
-        y: 751
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 302187793f6089d70800000000000000
-      internalID: 9049991094489059843
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_67
-      rect:
-        serializedVersion: 2
-        x: 26
-        y: 748
-        width: 13
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d2aaa2371944523d0800000000000000
-      internalID: -3232101766075340243
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_68
-      rect:
-        serializedVersion: 2
-        x: 1095
-        y: 745
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 9c2acfa1bbfd30de0800000000000000
-      internalID: -1368003867085856055
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_69
-      rect:
-        serializedVersion: 2
-        x: 667
-        y: 725
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fc8bbfa92d532cc70800000000000000
-      internalID: 8989806984844523727
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_70
-      rect:
-        serializedVersion: 2
-        x: 985
-        y: 723
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cf3ad643df1d9d6a0800000000000000
-      internalID: -6423872508030770180
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_71
-      rect:
-        serializedVersion: 2
-        x: 1293
-        y: 719
-        width: 17
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6f3c7134c648a6610800000000000000
-      internalID: 1615249016882709494
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_72
-      rect:
-        serializedVersion: 2
-        x: 1402
-        y: 722
-        width: 16
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 90aae12d587b681f0800000000000000
-      internalID: -1042944478305932791
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_73
-      rect:
-        serializedVersion: 2
-        x: 1726
-        y: 719
-        width: 15
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e7cf0d375089a19b0800000000000000
-      internalID: -5108603678113072002
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_74
       rect:
         serializedVersion: 2
-        x: 31
-        y: 561
-        width: 258
-        height: 144
+        x: 32
+        y: 562
+        width: 256
+        height: 142
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2249,81 +797,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_75
-      rect:
-        serializedVersion: 2
-        x: 93
-        y: 678
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8427e98037972a140800000000000000
-      internalID: 4729476093665243720
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_76
-      rect:
-        serializedVersion: 2
-        x: 157
-        y: 678
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: af67febff6d490ee0800000000000000
-      internalID: -1294418274528823558
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_77
-      rect:
-        serializedVersion: 2
-        x: 221
-        y: 678
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: de4a09ca827ecb5b0800000000000000
-      internalID: -5351148095343123219
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_78
       rect:
         serializedVersion: 2
-        x: 351
-        y: 559
-        width: 258
-        height: 148
+        x: 352
+        y: 560
+        width: 256
+        height: 146
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -2337,1247 +819,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_79
-      rect:
-        serializedVersion: 2
-        x: 671
-        y: 568
-        width: 258
-        height: 120
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a63f9c1609ddf8ba0800000000000000
-      internalID: -6084400959368596630
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_80
-      rect:
-        serializedVersion: 2
-        x: 673
-        y: 674
-        width: 26
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2a542cdcc3f34c9d0800000000000000
-      internalID: -2755007541661252190
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_81
-      rect:
-        serializedVersion: 2
-        x: 737
-        y: 674
-        width: 26
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 152e03d3843285c00800000000000000
-      internalID: 889499719576904273
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_82
-      rect:
-        serializedVersion: 2
-        x: 801
-        y: 674
-        width: 26
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b4b0be647aa9b70a0800000000000000
-      internalID: -6882737562265646261
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_83
-      rect:
-        serializedVersion: 2
-        x: 865
-        y: 674
-        width: 26
-        height: 24
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 86f91acb960ce43f0800000000000000
-      internalID: -914582113940824216
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_84
-      rect:
-        serializedVersion: 2
-        x: 994
-        y: 678
-        width: 27
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f994aaddf2dc53500800000000000000
-      internalID: 375431749421386143
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_85
-      rect:
-        serializedVersion: 2
-        x: 1025
-        y: 684
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fb8ee7ae0063f1740800000000000000
-      internalID: 5124874278532999359
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_86
-      rect:
-        serializedVersion: 2
-        x: 1058
-        y: 678
-        width: 27
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7ba3203181963bd60800000000000000
-      internalID: 7904777323084397239
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_87
-      rect:
-        serializedVersion: 2
-        x: 1089
-        y: 684
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b770bf45264d09b70800000000000000
-      internalID: 8903849982109091707
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_88
-      rect:
-        serializedVersion: 2
-        x: 1122
-        y: 678
-        width: 27
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4803c5c10829605e0800000000000000
-      internalID: -1943705110234517372
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_89
-      rect:
-        serializedVersion: 2
-        x: 1153
-        y: 684
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: aef3e094d019bec10800000000000000
-      internalID: 2083918738835259370
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_90
-      rect:
-        serializedVersion: 2
-        x: 1186
-        y: 678
-        width: 27
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a16b14d7c35dfa530800000000000000
-      internalID: 3868545060710757914
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_91
-      rect:
-        serializedVersion: 2
-        x: 1217
-        y: 684
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e8f71f9efcea310f0800000000000000
-      internalID: -1147381272042963058
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_92
-      rect:
-        serializedVersion: 2
-        x: 1319
-        y: 687
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c2d38afb54de40600800000000000000
-      internalID: 433732347958410540
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_93
-      rect:
-        serializedVersion: 2
-        x: 1365
-        y: 671
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 74af971095d972420800000000000000
-      internalID: 2605223915059542599
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_94
-      rect:
-        serializedVersion: 2
-        x: 1383
-        y: 687
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b8c57c5bdd7542860800000000000000
-      internalID: 7504219488855219339
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_95
-      rect:
-        serializedVersion: 2
-        x: 1429
-        y: 671
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 87fdd5189a663d4b0800000000000000
-      internalID: -5416873048590655624
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_96
-      rect:
-        serializedVersion: 2
-        x: 1447
-        y: 687
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bcf013ef1309300f0800000000000000
-      internalID: -1151918535284289589
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_97
-      rect:
-        serializedVersion: 2
-        x: 1493
-        y: 671
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3f822678d156a6390800000000000000
-      internalID: -7824330225103001357
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_98
-      rect:
-        serializedVersion: 2
-        x: 1511
-        y: 687
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b30cfe2fd234d20f0800000000000000
-      internalID: -1140181266026479557
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_99
-      rect:
-        serializedVersion: 2
-        x: 1557
-        y: 671
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 600a53398592fd840800000000000000
-      internalID: 5250961150940913670
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_100
-      rect:
-        serializedVersion: 2
-        x: 1690
-        y: 675
-        width: 8
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 473135269492479a0800000000000000
-      internalID: -6236314188842331276
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_101
-      rect:
-        serializedVersion: 2
-        x: 1754
-        y: 675
-        width: 8
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c010386d9c1383430800000000000000
-      internalID: 3762812231625146636
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_102
-      rect:
-        serializedVersion: 2
-        x: 1788
-        y: 675
-        width: 38
-        height: 28
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4ac669d5d314b0980800000000000000
-      internalID: -8571685733950657372
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_103
-      rect:
-        serializedVersion: 2
-        x: 1852
-        y: 675
-        width: 37
-        height: 28
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: edf7f4795da625760800000000000000
-      internalID: 7445130599595999198
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_104
-      rect:
-        serializedVersion: 2
-        x: 991
-        y: 568
-        width: 258
-        height: 110
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 04d66cee1e719d5a0800000000000000
-      internalID: -6496134728364167872
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_105
-      rect:
-        serializedVersion: 2
-        x: 1311
-        y: 593
-        width: 258
-        height: 80
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7760e0fc11760e5c0800000000000000
-      internalID: -4188234327268653449
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_106
-      rect:
-        serializedVersion: 2
-        x: 1316
-        y: 562
-        width: 38
-        height: 33
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: eb1c632787c13dbd0800000000000000
-      internalID: -2606708455679540802
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_107
-      rect:
-        serializedVersion: 2
-        x: 1397
-        y: 579
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e42d75c4f6c253a20800000000000000
-      internalID: 3041385979892453966
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_108
-      rect:
-        serializedVersion: 2
-        x: 1461
-        y: 579
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 29df4301d9f786650800000000000000
-      internalID: 6226366797398211986
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_109
-      rect:
-        serializedVersion: 2
-        x: 1525
-        y: 579
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e29f60f747b2ad9b0800000000000000
-      internalID: -5054679852422596306
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_110
-      rect:
-        serializedVersion: 2
-        x: 1631
-        y: 563
-        width: 258
-        height: 112
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4b5d7be9e3d7cadd0800000000000000
-      internalID: -2473464387428952652
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_111
-      rect:
-        serializedVersion: 2
-        x: 61
-        y: 575
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 91dcec1849ad7b4a0800000000000000
-      internalID: -6577548399383491303
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_112
-      rect:
-        serializedVersion: 2
-        x: 125
-        y: 575
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1e43c4031abb1e060800000000000000
-      internalID: 6981067198375408865
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_113
-      rect:
-        serializedVersion: 2
-        x: 189
-        y: 575
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0e48e1ef08c7d2430800000000000000
-      internalID: 3759798157385303264
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_114
-      rect:
-        serializedVersion: 2
-        x: 253
-        y: 575
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ea8e3b5b96b11f7c0800000000000000
-      internalID: -4039417249940641618
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_115
-      rect:
-        serializedVersion: 2
-        x: 722
-        y: 576
-        width: 18
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0d0c379b18c11b8c0800000000000000
-      internalID: -3985372851758448432
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_116
-      rect:
-        serializedVersion: 2
-        x: 786
-        y: 576
-        width: 18
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 085805bd66c5afe30800000000000000
-      internalID: 4538041171365102976
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_117
-      rect:
-        serializedVersion: 2
-        x: 850
-        y: 576
-        width: 18
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 770c05b1bd94b9b70800000000000000
-      internalID: 8906793893460230263
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_118
-      rect:
-        serializedVersion: 2
-        x: 914
-        y: 576
-        width: 9
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d7fdf1e12859900e0800000000000000
-      internalID: -2303145348339605635
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_119
-      rect:
-        serializedVersion: 2
-        x: 993
-        y: 573
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e41a63a0f11de0520800000000000000
-      internalID: 2670301560322826574
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_120
-      rect:
-        serializedVersion: 2
-        x: 1045
-        y: 574
-        width: 8
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7c2d49670b270d5a0800000000000000
-      internalID: -6498568160066350393
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_121
-      rect:
-        serializedVersion: 2
-        x: 1057
-        y: 573
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cb2a94922722b6730800000000000000
-      internalID: 3993323368308384444
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_122
-      rect:
-        serializedVersion: 2
-        x: 1109
-        y: 574
-        width: 8
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ceefbbd5733a23a70800000000000000
-      internalID: 8805279679653871340
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_123
-      rect:
-        serializedVersion: 2
-        x: 1121
-        y: 573
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f12a24665df5394a0800000000000000
-      internalID: -6587816459764588001
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_124
-      rect:
-        serializedVersion: 2
-        x: 1173
-        y: 574
-        width: 8
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 471d10b3cd10b1ce0800000000000000
-      internalID: -1433550010992963212
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_125
-      rect:
-        serializedVersion: 2
-        x: 1185
-        y: 573
-        width: 6
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0b608d2b516b17b90800000000000000
-      internalID: -7245810121151347024
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_126
-      rect:
-        serializedVersion: 2
-        x: 1237
-        y: 574
-        width: 8
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c525db75df8879d40800000000000000
-      internalID: 5591088084083888732
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_127
-      rect:
-        serializedVersion: 2
-        x: 1368
-        y: 565
-        width: 17
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4896035782c0caa20800000000000000
-      internalID: 3074846013491538308
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_128
-      rect:
-        serializedVersion: 2
-        x: 1415
-        y: 562
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6a06011c17dd0bc00800000000000000
-      internalID: 914474204996329638
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_129
-      rect:
-        serializedVersion: 2
-        x: 1479
-        y: 562
-        width: 34
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: de85f15fba43aa180800000000000000
-      internalID: -9103405783619512083
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_130
-      rect:
-        serializedVersion: 2
-        x: 1543
-        y: 562
-        width: 26
-        height: 17
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5bc756f8e8c763fc0800000000000000
-      internalID: -3515485507383100235
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_131
-      rect:
-        serializedVersion: 2
-        x: 1658
-        y: 576
-        width: 8
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 137f9381013e76440800000000000000
-      internalID: 4929157975445731121
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_132
-      rect:
-        serializedVersion: 2
-        x: 1722
-        y: 576
-        width: 8
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 53c180c8402cdac20800000000000000
-      internalID: 3219442633424772149
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_133
-      rect:
-        serializedVersion: 2
-        x: 1786
-        y: 576
-        width: 8
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c86d94569ef584c40800000000000000
-      internalID: 5496748801237046924
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_134
-      rect:
-        serializedVersion: 2
-        x: 1850
-        y: 576
-        width: 8
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3ac580a90a2756bf0800000000000000
-      internalID: -331732963437290333
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_135
       rect:
         serializedVersion: 2
-        x: 72
-        y: 279
-        width: 233
-        height: 239
+        x: 60
+        y: 281
+        width: 244
+        height: 237
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -3591,37 +841,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_136
-      rect:
-        serializedVersion: 2
-        x: 240
-        y: 514
-        width: 9
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6fe794dfd8688ad10800000000000000
-      internalID: 2137105967585263350
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_137
       rect:
         serializedVersion: 2
-        x: 379
-        y: 276
-        width: 252
-        height: 244
+        x: 380
+        y: 277
+        width: 250
+        height: 242
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -3635,455 +863,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_138
-      rect:
-        serializedVersion: 2
-        x: 1335
-        y: 279
-        width: 266
-        height: 235
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 55971ea1a02c33ba0800000000000000
-      internalID: -6110326920755185323
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_139
-      rect:
-        serializedVersion: 2
-        x: 1519
-        y: 504
-        width: 10
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 8399e5d9a0c76fdc0800000000000000
-      internalID: -3605558066631763656
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_140
-      rect:
-        serializedVersion: 2
-        x: 1662
-        y: 279
-        width: 245
-        height: 237
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: dce17071bde2d0830800000000000000
-      internalID: 4038935959340261069
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_141
-      rect:
-        serializedVersion: 2
-        x: 1839
-        y: 509
-        width: 10
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 188ad7caeee7f0a60800000000000000
-      internalID: 7642466656232253569
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_142
-      rect:
-        serializedVersion: 2
-        x: 697
-        y: 277
-        width: 250
-        height: 232
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e448687f9882a20d0800000000000000
-      internalID: -3446897991770274738
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_143
-      rect:
-        serializedVersion: 2
-        x: 941
-        y: 437
-        width: 15
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7453e2c9c69ebef90800000000000000
-      internalID: -6923183349465991865
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_144
-      rect:
-        serializedVersion: 2
-        x: 1018
-        y: 276
-        width: 250
-        height: 230
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 54ed25980bc6062f0800000000000000
-      internalID: -981665213292814779
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_145
-      rect:
-        serializedVersion: 2
-        x: 1265
-        y: 438
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 50e871976544f8b70800000000000000
-      internalID: 8903410126524222981
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_146
-      rect:
-        serializedVersion: 2
-        x: 60
-        y: 337
-        width: 6
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5aef3905017f0db10800000000000000
-      internalID: 2004373483623284389
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_147
-      rect:
-        serializedVersion: 2
-        x: 772
-        y: 265
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 076d6494e93ec8350800000000000000
-      internalID: 6020437070861227632
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_148
-      rect:
-        serializedVersion: 2
-        x: 1097
-        y: 263
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3cb5aece081b5dba0800000000000000
-      internalID: -6064746155895792701
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_149
-      rect:
-        serializedVersion: 2
-        x: 1408
-        y: 238
-        width: 25
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 381d2f08ab55e1a50800000000000000
-      internalID: 6493721972230508931
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_150
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 248
-        width: 36
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 67d3e91a1a078a170800000000000000
-      internalID: 8189919761876794742
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_151
-      rect:
-        serializedVersion: 2
-        x: 386
-        y: 10
-        width: 252
-        height: 250
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: df69f407dbce51100800000000000000
-      internalID: 78228866926089981
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_152
-      rect:
-        serializedVersion: 2
-        x: 1343
-        y: 13
-        width: 242
-        height: 235
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f93003eac684ab660800000000000000
-      internalID: 7402308569152881567
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_153
-      rect:
-        serializedVersion: 2
-        x: 1728
-        y: 243
-        width: 35
-        height: 20
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7bc9d220a21a4aeb0800000000000000
-      internalID: -4709462108525454153
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_154
-      rect:
-        serializedVersion: 2
-        x: 50
-        y: 13
-        width: 255
-        height: 229
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 305471efdbbfea610800000000000000
-      internalID: 1634520508212397315
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_155
-      rect:
-        serializedVersion: 2
-        x: 701
-        y: 171
-        width: 15
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2f182c66bb5191c30800000000000000
-      internalID: 4330516411320533490
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_156
-      rect:
-        serializedVersion: 2
-        x: 710
-        y: 11
-        width: 250
-        height: 232
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 0e6fbb062962bc0b0800000000000000
-      internalID: -5707425692631959840
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_157
-      rect:
-        serializedVersion: 2
-        x: 1018
-        y: 172
-        width: 14
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ab03782c919c51ce0800000000000000
-      internalID: -1435019793772629830
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_158
       rect:
         serializedVersion: 2
-        x: 1029
-        y: 0
-        width: 250
-        height: 240
+        x: 1332
+        y: 171
+        width: 10
+        height: 4
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -4097,37 +885,15 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_159
-      rect:
-        serializedVersion: 2
-        x: 1331
-        y: 170
-        width: 12
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a723188a2843af510800000000000000
-      internalID: 1583635954751582842
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: HeartDemonAttack-Sheet_160
       rect:
         serializedVersion: 2
-        x: 1650
-        y: 13
-        width: 265
-        height: 229
+        x: 1651
+        y: 14
+        width: 263
+        height: 245
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -4144,12 +910,12 @@ TextureImporter:
       name: HeartDemonAttack-Sheet_161
       rect:
         serializedVersion: 2
-        x: 311
-        y: 71
-        width: 6
-        height: 8
+        x: 312
+        y: 72
+        width: 4
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -4163,23 +929,397 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: HeartDemonAttack-Sheet_162
+      name: HeartDemonAttack-Sheet_3
       rect:
         serializedVersion: 2
-        x: 876
-        y: 0
-        width: 9
-        height: 5
+        x: 966
+        y: 997
+        width: 130
+        height: 25
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3efee99578b5d43b0800000000000000
+      spriteID: e26b3a9519b48ab4bbe8f2e7a331a852
+      internalID: -6080627310082959639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_4
+      rect:
+        serializedVersion: 2
+        x: 1285
+        y: 994
+        width: 127
+        height: 30
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f08981061f3dfc540a5e853ce4da4679
+      internalID: -2497328976501709761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_21
+      rect:
+        serializedVersion: 2
+        x: 1611
+        y: 719
+        width: 138
+        height: 257
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e27380f857982674080d944a41cfe02e
+      internalID: 1039093473648892576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_99
+      rect:
+        serializedVersion: 2
+        x: 672
+        y: 569
+        width: 256
+        height: 118
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 57b16b8f5eae4f44f8d774ab8b0dcc2e
+      internalID: 5250961150940913670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_100
+      rect:
+        serializedVersion: 2
+        x: 992
+        y: 569
+        width: 256
+        height: 128
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 66d81f6d35853934cbc60d3498e8a462
+      internalID: -6236314188842331276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_101
+      rect:
+        serializedVersion: 2
+        x: 1312
+        y: 569
+        width: 256
+        height: 131
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 96c6e26d2af3ca74db733fcc75913d54
+      internalID: 3762812231625146636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_106
+      rect:
+        serializedVersion: 2
+        x: 1632
+        y: 564
+        width: 256
+        height: 137
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f7bb260f70050941868fd49304c0a0a
+      internalID: -2606708455679540802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_139
+      rect:
+        serializedVersion: 2
+        x: 1663
+        y: 280
+        width: 243
+        height: 242
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fd0de216afae28e4b9f8ae40d813d136
+      internalID: -3605558066631763656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_141
+      rect:
+        serializedVersion: 2
+        x: 698
+        y: 278
+        width: 248
+        height: 230
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7204c7be481294a4389a7db52128f053
+      internalID: 7642466656232253569
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_143
+      rect:
+        serializedVersion: 2
+        x: 1019
+        y: 277
+        width: 258
+        height: 228
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8234219a5f74c964285144f9f339c087
+      internalID: -6923183349465991865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_145
+      rect:
+        serializedVersion: 2
+        x: 1336
+        y: 280
+        width: 264
+        height: 239
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7507cafbeae2f534f8e2f13dc9324dde
+      internalID: 8903410126524222981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_150
+      rect:
+        serializedVersion: 2
+        x: 387
+        y: 11
+        width: 250
+        height: 248
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e3906e7bc421e7a4d92ca645c6b1b50d
+      internalID: 8189919761876794742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_153
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 14
+        width: 253
+        height: 227
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: add378be33d27614ba1baf1a309f1ff8
+      internalID: -4709462108525454153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_155
+      rect:
+        serializedVersion: 2
+        x: 703
+        y: 12
+        width: 256
+        height: 230
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0283c4c506908d347b60f418e4a060ab
+      internalID: 4330516411320533490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_157
+      rect:
+        serializedVersion: 2
+        x: 1020
+        y: 0
+        width: 258
+        height: 239
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfaeefc048cca0f428edd54e6e044882
+      internalID: -1435019793772629830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_159
+      rect:
+        serializedVersion: 2
+        x: 1344
+        y: 14
+        width: 240
+        height: 253
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cb9d7b88038c7fd4ba2611abe319a633
+      internalID: 1583635954751582842
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_162
+      rect:
+        serializedVersion: 2
+        x: 877
+        y: 0
+        width: 7
+        height: 4
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ee9383bf1cf2bc749a798c1919a58363
       internalID: -5526660530831429661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: HeartDemonAttack-Sheet_5
+      rect:
+        serializedVersion: 2
+        x: 1607
+        y: 998
+        width: 118
+        height: 22
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26da91fbac2362b4c8e09dc6190647af
+      internalID: 8579683603145566616
       vertices: []
       indices: 
       edges: []
@@ -4188,7 +1328,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 808eb64452511e147aea28058e01e57d
     internalID: 0
     vertices: []
     indices: 
