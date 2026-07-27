@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 391899769986074802}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 9.99, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -98,8 +98,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: -782446486499237492, guid: 92d704074afe97e4c98178c89c068442, type: 3}
+  m_SortingOrder: -1
+  m_Sprite: {fileID: -495100170738103156, guid: 0ef67da231c80c048aab52ca66dc1fff, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -124,7 +124,7 @@ GameObject:
   - component: {fileID: 4308034132097430531}
   - component: {fileID: 4785242952130751146}
   - component: {fileID: 6120374570562086116}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: HeartOfTheNightBoss
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -145,6 +145,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3935555876167092764}
+  - {fileID: 1430519826559707652}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8112553931219106013
@@ -236,7 +237,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.051324844, y: 0.9270029}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -246,7 +247,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 2.6218543, y: 2.923482}
   m_EdgeRadius: 0
 --- !u!50 &4308034132097430531
 Rigidbody2D:
@@ -289,12 +290,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: 50eb02617c982c842b432f4d1db55c62, type: 2}
   player: {fileID: 0}
-  firePoint: {fileID: 0}
+  firePoint: {fileID: 1430519826559707652}
   summonPoints: []
   debugLogs: 1
   showStateColor: 1
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  enrageColor: {r: 1, g: 0.5, b: 0.5, a: 1}
+  normalColor: {r: 1, g: 0.9792453, b: 0.9792453, a: 1}
+  enrageColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!95 &6120374570562086116
 Animator:
   serializedVersion: 7
@@ -317,3 +318,34 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &8873590827413842907
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1430519826559707652}
+  m_Layer: 0
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1430519826559707652
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8873590827413842907}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.119, y: -1.779, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7341238605716084839}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -1,19 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using HeartOfTheNight.Common;
 using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
 {
-    /// <summary>
-    /// Boss "Heart Of The Night".
-    /// - Dung yen giua tran cua can phong.
-    /// - Duoi nua mau (enrage) thi tan cong nhanh hon.
-    /// State 1: Na dan ve phia player.
-    /// State 2: Ban laze 8 huong.
-    /// State 3: Cot lua thang dung duoi chan player (cooldown ~3s), co vong tron mau quay nhanh dan canh bao truoc.
-    /// State 4: Trieu hoi Cultist / Brute Mage / Inquisitor / Eye Of The Night.
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(Collider2D))]
     public class HeartOfTheNightBoss : MonoBehaviour, IDamageable
@@ -25,9 +16,7 @@ namespace HeartOfTheNight.Enemy
 
         [Header("References")]
         [SerializeField] private Transform player;
-        [Tooltip("Diem ban dan/laze. De trong = dung tam boss.")]
         [SerializeField] private Transform firePoint;
-        [Tooltip("Cac diem dat san de trieu hoi quai. De trong = sinh quanh player tren mat dat.")]
         [SerializeField] private Transform[] summonPoints;
 
         [Header("Debug")]
@@ -35,6 +24,9 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private bool showStateColor = true;
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color enrageColor = new(1f, 0.5f, 0.5f, 1f);
+
+        private Animator anim;
+        private Attack currentAttack;
 
         private Rigidbody2D rb;
         private Collider2D col;
@@ -53,7 +45,7 @@ namespace HeartOfTheNight.Enemy
             rb = GetComponent<Rigidbody2D>();
             col = GetComponent<Collider2D>();
             sprite = GetComponentInChildren<SpriteRenderer>();
-
+            anim = GetComponentInChildren<Animator>();
             ConfigureBody();
 
             if (player == null)
@@ -61,8 +53,6 @@ namespace HeartOfTheNight.Enemy
                 var found = GameObject.FindGameObjectWithTag("Player");
                 if (found != null) player = found.transform;
             }
-
-            ValidateSetup();
         }
 
         private void OnEnable()
@@ -78,26 +68,14 @@ namespace HeartOfTheNight.Enemy
 
         private void ConfigureBody()
         {
-            // Boss dung yen giua tran -> khong roi, khong bi day.
             rb.gravityScale = 0f;
             rb.bodyType = RigidbodyType2D.Kinematic;
             rb.linearVelocity = Vector2.zero;
             rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        private void ValidateSetup()
-        {
-            if (stats == null) Debug.LogError($"[{name}] HeartOfTheNightStatsSO chua duoc gan.", this);
-            if (player == null) Debug.LogError($"[{name}] Khong tim thay Player (tag Player).", this);
-            if (stats != null && stats.bulletPrefab == null)
-                Debug.LogWarning($"[{name}] Bullet prefab chua duoc gan - State 1 (na dan) se khong ban.", this);
-            if (stats != null && stats.groundLayer.value == 0)
-                Debug.LogWarning($"[{name}] Ground Layer chua tick - cot lua se dung vi tri player thay vi mat dat.", this);
-        }
-
         private IEnumerator AttackLoop()
         {
-            // Cho mot nhip dau de moi thu init xong.
             yield return null;
 
             while (!dead && stats != null)
@@ -141,6 +119,8 @@ namespace HeartOfTheNight.Enemy
                 if (nextReadyTime.TryGetValue(a, out float t) && now < t) continue;
                 if (a == Attack.Summon && !HasSummonsConfigured()) continue;
                 if (a == Attack.Barrage && stats.bulletPrefab == null) continue;
+                if (a == Attack.EightDirLaser && stats.laserPrefab == null) continue;
+                if (a == Attack.FirePillar && stats.telegraphPrefab == null) continue;
 
                 float w = (weights != null && idx < weights.Length) ? Mathf.Max(0f, weights[idx]) : 1f;
                 if (w <= 0f) continue;
@@ -172,25 +152,30 @@ namespace HeartOfTheNight.Enemy
         private IEnumerator Execute(Attack attack)
         {
             FacePlayer();
-            if (debugLogs) Debug.Log($"[{name}] Attack: {attack} (enraged={enraged})", this);
+            currentAttack = attack;
+            anim.SetTrigger("Attack");
+            yield return null;
+        }
 
-            switch (attack)
+        public void TriggerSkillFromAnimation()
+        {
+            switch (currentAttack)
             {
                 case Attack.Barrage:
-                    yield return StartCoroutine(DoBarrage());
-                    SetCooldown(attack, stats.barrageCooldown);
+                    StartCoroutine(DoBarrage());
+                    SetCooldown(currentAttack, stats.barrageCooldown);
                     break;
                 case Attack.EightDirLaser:
-                    yield return StartCoroutine(DoEightDirLaser());
-                    SetCooldown(attack, stats.eightDirCooldown);
+                    StartCoroutine(DoEightDirLaser());
+                    SetCooldown(currentAttack, stats.eightDirCooldown);
                     break;
                 case Attack.FirePillar:
-                    yield return StartCoroutine(DoFirePillar());
-                    SetCooldown(attack, stats.pillarCooldown);
+                    StartCoroutine(DoFirePillar());
+                    SetCooldown(currentAttack, stats.pillarCooldown);
                     break;
                 case Attack.Summon:
                     DoSummon();
-                    SetCooldown(attack, stats.summonCooldown);
+                    SetCooldown(currentAttack, stats.summonCooldown);
                     break;
             }
         }
@@ -200,7 +185,6 @@ namespace HeartOfTheNight.Enemy
             nextReadyTime[attack] = Time.time + baseCooldown * SpeedMul;
         }
 
-        // ---------------- STATE 1: Na dan ----------------
         private IEnumerator DoBarrage()
         {
             int count = Mathf.Max(1, stats.barrageBulletCount);
@@ -214,26 +198,26 @@ namespace HeartOfTheNight.Enemy
                 Vector2 origin = FireOrigin;
                 Vector2 baseDir = ((Vector2)player.position - origin).normalized;
 
-                float angle = count > 1
-                    ? Mathf.Lerp(-spread, spread, i / (float)(count - 1))
-                    : 0f;
+                float angle = count > 1 ? Mathf.Lerp(-spread, spread, i / (float)(count - 1)) : 0f;
                 Vector2 dir = Rotate(baseDir, angle);
 
-                var bullet = Instantiate(stats.bulletPrefab, origin, Quaternion.identity);
-                bullet.Launch(dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
+                // Khởi tạo dạng GameObject và ép kiểu lấy Script
+                var bulletGo = Instantiate(stats.bulletPrefab, origin, Quaternion.identity);
+                if (bulletGo.TryGetComponent<HeartOfTheNightBullet>(out var bullet))
+                {
+                    bullet.Launch(dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
+                }
 
                 if (interval > 0f && i < count - 1) yield return new WaitForSeconds(interval);
             }
         }
 
-        // ---------------- STATE 2: Laze 8 huong ----------------
         private IEnumerator DoEightDirLaser()
         {
             int dirs = Mathf.Max(2, stats.laserDirections);
             int volleys = Mathf.Max(1, stats.laserVolleys);
             float warn = stats.laserWarnTime * SpeedMul;
             float fire = stats.laserFireTime;
-
             float gap = 360f / dirs;
 
             for (int v = 0; v < volleys; v++)
@@ -241,7 +225,6 @@ namespace HeartOfTheNight.Enemy
                 float baseOffset = stats.laserAngleOffset + v * stats.laserVolleyRotationStep;
                 Vector2 origin = FireOrigin;
 
-                // Xoay ca chum sao cho player nam chinh giua khe 2 tia -> luon co duong ne.
                 if (stats.laserSafeGapTowardPlayer && player != null)
                 {
                     Vector2 toPlayer = (Vector2)player.position - origin;
@@ -264,21 +247,21 @@ namespace HeartOfTheNight.Enemy
             }
         }
 
-        // ---------------- STATE 3: Cot lua duoi chan player ----------------
         private IEnumerator DoFirePillar()
         {
             if (player == null) yield break;
 
             float charge = stats.pillarChargeTime * SpeedMul;
-            // Ngung bam theo player o cuoi qua trinh charge -> player co cua so de chay ra khoi vung lua.
             float lockLead = Mathf.Clamp(stats.pillarLockLeadTime, 0f, charge * 0.9f);
             float followUntil = charge - lockLead;
-
             Vector2 spot = player.position;
-            var telegraphGo = new GameObject("HotN_Telegraph");
-            telegraphGo.transform.position = GroundUnder(spot);
-            var telegraph = telegraphGo.AddComponent<HeartOfTheNightTelegraph>();
-            telegraph.Configure(stats.telegraphRadius, charge, stats.telegraphSpinStart, stats.telegraphSpinEnd);
+
+            // Đã sửa lại việc ép kiểu và khởi tạo 1 lần
+            var telegraphGo = Instantiate(stats.telegraphPrefab, GroundUnder(spot), Quaternion.identity);
+            if (telegraphGo.TryGetComponent<HeartOfTheNightTelegraph>(out var telegraph))
+            {
+                telegraph.Configure(stats.telegraphRadius, charge, stats.telegraphSpinStart, stats.telegraphSpinEnd);
+            }
 
             float timer = 0f;
             while (timer < charge)
@@ -286,37 +269,26 @@ namespace HeartOfTheNight.Enemy
                 timer += Time.deltaTime;
                 if (telegraphGo == null) break;
 
-                // Chi bam theo player trong giai doan dau; sau followUntil thi khoa vi tri (vong tron dung yen, quay nhanh nhat).
                 if (stats.pillarFollowPlayer && player != null && timer < followUntil)
                     telegraphGo.transform.position = GroundUnder(player.position);
 
                 yield return null;
             }
 
-            Vector2 pillarBase = telegraphGo != null
-                ? (Vector2)telegraphGo.transform.position
-                : GroundUnder(spot);
-
+            Vector2 pillarBase = telegraphGo != null ? (Vector2)telegraphGo.transform.position : GroundUnder(spot);
             if (telegraphGo != null) Destroy(telegraphGo);
 
-            SpawnLaser(pillarBase, Vector2.up, stats.pillarHeight, stats.pillarWidth,
-                       stats.pillarDamage, 0f, stats.pillarFireTime, 0.1f);
-
+            SpawnLaser(pillarBase, Vector2.up, stats.pillarHeight, stats.pillarWidth, stats.pillarDamage, 0f, stats.pillarFireTime, 0.1f);
             yield return new WaitForSeconds(stats.pillarFireTime);
         }
 
-        // ---------------- STATE 4: Trieu hoi ----------------
         private void DoSummon()
         {
             PruneSummons();
             if (stats.summons == null) return;
 
             int slots = stats.maxActiveSummons - activeSummons.Count;
-            if (slots <= 0)
-            {
-                if (debugLogs) Debug.Log($"[{name}] Summon bo qua - da dat toi da ({stats.maxActiveSummons}).", this);
-                return;
-            }
+            if (slots <= 0) return;
 
             int pointIndex = 0;
             foreach (var entry in stats.summons)
@@ -326,7 +298,6 @@ namespace HeartOfTheNight.Enemy
                 for (int c = 0; c < Mathf.Max(1, entry.count); c++)
                 {
                     if (slots <= 0) return;
-
                     Vector3 pos = NextSummonPosition(ref pointIndex);
                     var go = Instantiate(entry.prefab, pos, Quaternion.identity);
                     activeSummons.Add(go);
@@ -358,19 +329,22 @@ namespace HeartOfTheNight.Enemy
                 if (activeSummons[i] == null) activeSummons.RemoveAt(i);
         }
 
-        // ---------------- Helpers ----------------
-        private void SpawnLaser(Vector2 origin, Vector2 dir, float length, float width,
-                                int damage, float warn, float fire, float tick = 0.12f)
+        private void SpawnLaser(Vector2 origin, Vector2 dir, float length, float width, int damage, float warn, float fire, float tick = 0.12f)
         {
-            var go = new GameObject("HotN_Laser");
-            var laser = go.AddComponent<HeartOfTheNightLaser>();
-            laser.Configure(origin, dir, length, width, damage, warn, fire, tick);
+            float angleZ = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            Quaternion rot = Quaternion.Euler(0, 0, angleZ - 90f);
+
+            var laserGo = Instantiate(stats.laserPrefab, origin, rot);
+
+            if (laserGo.TryGetComponent<HeartOfTheNightLaser>(out var laser))
+            {
+                laser.Configure(origin, dir, length, width, damage, warn, fire, tick);
+            }
         }
 
         private Vector2 GroundUnder(Vector2 from)
         {
             if (stats.groundLayer.value == 0) return from;
-
             Vector2 rayStart = from + Vector2.up * 0.5f;
             RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, stats.groundProbeDistance, stats.groundLayer);
             return hit.collider != null ? hit.point : from;
@@ -399,7 +373,6 @@ namespace HeartOfTheNight.Enemy
             {
                 enraged = true;
                 ApplyEnrageVisual();
-                if (debugLogs) Debug.Log($"[{name}] ENRAGE! Tan cong nhanh hon.", this);
             }
         }
 
@@ -420,28 +393,13 @@ namespace HeartOfTheNight.Enemy
             {
                 dead = true;
                 StopAllCoroutines();
-                Destroy(gameObject);
+                anim.SetTrigger("Die");
             }
         }
 
-        private void OnDrawGizmosSelected()
+        public void DestroyBoss()
         {
-            if (stats != null && stats.detectRange > 0f)
-            {
-                Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(transform.position, stats.detectRange);
-            }
-
-            if (summonPoints != null)
-            {
-                Gizmos.color = Color.magenta;
-                foreach (var p in summonPoints)
-                {
-                    if (p == null) continue;
-                    Gizmos.DrawWireSphere(p.position, 0.4f);
-                    Gizmos.DrawLine(transform.position, p.position);
-                }
-            }
+            Destroy(gameObject);
         }
     }
 }

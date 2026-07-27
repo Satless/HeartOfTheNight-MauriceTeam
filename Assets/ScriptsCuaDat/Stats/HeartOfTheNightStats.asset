@@ -16,33 +16,35 @@ MonoBehaviour:
   enrageHealthFraction: 0.5
   enrageSpeedMultiplier: 0.6
   detectRange: 0
-  timeBetweenAttacks: 1.25
+  timeBetweenAttacks: 4
   attackWeights:
   - 1
   - 1
   - 1
   - 0.6
-  bulletPrefab: {fileID: 4327832435691129050, guid: 0360d68402de09a46903e6a722853256, type: 3}
+  bulletPrefab: {fileID: 8107031208782475583, guid: 0360d68402de09a46903e6a722853256, type: 3}
   barrageBulletCount: 6
-  barrageBetweenShots: 0.18
+  barrageBetweenShots: 0.5
   barrageSpreadAngle: 18
-  bulletSpeed: 11
+  bulletSpeed: 5
   bulletDamage: 12
   bulletLifetime: 5
   barrageCooldown: 3
+  laserPrefab: {fileID: 2657676262953193284, guid: 91ef91da58c3d4540b5c9c4788a95322, type: 3}
+  telegraphPrefab: {fileID: 3524000206605549690, guid: 9e6dc159506f5de4ab8e31ec15b58477, type: 3}
   laserDirections: 8
   laserVolleys: 1
   laserVolleyRotationStep: 22.5
   laserAngleOffset: 0
   laserSafeGapTowardPlayer: 1
-  laserWarnTime: 0.9
+  laserWarnTime: 1.5
   laserFireTime: 0.35
   laserLength: 30
   laserWidth: 0.35
   laserDamage: 16
   eightDirCooldown: 5
   pillarCooldown: 3
-  pillarChargeTime: 1.4
+  pillarChargeTime: 2.5
   pillarFollowPlayer: 1
   pillarLockLeadTime: 0.45
   pillarFireTime: 0.6
@@ -52,13 +54,7 @@ MonoBehaviour:
   telegraphRadius: 1.1
   telegraphSpinStart: 120
   telegraphSpinEnd: 1440
-  summons:
-  - prefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
-    count: 2
-  - prefab: {fileID: 3607069823588825633, guid: 21200947b478ee14382a41f4734f3bd1, type: 3}
-    count: 1
-  - prefab: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
-    count: 1
+  summons: []
   maxActiveSummons: 6
   summonScatterRadius: 4
   summonCooldown: 12
