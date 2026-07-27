@@ -390,11 +390,22 @@ public class PlayerMovement : MonoBehaviour
 		if (shouldSlide && CurrentState != PlayerState.Sliding)
 			TransitionToState(PlayerState.Sliding);
 		else if (!shouldSlide && CurrentState == PlayerState.Sliding)
-		// NẾU shouldSlide = true (được phép trượt) MÀ lại bị rớt xuống dòng này (do nhân vật đang trượt sẵn trên tường), thì lệnh else if này sẽ tự động bị bỏ qua (kết thúc hàm) vì nó yêu cầu shouldSlide = false (!shouldSlide).
-    		if (LastOnGroundTime > 0)
-        		TransitionToState(PlayerState.Grounded);
-    		else
-        		TransitionToState(PlayerState.Falling);
+		{
+			// NẾU shouldSlide = true (được phép trượt) MÀ lại bị rớt xuống dòng này (do nhân vật đang trượt sẵn trên tường), thì lệnh else if này sẽ tự động bị bỏ qua (kết thúc hàm) vì nó yêu cầu shouldSlide = false (!shouldSlide).
+			
+			// Xử lý chống giật mép tường (Ledge Jitter Fix):
+			// Nếu mất slide do phần hông/chân đã vượt qua mép tường, và nhân vật đang trèo lên
+			if (!IsLowerHalfTouchingWall() && RB.linearVelocity.y > 0)
+			{
+				// Trợ lực nảy nhẹ lên trên để dứt điểm quá trình trèo, tránh rơi lại vào tường gây giật
+				RB.linearVelocity = new Vector2(RB.linearVelocity.x, Data.wallClimbSpeed);
+			}
+
+			if (LastOnGroundTime > 0)
+				TransitionToState(PlayerState.Grounded);
+			else
+				TransitionToState(PlayerState.Falling);
+		}
 	}
 
 	/// <summary>
@@ -866,8 +877,21 @@ public class PlayerMovement : MonoBehaviour
 		return _dashesLeft > 0;
 	}
 
+	private bool IsLowerHalfTouchingWall()
+	{
+		// Tìm toạ độ Y của phần hông/chân (nằm giữa wallCheckPoint và dưới cùng chân)
+		float bottomY = GetPlayerBottomY();
+		float waistY = (_frontWallCheckPoint.position.y + bottomY) / 2f;
+		
+		Vector2 frontWaistPos = new Vector2(_frontWallCheckPoint.position.x, waistY);
+		Vector2 backWaistPos = new Vector2(_backWallCheckPoint.position.x, waistY);
+		
+		// Trả về true nếu nửa DƯỚI của nhân vật vẫn đang chạm tường ở một trong hai bên
+		return IsSolidWall(frontWaistPos, _wallCheckSize) || IsSolidWall(backWaistPos, _wallCheckSize);
+	}
+
 	public bool CanSlide() =>
-		LastOnWallTime > 0 && !IsJumping && !IsWallJumping && !IsDashing && LastOnGroundTime <= 0;
+		LastOnWallTime > 0 && !IsJumping && !IsWallJumping && !IsDashing && LastOnGroundTime <= 0 && IsLowerHalfTouchingWall();
     #endregion
 
 	// -------------------------------------------------------------------------
