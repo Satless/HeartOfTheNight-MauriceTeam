@@ -3,15 +3,16 @@
 public class RoomDoor : MonoBehaviour
 {
     [SerializeField] private Animator anim;
-
-    [Tooltip("Collider vật lý chắn không cho đi qua khi đóng")]
     [SerializeField] private Collider2D blockerCollider;
-
-    [Tooltip("Collider trigger để chuyển phòng khi đi vào (chỉ bật khi cửa mở)")]
     [SerializeField] private Collider2D transitionTrigger;
+
+    private bool isOpen = false;
 
     public void Open()
     {
+        if (isOpen) return; // Chặn chạy lại animation nếu đã mở
+        isOpen = true;
+
         anim.SetTrigger("Open");
         if (blockerCollider != null) blockerCollider.enabled = false;
         if (transitionTrigger != null) transitionTrigger.enabled = true;
@@ -19,6 +20,9 @@ public class RoomDoor : MonoBehaviour
 
     public void Close()
     {
+        if (!isOpen) return; // Chặn chạy lại animation nếu đã đóng
+        isOpen = false;
+
         anim.SetTrigger("Close");
         if (blockerCollider != null) blockerCollider.enabled = true;
         if (transitionTrigger != null) transitionTrigger.enabled = false;
