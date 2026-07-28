@@ -126,7 +126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTag: Player
   activateOnce: 1
-  spawnVfxPrefab: {fileID: 7051262803067274898, guid: 7f405a30c8ef2694c82e5c2845189070, type: 3}
+  spawnVfxPrefab: {fileID: 4328365533006917027, guid: 7f405a30c8ef2694c82e5c2845189070, type: 3}
   waves:
   - waveName: Dot 1
     enemies:
@@ -135,6 +135,7 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 0}
       spawnPoint: {fileID: 6300921235717897511}
     spawnInterval: 0
+  spawnFreezeDuration: 1.5
   doors: []
   closeDoorsOnStart: 1
   onRoomStarted:

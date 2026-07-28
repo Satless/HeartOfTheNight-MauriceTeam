@@ -1,3 +1,10 @@
 23/7/2026:
-Thêm layer Enemy để giúp quái di chuyển không vướng nhau + tối ưu hiệu năng( đỡ phải quét liên tục các vật thể khác )
+-Thêm layer Enemy để giúp quái di chuyển không vướng nhau + tối ưu hiệu năng( đỡ phải quét liên tục các vật thể khác )
 -> điều kiện quái mình cũng phải cần tag Enemy và layer Enemy. Player thì tag Player
+24/7/2026:
+-Thêm layer EnemyBullet, sửa lại va chạm giữa Enemy và player
+-Thêm VFX spawn xuất hiện cùng enemies
+29/7/2026:
+-Làm lại cơ chế room manager
+-Làm Door animation tầng 3 dọc và ngang
+Cách dung room + door:
