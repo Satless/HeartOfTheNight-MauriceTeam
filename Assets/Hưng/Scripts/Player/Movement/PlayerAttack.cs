@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using DG.Tweening;
 
 
@@ -64,6 +65,8 @@ public class PlayerAttack : MonoBehaviour
     private float _lastFireTime;
     private bool _isAimingRight = true;
 
+    private InputSystem_Actions _input;
+
     // ─── OVERHEAT ────────────────────────────────────────────────────────────
 
     private bool _isFiringThisFrame; // Để biết frame này có bắn không → quyết định nguội
@@ -91,8 +94,24 @@ public class PlayerAttack : MonoBehaviour
     private void Awake()
     {
         _movement = GetComponent<PlayerMovement>();
+        
+        _input = new InputSystem_Actions();
+
+        _input.Player.Weapon1.started += ctx => EquipSlot(1);
+        _input.Player.Weapon2.started += ctx => EquipSlot(2);
+        _input.Player.Weapon3.started += ctx => EquipSlot(3);
+        
+        _input.Player.ToggleVariant.started += ctx => 
+        {
+            _useVariant2 = !_useVariant2;
+            EquipSlot(_currentSlotIndex);
+        };
+
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
     }
+
+    private void OnEnable() => _input?.Enable();
+    private void OnDisable() => _input?.Disable();
 
     private void Start()
     {
@@ -133,28 +152,11 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
-        HandleWeaponSwitching();
         HandleFacing();
 
         _isFiringThisFrame = false;
         HandleFire();
         HandleOverheatCooldown();
-    }
-
-
-    private void HandleWeaponSwitching()
-    {
-        // Đổi súng bằng phím số
-        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipSlot(1);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipSlot(2);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) EquipSlot(3);
-
-        // Đổi biến thể bằng phím Q
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            _useVariant2 = !_useVariant2;
-            EquipSlot(_currentSlotIndex); // Re-equip slot hiện tại với biến thể mới
-        }
     }
 
     private void EquipSlot(int slotNumber)
@@ -235,7 +237,8 @@ public class PlayerAttack : MonoBehaviour
 
         if (_movement.IsWallJumpLocked && _movement.Data.doTurnOnWallJump) return;
 
-        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(mousePos);
         _isAimingRight = mouseWorld.x > transform.position.x;
 
         if (_upperBodyVisual != null)
@@ -286,7 +289,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (Data != null && Data.isContinuousFire)
         {
-            if (Input.GetMouseButton(0))
+            if (_input.Player.Attack.IsPressed())
             {
                 // Bật hiệu ứng phun lửa (đã được tạo sẵn trong EquipWeapon)
                 if (_flamethrowerInstance != null && !_flamethrowerInstance.activeSelf)
@@ -349,7 +352,7 @@ public class PlayerAttack : MonoBehaviour
         }
 
         // Giữ chuột trái → bắn đạn thường theo fireRate
-        if (Input.GetMouseButton(0) && Time.time >= _lastFireTime + Data.fireRate)
+        if (_input.Player.Attack.IsPressed() && Time.time >= _lastFireTime + Data.fireRate)
         {
             TryFire();
         }

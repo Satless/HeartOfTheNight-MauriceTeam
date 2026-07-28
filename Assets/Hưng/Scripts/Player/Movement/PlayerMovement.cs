@@ -124,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
 	#endregion
 
 	#region INPUT PARAMETERS
+	private InputSystem_Actions _input;
 	private Vector2 _moveInput;
 
 	public float LastPressedJumpTime { get; private set; }
@@ -178,7 +179,29 @@ public class PlayerMovement : MonoBehaviour
 		// Cache coroutine wait — Zero GC Alloc
 		_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
 		_sleepWait = new WaitForSecondsRealtime(Data.dashSleepTime);  //Phải dùng Realtime vì timeScale = 0
+		
+		_input = new InputSystem_Actions();
+
+		_input.Player.Jump.started += ctx => 
+		{
+			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
+			{
+				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
+				_ignoredPlatform = platform;
+				TransitionToState(PlayerState.DroppingThrough);
+			}
+			else
+			{
+				OnJumpInput();
+			}
+		};
+		_input.Player.Jump.canceled += ctx => OnJumpUpInput();
+		
+		_input.Player.Dash.started += ctx => OnDashInput();
 	}
+
+	private void OnEnable() => _input.Enable();
+	private void OnDisable() => _input.Disable();
 
 	private void Start()
 	{
@@ -225,34 +248,13 @@ public class PlayerMovement : MonoBehaviour
 		LastPressedDashTime -= Time.deltaTime;
 	}
 
-	/// <summary>Đọc input và gọi callback tương ứng.</summary>
+	/// <summary>Đọc input trục di chuyển mỗi frame.</summary>
 	private void HandleInput()
 	{
-		_moveInput.x = Input.GetAxisRaw("Horizontal");
-		_moveInput.y = Input.GetAxisRaw("Vertical");
+		_moveInput = _input.Player.Move.ReadValue<Vector2>();
 
 		if (!IsDashing && _moveInput.x != 0)
 			CheckDirectionToFace(_moveInput.x > 0);
-
-		if(Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.J))
-		{
-			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
-			{
-				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
-				_ignoredPlatform = platform;
-				TransitionToState(PlayerState.DroppingThrough);
-			}
-			else
-			{
-				OnJumpInput();
-			}
-		}
-
-		if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.C) || Input.GetKeyUp(KeyCode.J))
-			OnJumpUpInput();
-
-		if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.K))
-			OnDashInput();
 	}
 
 	/// <summary>Kiểm tra va chạm ground/wall, cập nhật timer coyote.</summary>
