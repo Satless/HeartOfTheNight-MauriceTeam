@@ -97,11 +97,11 @@ public class PlayerAttack : MonoBehaviour
         
         _input = new InputSystem_Actions();
 
-        _input.Player.Weapon1.started += ctx => EquipSlot(1);
-        _input.Player.Weapon2.started += ctx => EquipSlot(2);
-        _input.Player.Weapon3.started += ctx => EquipSlot(3);
+        _input.Player.Weapon1.started += (InputAction.CallbackContext context) => EquipSlot(1);
+        _input.Player.Weapon2.started += (InputAction.CallbackContext context) => EquipSlot(2);
+        _input.Player.Weapon3.started += (InputAction.CallbackContext context) => EquipSlot(3);
         
-        _input.Player.ToggleVariant.started += ctx => 
+        _input.Player.ToggleVariant.started += (InputAction.CallbackContext context) => 
         {
             _useVariant2 = !_useVariant2;
             EquipSlot(_currentSlotIndex);
