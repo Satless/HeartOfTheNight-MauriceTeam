@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using DG.Tweening;
 
 
@@ -8,6 +9,19 @@ public class WeaponSlot
 {
     public GunWeaponData variant1;
     public GunWeaponData variant2;
+
+    [Header("Overheat")]
+    [Tooltip("Nhiệt lượng tối đa")]
+    public float maxHeat;
+    [Tooltip("Tốc độ nguội (nhiệt/giây) khi KHÔNG bắn.")]
+    public float cooldownRate;
+    [Tooltip("Mức % cần nguội để được bắn lại")]
+    [Range(0f, 0.9f)]
+    public float unlockThreshold;
+
+    // Runtime variables
+    [HideInInspector] public float currentHeat;
+    [HideInInspector] public bool isOverheated;
 }
 
 public class PlayerAttack : MonoBehaviour
@@ -51,38 +65,53 @@ public class PlayerAttack : MonoBehaviour
     private float _lastFireTime;
     private bool _isAimingRight = true;
 
+    private InputSystem_Actions _input;
+
     // ─── OVERHEAT ────────────────────────────────────────────────────────────
 
-    [Header("Overheat (Quá nhiệt) — Thanh chung cho tất cả súng")]
-    [Tooltip("Nhiệt lượng tối đa. Đạt mức này = quá nhiệt, khóa bắn.")]
-    [SerializeField] private float _maxHeat = 100f;
-    [Tooltip("Tốc độ nguội (nhiệt/giây) khi KHÔNG bắn.")]
-    [SerializeField] private float _cooldownRate = 15f;
-    [Tooltip("Khi bị quá nhiệt, phải nguội xuống dưới mức này mới được bắn lại (% của maxHeat). " +
-             "VD: 0.3 = phải nguội xuống 30%. Chống flicker bật/tắt liên tục.")]
-    [Range(0f, 0.9f)]
-    [SerializeField] private float _unlockThreshold = 0.3f;
-
-    private float _currentHeat;
-    private bool _isOverheated;
     private bool _isFiringThisFrame; // Để biết frame này có bắn không → quyết định nguội
 
+    private WeaponSlot CurrentSlot => GetSlot(_currentSlotIndex);
+
     /// <summary> UI đọc để vẽ thanh nhiệt. </summary>
-    public float CurrentHeat => _currentHeat;
-    public float MaxHeat => _maxHeat;
-    public bool IsOverheated => _isOverheated;
+    public float CurrentHeat => CurrentSlot != null ? CurrentSlot.currentHeat : 0f;
+    public float MaxHeat => CurrentSlot != null ? CurrentSlot.maxHeat : 100f;
+    public bool IsOverheated => CurrentSlot != null && CurrentSlot.isOverheated;
 
     /// <summary> Event cho UI: (currentHeat, maxHeat). </summary>
     public event Action<float, float> OnHeatChanged;
     /// <summary> Event cho UI/SFX: true = vừa quá nhiệt, false = vừa nguội xong. </summary>
     public event Action<bool> OnOverheatStateChanged;
 
+    private WeaponSlot GetSlot(int slotIndex)
+    {
+        if (slotIndex == 1) return Weapon1;
+        if (slotIndex == 2) return Weapon2;
+        return Weapon3;
+    }
+
 
     private void Awake()
     {
         _movement = GetComponent<PlayerMovement>();
+        
+        _input = new InputSystem_Actions();
+
+        _input.Player.Weapon1.started += ctx => EquipSlot(1);
+        _input.Player.Weapon2.started += ctx => EquipSlot(2);
+        _input.Player.Weapon3.started += ctx => EquipSlot(3);
+        
+        _input.Player.ToggleVariant.started += ctx => 
+        {
+            _useVariant2 = !_useVariant2;
+            EquipSlot(_currentSlotIndex);
+        };
+
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
     }
+
+    private void OnEnable() => _input?.Enable();
+    private void OnDisable() => _input?.Disable();
 
     private void Start()
     {
@@ -123,28 +152,11 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
-        HandleWeaponSwitching();
         HandleFacing();
 
         _isFiringThisFrame = false;
         HandleFire();
         HandleOverheatCooldown();
-    }
-
-
-    private void HandleWeaponSwitching()
-    {
-        // Đổi súng bằng phím số
-        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipSlot(1);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipSlot(2);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) EquipSlot(3);
-
-        // Đổi biến thể bằng phím Q
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            _useVariant2 = !_useVariant2;
-            EquipSlot(_currentSlotIndex); // Re-equip slot hiện tại với biến thể mới
-        }
     }
 
     private void EquipSlot(int slotNumber)
@@ -161,6 +173,13 @@ public class PlayerAttack : MonoBehaviour
         if (weaponToEquip != null)
         {
             EquipWeapon(weaponToEquip, slotNumber);
+        }
+
+        // Cập nhật giao diện thanh nhiệt khi đổi súng
+        if (slot != null)
+        {
+            OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
+            OnOverheatStateChanged?.Invoke(slot.isOverheated);
         }
     }
 
@@ -218,7 +237,8 @@ public class PlayerAttack : MonoBehaviour
 
         if (_movement.IsWallJumpLocked && _movement.Data.doTurnOnWallJump) return;
 
-        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mousePos = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
+        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(mousePos);
         _isAimingRight = mouseWorld.x > transform.position.x;
 
         if (_upperBodyVisual != null)
@@ -251,7 +271,7 @@ public class PlayerAttack : MonoBehaviour
         }
 
         // Khóa bắn khi quá nhiệt (tắt súng lửa nếu đang bắn)
-        if (_isOverheated)
+        if (IsOverheated)
         {
             if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
             {
@@ -269,7 +289,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (Data != null && Data.isContinuousFire)
         {
-            if (Input.GetMouseButton(0))
+            if (_input.Player.Attack.IsPressed())
             {
                 // Bật hiệu ứng phun lửa (đã được tạo sẵn trong EquipWeapon)
                 if (_flamethrowerInstance != null && !_flamethrowerInstance.activeSelf)
@@ -332,7 +352,7 @@ public class PlayerAttack : MonoBehaviour
         }
 
         // Giữ chuột trái → bắn đạn thường theo fireRate
-        if (Input.GetMouseButton(0) && Time.time >= _lastFireTime + Data.fireRate)
+        if (_input.Player.Attack.IsPressed() && Time.time >= _lastFireTime + Data.fireRate)
         {
             TryFire();
         }
@@ -441,37 +461,56 @@ public class PlayerAttack : MonoBehaviour
 
     private void AddHeat(float amount)
     {
+        WeaponSlot slot = CurrentSlot;
+        if (slot == null) return;
+
         _isFiringThisFrame = true;
-        _currentHeat += amount;
-        _currentHeat = Mathf.Min(_currentHeat, _maxHeat);
-        OnHeatChanged?.Invoke(_currentHeat, _maxHeat);
+        slot.currentHeat += amount;
+        slot.currentHeat = Mathf.Min(slot.currentHeat, slot.maxHeat);
+        OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
 
-        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: +{amount:F2} nhiệt → {_currentHeat:F1}/{_maxHeat}");
+        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: +{amount:F2} nhiệt → {slot.currentHeat:F1}/{slot.maxHeat}");
 
-        if (!_isOverheated && _currentHeat >= _maxHeat)
+        if (!slot.isOverheated && slot.currentHeat >= slot.maxHeat)
         {
-            _isOverheated = true;
+            slot.isOverheated = true;
             OnOverheatStateChanged?.Invoke(true);
-            Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({_currentHeat}/{_maxHeat}). Khóa bắn cho đến khi nguội xuống {_unlockThreshold * 100}%.");
+            Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
         }
     }
 
     private void HandleOverheatCooldown()
     {
-        // Chỉ nguội khi frame này KHÔNG bắn
-        if (!_isFiringThisFrame && _currentHeat > 0)
+        UpdateSlotCooldown(Weapon1, _currentSlotIndex == 1 && _isFiringThisFrame);
+        UpdateSlotCooldown(Weapon2, _currentSlotIndex == 2 && _isFiringThisFrame);
+        UpdateSlotCooldown(Weapon3, _currentSlotIndex == 3 && _isFiringThisFrame);
+    }
+
+    private void UpdateSlotCooldown(WeaponSlot slot, bool isFiringThisFrame)
+    {
+        if (slot == null) return;
+
+        // Chỉ nguội khi frame này KHÔNG bắn súng này
+        if (!isFiringThisFrame && slot.currentHeat > 0)
         {
-            _currentHeat -= _cooldownRate * Time.deltaTime;
-            _currentHeat = Mathf.Max(_currentHeat, 0f);
-            OnHeatChanged?.Invoke(_currentHeat, _maxHeat);
+            slot.currentHeat -= slot.cooldownRate * Time.deltaTime;
+            slot.currentHeat = Mathf.Max(slot.currentHeat, 0f);
+            
+            if (slot == CurrentSlot)
+            {
+                OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
+            }
         }
 
         // Mở khóa khi đã nguội đủ (hysteresis chống flicker bật/tắt)
-        if (_isOverheated && _currentHeat <= _maxHeat * _unlockThreshold)
+        if (slot.isOverheated && slot.currentHeat <= slot.maxHeat * slot.unlockThreshold)
         {
-            _isOverheated = false;
-            OnOverheatStateChanged?.Invoke(false);
-            Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {_currentHeat:F1}/{_maxHeat}. Mở khóa bắn.");
+            slot.isOverheated = false;
+            if (slot == CurrentSlot)
+            {
+                OnOverheatStateChanged?.Invoke(false);
+                Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {slot.currentHeat:F1}/{slot.maxHeat}. Mở khóa bắn.");
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ public class BulletPool : MonoBehaviour
 {
     [Header("Pool Settings")]
     [Tooltip("Số đạn tạo sẵn lúc đầu cho MỖI LOẠI súng")]
-    [SerializeField] private int _initialSizePerType = 20;
+    [SerializeField] private int _initialSizePerType;
 
     // Dictionary lưu trữ nhiều Stack đạn. Khóa (key) là tên của Prefab đạn.
     private readonly Dictionary<string, Stack<Bullet>> _pools = new Dictionary<string, Stack<Bullet>>();

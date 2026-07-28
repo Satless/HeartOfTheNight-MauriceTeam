@@ -7,10 +7,10 @@ using UnityEngine;
 public class PlayerMagnet : MonoBehaviour
 {
     [Header("Magnet Settings")]
-    [Tooltip("Bán kính từ trường hút vật phẩm (máu, tiền).")]
+    [Tooltip("Bán kính hút")]
     public float magnetRadius;
     
-    [Tooltip("Layer của các vật phẩm có thể hút được. Nhớ tạo Layer 'Item' và gán cho Máu/Tiền.")]
+    [Tooltip("Layer vật phẩm có thể hút")]
     public LayerMask itemLayer;
     
     [Tooltip("Tốc độ bay cơ bản")]

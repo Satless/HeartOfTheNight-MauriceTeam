@@ -124,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
 	#endregion
 
 	#region INPUT PARAMETERS
+	private InputSystem_Actions _input;
 	private Vector2 _moveInput;
 
 	public float LastPressedJumpTime { get; private set; }
@@ -141,10 +142,10 @@ public class PlayerMovement : MonoBehaviour
 	[Tooltip("Kích thước hộp kiểm tra dưới chân, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _groundCheckSize = new Vector2(0.49f, 0.03f);
 	[Space(5)]
-	[Tooltip("Kéo child kiểm tra tường trước mặt (bên phải)")]
-	[SerializeField] private Transform _frontWallCheckPoint;
-	[Tooltip("Kéo child kiểm tra tường sau lưng (bên trái)")]
-	[SerializeField] private Transform _backWallCheckPoint;
+	[Tooltip("Kéo child kiểm tra tường bên phải")]
+	[SerializeField] private Transform _rightWallCheckPoint;
+	[Tooltip("Kéo child kiểm tra tường bên trái")]
+	[SerializeField] private Transform _leftWallCheckPoint;
 	[Tooltip("Kích thước hộp kiểm tra tường, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
     #endregion
@@ -178,7 +179,29 @@ public class PlayerMovement : MonoBehaviour
 		// Cache coroutine wait — Zero GC Alloc
 		_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
 		_sleepWait = new WaitForSecondsRealtime(Data.dashSleepTime);  //Phải dùng Realtime vì timeScale = 0
+		
+		_input = new InputSystem_Actions();
+
+		_input.Player.Jump.started += ctx => 
+		{
+			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
+			{
+				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
+				_ignoredPlatform = platform;
+				TransitionToState(PlayerState.DroppingThrough);
+			}
+			else
+			{
+				OnJumpInput();
+			}
+		};
+		_input.Player.Jump.canceled += ctx => OnJumpUpInput();
+		
+		_input.Player.Dash.started += ctx => OnDashInput();
 	}
+
+	private void OnEnable() => _input.Enable();
+	private void OnDisable() => _input.Disable();
 
 	private void Start()
 	{
@@ -225,34 +248,13 @@ public class PlayerMovement : MonoBehaviour
 		LastPressedDashTime -= Time.deltaTime;
 	}
 
-	/// <summary>Đọc input và gọi callback tương ứng.</summary>
+	/// <summary>Đọc input trục di chuyển mỗi frame.</summary>
 	private void HandleInput()
 	{
-		_moveInput.x = Input.GetAxisRaw("Horizontal");
-		_moveInput.y = Input.GetAxisRaw("Vertical");
+		_moveInput = _input.Player.Move.ReadValue<Vector2>();
 
 		if (!IsDashing && _moveInput.x != 0)
 			CheckDirectionToFace(_moveInput.x > 0);
-
-		if(Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.J))
-		{
-			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
-			{
-				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
-				_ignoredPlatform = platform;
-				TransitionToState(PlayerState.DroppingThrough);
-			}
-			else
-			{
-				OnJumpInput();
-			}
-		}
-
-		if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.C) || Input.GetKeyUp(KeyCode.J))
-			OnJumpUpInput();
-
-		if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.K))
-			OnDashInput();
 	}
 
 	/// <summary>Kiểm tra va chạm ground/wall, cập nhật timer coyote.</summary>
@@ -273,13 +275,11 @@ public class PlayerMovement : MonoBehaviour
 		if (!_isDashAttacking)
 		{
 			// Right wall check
-			if (((IsSolidWall(_frontWallCheckPoint.position, _wallCheckSize) && IsFacingRight)
-					|| (IsSolidWall(_backWallCheckPoint.position, _wallCheckSize) && !IsFacingRight)) && !IsWallJumping)
+			if (IsSolidWall(_rightWallCheckPoint.position, _wallCheckSize) && !IsWallJumping)
 				LastOnWallRightTime = Data.coyoteTime;
 
 			// Left wall check
-			if (((IsSolidWall(_frontWallCheckPoint.position, _wallCheckSize) && !IsFacingRight)
-				|| (IsSolidWall(_backWallCheckPoint.position, _wallCheckSize) && IsFacingRight)) && !IsWallJumping)
+			if (IsSolidWall(_leftWallCheckPoint.position, _wallCheckSize) && !IsWallJumping)
 				LastOnWallLeftTime = Data.coyoteTime;
 
 			LastOnWallTime = Mathf.Max(LastOnWallLeftTime, LastOnWallRightTime);
@@ -390,11 +390,22 @@ public class PlayerMovement : MonoBehaviour
 		if (shouldSlide && CurrentState != PlayerState.Sliding)
 			TransitionToState(PlayerState.Sliding);
 		else if (!shouldSlide && CurrentState == PlayerState.Sliding)
-		// NẾU shouldSlide = true (được phép trượt) MÀ lại bị rớt xuống dòng này (do nhân vật đang trượt sẵn trên tường), thì lệnh else if này sẽ tự động bị bỏ qua (kết thúc hàm) vì nó yêu cầu shouldSlide = false (!shouldSlide).
-    		if (LastOnGroundTime > 0)
-        		TransitionToState(PlayerState.Grounded);
-    		else
-        		TransitionToState(PlayerState.Falling);
+		{
+			// NẾU shouldSlide = true (được phép trượt) MÀ lại bị rớt xuống dòng này (do nhân vật đang trượt sẵn trên tường), thì lệnh else if này sẽ tự động bị bỏ qua (kết thúc hàm) vì nó yêu cầu shouldSlide = false (!shouldSlide).
+			
+			// Xử lý chống giật mép tường (Ledge Jitter Fix):
+			// Nếu mất slide do phần hông/chân đã vượt qua mép tường, và nhân vật đang trèo lên
+			if (!IsLowerHalfTouchingWall() && RB.linearVelocity.y > 0)
+			{
+				// Trợ lực nảy nhẹ lên trên để dứt điểm quá trình trèo, tránh rơi lại vào tường gây giật
+				RB.linearVelocity = new Vector2(RB.linearVelocity.x, Data.wallClimbSpeed);
+			}
+
+			if (LastOnGroundTime > 0)
+				TransitionToState(PlayerState.Grounded);
+			else
+				TransitionToState(PlayerState.Falling);
+		}
 	}
 
 	/// <summary>
@@ -558,20 +569,6 @@ public class PlayerMovement : MonoBehaviour
 			Vector3 scale = _lowerBodyVisual.localScale; 
 			scale.x *= -1;
 			_lowerBodyVisual.localScale = scale;
-
-			// Lật vị trí các điểm check để vật lý hoạt động đúng mà không cần lật Root
-			if (_frontWallCheckPoint != null)
-			{
-				Vector3 pos = _frontWallCheckPoint.localPosition;
-				pos.x *= -1;
-				_frontWallCheckPoint.localPosition = pos;
-			}
-			if (_backWallCheckPoint != null)
-			{
-				Vector3 pos = _backWallCheckPoint.localPosition;
-				pos.x *= -1;
-				_backWallCheckPoint.localPosition = pos;
-			}
 		}
 		else
 		{
@@ -866,8 +863,21 @@ public class PlayerMovement : MonoBehaviour
 		return _dashesLeft > 0;
 	}
 
+	private bool IsLowerHalfTouchingWall()
+	{
+		// Tìm toạ độ Y của phần hông/chân (nằm giữa wallCheckPoint và dưới cùng chân)
+		float bottomY = GetPlayerBottomY();
+		float waistY = (_rightWallCheckPoint.position.y + bottomY) / 2f;
+		
+		Vector2 rightWaistPos = new Vector2(_rightWallCheckPoint.position.x, waistY);
+		Vector2 leftWaistPos = new Vector2(_leftWallCheckPoint.position.x, waistY);
+		
+		// Trả về true nếu nửa DƯỚI của nhân vật vẫn đang chạm tường ở một trong hai bên
+		return IsSolidWall(rightWaistPos, _wallCheckSize) || IsSolidWall(leftWaistPos, _wallCheckSize);
+	}
+
 	public bool CanSlide() =>
-		LastOnWallTime > 0 && !IsJumping && !IsWallJumping && !IsDashing && LastOnGroundTime <= 0;
+		LastOnWallTime > 0 && !IsJumping && !IsWallJumping && !IsDashing && LastOnGroundTime <= 0 && IsLowerHalfTouchingWall();
     #endregion
 
 	// -------------------------------------------------------------------------
@@ -878,8 +888,8 @@ public class PlayerMovement : MonoBehaviour
 		Gizmos.color = Color.green;
 		Gizmos.DrawWireCube(_groundCheckPoint.position, _groundCheckSize);
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireCube(_frontWallCheckPoint.position, _wallCheckSize);
-		Gizmos.DrawWireCube(_backWallCheckPoint.position, _wallCheckSize);
+		Gizmos.DrawWireCube(_rightWallCheckPoint.position, _wallCheckSize);
+		Gizmos.DrawWireCube(_leftWallCheckPoint.position, _wallCheckSize);
 	}
     #endregion
 }
