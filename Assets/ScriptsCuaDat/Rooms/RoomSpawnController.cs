@@ -39,7 +39,7 @@ namespace HeartOfTheNight.Rooms
         [SerializeField] private float spawnFreezeDuration = 1.5f;
 
         [Header("Door")]
-        [SerializeField] private GameObject[] doors;
+        [SerializeField] private RoomDoor[] doors;
         [SerializeField] private bool closeDoorsOnStart = true;
 
         [Header("Events")]
@@ -151,6 +151,7 @@ namespace HeartOfTheNight.Rooms
             Quaternion rot = entry.spawnPoint != null ? entry.spawnPoint.rotation : Quaternion.identity;
 
             GameObject enemy = Instantiate(entry.enemyPrefab, pos, rot);
+            enemy.SetActive(true); // Thêm dòng này
             aliveEnemies.Add(enemy);
 
             if (spawnVfxPrefab != null)
@@ -223,12 +224,19 @@ namespace HeartOfTheNight.Rooms
             }
         }
 
-        private void SetDoorsClosed(bool closed)
+        // Sửa lại logic đóng/mở toàn bộ cửa trong phòng:
+        private void SetDoorsClosed(bool isClosed)
         {
             if (doors == null) return;
             for (int i = 0; i < doors.Length; i++)
             {
-                if (doors[i] != null) doors[i].SetActive(closed);
+                if (doors[i] != null)
+                {
+                    if (isClosed)
+                        doors[i].Close();
+                    else
+                        doors[i].Open();
+                }
             }
         }
 
