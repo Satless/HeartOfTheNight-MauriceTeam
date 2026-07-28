@@ -58,6 +58,7 @@ public class PlayerAttack : MonoBehaviour
 
     // Tái dùng PlayerMovement để đọc IsWallJumpLocked
     private PlayerMovement _movement;
+    private Animator _weaponAnimator;
 
     // Hiệu ứng phun lửa (tạo sẵn 1 lần, chỉ bật/tắt, không bao giờ Destroy)
     private GameObject _flamethrowerInstance;
@@ -94,20 +95,19 @@ public class PlayerAttack : MonoBehaviour
     private void Awake()
     {
         _movement = GetComponent<PlayerMovement>();
+        if (_upperBodyVisual != null) _weaponAnimator = _upperBodyVisual.GetComponent<Animator>();
         
         _input = new InputSystem_Actions();
 
-        _input.Player.Weapon1.started += ctx => EquipSlot(1);
-        _input.Player.Weapon2.started += ctx => EquipSlot(2);
-        _input.Player.Weapon3.started += ctx => EquipSlot(3);
+        _input.Player.Weapon1.started += (InputAction.CallbackContext context) => EquipSlot(1);
+        _input.Player.Weapon2.started += (InputAction.CallbackContext context) => EquipSlot(2);
+        _input.Player.Weapon3.started += (InputAction.CallbackContext context) => EquipSlot(3);
         
-        _input.Player.ToggleVariant.started += ctx => 
+        _input.Player.ToggleVariant.started += (InputAction.CallbackContext context) => 
         {
             _useVariant2 = !_useVariant2;
             EquipSlot(_currentSlotIndex);
         };
-
-        EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
     }
 
     private void OnEnable() => _input?.Enable();
@@ -115,6 +115,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void Start()
     {
+        EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
+        
         // Khởi tạo pool với loại đạn hiện tại
         if (Data != null && Data.bulletPrefab != null)
         {
@@ -191,10 +193,9 @@ public class PlayerAttack : MonoBehaviour
         if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
         {
             _flamethrowerInstance.SetActive(false);
-            if (_upperBodyVisual != null)
+            if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
             {
-                Animator anim = _upperBodyVisual.GetComponent<Animator>();
-                if (anim != null) anim.SetBool("Fire", false);
+                _weaponAnimator.SetBool("Fire", false);
             }
         }
 
@@ -202,17 +203,12 @@ public class PlayerAttack : MonoBehaviour
         Debug.Log($"Đã chuyển sang súng {slotNumber}: {Data.name}");
 
         // Cập nhật lại hình ảnh súng
-        if (_upperBodyVisual != null && Data.weaponAnimator != null)
+        if (_weaponAnimator != null && Data.weaponAnimator != null)
         {
-            Animator anim = _upperBodyVisual.GetComponent<Animator>();
-            if (anim != null)
-            {
-                anim.runtimeAnimatorController = Data.weaponAnimator;
-                anim.speed = Data.animationSpeedMultiplier;
-            }
+            _weaponAnimator.runtimeAnimatorController = Data.weaponAnimator;
+            _weaponAnimator.speed = Data.animationSpeedMultiplier;
         }
-
-        // Tạo sẵn hiệu ứng phun lửa 1 lần duy nhất (nếu chưa có)
+        
         if (Data.isContinuousFire && Data.continuousVfxPrefab != null && _flamethrowerInstance == null)
         {
             _flamethrowerInstance = Instantiate(Data.continuousVfxPrefab);
@@ -261,10 +257,9 @@ public class PlayerAttack : MonoBehaviour
             if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf) 
             {
                 _flamethrowerInstance.SetActive(false);
-                if (_upperBodyVisual != null)
+                if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
                 {
-                    Animator anim = _upperBodyVisual.GetComponent<Animator>();
-                    if (anim != null) anim.SetBool("Fire", false);
+                    _weaponAnimator.SetBool("Fire", false);
                 }
             }
             return;
@@ -276,10 +271,9 @@ public class PlayerAttack : MonoBehaviour
             if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
             {
                 _flamethrowerInstance.SetActive(false);
-                if (_upperBodyVisual != null)
+                if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
                 {
-                    Animator anim = _upperBodyVisual.GetComponent<Animator>();
-                    if (anim != null) anim.SetBool("Fire", false);
+                    _weaponAnimator.SetBool("Fire", false);
                 }
             }
             return;
@@ -297,10 +291,9 @@ public class PlayerAttack : MonoBehaviour
                     _flamethrowerInstance.SetActive(true);
                     
                     // Dùng Bool cho Súng lửa (Liên tục)
-                    if (_upperBodyVisual != null)
+                    if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
                     {
-                        Animator anim = _upperBodyVisual.GetComponent<Animator>();
-                        if (anim != null) anim.SetBool("Fire", true);
+                        _weaponAnimator.SetBool("Fire", true);
                     }
 
                     FlamethrowerLogic logic = _flamethrowerInstance.GetComponent<FlamethrowerLogic>();
@@ -341,10 +334,9 @@ public class PlayerAttack : MonoBehaviour
                 if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
                 {
                     _flamethrowerInstance.SetActive(false);
-                    if (_upperBodyVisual != null)
+                    if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
                     {
-                        Animator anim = _upperBodyVisual.GetComponent<Animator>();
-                        if (anim != null) anim.SetBool("Fire", false);
+                        _weaponAnimator.SetBool("Fire", false);
                     }
                 }
             }
@@ -374,13 +366,9 @@ public class PlayerAttack : MonoBehaviour
         if (Data == null) return;
 
         // Kích hoạt hoạt ảnh bắn. Khi hoạt ảnh tới đúng frame, nó sẽ gọi event ExecuteShot()
-        if (_upperBodyVisual != null)
+        if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled && _weaponAnimator.runtimeAnimatorController != null)
         {
-            Animator anim = _upperBodyVisual.GetComponent<Animator>();
-            if (anim != null)
-            {
-                anim.SetTrigger("Fire");
-            }
+            _weaponAnimator.SetTrigger("Fire");
         }
     }
 

@@ -9,6 +9,7 @@
 
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -166,6 +167,7 @@ public class PlayerMovement : MonoBehaviour
 	private Collider2D[] _playerColliders;
 	private Collider2D _ignoredPlatform;
 	private Collider2D[] _overlapResults = new Collider2D[10];
+	private ContactFilter2D _groundFilter;
 	#endregion
 
 	// -------------------------------------------------------------------------
@@ -180,9 +182,13 @@ public class PlayerMovement : MonoBehaviour
 		_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
 		_sleepWait = new WaitForSecondsRealtime(Data.dashSleepTime);  //Phải dùng Realtime vì timeScale = 0
 		
+		_groundFilter.useTriggers = false;
+		_groundFilter.SetLayerMask(_groundLayer);
+		_groundFilter.useLayerMask = true;
+		
 		_input = new InputSystem_Actions();
 
-		_input.Player.Jump.started += ctx => 
+		_input.Player.Jump.started += (InputAction.CallbackContext context) => 
 		{
 			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
 			{
@@ -195,9 +201,9 @@ public class PlayerMovement : MonoBehaviour
 				OnJumpInput();
 			}
 		};
-		_input.Player.Jump.canceled += ctx => OnJumpUpInput();
+		_input.Player.Jump.canceled += (InputAction.CallbackContext context) => OnJumpUpInput();
 		
-		_input.Player.Dash.started += ctx => OnDashInput();
+		_input.Player.Dash.started += (InputAction.CallbackContext context) => OnDashInput();
 	}
 
 	private void OnEnable() => _input.Enable();
@@ -708,7 +714,7 @@ public class PlayerMovement : MonoBehaviour
 	private bool TryGetOneWayPlatformBelow(out Collider2D platform)
 	{
 		platform = null;
-		int hitCount = Physics2D.OverlapBoxNonAlloc(_groundCheckPoint.position, _groundCheckSize, 0f, _overlapResults, _groundLayer);
+		int hitCount = Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0f, _groundFilter, _overlapResults);
 		for (int i = 0; i < hitCount; i++)
 		{
 			var hit = _overlapResults[i];
@@ -724,7 +730,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private bool IsSolidGround(Vector2 position, Vector2 size)
 	{
-		int hitCount = Physics2D.OverlapBoxNonAlloc(position, size, 0f, _overlapResults, _groundLayer);
+		int hitCount = Physics2D.OverlapBox(position, size, 0f, _groundFilter, _overlapResults);
 		for (int i = 0; i < hitCount; i++)
 		{
 			var col = _overlapResults[i];
@@ -752,7 +758,7 @@ public class PlayerMovement : MonoBehaviour
 
 	private bool IsSolidWall(Vector2 position, Vector2 size)
 	{
-		int hitCount = Physics2D.OverlapBoxNonAlloc(position, size, 0f, _overlapResults, _groundLayer);
+		int hitCount = Physics2D.OverlapBox(position, size, 0f, _groundFilter, _overlapResults);
 		for (int i = 0; i < hitCount; i++)
 		{
 			var col = _overlapResults[i];
