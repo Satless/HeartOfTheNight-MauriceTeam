@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class PlayerAttack : MonoBehaviour
+public class PlayerAttack2 : MonoBehaviour
 {
     [Header("Cài đặt Đòn đánh")]
     public Transform attackPoint;

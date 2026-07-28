@@ -1,20 +1,11 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class BurningCorpse : MonoBehaviour
 {
-    [Header("Hoạt ảnh & Hitbox")]
-    public Animator anim;
-    public GameObject attackHitbox;
-
-    [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 60;
-    private int currentHealth;
-    private bool isDead = false;
-
     [Header("Tầm nhìn & Di chuyển")]
     public float detectionRangeX = 12f;
-    public float detectionRangeY = 3f;
+    public float detectionRangeY = 3f; // Để 3f cho thoải mái nhảy
     public float moveSpeed = 4f;
     public float attackRange = 2f;
 
@@ -29,6 +20,8 @@ public class BurningCorpse : MonoBehaviour
     public int burnDamagePerTick = 2;
     public int burnTicks = 3;
     public float timeBetweenTicks = 1f;
+
+    [Header("Cảm biến dập lửa")]
     public float dashSpeedThreshold = 12f;
 
     private Transform player;
@@ -42,53 +35,64 @@ public class BurningCorpse : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+<<<<<<< HEAD
+=======
         myCol = GetComponent<Collider2D>();
 
-        if (anim == null) anim = GetComponentInChildren<Animator>();
+        if (anim == null) anim = GetComponent<Animator>();
 
-        currentHealth = maxHealth;
+        if (attackHitbox != null)
+        {
+            attackHitbox.SetActive(false);
+        }
 
-        if (attackHitbox != null) attackHitbox.SetActive(false);
-
+        // Kích hoạt tính năng xuyên thấu
         SetupXuyenThau();
     }
 
     void SetupXuyenThau()
     {
-        Collider2D[] myCols = GetComponentsInChildren<Collider2D>();
+        if (myCol == null) return;
         if (player != null)
         {
-            Collider2D[] pCols = player.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-                foreach (Collider2D pC in pCols)
-                    Physics2D.IgnoreCollision(myC, pC, true);
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
         }
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemyObj in allEnemies)
         {
-            Collider2D[] enemyCols = enemyObj.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-                foreach (Collider2D eC in enemyCols)
-                    if (myC.gameObject != eC.gameObject)
-                        Physics2D.IgnoreCollision(myC, eC, true);
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
         }
+>>>>>>> main
     }
 
     void Update()
     {
-        if (player == null || isBusy || myCol == null || isDead) return;
-
+<<<<<<< HEAD
+        if (player == null || isBusy) return;
+=======
         if (anim != null && !isBusy)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
 
+        if (player == null || isBusy || myCol == null) return;
+
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
 
-        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(playerCol.bounds.min.y - myCol.bounds.min.y);
+        float myFeetY = myCol.bounds.min.y;
+        float playerFeetY = playerCol.bounds.min.y;
+>>>>>>> main
 
+        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+        float distanceY = Mathf.Abs(playerFeetY - myFeetY);
+
+        // PHÁT HIỆN THEO HÌNH CHỮ NHẬT X, Y
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
             if (distanceY > platformHeightDiff)
@@ -113,59 +117,68 @@ public class BurningCorpse : MonoBehaviour
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
                     if (Time.time >= nextAttackTime)
                     {
-                        StartCoroutine(AttackRoutine());
+                        Attack();
+                        nextAttackTime = Time.time + attackCooldown;
                     }
                 }
             }
         }
         else
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Mất dấu thì đứng im
         }
-    }
-
-    public void TakeDamage(int damage)
-    {
-        if (isDead) return;
-
-        currentHealth -= damage;
-        Debug.Log("BurningCorpse nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-
-    void Die()
-    {
-        isDead = true;
-        Debug.Log("BurningCorpse đã bị tiêu diệt!");
-
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false; // Khóa vật lý y hệt DoomBringer
-
-        gameObject.tag = "Untagged";
-        if (myCol != null) myCol.enabled = false;
-
-        DisableHitbox();
-
-        if (anim != null)
-        {
-            anim.enabled = true;
-            anim.SetTrigger("Dead");
-        }
-
-        Destroy(gameObject, 1.5f);
     }
 
     void Move()
     {
         LookAtPlayer();
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y); // Chống đẩy người chơi
     }
 
+<<<<<<< HEAD
+    IEnumerator ThucHienTeleport() 
+    { 
+        isBusy = true; 
+        rb.linearVelocity = Vector2.zero; 
+        float standBehind = (player.localScale.x > 0) ? -1f : 1f; 
+        transform.position = new Vector2(player.position.x + standBehind, player.position.y); 
+        LookAtPlayer(); 
+        yield return new WaitForSeconds(postTeleportDelay); 
+        isBusy = false; 
+    }
+
+    void LookAtPlayer() 
+    { 
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1); 
+    }
+
+    void Attack() 
+    { 
+        PlayerHealth pHealth = player.GetComponent<PlayerHealth>(); 
+        if (pHealth != null) 
+        { 
+            pHealth.TakeDamage(attackDamage); 
+            StartCoroutine(GayHieuUngChay(pHealth)); 
+        } 
+    }
+
+    IEnumerator GayHieuUngChay(PlayerHealth pHealth) 
+    { 
+        Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>(); 
+        for (int i = 0; i < burnTicks; i++) 
+        { 
+            float thoiGianDaCho = 0f; 
+            while (thoiGianDaCho < timeBetweenTicks) 
+            { 
+                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break; 
+                thoiGianDaCho += Time.deltaTime; 
+                yield return null; 
+            } 
+            if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick); 
+            else yield break; 
+        } 
+=======
     IEnumerator AttackRoutine()
     {
         isBusy = true;
@@ -175,9 +188,6 @@ public class BurningCorpse : MonoBehaviour
         if (anim != null) anim.SetTrigger("Attack");
 
         yield return new WaitForSeconds(0.8f);
-
-        if (isDead) yield break;
-
         DisableHitbox();
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
@@ -190,8 +200,6 @@ public class BurningCorpse : MonoBehaviour
 
         if (anim != null) anim.SetTrigger("Teleport");
         yield return new WaitForSeconds(0.3f);
-
-        if (isDead) yield break;
 
         float standBehind = (player.localScale.x > 0) ? -1f : 1f;
         Vector2 viTriMoi = new Vector2(player.position.x + standBehind, player.position.y + 1f);
@@ -216,7 +224,6 @@ public class BurningCorpse : MonoBehaviour
 
     public void DealDamageAndBurn(PlayerHealth pHealth)
     {
-        if (isDead) return;
         pHealth.TakeDamage(attackDamage);
         StartCoroutine(GayHieuUngChay(pHealth));
     }
@@ -245,19 +252,20 @@ public class BurningCorpse : MonoBehaviour
 
     public void EnableHitbox()
     {
-        if (attackHitbox != null && !isDead) attackHitbox.SetActive(true);
+        if (attackHitbox != null) attackHitbox.SetActive(true);
     }
 
     public void DisableHitbox()
     {
         if (attackHitbox != null) attackHitbox.SetActive(false);
+>>>>>>> main
     }
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.color = new Color(1f, 0.6f, 0f); // Cam
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
-}
+}*/

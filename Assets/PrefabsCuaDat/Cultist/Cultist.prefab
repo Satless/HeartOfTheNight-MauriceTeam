@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 4122515681924557895}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 1.36, y: 0.99, z: 0}
   m_LocalScale: {x: 0.5, y: 0.2, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44,8 +44,9 @@ GameObject:
   - component: {fileID: 3619845610052017667}
   - component: {fileID: 115430605450393557}
   - component: {fileID: 8812211374794019458}
-  - component: {fileID: 9911223344556677889}
-  m_Layer: 0
+  - component: {fileID: 9223372036854775807}
+  - component: {fileID: 5600875006232624599}
+  m_Layer: 10
   m_Name: Cultist
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -62,7 +63,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 5.6, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 1.2, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1324162438888004468}
@@ -113,8 +114,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.71800613, g: 0, b: 1, a: 1}
+  m_Sprite: {fileID: 169574263216491571, guid: f8881c37a61d66448982b79a9cca34e8, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -185,17 +186,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.013014495, y: 1.0241885}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 1.5625, y: 2.5}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.3510641, y: 2.0407677}
   m_EdgeRadius: 0
 --- !u!114 &8812211374794019458
 MonoBehaviour:
@@ -209,17 +210,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 473c0325af65ab6469827bb6997eae86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  chaseRangeOffset: 4
   stats: {fileID: 11400000, guid: 21b5dce1b69259541ad2aaa097d6e8ba, type: 2}
   player: {fileID: 0}
   firePoint: {fileID: 1324162438888004468}
   groundCheck: {fileID: 6980701853666264586}
   bulletPrefab: {fileID: 7046481047240634316, guid: 409fabc81d99b9242808d0c77819e5ba, type: 3}
+  anim: {fileID: 5600875006232624599}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   maxHealth: 30
   debugLogs: 1
---- !u!114 &9911223344556677889
+--- !u!114 &9223372036854775807
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -231,6 +234,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d0e1f2436589a0b1c2d3e4f5030102, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &5600875006232624599
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6691004467952687102}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ed0ab2624dd18af40911d80ff65578ae, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8906717375758690915
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,7 +281,7 @@ Transform:
   m_GameObject: {fileID: 8906717375758690915}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.6, z: 0}
+  m_LocalPosition: {x: 0.01, y: -0.03, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []

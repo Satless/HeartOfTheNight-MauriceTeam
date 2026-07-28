@@ -127,8 +127,7 @@ public class LivingFurnace : MonoBehaviour
 
             GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
             activeMinions.Add(newMinion);
-
-            yield return new WaitForSeconds(0.3f);
+yield return new WaitForSeconds(0.3f);
         }
 
         isSpawning = false;

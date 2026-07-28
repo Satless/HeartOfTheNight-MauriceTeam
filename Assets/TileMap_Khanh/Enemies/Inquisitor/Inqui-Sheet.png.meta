@@ -121,7 +121,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -135,7 +135,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -159,7 +159,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -200,12 +200,12 @@ TextureImporter:
       name: Inqui-Sheet_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 35
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -222,12 +222,12 @@ TextureImporter:
       name: Inqui-Sheet_1
       rect:
         serializedVersion: 2
-        x: 168
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 169
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -244,12 +244,12 @@ TextureImporter:
       name: Inqui-Sheet_2
       rect:
         serializedVersion: 2
-        x: 302
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 303
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -266,12 +266,12 @@ TextureImporter:
       name: Inqui-Sheet_3
       rect:
         serializedVersion: 2
-        x: 436
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 437
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -288,12 +288,12 @@ TextureImporter:
       name: Inqui-Sheet_4
       rect:
         serializedVersion: 2
-        x: 570
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 571
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -310,12 +310,12 @@ TextureImporter:
       name: Inqui-Sheet_5
       rect:
         serializedVersion: 2
-        x: 704
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 705
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -332,12 +332,12 @@ TextureImporter:
       name: Inqui-Sheet_6
       rect:
         serializedVersion: 2
-        x: 838
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 839
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -354,12 +354,12 @@ TextureImporter:
       name: Inqui-Sheet_7
       rect:
         serializedVersion: 2
-        x: 972
-        y: 404
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 973
+        y: 405
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -376,12 +376,12 @@ TextureImporter:
       name: Inqui-Sheet_8
       rect:
         serializedVersion: 2
-        x: 33
-        y: 296
-        width: 45
-        height: 73
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 34
+        y: 297
+        width: 43
+        height: 71
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -398,12 +398,12 @@ TextureImporter:
       name: Inqui-Sheet_9
       rect:
         serializedVersion: 2
-        x: 168
-        y: 296
-        width: 44
-        height: 75
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 169
+        y: 297
+        width: 42
+        height: 73
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -420,12 +420,12 @@ TextureImporter:
       name: Inqui-Sheet_10
       rect:
         serializedVersion: 2
-        x: 301
-        y: 296
-        width: 43
-        height: 73
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 302
+        y: 297
+        width: 41
+        height: 71
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -442,12 +442,12 @@ TextureImporter:
       name: Inqui-Sheet_11
       rect:
         serializedVersion: 2
-        x: 435
-        y: 298
-        width: 43
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 436
+        y: 299
+        width: 41
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -464,12 +464,12 @@ TextureImporter:
       name: Inqui-Sheet_12
       rect:
         serializedVersion: 2
-        x: 569
-        y: 296
-        width: 43
-        height: 66
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 570
+        y: 297
+        width: 41
+        height: 64
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -486,12 +486,12 @@ TextureImporter:
       name: Inqui-Sheet_13
       rect:
         serializedVersion: 2
-        x: 703
-        y: 296
-        width: 45
-        height: 66
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 704
+        y: 297
+        width: 43
+        height: 64
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -508,12 +508,12 @@ TextureImporter:
       name: Inqui-Sheet_14
       rect:
         serializedVersion: 2
-        x: 837
-        y: 296
-        width: 48
-        height: 66
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 838
+        y: 297
+        width: 46
+        height: 64
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -530,12 +530,12 @@ TextureImporter:
       name: Inqui-Sheet_15
       rect:
         serializedVersion: 2
-        x: 970
-        y: 297
-        width: 49
-        height: 71
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 971
+        y: 298
+        width: 47
+        height: 69
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -552,12 +552,12 @@ TextureImporter:
       name: Inqui-Sheet_16
       rect:
         serializedVersion: 2
-        x: 21
-        y: 244
-        width: 18
-        height: 26
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 22
+        y: 245
+        width: 16
+        height: 24
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -574,12 +574,12 @@ TextureImporter:
       name: Inqui-Sheet_17
       rect:
         serializedVersion: 2
-        x: 29
-        y: 188
-        width: 49
-        height: 59
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 143
+        y: 248
+        width: 24
+        height: 16
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -596,12 +596,12 @@ TextureImporter:
       name: Inqui-Sheet_18
       rect:
         serializedVersion: 2
-        x: 142
-        y: 247
-        width: 26
-        height: 18
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 143
+        y: 190
+        width: 71
+        height: 74
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -618,12 +618,12 @@ TextureImporter:
       name: Inqui-Sheet_19
       rect:
         serializedVersion: 2
-        x: 165
-        y: 189
-        width: 50
-        height: 60
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 278
+        y: 190
+        width: 68
+        height: 71
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -640,12 +640,12 @@ TextureImporter:
       name: Inqui-Sheet_20
       rect:
         serializedVersion: 2
-        x: 277
-        y: 189
-        width: 70
+        x: 415
+        y: 190
+        width: 67
         height: 73
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -662,12 +662,12 @@ TextureImporter:
       name: Inqui-Sheet_21
       rect:
         serializedVersion: 2
-        x: 414
-        y: 189
-        width: 69
-        height: 75
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 555
+        y: 191
+        width: 61
+        height: 65
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -684,12 +684,12 @@ TextureImporter:
       name: Inqui-Sheet_22
       rect:
         serializedVersion: 2
-        x: 554
-        y: 190
-        width: 63
-        height: 67
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 20
+        y: 189
+        width: 57
+        height: 81
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -706,12 +706,12 @@ TextureImporter:
       name: Inqui-Sheet_23
       rect:
         serializedVersion: 2
-        x: 691
-        y: 185
-        width: 58
-        height: 63
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 692
+        y: 186
+        width: 56
+        height: 61
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -728,12 +728,12 @@ TextureImporter:
       name: Inqui-Sheet_24
       rect:
         serializedVersion: 2
-        x: 825
-        y: 189
-        width: 58
-        height: 59
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 826
+        y: 190
+        width: 56
+        height: 57
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -750,12 +750,12 @@ TextureImporter:
       name: Inqui-Sheet_25
       rect:
         serializedVersion: 2
-        x: 959
-        y: 189
-        width: 58
-        height: 59
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 960
+        y: 190
+        width: 56
+        height: 57
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -772,12 +772,12 @@ TextureImporter:
       name: Inqui-Sheet_26
       rect:
         serializedVersion: 2
-        x: 30
-        y: 81
-        width: 43
-        height: 70
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 31
+        y: 82
+        width: 41
+        height: 68
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -794,12 +794,12 @@ TextureImporter:
       name: Inqui-Sheet_27
       rect:
         serializedVersion: 2
-        x: 166
-        y: 81
-        width: 40
-        height: 70
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 167
+        y: 82
+        width: 38
+        height: 68
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -816,12 +816,12 @@ TextureImporter:
       name: Inqui-Sheet_28
       rect:
         serializedVersion: 2
-        x: 38
-        y: 37
-        width: 25
-        height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 39
+        y: 38
+        width: 23
+        height: 23
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -838,7 +838,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 186c9cd3936c5b64ba6216ff76c84cee
     internalID: 0
     vertices: []
     indices: 
