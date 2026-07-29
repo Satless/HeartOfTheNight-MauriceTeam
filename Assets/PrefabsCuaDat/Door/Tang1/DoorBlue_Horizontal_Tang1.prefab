@@ -88,6 +88,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1863491339568605540}
   - component: {fileID: 6857138793022439681}
+  - component: {fileID: 3100922857983310211}
   m_Layer: 0
   m_Name: Transition
   m_TagString: Untagged
@@ -156,6 +157,22 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.93540025, y: 2.8249526}
   m_EdgeRadius: 0
+--- !u!114 &3100922857983310211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4349725477870832951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d202d68b8475b5449436a6ea8e89186, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextRoomSpawnPoint: {fileID: 0}
+  targetDoor: {fileID: 0}
+  blackScreen: {fileID: 0}
+  fadeSpeed: 3
 --- !u!1 &7592776849035700995
 GameObject:
   m_ObjectHideFlags: 0
