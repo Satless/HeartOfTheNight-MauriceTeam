@@ -75,6 +75,7 @@ public class PlayerAttack : MonoBehaviour
     private GameObject _flamethrowerInstance;
 
     private float _lastFireTime;
+    private float _currentFireSpeedMul; // Cache tốc độ múa để dùng lúc TryFire
     private bool _isAimingRight = true;
 
     private InputSystem_Actions _input;
@@ -149,13 +150,17 @@ public class PlayerAttack : MonoBehaviour
         }
         else
         {
+            // Nếu viên đạn đầu tiên bắn ra đã đụng nóc nhiệt ngay lập tức
+            if (data.heatPerShot >= slot.maxHeat) return "1 viên (Quá nhiệt ngay lập tức)";
+
             // Đạn thường có khoảng nghỉ fireRate để súng tản nhiệt
             float coolPerShot = data.fireRate * slot.cooldownRate;
             float netHeat = data.heatPerShot - coolPerShot;
 
             if (netHeat <= 0) return "Vô hạn (Tản nhiệt nhanh hơn Sinh nhiệt)";
 
-            int shots = Mathf.CeilToInt(slot.maxHeat / netHeat);
+            // Trừ đi viên đạn đầu tiên (vì nó bắn ra khi súng nguội, chưa có thời gian nghỉ tản nhiệt)
+            int shots = Mathf.CeilToInt((slot.maxHeat - data.heatPerShot) / netHeat) + 1;
             return $"{shots} viên";
         }
     }
@@ -165,6 +170,11 @@ public class PlayerAttack : MonoBehaviour
 
     private void Start()
     {
+        if (_upperBodyVisual != null && _upperBodyVisual.GetComponent<WeaponEventRelay>() == null)
+        {
+            Debug.LogWarning($"<color=red>[LỖI NGHIÊM TRỌNG]</color> GameObject '{_upperBodyVisual.name}' đang thiếu component 'WeaponEventRelay'. Súng sẽ KHÔNG THỂ BẮN vì đứt chuỗi Animation Event!");
+        }
+
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
         
         // Khởi tạo pool với loại đạn hiện tại
@@ -256,7 +266,14 @@ public class PlayerAttack : MonoBehaviour
         if (_weaponAnimator != null && Data.weaponAnimator != null)
         {
             _weaponAnimator.runtimeAnimatorController = Data.weaponAnimator;
-            _weaponAnimator.speed = Data.animationSpeedMultiplier;
+            
+            // TỰ ĐỘNG HÓA TỐC ĐỘ ANIMATION (Auto-Sync)
+            _currentFireSpeedMul = Data.animationSpeedMultiplier; // Mặc định dự phòng
+            if (Data.fireRate > 0 && !Data.isContinuousFire && Data.fireAnimationClip != null)
+            {
+                _currentFireSpeedMul = Data.fireAnimationClip.length / Data.fireRate;
+                Debug.Log($"<color=cyan>[Auto-Sync]</color> {Data.name}: Đã lưu tốc độ Animator (FireSpeedMul) = {_currentFireSpeedMul:F2}x (Độ dài Clip: {Data.fireAnimationClip.length:F2}s / FireRate: {Data.fireRate}s)");
+            }
         }
         
         if (Data.isContinuousFire && Data.continuousVfxPrefab != null && _flamethrowerInstance == null)
@@ -343,6 +360,7 @@ public class PlayerAttack : MonoBehaviour
                     // Dùng Bool cho Súng lửa (Liên tục)
                     if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
                     {
+                        _weaponAnimator.SetFloat("FireSpeedMul", _currentFireSpeedMul);
                         _weaponAnimator.SetBool("Fire", true);
                     }
 
@@ -415,9 +433,16 @@ public class PlayerAttack : MonoBehaviour
 
         if (Data == null) return;
 
-        // Kích hoạt hoạt ảnh bắn. Khi hoạt ảnh tới đúng frame, nó sẽ gọi event ExecuteShot()
-        if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled && _weaponAnimator.runtimeAnimatorController != null)
+        if (_weaponAnimator == null || _weaponAnimator.runtimeAnimatorController == null)
         {
+            Debug.LogWarning($"<color=red>[LỖI ANIMATION]</color> Không tìm thấy Animator hoặc Controller trên súng {Data.name}! Đạn sẽ không được bắn ra.");
+            return;
+        }
+
+        // Kích hoạt hoạt ảnh bắn. Khi hoạt ảnh tới đúng frame, nó sẽ gọi event ExecuteShot()
+        if (_weaponAnimator.isActiveAndEnabled)
+        {
+            _weaponAnimator.SetFloat("FireSpeedMul", _currentFireSpeedMul);
             _weaponAnimator.SetTrigger("Fire");
         }
     }

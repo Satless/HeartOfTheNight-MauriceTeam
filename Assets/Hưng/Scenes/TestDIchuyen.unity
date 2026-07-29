@@ -5109,6 +5109,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayTestThemAnimation
       objectReference: {fileID: 0}
+    - target: {fileID: 2833236898813291575, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 5e4b6089c26b362409a32581062ed367, type: 2}
     - target: {fileID: 5141435882979783124, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: _vfxPool
       value: 
@@ -5121,6 +5125,22 @@ PrefabInstance:
       propertyPath: _mainCamera
       value: 
       objectReference: {fileID: 1784298128}
+    - target: {fileID: 5141435882979783124, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: Weapon1.maxHeat
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5141435882979783124, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: Weapon1.cooldownRate
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5141435882979783124, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: Weapon1.variant1Capacity
+      value: "14 vi\xEAn"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5141435882979783124, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: Weapon1.variant2Capacity
+      value: "4 vi\xEAn"
+      objectReference: {fileID: 0}
     - target: {fileID: 6949912397899648992, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.64
