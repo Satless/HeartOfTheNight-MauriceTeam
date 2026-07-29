@@ -150,13 +150,17 @@ public class PlayerAttack : MonoBehaviour
         }
         else
         {
+            // Nếu viên đạn đầu tiên bắn ra đã đụng nóc nhiệt ngay lập tức
+            if (data.heatPerShot >= slot.maxHeat) return "1 viên (Quá nhiệt ngay lập tức)";
+
             // Đạn thường có khoảng nghỉ fireRate để súng tản nhiệt
             float coolPerShot = data.fireRate * slot.cooldownRate;
             float netHeat = data.heatPerShot - coolPerShot;
 
             if (netHeat <= 0) return "Vô hạn (Tản nhiệt nhanh hơn Sinh nhiệt)";
 
-            int shots = Mathf.CeilToInt(slot.maxHeat / netHeat);
+            // Trừ đi viên đạn đầu tiên (vì nó bắn ra khi súng nguội, chưa có thời gian nghỉ tản nhiệt)
+            int shots = Mathf.CeilToInt((slot.maxHeat - data.heatPerShot) / netHeat) + 1;
             return $"{shots} viên";
         }
     }
