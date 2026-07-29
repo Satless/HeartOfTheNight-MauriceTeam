@@ -4,9 +4,11 @@ using UnityEngine;
 public class PlayerData : ScriptableObject
 {
 	[Header("Gravity")]
-	[HideInInspector] public float gravityStrength; //Lực hướng xuống (trọng lực) cần thiết để đạt được jumpHeight và jumpTimeToApex mong muốn.
-	[HideInInspector] public float gravityScale; //Độ lớn trọng lực của người chơi dưới dạng hệ số nhân của trọng lực (được thiết lập trong ProjectSettings/Physics2D).
-										  //Cũng là giá trị mà rigidbody2D.gravityScale của người chơi được thiết lập.
+	[Tooltip("Được tự động tính toán từ jumpHeight và jumpTimeToApex.\nCông thức: -(2 * jumpHeight) / (jumpTimeToApex^2)")]
+	[ReadOnly] public float gravityStrength;
+	
+	[Tooltip("Tỷ lệ trọng lực so với trọng lực gốc của Unity (Physics2D.gravity.y).\nĐược gán trực tiếp vào Rigidbody2D.gravityScale.\nCông thức: gravityStrength / Physics2D.gravity.y")]
+	[ReadOnly] public float gravityScale;
 	[Space(5)]
 	[Tooltip("Tăng trọng lực khi rơi. Giúp nhân vật bay lên thì từ từ nhưng rơi xuống thì nhanh, tạo cảm giác đầm tay.")]
 	public float fallGravityMult;
@@ -25,10 +27,13 @@ public class PlayerData : ScriptableObject
 	public float runMaxSpeed;
 	[Tooltip("Gia tốc chạy từ từ đến tối đa. Số càng lớn nhân vật vọt đi càng lẹ. (Đặt bằng runMaxSpeed để đạt tốc độ tối đa ngay lập tức).")]
 	public float runAcceleration;
-	[HideInInspector] public float runAccelAmount; //Lực thực tế (nhân với speedDiff) áp dụng lên người chơi.
+	[Tooltip("Lực gia tốc thực tế sẽ được áp dụng (tự động tính từ runAcceleration và runMaxSpeed).\nCông thức: ((1 / Time.fixedDeltaTime) * runAcceleration) / runMaxSpeed\nMặc định: 0.02. CHỉnh Fixed Timestep trong cài đặt là thay đổi được")]
+	[ReadOnly] public float runAccelAmount;
+	
 	[Tooltip("Độ giảm tốc từ từ về 0. Số càng lớn dừng lại càng gấp. (Số thấp sẽ làm nhân vật bị trượt như đi trên băng).")]
 	public float runDecceleration;
-	[HideInInspector] public float runDeccelAmount; //Lực thực tế (nhân với speedDiff) áp dụng lên người chơi.
+	[Tooltip("Lực hãm phanh thực tế sẽ được áp dụng (tự động tính từ runDecceleration và runMaxSpeed).\nCông thức: ((1 / Time.fixedDeltaTime) * runDecceleration) / runMaxSpeed\nMặc định: 0.02. CHỉnh Fixed Timestep trong cài đặt là thay đổi được")]
+	[ReadOnly] public float runDeccelAmount;
 	[Space(5)]
 	[Tooltip("Độ nhạy bẻ lái khi ở trên không. (1 = Đổi hướng linh hoạt như dưới đất, 0 = Bị khóa cứng hướng bay).")]
 	[Range(0f, 1)] public float accelInAir;
@@ -45,7 +50,8 @@ public class PlayerData : ScriptableObject
 	public float jumpHeight;
 	[Tooltip("Thời gian để bay lên đạt đỉnh cú nhảy (tính bằng giây). Biến này sẽ tự động tính toán lại Trọng Lực và Lực Nhảy.")]
 	public float jumpTimeToApex;
-	[HideInInspector] public float jumpForce; //Lực thực tế áp dụng (hướng lên) lên người chơi khi họ nhảy.
+	[Tooltip("Lực nhảy thực tế đẩy nhân vật lên (tự động tính từ gravityStrength và jumpTimeToApex).\nCông thức: |gravityStrength| * jumpTimeToApex")]
+	[ReadOnly] public float jumpForce;
 
 	[Header("Both Jumps")]
 	[Tooltip("Tăng trọng lực (rơi lẹ hơn) nếu người chơi nhả nút nhảy ra sớm giữa chừng.")]

@@ -20,8 +20,11 @@ public class PlayerAnimation : MonoBehaviour
     private static readonly int RunSpeedKey = Animator.StringToHash("RunSpeed");
 
     // Hỗ trợ logic cất súng
-    private float _lastShootInputTime = -999f;
-    private bool _isHoldingGun;
+    [Header("Debug Tracking")]
+    [Tooltip("Thời điểm bắn đạn cuối cùng")]
+    [SerializeField, ReadOnly] private float _lastShootInputTime = -999f;
+    [Tooltip("Cờ báo hiệu đang cầm súng (ngăn các hoạt ảnh không tay)")]
+    [SerializeField, ReadOnly] private bool _isHoldingGun;
 
     private void Awake()
     {
@@ -60,7 +63,7 @@ public class PlayerAnimation : MonoBehaviour
         if (state == PlayerMovement.PlayerState.Grounded)
         {
             // Kết hợp cả Input và Velocity để giải quyết triệt để lỗi Moonwalk và lỗi trượt Move
-            bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+            bool isMoving = Mathf.Abs(_movement.MoveInput.x) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
             if (_isHoldingGun)
                 PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
             else
@@ -68,7 +71,7 @@ public class PlayerAnimation : MonoBehaviour
         }
         else if (state == PlayerMovement.PlayerState.Sliding)
         {
-            if (Input.GetAxisRaw("Vertical") > 0)
+            if (_movement.MoveInput.y > 0)
                 PlayAnim("Duoi-leotuong");
             else
                 PlayAnim("Duoi-TruotTuong");
@@ -164,7 +167,7 @@ public class PlayerAnimation : MonoBehaviour
             return;
         }
 
-        bool isMoving = Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+        bool isMoving = Mathf.Abs(_movement.MoveInput.x) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
 
         if (!isMoving || _movement.CurrentState != PlayerMovement.PlayerState.Grounded)
         {
@@ -218,7 +221,9 @@ public class PlayerAnimation : MonoBehaviour
         }
     }
 
-    private string _currentAnim;
+    [Header("State Tracking")]
+    [Tooltip("Tên animation hiện tại đang được yêu cầu chạy")]
+    [SerializeField, ReadOnly] private string _currentAnim;
     
     /// <summary>
     /// Hàm helper để gọi Animator.Play mà không làm reset frame nếu anim đang chạy

@@ -19,9 +19,11 @@ public class WeaponSlot
     [Range(0f, 0.9f)]
     public float unlockThreshold;
 
-    // Runtime variables
-    [HideInInspector] public float currentHeat;
-    [HideInInspector] public bool isOverheated;
+    // Runtime variables (Debug Tracking)
+    [Tooltip("Nhiệt lượng hiện tại của súng. Súng sẽ ngừng bắn nếu chạm mức maxHeat.")]
+    [ReadOnly] public float currentHeat;
+    [Tooltip("Cờ đánh dấu súng đang bị quá nhiệt. Phải chờ nguội dưới mức unlockThreshold mới được bắn tiếp.")]
+    [ReadOnly] public bool isOverheated;
 }
 
 public class PlayerAttack : MonoBehaviour
@@ -34,11 +36,14 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("Vũ khí 3 (Phím 3)")]
     public WeaponSlot Weapon3;
 
-    [HideInInspector]
-    public GunWeaponData Data; // Vũ khí đang cầm hiện tại
+    [Header("Debug Tracking")]
+    [Tooltip("Dữ liệu ScriptableObject của khẩu súng đang được cầm trên tay (thay đổi khi bấm phím số hoặc Q).")]
+    [ReadOnly] public GunWeaponData Data; // Vũ khí đang cầm hiện tại
 
-    private int _currentSlotIndex = 1;
-    private bool _useVariant2 = false;
+    [Tooltip("Vị trí ô súng đang dùng (1, 2 hoặc 3).")]
+    [SerializeField, ReadOnly] private int _currentSlotIndex = 1;
+    [Tooltip("Đang sử dụng bản biến thể phụ (chuyển đổi bằng phím Q).")]
+    [SerializeField, ReadOnly] private bool _useVariant2 = false;
 
     [Header("Camera")]
     [Tooltip("Kéo thẳng camera trên hierarchy vào ô này. Dùng để tính tọa độ ngắm bắn ngang theo chuột.")]
