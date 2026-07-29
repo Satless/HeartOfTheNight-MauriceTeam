@@ -107,26 +107,37 @@ public class PlayerMovement : MonoBehaviour
 	public float LastOnWallLeftTime { get; private set; }
 
 	// Cờ nội bộ jump — không phải trạng thái chính, chỉ ảnh hưởng gravity
-	private bool _isJumpCut;
-	private bool _isJumpFalling;
+	[Header("Debug Tracking")]
+	[Tooltip("Đánh dấu người chơi nhả phím nhảy sớm (để tăng trọng lực kéo xuống)")]
+	[SerializeField, ReadOnly] private bool _isJumpCut;
+	[Tooltip("Đang rơi xuống sau khi nhảy")]
+	[SerializeField, ReadOnly] private bool _isJumpFalling;
 
 	// Nhảy tường
-	private float _wallJumpStartTime;
-	private int _lastWallJumpDir;
+	[Tooltip("Thời điểm bắt đầu Wall Jump (dùng để tính thời gian khóa bẻ lái ngang)")]
+	[SerializeField, ReadOnly] private float _wallJumpStartTime;
+	[Tooltip("Hướng bật tường (-1 hoặc 1)")]
+	[SerializeField, ReadOnly] private int _lastWallJumpDir;
 
 	// Lướt
-	private int _dashesLeft;
-	private bool _dashRefilling;
-	private Vector2 _lastDashDir;
-	private bool _isDashAttacking;
+	[Tooltip("Số lượt Dash còn lại")]
+	[SerializeField, ReadOnly] private int _dashesLeft;
+	[Tooltip("Cờ báo hiệu đang chạy Coroutine hồi Dash")]
+	[SerializeField, ReadOnly] private bool _dashRefilling;
+	[Tooltip("Vector hướng Dash vừa kích hoạt")]
+	[SerializeField, ReadOnly] private Vector2 _lastDashDir;
+	[Tooltip("Đang trong giai đoạn Dash Attack (lao đi với tốc độ cao, không trọng lực)")]
+	[SerializeField, ReadOnly] private bool _isDashAttacking;
 
 	// Nhảy đôi
-	private int _bonusJumpsLeft;
+	[Tooltip("Số lần nhảy đôi trên không còn lại")]
+	[SerializeField, ReadOnly] private int _bonusJumpsLeft;
 	#endregion
 
 	#region INPUT PARAMETERS
 	private InputSystem_Actions _input;
 	private Vector2 _moveInput;
+	public Vector2 MoveInput => _moveInput;
 
 	public float LastPressedJumpTime { get; private set; }
 	public float LastPressedDashTime { get; private set; }

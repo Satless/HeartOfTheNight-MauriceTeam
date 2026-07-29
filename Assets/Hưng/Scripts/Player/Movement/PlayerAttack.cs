@@ -19,9 +19,17 @@ public class WeaponSlot
     [Range(0f, 0.9f)]
     public float unlockThreshold;
 
-    // Runtime variables
-    [HideInInspector] public float currentHeat;
-    [HideInInspector] public bool isOverheated;
+    // Runtime variables (Debug Tracking)
+    [Tooltip("Nhiệt lượng hiện tại của súng. Súng sẽ ngừng bắn nếu chạm mức maxHeat.")]
+    [ReadOnly] public float currentHeat;
+    [Tooltip("Cờ đánh dấu súng đang bị quá nhiệt. Phải chờ nguội dưới mức unlockThreshold mới được bắn tiếp.")]
+    [ReadOnly] public bool isOverheated;
+
+    [Header("Designer Info (Auto-Calculated)")]
+    [Tooltip("Băng đạn ảo (Số viên / thời gian) xả liên tục trước khi quá nhiệt của Biến thể 1")]
+    [ReadOnly] public string variant1Capacity;
+    [Tooltip("Băng đạn ảo (Số viên / thời gian) xả liên tục trước khi quá nhiệt của Biến thể 2")]
+    [ReadOnly] public string variant2Capacity;
 }
 
 public class PlayerAttack : MonoBehaviour
@@ -34,11 +42,14 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("Vũ khí 3 (Phím 3)")]
     public WeaponSlot Weapon3;
 
-    [HideInInspector]
-    public GunWeaponData Data; // Vũ khí đang cầm hiện tại
+    [Header("Debug Tracking")]
+    [Tooltip("Dữ liệu ScriptableObject của khẩu súng đang được cầm trên tay (thay đổi khi bấm phím số hoặc Q).")]
+    [ReadOnly] public GunWeaponData Data; // Vũ khí đang cầm hiện tại
 
-    private int _currentSlotIndex = 1;
-    private bool _useVariant2 = false;
+    [Tooltip("Vị trí ô súng đang dùng (1, 2 hoặc 3).")]
+    [SerializeField, ReadOnly] private int _currentSlotIndex = 1;
+    [Tooltip("Đang sử dụng bản biến thể phụ (chuyển đổi bằng phím Q).")]
+    [SerializeField, ReadOnly] private bool _useVariant2 = false;
 
     [Header("Camera")]
     [Tooltip("Kéo thẳng camera trên hierarchy vào ô này. Dùng để tính tọa độ ngắm bắn ngang theo chuột.")]
@@ -108,6 +119,45 @@ public class PlayerAttack : MonoBehaviour
             _useVariant2 = !_useVariant2;
             EquipSlot(_currentSlotIndex);
         };
+    }
+
+    private void OnValidate()
+    {
+        UpdateWeaponCapacity(Weapon1);
+        UpdateWeaponCapacity(Weapon2);
+        UpdateWeaponCapacity(Weapon3);
+    }
+
+    private void UpdateWeaponCapacity(WeaponSlot slot)
+    {
+        if (slot == null) return;
+        slot.variant1Capacity = CalculateCapacity(slot, slot.variant1);
+        slot.variant2Capacity = CalculateCapacity(slot, slot.variant2);
+    }
+
+    private string CalculateCapacity(WeaponSlot slot, GunWeaponData data)
+    {
+        if (data == null) return "Trống";
+        if (!data.canOverheat) return "Vô hạn (Không sinh nhiệt)";
+        if (data.heatPerShot <= 0) return "Vô hạn (Nhiệt = 0)";
+
+        if (data.isContinuousFire)
+        {
+            // Súng lửa: bắn liên tục không có khoảng nghỉ nguội, nhiệt cộng dồn theo giây
+            float timeToOverheat = slot.maxHeat / data.heatPerShot;
+            return $"{timeToOverheat:F1} giây";
+        }
+        else
+        {
+            // Đạn thường có khoảng nghỉ fireRate để súng tản nhiệt
+            float coolPerShot = data.fireRate * slot.cooldownRate;
+            float netHeat = data.heatPerShot - coolPerShot;
+
+            if (netHeat <= 0) return "Vô hạn (Tản nhiệt nhanh hơn Sinh nhiệt)";
+
+            int shots = Mathf.CeilToInt(slot.maxHeat / netHeat);
+            return $"{shots} viên";
+        }
     }
 
     private void OnEnable() => _input?.Enable();
@@ -453,11 +503,12 @@ public class PlayerAttack : MonoBehaviour
         if (slot == null) return;
 
         _isFiringThisFrame = true;
+        float heatBefore = slot.currentHeat; // Bắt lấy mức nhiệt thực tế sau khi đã tản bớt
         slot.currentHeat += amount;
         slot.currentHeat = Mathf.Min(slot.currentHeat, slot.maxHeat);
         OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
 
-        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: +{amount:F2} nhiệt → {slot.currentHeat:F1}/{slot.maxHeat}");
+        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: Nhiệt hiện tại {heatBefore:F1} + {amount:F2} → {slot.currentHeat:F1}/{slot.maxHeat}");
 
         if (!slot.isOverheated && slot.currentHeat >= slot.maxHeat)
         {

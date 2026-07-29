@@ -613,6 +613,9 @@ MonoBehaviour:
   _resistance: 0.164
   _deceleration: 10
   _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1 &435848234
 GameObject:
   m_ObjectHideFlags: 0
@@ -1048,6 +1051,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!114 &671278788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1063,6 +1087,9 @@ MonoBehaviour:
   _resistance: 0.1
   _deceleration: 10
   _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1001 &699472192
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4166,7 +4193,7 @@ TilemapCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
-  m_ExtrusionFactor: 0.00001
+  m_ExtrusionFactor: 0.01
   m_UseDelaunayMesh: 0
 --- !u!66 &747426723
 CompositeCollider2D:
@@ -4209,93 +4236,69 @@ CompositeCollider2D:
   m_ColliderPaths:
   - m_Collider: {fileID: 747426722}
     m_ColliderPaths:
-    - - X: 120000096
-        Y: -100000040
-      - X: 120000096
-        Y: 80000040
-      - X: 120000040
-        Y: 80000096
-      - X: -120000040
-        Y: 80000096
-      - X: -120000096
-        Y: 80000040
-      - X: -120000096
-        Y: -100000040
-      - X: -120000040
-        Y: -100000096
-      - X: 120000040
-        Y: -100000096
-    - - X: -89999904
-        Y: -39999900
-      - X: -89999904
-        Y: 49999900
-      - X: 89999904
-        Y: 49999900
-      - X: 89999904
-        Y: -39999900
-      - X: 60000100
-        Y: -39999900
-      - X: 60000100
-        Y: 41
-      - X: 60000044
-        Y: 100
-      - X: 49999956
-        Y: 100
-      - X: 49999900
-        Y: 41
-      - X: 49999900
-        Y: -39999900
-      - X: -49999900
-        Y: -39999900
-      - X: -49999900
-        Y: 20000040
-      - X: -49999956
-        Y: 20000100
-      - X: -60000044
-        Y: 20000100
-      - X: -60000100
-        Y: 20000040
-      - X: -60000100
-        Y: -39999900
-    - - X: 40000100
-        Y: -10000041
-      - X: 40000100
-        Y: 41
-      - X: 40000044
-        Y: 100
-      - X: -20000040
-        Y: 100
-      - X: -20000100
-        Y: 41
-      - X: -20000100
-        Y: -10000041
-      - X: -20000040
-        Y: -10000100
-      - X: 40000044
-        Y: -10000100
+    - - X: 120000000
+        Y: 80000000
+      - X: -120000000
+        Y: 80000000
+      - X: -120000000
+        Y: -100000000
+      - X: 120000000
+        Y: -100000000
+    - - X: -90000000
+        Y: -40000000
+      - X: -90000000
+        Y: 50000000
+      - X: 90000000
+        Y: 50000000
+      - X: 90000000
+        Y: -40000000
+      - X: 60000000
+        Y: -40000000
+      - X: 60000000
+        Y: 0
+      - X: 50000000
+        Y: 0
+      - X: 50000000
+        Y: -40000000
+      - X: -50000000
+        Y: -40000000
+      - X: -50000000
+        Y: 20000000
+      - X: -60000000
+        Y: 20000000
+      - X: -60000000
+        Y: -40000000
+    - - X: 40000000
+        Y: 0
+      - X: -20000000
+        Y: 0
+      - X: -20000000
+        Y: -10000000
+      - X: 40000000
+        Y: -10000000
   m_CompositePaths:
     m_Paths:
-    - - {x: 11.999974, y: -10.00001}
-      - {x: 11.999974, y: 8.00001}
-      - {x: -12.00001, y: 7.9999747}
-      - {x: -11.999974, y: -10.00001}
-    - - {x: 8.99999, y: -3.999961}
-      - {x: 6.00001, y: -3.999961}
-      - {x: 5.999975, y: 0.00001}
-      - {x: 4.99999, y: -0.0000252}
-      - {x: 4.999961, y: -3.99999}
-      - {x: -4.99999, y: -3.999961}
-      - {x: -5.000025, y: 2.00001}
-      - {x: -6.00001, y: 1.9999748}
-      - {x: -6.000039, y: -3.99999}
-      - {x: -8.99999, y: -3.999961}
-      - {x: -8.999961, y: 4.99999}
-      - {x: 8.99999, y: 4.999961}
-    - - {x: 3.9999752, y: -1.00001}
-      - {x: 3.9999752, y: 0.00001}
-      - {x: -2.00001, y: -0.0000252}
-      - {x: -1.9999748, y: -1.00001}
-  m_VertexDistance: 0.0005
+    - - {x: 11.99997, y: -10}
+      - {x: 11.99997, y: 8}
+      - {x: -12, y: 7.9999704}
+      - {x: -11.99997, y: -10}
+    - - {x: 9, y: -3.9999704}
+      - {x: 6, y: -3.9999704}
+      - {x: 5.999971, y: 0}
+      - {x: 5, y: -0.000029300001}
+      - {x: 4.9999704, y: -4}
+      - {x: -5, y: -3.9999704}
+      - {x: -5.000029, y: 2}
+      - {x: -6, y: 1.9999708}
+      - {x: -6.0000296, y: -4}
+      - {x: -9, y: -3.9999704}
+      - {x: -8.99997, y: 5}
+      - {x: 9, y: 4.9999704}
+    - - {x: 3.999971, y: -1}
+      - {x: 3.999971, y: 0}
+      - {x: -2, y: -0.000029300001}
+      - {x: -1.9999708, y: -1}
+  m_VertexDistance: 0.01
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
   m_CompositeGameObject: {fileID: 747426718}
@@ -4346,6 +4349,9 @@ MonoBehaviour:
   _resistance: 0.1
   _deceleration: 10
   _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1 &921748100
 GameObject:
   m_ObjectHideFlags: 0
@@ -4545,6 +4551,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!114 &921748107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4560,6 +4587,9 @@ MonoBehaviour:
   _resistance: 0.1
   _deceleration: 10
   _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1001 &977525461
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4820,6 +4850,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!114 &1235410642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4835,6 +4886,9 @@ MonoBehaviour:
   _resistance: 0.1
   _deceleration: 10
   _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1 &1352679931
 GameObject:
   m_ObjectHideFlags: 0
@@ -5047,6 +5101,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1600953299865861346, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: m_LinearDamping
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 1721345467516107366, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_Name
       value: PlayTestThemAnimation
@@ -5065,11 +5123,11 @@ PrefabInstance:
       objectReference: {fileID: 1784298128}
     - target: {fileID: 6949912397899648992, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.83386
+      value: -2.64
       objectReference: {fileID: 0}
     - target: {fileID: 6949912397899648992, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.9687595
+      value: 2.9
       objectReference: {fileID: 0}
     - target: {fileID: 6949912397899648992, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5110,6 +5168,14 @@ PrefabInstance:
     - target: {fileID: 8573719544051661127, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_Name
       value: TuongPhai
+      objectReference: {fileID: 0}
+    - target: {fileID: 8980174031728196812, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: m_Size.x
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 8980174031728196812, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+      propertyPath: m_Size.y
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8980174031728196812, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_Material

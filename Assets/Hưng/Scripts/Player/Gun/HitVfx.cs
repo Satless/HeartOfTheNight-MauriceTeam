@@ -4,7 +4,11 @@ using System.Collections;
 public class HitVfx : MonoBehaviour
 {
     private VfxPool _pool;
-    private string _poolKey;
+    
+    [Header("Debug Tracking")]
+    [Tooltip("Khóa (Key) định danh của hiệu ứng này trong VfxPool (trả về đúng kho khi chạy xong)")]
+    [SerializeField, ReadOnly] private string _poolKey;
+    
     private ParticleSystem _particle;
     private Animator _anim;
 

@@ -9,10 +9,22 @@ public class CollectibleItem : MonoBehaviour
     [Header("Item Data")]
     public ItemData data;
 
-    public bool IsCollected { get; private set; }
-    private float _currentSpeed;
+    [Header("Debug Tracking")]
+    [Tooltip("Đã bị nhặt chưa (ngăn chặn việc nhặt đúp nhiều lần)")]
+    [SerializeField, ReadOnly] private bool _isCollected;
+    public bool IsCollected 
+    { 
+        get => _isCollected; 
+        private set => _isCollected = value; 
+    }
+    
+    [Tooltip("Vận tốc bay lơ lửng về phía người chơi hiện tại")]
+    [SerializeField, ReadOnly] private float _currentSpeed;
+    
+    [Tooltip("Lần cuối cùng bị lực nam châm tác động (nếu mất lực sẽ rớt xuống đất)")]
+    [SerializeField, ReadOnly] private float _lastPullTime;
+
     private Rigidbody2D _rb;
-    private float _lastPullTime;
 
     private void Awake()
     {

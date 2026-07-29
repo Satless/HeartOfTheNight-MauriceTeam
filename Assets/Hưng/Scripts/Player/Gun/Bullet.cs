@@ -30,10 +30,16 @@ public class Bullet : MonoBehaviour
     private BulletPool _pool;
     public string PoolKey { get; private set; }
 
-    private GunWeaponData _data;
-    private float _spawnTime;
+    [Header("Debug Tracking")]
+    [Tooltip("Dữ liệu súng bắn ra viên đạn này")]
+    [SerializeField, ReadOnly] private GunWeaponData _data;
+    [Tooltip("Thời điểm đạn được sinh ra (để tính thời gian hủy tự động)")]
+    [SerializeField, ReadOnly] private float _spawnTime;
+    [Tooltip("Số lượt xuyên thấu mục tiêu còn lại")]
+    [SerializeField, ReadOnly] private int _pierceLeft;
+    [Tooltip("Đã va chạm trúng đích (chống xử lý va chạm 2 lần trong cùng 1 frame)")]
+    [SerializeField, ReadOnly] private bool _hasHit; 
 
-    private int _pierceLeft;
     private VfxPool _vfxPool;
     private HashSet<Collider2D> _hitColliders = new HashSet<Collider2D>();
     private static readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[10];
@@ -41,7 +47,6 @@ public class Bullet : MonoBehaviour
 
     // Linecast anti-tunneling: lưu vị trí frame trước để quét đường đi
     private Vector2 _lastPosition;
-    private bool _hasHit; // Guard chống xử lý va chạm 2 lần trong cùng 1 frame
 
     private void Awake()
     {

@@ -7,6 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(NhanSatThuong))]
 public class StatusEffectReceiver : MonoBehaviour
 {
+    [System.Serializable]
     private struct ActiveStatus
     {
         public StatusEffectData data;
@@ -16,7 +17,9 @@ public class StatusEffectReceiver : MonoBehaviour
         public bool isActive;
     }
 
-    private ActiveStatus[] _activeStatuses = new ActiveStatus[4];
+    [Header("Debug Tracking")]
+    [Tooltip("Danh sách tối đa 4 hiệu ứng trạng thái đang bám trên người")]
+    [SerializeField, ReadOnly] private ActiveStatus[] _activeStatuses = new ActiveStatus[4];
     private NhanSatThuong _healthComponent;
 
     private void Awake()
