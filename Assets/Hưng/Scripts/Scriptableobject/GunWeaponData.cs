@@ -29,13 +29,15 @@ public class GunWeaponData : ScriptableObject
     public float verticalSpacing;
 
     [Header("Visuals")]
-    [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
+    [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (Dự phòng cho súng lửa liên tục)")]
     public float animationSpeedMultiplier;
     [Tooltip("Kéo Prefab đạn của súng này vào đây")]
     public Bullet bulletPrefab;
 
     [Tooltip("Kéo Animator Override Controller của súng này vào đây")]
     public RuntimeAnimatorController weaponAnimator;
+    [Tooltip("Kéo ĐÚNG Clip Fire/Shoot của súng này vào đây để hệ thống tự động đồng bộ tốc độ bắn (Auto-Sync)")]
+    public AnimationClip fireAnimationClip;
 
     [Header("Explosive / AOE")]
     [Tooltip("Đạn có phát nổ AOE khi chạm mục tiêu/tường không?")]
