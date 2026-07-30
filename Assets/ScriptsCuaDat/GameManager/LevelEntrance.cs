@@ -5,22 +5,27 @@ public class LevelEntrance : MonoBehaviour
     [Header("ID Cửa (Phải khớp với spawnIDInNextScene ở Scene trước)")]
     public string entranceID;
 
+    // THÊM BIẾN NÀY: Kéo object cửa ở Scene mới vào đây
+    [Header("Cửa tại vị trí này")]
+    public RoomDoor entranceDoor;
+
     private void Start()
     {
-        // Kiểm tra xem DataManager có mang theo ID khớp với cửa này không
         if (DataManager.Instance != null && DataManager.Instance.Data.targetSpawnID == entranceID)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
-                // Dịch chuyển Player đến đúng vị trí của object này
                 player.transform.position = transform.position;
-
-                // Dịch chuyển luôn Camera theo Player (nếu chưa dùng Cinemachine)
                 Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, Camera.main.transform.position.z);
             }
 
-            // Xóa ID đi để tránh lỗi nếu load lại màn
+            // THÊM LỆNH NÀY: Mở cửa ngay khi ném Player tới
+            if (entranceDoor != null)
+            {
+                entranceDoor.Open();
+            }
+
             DataManager.Instance.Data.targetSpawnID = "";
         }
     }
