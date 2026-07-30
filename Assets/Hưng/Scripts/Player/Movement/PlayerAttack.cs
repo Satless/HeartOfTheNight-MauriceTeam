@@ -352,6 +352,9 @@ public class PlayerAttack : MonoBehaviour
         {
             if (_input.Player.Attack.IsPressed())
             {
+                // Ép bật thân trên lên ngay lập tức (chống lỗi Click mồi do bất đồng bộ frame)
+                EnsureUpperBodyVisible();
+
                 // Bật hiệu ứng phun lửa (đã được tạo sẵn trong EquipWeapon)
                 if (_flamethrowerInstance != null && !_flamethrowerInstance.activeSelf)
                 {
@@ -439,11 +442,22 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
+        // Ép bật thân trên lên ngay lập tức (chống lỗi Click mồi do bất đồng bộ frame)
+        EnsureUpperBodyVisible();
+
         // Kích hoạt hoạt ảnh bắn. Khi hoạt ảnh tới đúng frame, nó sẽ gọi event ExecuteShot()
         if (_weaponAnimator.isActiveAndEnabled)
         {
             _weaponAnimator.SetFloat("FireSpeedMul", _currentFireSpeedMul);
             _weaponAnimator.SetTrigger("Fire");
+        }
+    }
+
+    private void EnsureUpperBodyVisible()
+    {
+        if (_upperBodyVisual != null && !_upperBodyVisual.gameObject.activeSelf)
+        {
+            _upperBodyVisual.gameObject.SetActive(true);
         }
     }
 
