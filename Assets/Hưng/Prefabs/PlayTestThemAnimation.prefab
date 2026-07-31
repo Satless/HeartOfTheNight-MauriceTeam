@@ -162,7 +162,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: dbf66843056fc914097ff5449d3b279f, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -187,7 +187,7 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.8283658, y: 1.5115612}
+  m_Size: {x: 0.9, y: 1.5}
   m_Direction: 0
 --- !u!50 &1600953299865861346
 Rigidbody2D:
@@ -229,6 +229,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Data: {fileID: 11400000, guid: abff10382b9435b44baed4f1b0930de6, type: 2}
+  _isJumpCut: 0
+  _isJumpFalling: 0
+  _wallJumpStartTime: 0
+  _lastWallJumpDir: 0
+  _dashesLeft: 0
+  _dashRefilling: 0
+  _lastDashDir: {x: 0, y: 0}
+  _isDashAttacking: 0
+  _bonusJumpsLeft: 0
   _lowerBodyVisual: {fileID: 873249860184151496}
   _groundCheckPoint: {fileID: 8798960184040359968}
   _groundCheckSize: {x: 0.2, y: 0.2}
@@ -253,11 +262,13 @@ MonoBehaviour:
   Weapon1:
     variant1: {fileID: 11400000, guid: 83bcbdebf6fa5414fbb9ef7777acc396, type: 2}
     variant2: {fileID: 11400000, guid: 4e09fa0ec78b71a48a175ece19dc8bad, type: 2}
-    maxHeat: 30
-    cooldownRate: 5
+    maxHeat: 20
+    cooldownRate: 7
     unlockThreshold: 0.3
     currentHeat: 0
     isOverheated: 0
+    variant1Capacity: "11 vi\xEAn"
+    variant2Capacity: "3 vi\xEAn"
   Weapon2:
     variant1: {fileID: 11400000, guid: c659baa5169f64c45b4a6be8fbba063b, type: 2}
     variant2: {fileID: 11400000, guid: 91efb52a1e06f93499b232613328c463, type: 2}
@@ -266,6 +277,8 @@ MonoBehaviour:
     unlockThreshold: 0.3
     currentHeat: 0
     isOverheated: 0
+    variant1Capacity: "5 vi\xEAn"
+    variant2Capacity: "5 vi\xEAn"
   Weapon3:
     variant1: {fileID: 11400000, guid: b74db7a724210474f88a8184269f6957, type: 2}
     variant2: {fileID: 11400000, guid: 8779c07c791b26945b81a53f41a2ef3b, type: 2}
@@ -274,12 +287,14 @@ MonoBehaviour:
     unlockThreshold: 0.3
     currentHeat: 0
     isOverheated: 0
+    variant1Capacity: "45 vi\xEAn"
+    variant2Capacity: "8,3 gi\xE2y"
   Data: {fileID: 11400000, guid: c659baa5169f64c45b4a6be8fbba063b, type: 2}
+  _currentSlotIndex: 1
+  _useVariant2: 0
   _mainCamera: {fileID: 0}
   _upperBodyVisual: {fileID: 7785440647838262849}
   _firePoint: {fileID: 3145261341872688593}
-  _bulletPool: {fileID: 0}
-  _vfxPool: {fileID: 0}
 --- !u!114 &890032511126001227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,6 +310,9 @@ MonoBehaviour:
   _upperBodyObject: {fileID: 7466514602230273038}
   _lowerAnimator: {fileID: 2718531295666977125}
   _keepGunOutDuration: 1.5
+  _lastShootInputTime: -999
+  _isHoldingGun: 0
+  _currentAnim: 
 --- !u!114 &2265503281112699794
 MonoBehaviour:
   m_ObjectHideFlags: 0

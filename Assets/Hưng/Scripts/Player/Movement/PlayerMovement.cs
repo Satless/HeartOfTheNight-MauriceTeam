@@ -151,13 +151,18 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Checks")] 
 	[Tooltip("Kéo child kiểm tra dưới chân")]
 	[SerializeField] private Transform _groundCheckPoint;
+	public Transform GroundCheckPoint => _groundCheckPoint;
+
 	[Tooltip("Kích thước hộp kiểm tra dưới chân, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _groundCheckSize = new Vector2(0.49f, 0.03f);
 	[Space(5)]
-	[Tooltip("Kéo child kiểm tra tường bên phải")]
+	[Tooltip("Kéo child CheckWallRight vào đây")]
 	[SerializeField] private Transform _rightWallCheckPoint;
-	[Tooltip("Kéo child kiểm tra tường bên trái")]
+	public Transform RightWallCheckPoint => _rightWallCheckPoint;
+
+	[Tooltip("Kéo child CheckWallLeft vào đây")]
 	[SerializeField] private Transform _leftWallCheckPoint;
+	public Transform LeftWallCheckPoint => _leftWallCheckPoint;
 	[Tooltip("Kích thước hộp kiểm tra tường, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
     #endregion
@@ -241,6 +246,14 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
 	{
 		HandleRun();
+		
+		// Chống trôi ngang cực nhỏ do noise vật lý (seam tile) khi đứng yên, không có input
+		if (LastOnGroundTime > 0 && !IsDashing 
+			&& Mathf.Abs(_moveInput.x) < 0.01f 
+			&& Mathf.Abs(RB.linearVelocity.x) < 0.05f)
+		{
+			RB.linearVelocity = new Vector2(0f, RB.linearVelocity.y);
+		}
 
 		if (IsSliding)
 		{

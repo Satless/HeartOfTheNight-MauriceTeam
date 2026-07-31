@@ -12,6 +12,19 @@ public class PlayerAnimation : MonoBehaviour
     [Tooltip("Thời gian giữ súng trên tay sau khi nhả chuột (giây)")]
     [SerializeField] private float _keepGunOutDuration = 1.5f;
 
+    [Header("Movement VFX (Prefabs)")]
+    [Tooltip("Khói khi nhảy (Sinh 1 lần - Bắt buộc gắn HitVfx/AutoDespawn)")]
+    [SerializeField] private GameObject _jumpVfxPrefab;
+    [Tooltip("Khói khi chạy (Sinh liên tục - Xóa script HitVfx đi, bật Looping)")]
+    [SerializeField] private GameObject _runVfxPrefab;
+    [Tooltip("Khói khi bám tường (Sinh liên tục - Xóa script HitVfx đi, bật Looping)")]
+    [SerializeField] private GameObject _wallVfxPrefab;
+
+    private GameObject _runVfxInstance;
+    private GameObject _wallVfxInstance;
+    private ParticleSystem[] _runParticles;
+    private ParticleSystem[] _wallParticles;
+
     private PlayerMovement _movement;
     private PlayerAttack _attack;
 
@@ -34,6 +47,30 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Start()
     {
+        // Khởi tạo VFX liên tục (Chạy & Bám tường) dính chặt vào Player để bật tắt, không dùng Pool.
+        if (_runVfxPrefab != null)
+        {
+            _runVfxInstance = Instantiate(_runVfxPrefab, transform);
+            _runParticles = _runVfxInstance.GetComponentsInChildren<ParticleSystem>();
+            ToggleParticles(_runParticles, false);
+        }
+
+        if (_wallVfxPrefab != null)
+        {
+            _wallVfxInstance = Instantiate(_wallVfxPrefab, transform);
+            _wallParticles = _wallVfxInstance.GetComponentsInChildren<ParticleSystem>();
+            ToggleParticles(_wallParticles, false);
+        }
+    }
+
+    private void ToggleParticles(ParticleSystem[] particles, bool isPlaying)
+    {
+        if (particles == null) return;
+        foreach (var p in particles)
+        {
+            if (isPlaying && !p.isPlaying) p.Play();
+            else if (!isPlaying && p.isPlaying) p.Stop();
+        }
     }
 
     private void Update()
@@ -68,6 +105,17 @@ public class PlayerAnimation : MonoBehaviour
                 PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
             else
                 PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+
+            // Bật khói chạy
+            if (isMoving)
+            {
+                if (_runVfxInstance) _runVfxInstance.transform.position = _movement.GroundCheckPoint.position;
+                ToggleParticles(_runParticles, true);
+            }
+            else
+            {
+                ToggleParticles(_runParticles, false);
+            }
         }
         else if (state == PlayerMovement.PlayerState.Sliding)
         {
@@ -75,10 +123,31 @@ public class PlayerAnimation : MonoBehaviour
                 PlayAnim("Duoi-leotuong");
             else
                 PlayAnim("Duoi-TruotTuong");
+
+            // Tắt khói chạy
+            ToggleParticles(_runParticles, false);
+
+            // Bật khói tường và dời nó qua trái hoặc phải tùy thuộc đang bám bên nào
+            if (_wallVfxInstance != null)
+            {
+                bool isRightWall = _movement.LastOnWallRightTime > 0;
+                Transform targetWall = isRightWall ? _movement.RightWallCheckPoint : _movement.LeftWallCheckPoint;
+                _wallVfxInstance.transform.position = targetWall.position;
+                
+                // Lật VFX khói tường để bụi luôn văng ra ngoài
+                Vector3 wallScale = _wallVfxInstance.transform.localScale;
+                wallScale.x = isRightWall ? -Mathf.Abs(wallScale.x) : Mathf.Abs(wallScale.x);
+                _wallVfxInstance.transform.localScale = wallScale;
+                
+                ToggleParticles(_wallParticles, true);
+            }
         }
         else if (!isDoingFullBodyAction)
         {
             // Đang trên không (vì đã lọt qua Grounded và Dashing/Sliding)
+            ToggleParticles(_runParticles, false);
+            ToggleParticles(_wallParticles, false);
+
             if (_isHoldingGun)
             {
                 bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
@@ -92,6 +161,12 @@ public class PlayerAnimation : MonoBehaviour
                 else 
                     PlayAnim("Nhay");
             }
+        }
+        else
+        {
+            // Tắt VFX khi đang Dash, Fall...
+            ToggleParticles(_runParticles, false);
+            ToggleParticles(_wallParticles, false);
         }
 
     }
@@ -209,6 +284,12 @@ public class PlayerAnimation : MonoBehaviour
                 }
                 else
                     PlayAnim("Nhay");
+                    
+                // Spawn khói nhảy (One-shot) nếu đang Jumping
+                if (newState == PlayerMovement.PlayerState.Jumping && _jumpVfxPrefab != null)
+                {
+                    _jumpVfxPrefab.Spawn(_movement.GroundCheckPoint.position, Quaternion.identity);
+                }
                 break;
                 
             case PlayerMovement.PlayerState.WallJumping:
