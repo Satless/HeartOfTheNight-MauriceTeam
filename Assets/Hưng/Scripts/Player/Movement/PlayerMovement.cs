@@ -151,6 +151,7 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Checks")] 
 	[Tooltip("Kéo child kiểm tra dưới chân")]
 	[SerializeField] private Transform _groundCheckPoint;
+	public Transform GroundCheckPoint => _groundCheckPoint;
 	[Tooltip("Kích thước hộp kiểm tra dưới chân, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _groundCheckSize = new Vector2(0.49f, 0.03f);
 	[Space(5)]

@@ -12,6 +12,14 @@ public class PlayerAnimation : MonoBehaviour
     [Tooltip("Thời gian giữ súng trên tay sau khi nhả chuột (giây)")]
     [SerializeField] private float _keepGunOutDuration = 1.5f;
 
+    [Header("VFX References")]
+    [Tooltip("Kéo cục khói bám tường ở TuongPhai vào đây")]
+    [SerializeField] private ParticleSystem _rightWallVfx;
+    [Tooltip("Kéo cục khói bám tường ở TuongTrai vào đây")]
+    [SerializeField] private ParticleSystem _leftWallVfx;
+    [Tooltip("Kéo file prefab vfx_nhay từ thư mục vào đây")]
+    [SerializeField] private GameObject _jumpVfxPrefab;
+
     private PlayerMovement _movement;
     private PlayerAttack _attack;
 
@@ -34,6 +42,9 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Start()
     {
+        // Đảm bảo các Particle System liên tục luôn ở trạng thái Play để hệ thống chỉ cần bật/tắt Emission
+        if (_rightWallVfx != null && !_rightWallVfx.isPlaying) _rightWallVfx.Play();
+        if (_leftWallVfx != null && !_leftWallVfx.isPlaying) _leftWallVfx.Play();
     }
 
     private void Update()
@@ -68,6 +79,18 @@ public class PlayerAnimation : MonoBehaviour
                 PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
             else
                 PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+                
+            // Chắc chắn tắt khói tường
+            if (_rightWallVfx != null)
+            {
+                var em = _rightWallVfx.emission;
+                em.enabled = false;
+            }
+            if (_leftWallVfx != null)
+            {
+                var em = _leftWallVfx.emission;
+                em.enabled = false;
+            }
         }
         else if (state == PlayerMovement.PlayerState.Sliding)
         {
@@ -75,6 +98,22 @@ public class PlayerAnimation : MonoBehaviour
                 PlayAnim("Duoi-leotuong");
             else
                 PlayAnim("Duoi-TruotTuong");
+
+            // Xác định đang bám tường nào dựa vào timer trong PlayerMovement
+            bool onRightWall = _movement.LastOnWallRightTime > 0;
+            bool onLeftWall = _movement.LastOnWallLeftTime > 0;
+
+            if (_rightWallVfx != null)
+            {
+                var em = _rightWallVfx.emission;
+                em.enabled = onRightWall;
+            }
+
+            if (_leftWallVfx != null)
+            {
+                var em = _leftWallVfx.emission;
+                em.enabled = onLeftWall;
+            }
         }
         else if (!isDoingFullBodyAction)
         {
@@ -91,6 +130,18 @@ public class PlayerAnimation : MonoBehaviour
                     PlayAnim("Duoi-TruotTuong");
                 else 
                     PlayAnim("Nhay");
+            }
+
+            // Tắt hết khói bụi liên tục khi đang bay lơ lửng
+            if (_rightWallVfx != null)
+            {
+                var em = _rightWallVfx.emission;
+                em.enabled = false;
+            }
+            if (_leftWallVfx != null)
+            {
+                var em = _leftWallVfx.emission;
+                em.enabled = false;
             }
         }
 
@@ -199,6 +250,15 @@ public class PlayerAnimation : MonoBehaviour
         switch (newState)
         {
             case PlayerMovement.PlayerState.Jumping:
+                // Khói bụi Nhảy (Burst) - Gọi Pooling Spawn tại dưới chân
+                if (_jumpVfxPrefab != null && _movement.GroundCheckPoint != null)
+                {
+                    _jumpVfxPrefab.Spawn(_movement.GroundCheckPoint.position, Quaternion.Euler(-90, 0, 0));
+                }
+
+                // Fallthrough (dùng chung logic với Falling)
+                goto case PlayerMovement.PlayerState.Falling;
+
             case PlayerMovement.PlayerState.DroppingThrough:
             case PlayerMovement.PlayerState.Falling:
                 // Nếu đang rút súng → dùng animation thân dưới cầm súng

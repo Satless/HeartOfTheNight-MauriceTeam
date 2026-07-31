@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 02437051d18caf04da67c35a574f2d1c, type: 3}
-  m_Name: FreeFire
+  m_Name: Jump
   m_EditorClassIdentifier: 
-  effectName: Fire
-  duration: 3
-  damagePerTick: 5
-  tickInterval: 0.5
-  effectVfxPrefab: {fileID: 4460470784833335726, guid: 0b2a4f647ff5a0b4482dd46eb32076ad, type: 3}
-  prewarmCount: 5
+  effectName: Jump
+  duration: 0
+  damagePerTick: 0
+  tickInterval: 0
+  effectVfxPrefab: {fileID: 4297471692810721989, guid: 1652f2531330353428c6de8070a6642e, type: 3}
+  prewarmCount: 1
