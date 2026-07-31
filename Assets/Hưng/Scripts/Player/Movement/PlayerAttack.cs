@@ -62,16 +62,12 @@ public class PlayerAttack : MonoBehaviour
     [Header("References")]
     [Tooltip("Kéo child phần sinh đạn của người chơi vào đây.")]
     [SerializeField] private Transform _firePoint;
-    [Tooltip("Kéo cái kho đạn object pooling vào đây.")]
-    [SerializeField] private BulletPool _bulletPool;
-    [Tooltip("Kéo kho chứa hiệu ứng nổ VfxPool vào đây.")]
-    [SerializeField] private VfxPool _vfxPool;
 
     // Tái dùng PlayerMovement để đọc IsWallJumpLocked
     private PlayerMovement _movement;
     private Animator _weaponAnimator;
 
-    // Hiệu ứng phun lửa (tạo sẵn 1 lần, chỉ bật/tắt, không bao giờ Destroy)
+    // Hiệu ứng phun lửa (lấy từ Pool khi cầm súng lửa, trả về Pool khi đổi súng)
     private GameObject _flamethrowerInstance;
 
     private float _lastFireTime;
@@ -175,40 +171,47 @@ public class PlayerAttack : MonoBehaviour
             Debug.LogWarning($"<color=red>[LỖI NGHIÊM TRỌNG]</color> GameObject '{_upperBodyVisual.name}' đang thiếu component 'WeaponEventRelay'. Súng sẽ KHÔNG THỂ BẮN vì đứt chuỗi Animation Event!");
         }
 
-        EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
-        
-        // Khởi tạo pool với loại đạn hiện tại
-        if (Data != null && Data.bulletPrefab != null)
-        {
-            if (_bulletPool != null)
-            {
-                _bulletPool.Prewarm(Data.bulletPrefab);
-            }
-            if (_vfxPool != null && Data.bulletPrefab.HitVfxPrefab != null)
-            {
-                _vfxPool.Prewarm(Data.bulletPrefab.HitVfxPrefab);
-            }
-        }
-        
+        // Tạo sẵn đạn và hiệu ứng cho tất cả các súng (Zero-GC khi gameplay)
         PrewarmWeapon(Weapon1);
         PrewarmWeapon(Weapon2);
         PrewarmWeapon(Weapon3);
+
+        EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
     }
 
     private void PrewarmWeapon(WeaponSlot slot)
     {
         if (slot == null) return;
-        if (slot.variant1 != null && slot.variant1.bulletPrefab != null) 
+        PrewarmVariant(slot.variant1);
+        PrewarmVariant(slot.variant2);
+    }
+
+    private void PrewarmVariant(GunWeaponData data)
+    {
+        if (data == null) return;
+
+        // Tạo sẵn đạn
+        if (data.bulletPrefab != null)
         {
-            _bulletPool.Prewarm(slot.variant1.bulletPrefab);
-            if (_vfxPool != null && slot.variant1.bulletPrefab.HitVfxPrefab != null)
-                _vfxPool.Prewarm(slot.variant1.bulletPrefab.HitVfxPrefab);
+            data.bulletPrefab.gameObject.Prewarm(data.bulletPrewarmCount);
+
+            // Tạo sẵn hiệu ứng nổ của đạn
+            if (data.bulletPrefab.HitVfxPrefab != null)
+            {
+                data.bulletPrefab.HitVfxPrefab.Prewarm(data.hitVfxPrewarmCount);
+            }
         }
-        if (slot.variant2 != null && slot.variant2.bulletPrefab != null) 
+
+        // Tạo sẵn hiệu ứng phun lửa
+        if (data.isContinuousFire && data.continuousVfxPrefab != null)
         {
-            _bulletPool.Prewarm(slot.variant2.bulletPrefab);
-            if (_vfxPool != null && slot.variant2.bulletPrefab.HitVfxPrefab != null)
-                _vfxPool.Prewarm(slot.variant2.bulletPrefab.HitVfxPrefab);
+            data.continuousVfxPrefab.Prewarm(1);
+        }
+
+        // Tạo sẵn VFX hiệu ứng trạng thái (Cháy, Độc...)
+        if (data.statusEffect != null && data.statusEffect.effectVfxPrefab != null)
+        {
+            data.statusEffect.effectVfxPrefab.Prewarm(data.statusEffect.prewarmCount);
         }
     }
 
@@ -249,10 +252,11 @@ public class PlayerAttack : MonoBehaviour
     {
         if (Data == newWeapon) return;
 
-        // Tắt súng lửa cũ nếu đang bắn mà đổi súng (chỉ tắt, KHÔNG xóa)
-        if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
+        // Trả lại súng lửa cũ về Pool (nếu có)
+        if (_flamethrowerInstance != null)
         {
-            _flamethrowerInstance.SetActive(false);
+            _flamethrowerInstance.Despawn();
+            _flamethrowerInstance = null;
             if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
             {
                 _weaponAnimator.SetBool("Fire", false);
@@ -275,10 +279,11 @@ public class PlayerAttack : MonoBehaviour
                 Debug.Log($"<color=cyan>[Auto-Sync]</color> {Data.name}: Đã lưu tốc độ Animator (FireSpeedMul) = {_currentFireSpeedMul:F2}x (Độ dài Clip: {Data.fireAnimationClip.length:F2}s / FireRate: {Data.fireRate}s)");
             }
         }
-        
-        if (Data.isContinuousFire && Data.continuousVfxPrefab != null && _flamethrowerInstance == null)
+
+        // Lấy súng lửa mới từ Pool (nếu súng hiện tại là loại bắn liên tục)
+        if (Data.isContinuousFire && Data.continuousVfxPrefab != null)
         {
-            _flamethrowerInstance = Instantiate(Data.continuousVfxPrefab);
+            _flamethrowerInstance = Data.continuousVfxPrefab.Spawn();
             _flamethrowerInstance.SetActive(false);
         }
     }
@@ -423,10 +428,11 @@ public class PlayerAttack : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Chống leak bộ nhớ khi Player bị destroy
-        if (_flamethrowerInstance != null)
+        // Trả lại súng lửa về Pool khi Player bị destroy
+        if (_flamethrowerInstance != null && Pooling.Instance != null)
         {
-            Destroy(_flamethrowerInstance);
+            _flamethrowerInstance.Despawn();
+            _flamethrowerInstance = null;
         }
     }
 
@@ -507,9 +513,9 @@ public class PlayerAttack : MonoBehaviour
                 finalDirection = Quaternion.Euler(0, 0, randomSpread) * baseDirection;
             }
 
-            // Lấy đạn từ pool theo đúng loại của súng đang cầm
-            Bullet bullet = _bulletPool.Get(Data.bulletPrefab, spawnPos);
-            bullet.Activate(Data, _vfxPool);
+            // Lấy đạn từ Pool theo đúng loại của súng đang cầm
+            Bullet bullet = Data.bulletPrefab.Spawn(spawnPos);
+            bullet.Activate(Data);
 
             // Truyền gia tốc cho đạn
             bullet.RB.linearVelocity = finalDirection.normalized * Data.bulletSpeed;
