@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LivingFurnace : MonoBehaviour
+public class LivingFurnaceImg : MonoBehaviour
 {
     [Header("Sinh tồn & Hoạt ảnh")]
     public int maxHealth = 200;
@@ -95,7 +95,7 @@ public class LivingFurnace : MonoBehaviour
             anim.SetTrigger("Dead");
         }
 
-        Destroy(gameObject, 1.5f);
+        Destroy(gameObject, 0.5f);
     }
 
     IEnumerator SpawnWaveRoutine()
