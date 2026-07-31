@@ -51,9 +51,8 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("Đang sử dụng bản biến thể phụ (chuyển đổi bằng phím Q).")]
     [SerializeField, ReadOnly] private bool _useVariant2 = false;
 
-    [Header("Camera")]
-    [Tooltip("Kéo thẳng camera trên hierarchy vào ô này. Dùng để tính tọa độ ngắm bắn ngang theo chuột.")]
-    [SerializeField] private Camera _mainCamera;
+    // Tự động tìm trong Awake, không cần kéo tay
+    private Camera _mainCamera;
 
     [Header("Visuals")]
     [Tooltip("Kéo child phần thân trên (súng) vào đây (Tren)")]
@@ -102,6 +101,10 @@ public class PlayerAttack : MonoBehaviour
 
     private void Awake()
     {
+        _mainCamera = Camera.main;
+        if (_mainCamera == null)
+            Debug.LogError("PlayerAttack: Không tìm thấy Main Camera! Hãy đảm bảo Camera trong Scene được gắn tag 'MainCamera'.");
+
         _movement = GetComponent<PlayerMovement>();
         if (_upperBodyVisual != null) _weaponAnimator = _upperBodyVisual.GetComponent<Animator>();
         
