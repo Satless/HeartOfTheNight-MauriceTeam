@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7090420054976827070}
   - component: {fileID: 813914495632320757}
   - component: {fileID: 3952747366366921810}
+  - component: {fileID: -7119479305430014300}
   m_Layer: 0
   m_Name: vfx_nhay
   m_TagString: Untagged
@@ -4891,3 +4892,15 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &-7119479305430014300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4297471692810721989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3723acb8074f71d46a8f65419b40673b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
