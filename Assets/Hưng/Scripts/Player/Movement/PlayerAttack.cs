@@ -47,7 +47,7 @@ public class PlayerAttack : MonoBehaviour
     [ReadOnly] public GunWeaponData Data; // Vũ khí đang cầm hiện tại
 
     [Tooltip("Vị trí ô súng đang dùng (1, 2 hoặc 3).")]
-    [SerializeField, ReadOnly] private int _currentSlotIndex = 1;
+    [SerializeField, ReadOnly] private int _currentSlotIndex;
     [Tooltip("Đang sử dụng bản biến thể phụ (chuyển đổi bằng phím Q).")]
     [SerializeField, ReadOnly] private bool _useVariant2 = false;
 
@@ -62,9 +62,15 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("Kéo child phần sinh đạn của người chơi vào đây.")]
     [SerializeField] private Transform _firePoint;
 
+    [Header("Switching")]
+    [Tooltip("Thời gian delay (giây) không thể bắn sau khi đổi súng/biến thể")]
+    [SerializeField] private float _switchDelay;
+    private float _switchEndTime;
+
     // Tái dùng PlayerMovement để đọc IsWallJumpLocked
     private PlayerMovement _movement;
     private Animator _weaponAnimator;
+    private PlayerAnimation _animation;
 
     // Hiệu ứng phun lửa (lấy từ Pool khi cầm súng lửa, trả về Pool khi đổi súng)
     private GameObject _flamethrowerInstance;
@@ -74,6 +80,7 @@ public class PlayerAttack : MonoBehaviour
     private bool _isAimingRight = true;
 
     private InputSystem_Actions _input;
+    private bool _hasInitialized = false; // Cờ theo dõi xem game đã khởi tạo xong chưa
 
     // ─── OVERHEAT ────────────────────────────────────────────────────────────
 
@@ -106,6 +113,7 @@ public class PlayerAttack : MonoBehaviour
             Debug.LogError("PlayerAttack: Không tìm thấy Main Camera! Hãy đảm bảo Camera trong Scene được gắn tag 'MainCamera'.");
 
         _movement = GetComponent<PlayerMovement>();
+        _animation = GetComponent<PlayerAnimation>();
         if (_upperBodyVisual != null) _weaponAnimator = _upperBodyVisual.GetComponent<Animator>();
         
         _input = new InputSystem_Actions();
@@ -180,6 +188,7 @@ public class PlayerAttack : MonoBehaviour
         PrewarmWeapon(Weapon3);
 
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
+        _hasInitialized = true; // Đánh dấu đã khởi tạo xong
     }
 
     private void PrewarmWeapon(WeaponSlot slot)
@@ -229,7 +238,9 @@ public class PlayerAttack : MonoBehaviour
 
     private void EquipSlot(int slotNumber)
     {
-        _currentSlotIndex = slotNumber;
+        // Chặn người chơi ấn chuyển súng liên tục (chỉ chặn khi chuyển sang ô súng khác, bấm Q thì được qua)
+        if (slotNumber != _currentSlotIndex && Time.time < _switchEndTime) return;
+
         WeaponSlot slot = slotNumber == 1 ? Weapon1 : (slotNumber == 2 ? Weapon2 : Weapon3);
         
         GunWeaponData weaponToEquip = _useVariant2 ? slot.variant2 : slot.variant1;
@@ -238,9 +249,23 @@ public class PlayerAttack : MonoBehaviour
         if (weaponToEquip == null) 
             weaponToEquip = slot.variant1;
 
+        // Chỉ tính delay nếu thực sự chuyển sang ô súng khác 
+        if (_hasInitialized && slotNumber != _currentSlotIndex)
+        {
+            _switchEndTime = Time.time + _switchDelay;
+        }
+
+        _currentSlotIndex = slotNumber;
         if (weaponToEquip != null)
         {
-            EquipWeapon(weaponToEquip, slotNumber);
+            EquipWeapon(weaponToEquip, slotNumber); // Lệnh này sẽ gán Data = weaponToEquip
+        }
+
+        // Kích hoạt animation rút súng (idle) để người chơi biết mình đang cầm súng gì
+        // (Bỏ qua lần đầu tiên khởi tạo ở Start)
+        if (_hasInitialized && _animation != null)
+        {
+            _animation.TriggerWeaponSwitchDisplay();
         }
 
         // Cập nhật giao diện thanh nhiệt khi đổi súng
@@ -563,6 +588,12 @@ public class PlayerAttack : MonoBehaviour
             slot.isOverheated = true;
             OnOverheatStateChanged?.Invoke(true);
             Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
+
+            // Yêu cầu bên Animation sinh khói tại nòng súng
+            if (_animation != null)
+            {
+                _animation.PlayOverheatVfx(_firePoint.position);
+            }
         }
     }
 

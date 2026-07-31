@@ -17,8 +17,10 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private ParticleSystem _rightWallVfx;
     [Tooltip("Kéo cục khói bám tường ở TuongTrai vào đây")]
     [SerializeField] private ParticleSystem _leftWallVfx;
-    [Tooltip("Kéo file prefab vfx_nhay từ thư mục vào đây")]
-    [SerializeField] private GameObject _jumpVfxPrefab;
+    [Tooltip("Data chứa hiệu ứng khói nhảy (Kéo file Jump.asset vào đây)")]
+    [SerializeField] private StatusEffectData _jumpVfxData;
+    [Tooltip("Data chứa hiệu ứng bốc khói/lửa khi quá nhiệt (Kéo file QuaNhiet.asset vào đây)")]
+    [SerializeField] private StatusEffectData _overheatVfxData;
 
     private PlayerMovement _movement;
     private PlayerAttack _attack;
@@ -33,6 +35,9 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField, ReadOnly] private float _lastShootInputTime = -999f;
     [Tooltip("Cờ báo hiệu đang cầm súng (ngăn các hoạt ảnh không tay)")]
     [SerializeField, ReadOnly] private bool _isHoldingGun;
+    
+    // Cờ đặc biệt: Vừa chuyển súng thì bắt buộc show súng một lúc
+    private float _lastWeaponSwitchTime = -999f;
 
     private void Awake()
     {
@@ -45,6 +50,17 @@ public class PlayerAnimation : MonoBehaviour
         // Đảm bảo các Particle System liên tục luôn ở trạng thái Play để hệ thống chỉ cần bật/tắt Emission
         if (_rightWallVfx != null && !_rightWallVfx.isPlaying) _rightWallVfx.Play();
         if (_leftWallVfx != null && !_leftWallVfx.isPlaying) _leftWallVfx.Play();
+
+        // Khởi tạo sẵn (Prewarm) khói nhảy và khói quá nhiệt vào kho Pooling (Zero GC)
+        if (_jumpVfxData != null && _jumpVfxData.effectVfxPrefab != null)
+        {
+            _jumpVfxData.effectVfxPrefab.Prewarm(_jumpVfxData.prewarmCount);
+        }
+        
+        if (_overheatVfxData != null && _overheatVfxData.effectVfxPrefab != null)
+        {
+            _overheatVfxData.effectVfxPrefab.Prewarm(_overheatVfxData.prewarmCount);
+        }
     }
 
     private void Update()
@@ -190,16 +206,37 @@ public class PlayerAnimation : MonoBehaviour
 
         // Kiểm tra xem người chơi có đang trong trạng thái "Rút súng" không
         bool isGrounded = _movement.CurrentState == PlayerMovement.PlayerState.Grounded;
+        bool isJustSwitched = Time.time - _lastWeaponSwitchTime <= _keepGunOutDuration;
         
         if (isGrounded)
         {
-            // Trên mặt đất: giữ súng thêm một lúc sau khi nhả chuột
-            _isHoldingGun = Time.time - _lastShootInputTime <= _keepGunOutDuration;
+            // Trên mặt đất: giữ súng thêm một lúc sau khi nhả chuột HOẶC vừa đổi súng
+            _isHoldingGun = (Time.time - _lastShootInputTime <= _keepGunOutDuration) || isJustSwitched;
         }
         else
         {
-            // Trên không: chỉ rút súng khi đang nhấn/giữ chuột
-            _isHoldingGun = isShooting;
+            // Trên không: chỉ rút súng khi đang nhấn/giữ chuột HOẶC vừa đổi súng
+            _isHoldingGun = isShooting || isJustSwitched;
+        }
+    }
+
+    /// <summary>
+    /// Được gọi từ PlayerAttack khi người chơi ấn phím chuyển súng.
+    /// Giúp nhân vật vào trạng thái "rút súng" dạng Idle một lúc để nhìn thấy súng mới.
+    /// </summary>
+    public void TriggerWeaponSwitchDisplay()
+    {
+        _lastWeaponSwitchTime = Time.time;
+    }
+
+    /// <summary>
+    /// Được gọi từ PlayerAttack khi súng bị quá nhiệt, sinh hiệu ứng khói/lửa.
+    /// </summary>
+    public void PlayOverheatVfx(Vector3 spawnPosition)
+    {
+        if (_overheatVfxData != null && _overheatVfxData.effectVfxPrefab != null)
+        {
+            _overheatVfxData.effectVfxPrefab.Spawn(spawnPosition, Quaternion.identity);
         }
     }
 
@@ -251,9 +288,9 @@ public class PlayerAnimation : MonoBehaviour
         {
             case PlayerMovement.PlayerState.Jumping:
                 // Khói bụi Nhảy (Burst) - Gọi Pooling Spawn tại dưới chân
-                if (_jumpVfxPrefab != null && _movement.GroundCheckPoint != null)
+                if (_jumpVfxData != null && _jumpVfxData.effectVfxPrefab != null && _movement.GroundCheckPoint != null)
                 {
-                    _jumpVfxPrefab.Spawn(_movement.GroundCheckPoint.position, Quaternion.Euler(-90, 0, 0));
+                    _jumpVfxData.effectVfxPrefab.Spawn(_movement.GroundCheckPoint.position, Quaternion.Euler(-90, 0, 0));
                 }
 
                 // Fallthrough (dùng chung logic với Falling)
