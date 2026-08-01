@@ -1,29 +1,18 @@
-using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
-public class BurningCorpseImg : MonoBehaviour
+public class BurningCorpse : MonoBehaviour
 {
-    [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 60;
-    public int currentHealth;
-    public bool isDead = false;
-
-    [Header("Hoạt ảnh & Vị trí chém (Cục atk)")]
-    public Animator anim;
-    public GameObject attackHitbox;
-
     [Header("Tầm nhìn & Di chuyển")]
     public float detectionRangeX = 12f;
-    public float detectionRangeY = 3f;
+    public float detectionRangeY = 3f; // Để 3f cho thoải mái nhảy
     public float moveSpeed = 4f;
     public float attackRange = 2f;
-    public float attackRadius = 1.2f; // Độ to của vòng tròn quét sát thương
 
-    [Header("Dịch chuyển & Cảm biến kẹt")]
+    [Header("Dịch chuyển")]
     public float platformHeightDiff = 0.8f;
     public float teleportDelay = 1f;
     public float postTeleportDelay = 0.5f;
-    public float timeToDetectStuck = 0.5f; // Chống kẹt góc/vách đá
 
     [Header("Sát thương & Hiệu ứng Cháy")]
     public int attackDamage = 10;
@@ -31,6 +20,8 @@ public class BurningCorpseImg : MonoBehaviour
     public int burnDamagePerTick = 2;
     public int burnTicks = 3;
     public float timeBetweenTicks = 1f;
+
+    [Header("Cảm biến dập lửa")]
     public float dashSpeedThreshold = 12f;
 
     private Transform player;
@@ -40,75 +31,68 @@ public class BurningCorpseImg : MonoBehaviour
     private float teleportTimer = 0f;
     private bool isBusy = false;
 
-    // Biến cho cảm biến kẹt
-    private float lastXPos = 0f;
-    private float stuckTimer = 0f;
-
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+<<<<<<< HEAD
+=======
         myCol = GetComponent<Collider2D>();
 
-        if (anim == null) anim = GetComponentInChildren<Animator>();
+        if (anim == null) anim = GetComponent<Animator>();
 
-        // Tự động bơm trạm tiếp sóng cho Animator con
-        if (anim != null && anim.gameObject != this.gameObject)
+        if (attackHitbox != null)
         {
-            if (anim.GetComponent<HitboxEventForwarder>() == null)
-            {
-                anim.gameObject.AddComponent<HitboxEventForwarder>();
-            }
+            attackHitbox.SetActive(false);
         }
 
-        currentHealth = maxHealth;
+        // Kích hoạt tính năng xuyên thấu
         SetupXuyenThau();
     }
 
     void SetupXuyenThau()
     {
-        Collider2D[] myCols = GetComponentsInChildren<Collider2D>();
+        if (myCol == null) return;
         if (player != null)
         {
-            Collider2D[] pCols = player.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-            {
-                if (myC.isTrigger) continue;
-                foreach (Collider2D pC in pCols)
-                    Physics2D.IgnoreCollision(myC, pC, true);
-            }
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
         }
-        
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemyObj in allEnemies)
         {
-            Collider2D[] enemyCols = enemyObj.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
             {
-                if (myC.isTrigger) continue; 
-                foreach (Collider2D eC in enemyCols)
-                {
-                    if (eC.isTrigger) continue;
-                    if (myC.gameObject != eC.gameObject)
-                        Physics2D.IgnoreCollision(myC, eC, true);
-                }
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
             }
         }
+>>>>>>> main
     }
 
     void Update()
     {
-        if (player == null || isBusy || myCol == null || isDead) return;
+<<<<<<< HEAD
+        if (player == null || isBusy) return;
+=======
+        if (anim != null && !isBusy)
+        {
+            anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+        }
+
+        if (player == null || isBusy || myCol == null) return;
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
 
         float myFeetY = myCol.bounds.min.y;
         float playerFeetY = playerCol.bounds.min.y;
+>>>>>>> main
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
+<<<<<<< HEAD:Assets/ScriptsTung/Enemy10/BurningCorpse/BurningCorpse.cs
         // ==========================================
         // CẢM BIẾN CHỐNG KẸT GÓC / MÉP VỰC
         // ==========================================
@@ -129,19 +113,19 @@ public class BurningCorpseImg : MonoBehaviour
         // ==========================================
         // LOGIC DI CHUYỂN & TELEPORT
         // ==========================================
+=======
+        // PHÁT HIỆN THEO HÌNH CHỮ NHẬT X, Y
+>>>>>>> 1c33f729c40d0dca5d358e60c0fedca93ec1ebb8:Assets/ScriptsTung/Enemy/BurningCorpse/BurningCorpse.cs
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
-            if (distanceY > platformHeightDiff || isStuck)
+            if (distanceY > platformHeightDiff)
             {
                 rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                if (anim != null) anim.SetFloat("Speed", 0);
-
                 teleportTimer += Time.deltaTime;
                 if (teleportTimer >= teleportDelay)
                 {
                     StartCoroutine(ThucHienTeleport());
                     teleportTimer = 0f;
-                    stuckTimer = 0f;
                 }
             }
             else
@@ -154,56 +138,70 @@ public class BurningCorpseImg : MonoBehaviour
                 else
                 {
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                    if (anim != null) anim.SetFloat("Speed", 0);
-                    
                     if (Time.time >= nextAttackTime)
                     {
-                        StartCoroutine(AttackRoutine());
+                        Attack();
+                        nextAttackTime = Time.time + attackCooldown;
                     }
                 }
             }
         }
         else
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            if (anim != null) anim.SetFloat("Speed", 0);
-            stuckTimer = 0f;
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Mất dấu thì đứng im
         }
-    }
-
-    public void TakeDamage(int damage)
-    {
-        if (isDead) return;
-        currentHealth -= damage;
-        if (currentHealth <= 0) Die();
-    }
-
-    void Die()
-    {
-        isDead = true;
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false; 
-
-        gameObject.tag = "Untagged"; 
-        if (myCol != null) myCol.enabled = false;
-
-        if (anim != null)
-        {
-            anim.enabled = true;
-            anim.SetTrigger("Dead");
-        }
-        Destroy(gameObject, 0.5f);
     }
 
     void Move()
     {
         LookAtPlayer();
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
-        
-        if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y); // Chống đẩy người chơi
     }
 
+<<<<<<< HEAD
+    IEnumerator ThucHienTeleport() 
+    { 
+        isBusy = true; 
+        rb.linearVelocity = Vector2.zero; 
+        float standBehind = (player.localScale.x > 0) ? -1f : 1f; 
+        transform.position = new Vector2(player.position.x + standBehind, player.position.y); 
+        LookAtPlayer(); 
+        yield return new WaitForSeconds(postTeleportDelay); 
+        isBusy = false; 
+    }
+
+    void LookAtPlayer() 
+    { 
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1); 
+    }
+
+    void Attack() 
+    { 
+        PlayerHealth pHealth = player.GetComponent<PlayerHealth>(); 
+        if (pHealth != null) 
+        { 
+            pHealth.TakeDamage(attackDamage); 
+            StartCoroutine(GayHieuUngChay(pHealth)); 
+        } 
+    }
+
+    IEnumerator GayHieuUngChay(PlayerHealth pHealth) 
+    { 
+        Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>(); 
+        for (int i = 0; i < burnTicks; i++) 
+        { 
+            float thoiGianDaCho = 0f; 
+            while (thoiGianDaCho < timeBetweenTicks) 
+            { 
+                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break; 
+                thoiGianDaCho += Time.deltaTime; 
+                yield return null; 
+            } 
+            if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick); 
+            else yield break; 
+        } 
+=======
     IEnumerator AttackRoutine()
     {
         isBusy = true;
@@ -212,8 +210,8 @@ public class BurningCorpseImg : MonoBehaviour
 
         if (anim != null) anim.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(attackCooldown);
-        
+        yield return new WaitForSeconds(0.8f);
+        DisableHitbox();
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
@@ -226,33 +224,20 @@ public class BurningCorpseImg : MonoBehaviour
         if (anim != null) anim.SetTrigger("Teleport");
         yield return new WaitForSeconds(0.3f);
 
-        if (isDead) yield break;
+        float standBehind = (player.localScale.x > 0) ? -1f : 1f;
+        Vector2 viTriMoi = new Vector2(player.position.x + standBehind, player.position.y + 1f);
 
         float pivotToFeetOffset = transform.position.y - myCol.bounds.min.y;
-        float distance = 1.5f; // Khoảng cách né an toàn
-        float standBehind = (player.localScale.x > 0) ? -distance : distance; 
 
-        Vector2 viTriSau = new Vector2(player.position.x + standBehind, player.position.y + 1f);
-        Vector2 viTriTruoc = new Vector2(player.position.x - standBehind, player.position.y + 1f);
-
-        RaycastHit2D hitSau = Physics2D.Raycast(viTriSau, Vector2.down, 3f);
-        RaycastHit2D hitTruoc = Physics2D.Raycast(viTriTruoc, Vector2.down, 3f);
-
-        if (hitSau.collider != null && !hitSau.collider.CompareTag("Player") && !hitSau.collider.isTrigger)
-            transform.position = new Vector2(viTriSau.x, hitSau.point.y + pivotToFeetOffset + 0.05f);
-        else if (hitTruoc.collider != null && !hitTruoc.collider.CompareTag("Player") && !hitTruoc.collider.isTrigger)
-            transform.position = new Vector2(viTriTruoc.x, hitTruoc.point.y + pivotToFeetOffset + 0.05f);
+        RaycastHit2D hit = Physics2D.Raycast(viTriMoi, Vector2.down, 3f);
+        if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
+        {
+            transform.position = new Vector2(viTriMoi.x, hit.point.y + pivotToFeetOffset + 0.05f);
+        }
         else
         {
-            Vector2 viTriGiua = new Vector2(player.position.x, player.position.y + 1f);
-            RaycastHit2D hitGiua = Physics2D.Raycast(viTriGiua, Vector2.down, 3f);
-            if (hitGiua.collider != null)
-                transform.position = new Vector2(player.position.x, hitGiua.point.y + pivotToFeetOffset + 0.05f);
-            else
-            {
-                float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
-                transform.position = new Vector2(player.position.x, playerFeet + pivotToFeetOffset);
-            }
+            float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
+            transform.position = new Vector2(viTriMoi.x, playerFeet + pivotToFeetOffset);
         }
 
         LookAtPlayer();
@@ -260,37 +245,8 @@ public class BurningCorpseImg : MonoBehaviour
         isBusy = false;
     }
 
-    void LookAtPlayer()
-    {
-        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-    }
-
-    // ==========================================
-    // SÁT THƯƠNG QUÉT VÒNG TRÒN (GỌI TỪ EVENT)
-    // ==========================================
-    public void EnableHitbox()
-    {
-        if (isDead || attackHitbox == null) return;
-
-        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(attackHitbox.transform.position, attackRadius);
-        
-        foreach (Collider2D p in hitPlayers)
-        {
-            if (p.CompareTag("Player"))
-            {
-                PlayerHealth hp = p.GetComponent<PlayerHealth>();
-                if (hp != null)
-                {
-                    DealDamageAndBurn(hp); // Quét trúng thì kích hoạt luôn hiệu ứng cháy
-                    Debug.Log("Xác cháy chém trúng Player!");
-                }
-            }
-        }
-    }
-
     public void DealDamageAndBurn(PlayerHealth pHealth)
     {
-        if (isDead) return;
         pHealth.TakeDamage(attackDamage);
         StartCoroutine(GayHieuUngChay(pHealth));
     }
@@ -312,31 +268,27 @@ public class BurningCorpseImg : MonoBehaviour
         }
     }
 
-    public void DisableHitbox() {}
-
-    void OnDrawGizmosSelected()
+    void LookAtPlayer()
     {
-        Gizmos.color = new Color(1f, 0.6f, 0f);
-        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
-        
-        if (attackHitbox != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(attackHitbox.transform.position, attackRadius);
-        }
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
-}
 
-// KHÔNG XÓA CLASS NÀY - Bắt buộc phải có để nhận Animation Event từ Object con
-public class HitboxEventForwarder : MonoBehaviour
-{
     public void EnableHitbox()
     {
-        SendMessageUpwards("EnableHitbox", SendMessageOptions.DontRequireReceiver);
+        if (attackHitbox != null) attackHitbox.SetActive(true);
     }
 
     public void DisableHitbox()
     {
-        SendMessageUpwards("DisableHitbox", SendMessageOptions.DontRequireReceiver);
+        if (attackHitbox != null) attackHitbox.SetActive(false);
+>>>>>>> main
     }
-}
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(1f, 0.6f, 0f); // Cam
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+    }
+}*/

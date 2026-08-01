@@ -22,8 +22,10 @@ public class PlayerMagnet : MonoBehaviour
     [Tooltip("Thời gian (giây) để tăng tốc từ 'Tốc độ cơ bản' lên đến 'Tốc độ tối đa'.")]
     public float timeToMaxSpeed;
 
-    // Biến này bị ẩn đi (Design không cần quan tâm nữa), Code sẽ tự tính!
-    [HideInInspector]
+    // Thay vì ẩn đi, lôi ra Inspector cho Design xem nhưng không cho sửa để dễ debug
+    [Header("Debug Tracking")]
+    [Tooltip("Gia tốc hút thực tế (tự động tính).\nCông thức: (maxPullSpeed - pullSpeed) / timeToMaxSpeed")]
+    [ReadOnly]
     public float pullAcceleration;
 
     // Zero-GC array không cần nữa vì API mới tự quản lý

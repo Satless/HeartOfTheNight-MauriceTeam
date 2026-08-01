@@ -23,6 +23,7 @@ MonoBehaviour:
   animationSpeedMultiplier: 1
   bulletPrefab: {fileID: 0}
   weaponAnimator: {fileID: 9100000, guid: f786475421da09748b6dbb9b883c7a91, type: 2}
+  fireAnimationClip: {fileID: 7400000, guid: 6582aefd7577f9f4999147fb9fec8838, type: 2}
   isExplosive: 0
   explosionRadius: 0
   explosionDamage: 0
@@ -32,5 +33,7 @@ MonoBehaviour:
   continuousVfxPrefab: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
   knockbackForce: 0
   explosionKnockbackForce: 0
+  bulletPrewarmCount: 0
+  hitVfxPrewarmCount: 0
   canOverheat: 1
   heatPerShot: 12
