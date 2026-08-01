@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using DG.Tweening;
 
 
 [System.Serializable]
@@ -104,6 +103,12 @@ public class PlayerAttack : MonoBehaviour
         if (slotIndex == 2) return Weapon2;
         return Weapon3;
     }
+
+    // ─── PROPERTIES & EVENTS CHO ANIMATION ────────────────────────────────────
+    
+    public bool IsPressingFire => _input != null && _input.Player.Attack.IsPressed();
+    public bool IsAimingRight => _isAimingRight;
+    public event Action<float, float> OnRecoil; // (dirX, fireRate)
 
 
     private void Awake()
@@ -322,27 +327,16 @@ public class PlayerAttack : MonoBehaviour
     {
         if (_movement.IsDashing && _movement.Data.lockFacingToDashDirection)
         {
-            if (_upperBodyVisual != null)
-            {
-                Vector3 scale = _upperBodyVisual.localScale;
-                scale.x = _movement.IsFacingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
-                _upperBodyVisual.localScale = scale;
-            }
+            // Hình ảnh (quay mặt) đã được tách sang PlayerAnimation
             return;
         }
 
         if (_movement.IsWallJumpLocked && _movement.Data.doTurnOnWallJump) return;
 
-        Vector2 mousePos = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
-        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(mousePos);
+        // Ưu tiên Pointer.current (hỗ trợ cả Touch Mobile, Pen, Mouse) thay vì hardcode Mouse
+        Vector2 pointerPos = Pointer.current != null ? Pointer.current.position.ReadValue() : Vector2.zero;
+        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(pointerPos);
         _isAimingRight = mouseWorld.x > transform.position.x;
-
-        if (_upperBodyVisual != null)
-        {
-            Vector3 scale = _upperBodyVisual.localScale;
-            scale.x = _isAimingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
-            _upperBodyVisual.localScale = scale;
-        }
     }
 
     // ─── FIRE ────────────────────────────────────────────────────────────────
@@ -385,8 +379,8 @@ public class PlayerAttack : MonoBehaviour
         {
             if (_input.Player.Attack.IsPressed())
             {
-                // Ép bật thân trên lên ngay lập tức (chống lỗi Click mồi do bất đồng bộ frame)
-                EnsureUpperBodyVisible();
+                // Đảm bảo thân trên được bật trước khi Animator chạy (tránh race condition thứ tự Update)
+                _animation?.ShowUpperBodyImmediately();
 
                 // Bật hiệu ứng phun lửa (đã được tạo sẵn trong EquipWeapon)
                 if (_flamethrowerInstance != null && !_flamethrowerInstance.activeSelf)
@@ -417,17 +411,12 @@ public class PlayerAttack : MonoBehaviour
                         AddHeat(Data.heatPerShot * Time.deltaTime);
                     }
 
-                    // Nếu fireRate > 0 thì giật súng (DOTween)
+                    // Nếu fireRate > 0 thì giật súng
                     if (Data.fireRate > 0 && Time.time >= _lastFireTime + Data.fireRate)
                     {
                         _lastFireTime = Time.time;
-                        if (_upperBodyVisual != null)
-                        {
-                            _upperBodyVisual.DOKill();
-                            float curDirX = _isAimingRight ? 1f : -1f;
-                            Vector3 recoilForce = new Vector3(-curDirX * 0.15f, 0.03f, 0f);
-                            _upperBodyVisual.DOPunchPosition(recoilForce, Mathf.Min(0.1f, Data.fireRate * 0.8f), 1, 0.5f).SetRelative(true);
-                        }
+                        float curDirX = _isAimingRight ? 1f : -1f;
+                        OnRecoil?.Invoke(curDirX, Data.fireRate);
                     }
                 }
 
@@ -476,22 +465,14 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        // Ép bật thân trên lên ngay lập tức (chống lỗi Click mồi do bất đồng bộ frame)
-        EnsureUpperBodyVisible();
+        // Đảm bảo thân trên được bật trước khi Animator chạy (tránh race condition thứ tự Update)
+        _animation?.ShowUpperBodyImmediately();
 
         // Kích hoạt hoạt ảnh bắn. Khi hoạt ảnh tới đúng frame, nó sẽ gọi event ExecuteShot()
         if (_weaponAnimator.isActiveAndEnabled)
         {
             _weaponAnimator.SetFloat("FireSpeedMul", _currentFireSpeedMul);
             _weaponAnimator.SetTrigger("Fire");
-        }
-    }
-
-    private void EnsureUpperBodyVisible()
-    {
-        if (_upperBodyVisual != null && !_upperBodyVisual.gameObject.activeSelf)
-        {
-            _upperBodyVisual.gameObject.SetActive(true);
         }
     }
 
@@ -555,17 +536,8 @@ public class PlayerAttack : MonoBehaviour
             AddHeat(Data.heatPerShot);
         }
 
-        // --- Hiệu ứng giật súng (Recoil) với DOTween ---
-        if (_upperBodyVisual != null)
-        {
-            _upperBodyVisual.DOKill(); // Dừng tween cũ
-            
-            // Rút ngắn thời gian giật nếu fireRate quá nhanh (như Minigun) để hiệu ứng không đứt gãy
-            float recoilDuration = Mathf.Min(0.1f, Data.fireRate * 0.8f);
-            
-            Vector3 recoilForce = new Vector3(-dirX * 0.15f, 0.03f, 0f);
-            _upperBodyVisual.DOPunchPosition(recoilForce, recoilDuration, 1, 0.5f).SetRelative(true);
-        }
+        // --- Hiệu ứng giật súng (Recoil) ---
+        OnRecoil?.Invoke(dirX, Data.fireRate);
     }
 
     // ─── OVERHEAT LOGIC ──────────────────────────────────────────────────────

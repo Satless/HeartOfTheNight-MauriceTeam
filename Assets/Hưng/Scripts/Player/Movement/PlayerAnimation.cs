@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 public class PlayerAnimation : MonoBehaviour
 {
@@ -43,6 +44,27 @@ public class PlayerAnimation : MonoBehaviour
     {
         _movement = GetComponent<PlayerMovement>();
         _attack = GetComponent<PlayerAttack>();
+    }
+
+    private void OnEnable()
+    {
+        if (_attack != null) _attack.OnRecoil += HandleRecoil;
+    }
+
+    private void OnDisable()
+    {
+        if (_attack != null) _attack.OnRecoil -= HandleRecoil;
+    }
+
+    private void HandleRecoil(float dirX, float fireRate)
+    {
+        if (_upperBodyObject != null)
+        {
+            _upperBodyObject.transform.DOKill();
+            float recoilDuration = Mathf.Min(0.1f, fireRate * 0.8f);
+            Vector3 recoilForce = new Vector3(-dirX * 0.15f, 0.03f, 0f);
+            _upperBodyObject.transform.DOPunchPosition(recoilForce, recoilDuration, 1, 0.5f).SetRelative(true);
+        }
     }
 
     private void Start()
@@ -165,15 +187,37 @@ public class PlayerAnimation : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Đồng bộ hóa HƯỚNG NHÌN VÀ QUAY MẶT (Visual Facing)
+        // 1. ĐỒNG BỘ QUAY MẶT THÂN TRÊN THEO HƯỚNG SÚNG (Được chuyển sang từ PlayerAttack)
+        if (_upperBodyObject != null && _attack != null)
+        {
+            Vector3 upperScale = _upperBodyObject.transform.localScale;
+            
+            if (_movement.IsDashing && _movement.Data.lockFacingToDashDirection)
+            {
+                upperScale.x = _movement.IsFacingRight ? Mathf.Abs(upperScale.x) : -Mathf.Abs(upperScale.x);
+            }
+            else
+            {
+                upperScale.x = _attack.IsAimingRight ? Mathf.Abs(upperScale.x) : -Mathf.Abs(upperScale.x);
+            }
+            _upperBodyObject.transform.localScale = upperScale;
+        }
+
+        // 2. ĐỒNG BỘ HÓA HƯỚNG NHÌN VÀ QUAY MẶT THÂN DƯỚI (Visual Facing)
         // Dùng LateUpdate để đè lên các thay đổi scale từ PlayerMovement.Turn() (nếu có)
         Vector3 lowerScale = _lowerAnimator.transform.localScale;
 
-        if (_isHoldingGun && _upperBodyObject.activeSelf)
+        if (_isHoldingGun && _upperBodyObject.activeSelf && _attack != null)
         {
-            // KHI CÓ SÚNG (VÀ ĐANG HIỆN): Ép phần thân dưới (chân) quay theo hướng súng (chuột)
+            // KHI CÓ SÚNG (VÀ ĐANG HIỆN): Ép phần thân dưới (chân) quay theo hướng súng
             // để tránh hiện tượng vặn xoắn, bất kể PlayerMovement đang đi hướng nào.
-            float upperSign = Mathf.Sign(_upperBodyObject.transform.localScale.x);
+            float upperSign = _attack.IsAimingRight ? 1f : -1f;
+            
+            if (_movement.IsDashing && _movement.Data.lockFacingToDashDirection)
+            {
+                upperSign = _movement.IsFacingRight ? 1f : -1f;
+            }
+
             lowerScale.x = Mathf.Abs(lowerScale.x) * upperSign;
         }
         else
@@ -197,7 +241,7 @@ public class PlayerAnimation : MonoBehaviour
     private void UpdateGunState()
     {
         // 1. XỬ LÝ LOGIC HIỆN/ẨN THÂN TRÊN CẦM SÚNG
-        bool isShooting = Input.GetMouseButton(0);
+        bool isShooting = _attack != null && _attack.IsPressingFire;
         
         if (isShooting)
         {
@@ -240,6 +284,19 @@ public class PlayerAnimation : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Được gọi từ PlayerAttack để ép hiện thân trên NGAY LẬP TỨC trước khi bắn,
+    /// tránh trường hợp Animator đang inactive khiến SetTrigger("Fire") bị bỏ qua
+    /// do thứ tự Update() giữa PlayerAttack và PlayerAnimation không xác định.
+    /// </summary>
+    public void ShowUpperBodyImmediately()
+    {
+        if (_upperBodyObject != null && !_upperBodyObject.activeSelf)
+        {
+            _upperBodyObject.SetActive(true);
+        }
+    }
+
     private void HandleBlendTreeParams()
     {
         // Liên tục cập nhật vận tốc Y cho Blend Tree (Nhay/Lolung/Roi)
@@ -265,7 +322,7 @@ public class PlayerAnimation : MonoBehaviour
         else
         {
             // Khi CÓ DI CHUYỂN: So sánh hướng ngắm súng và hướng di chuyển vật lý
-            bool isAimingRight = _upperBodyObject.transform.localScale.x > 0;
+            bool isAimingRight = _attack != null && _attack.IsAimingRight;
             
             // Nếu ngắm và chạy ngược hướng nhau -> Moonwalk
             bool isMoonwalk = (isAimingRight != _movement.IsFacingRight);
