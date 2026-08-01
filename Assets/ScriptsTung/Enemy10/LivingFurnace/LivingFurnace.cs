@@ -4,15 +4,13 @@ using System.Collections.Generic;
 
 public class LivingFurnace : MonoBehaviour
 {
-<<<<<<< HEAD:Assets/ScriptsTung/Enemy10/LivingFurnace/LivingFurnace.cs
+
     [Header("Sinh tồn & Hoạt ảnh")]
     public int maxHealth = 200;
     private int currentHealth;/////
     private bool isDead = false;
     public Animator anim;
 
-=======
->>>>>>> 1c33f729c40d0dca5d358e60c0fedca93ec1ebb8:Assets/ScriptsTung/Enemy/LivingFurnace/LivingFurnace.cs
     [Header("Cài đặt Triệu hồi (Spawner)")]
     public GameObject burningCorpsePrefab;
 
