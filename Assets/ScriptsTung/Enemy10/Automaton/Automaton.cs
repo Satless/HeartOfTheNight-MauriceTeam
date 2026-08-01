@@ -6,12 +6,9 @@ public class Automaton : MonoBehaviour
     [Header("Hoạt ảnh & Hình ảnh")]
     public Animator anim;
     public SpriteRenderer sr;
-<<<<<<< HEAD:Assets/ScriptsTung/Enemy10/Automaton/Automaton.cs
-    public Sprite dashAttackSprite;/////
-=======
+
     [Tooltip("Ảnh hiển thị khi lướt trúng người")]
     public Sprite dashAttackSprite;
->>>>>>> 1c33f729c40d0dca5d358e60c0fedca93ec1ebb8:Assets/ScriptsTung/Enemy/Automaton/Automaton.cs
 
     // ĐÃ XÓA SẠCH CÁC BIẾN HITBOX LẰNG NHẰNG Ở ĐÂY
 
