@@ -3,6 +3,11 @@ using System.Collections;
 
 public class Automaton : MonoBehaviour
 {
+    [Header("Chỉ số Sinh tồn")]
+    public int maxHealth = 150;
+    public int currentHealth;
+    public bool isDead = false;
+
     [Header("Hoạt ảnh & Hình ảnh")]
     public Animator anim;
     public SpriteRenderer sr;
@@ -10,14 +15,13 @@ public class Automaton : MonoBehaviour
     [Tooltip("Ảnh hiển thị khi lướt trúng người")]
     public Sprite dashAttackSprite;
 
-    // ĐÃ XÓA SẠCH CÁC BIẾN HITBOX LẰNG NHẰNG Ở ĐÂY
-
     [Header("Tầm nhìn & Di chuyển")]
     public float moveSpeed = 4f;
     public float detectionRangeX = 12f;
     public float detectionRangeY = 3f;
     public float dashRange = 5.5f;
     public float attackRange = 2f;
+    public Vector2 attackOffset = new Vector2(0f, 1f);
 
     [Header("Dịch chuyển an toàn")]
     public float platformHeightDiff = 0.8f;
@@ -26,7 +30,7 @@ public class Automaton : MonoBehaviour
     public float teleportYOffset = 0f;
 
     [Header("Sát thương")]
-    public int meleeDamage = 10; // Giờ sẽ dùng trực tiếp biến này luôn!
+    public int meleeDamage = 10;
     public int dashDamage = 20;
 
     [Header("Chỉ số Lướt (Dash)")]
@@ -58,6 +62,7 @@ public class Automaton : MonoBehaviour
         if (anim == null) anim = GetComponent<Animator>();
         if (sr == null) sr = GetComponent<SpriteRenderer>();
 
+        currentHealth = maxHealth;
         SetupXuyenThau();
     }
 
@@ -84,12 +89,14 @@ public class Automaton : MonoBehaviour
 
     void Update()
     {
+        if (isDead || player == null || myCol == null) return;
+
         if (anim != null && !dangBanRaDon && anim.enabled)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
 
-        if (player == null || dangBanRaDon || myCol == null) return;
+        if (dangBanRaDon) return;
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
@@ -156,6 +163,35 @@ public class Automaton : MonoBehaviour
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        if (isDead) return;
+
+        currentHealth -= damage;
+        Debug.Log("Automaton nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
+
+        if (currentHealth <= 0) Die();
+    }
+
+    void Die()
+    {
+        isDead = true;
+        dangBanRaDon = true;
+
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+
+        gameObject.tag = "Untagged";
+        if (myCol != null) myCol.enabled = false;
+
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+        Destroy(gameObject, 1.5f);
+    }
+
     void Move()
     {
         LookAtPlayer();
@@ -180,6 +216,8 @@ public class Automaton : MonoBehaviour
 
         if (anim != null) anim.SetTrigger("Teleport");
         yield return new WaitForSeconds(0.3f);
+
+        if (isDead) yield break;
 
         transform.position = TimViTriTeleport();
         LookAtPlayer();
@@ -214,25 +252,20 @@ public class Automaton : MonoBehaviour
         return false;
     }
 
-    // ==========================================
-    // CHIẾN ĐẬU
-    // ==========================================
-
     IEnumerator ThucHienDanhThuong()
     {
         dangBanRaDon = true;
         StopMoving();
         LookAtPlayer();
 
-        // CHÌA KHÓA Ở ĐÂY: Khóa cứng trục X để quái đứng im phăng phắc, không bị trượt hay bị đẩy
         rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
 
         if (anim != null) anim.SetTrigger("Attack");
 
-        // Ngồi chờ cho clip chiếu xong
         yield return new WaitForSeconds(2f);
 
-        // TRẢ LẠI TỰ DO: Mở khóa trục X để quái có thể đi bộ đuổi theo Player tiếp
+        if (isDead) yield break;
+
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         nextMeleeTime = Time.time + meleeCooldown;
@@ -256,6 +289,8 @@ public class Automaton : MonoBehaviour
 
         while (thoiGianDaLuot < dashDuration)
         {
+            if (isDead) break;
+
             Vector2 origin = myCol.bounds.center;
             Vector2 bottomFront = new Vector2(origin.x + (huongLuot * doRongQuai), myCol.bounds.min.y);
 
@@ -280,32 +315,44 @@ public class Automaton : MonoBehaviour
             yield return null;
         }
 
-        rb.linearVelocity = Vector2.zero;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        if (anim != null)
+        if (!isDead)
         {
-            anim.enabled = true;
-            anim.SetFloat("Speed", 0f);
-        }
+            rb.linearVelocity = Vector2.zero;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        nextDashTime = Time.time + dashCooldown;
-        dangBanRaDon = false;
+            if (anim != null)
+            {
+                anim.enabled = true;
+                anim.SetFloat("Speed", 0f);
+            }
+
+            nextDashTime = Time.time + dashCooldown;
+            dangBanRaDon = false;
+        }
     }
 
-    // =======================================================
-    // ANIMATION EVENT: XỬ LÝ CHÉM THƯỜNG TRỰC TIẾP BẰNG CODE
-    // =======================================================
-
-    // Gọi hàm này trong bảng Animation ở frame mà kiếm vung xuống
     public void DealMeleeDamage()
     {
-        if (player == null) return;
+        if (player == null || isDead) return;
 
-        // Nếu Player đứng trong tầm chém lúc tay vung xuống -> Trừ máu!
-        if (Mathf.Abs(player.position.x - transform.position.x) <= attackRange + 0.5f)
+        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+        Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+
+        Vector2 finalAttackPos = (Vector2)transform.position + adjustedOffset;
+        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, attackRange);
+
+        foreach (Collider2D p in hitPlayers)
         {
-            player.GetComponent<PlayerHealth>()?.TakeDamage(meleeDamage);
+            if (p.CompareTag("Player"))
+            {
+                PlayerHealth hp = p.GetComponent<PlayerHealth>();
+                if (hp != null)
+                {
+                    hp.TakeDamage(meleeDamage);
+                    Debug.Log("Automaton chém thường trúng Player!");
+                }
+            }
         }
     }
 
@@ -313,8 +360,14 @@ public class Automaton : MonoBehaviour
     {
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+        Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+
+        Vector2 finalAttackPos = (Vector2)transform.position + adjustedOffset;
+        Gizmos.DrawWireSphere(finalAttackPos, attackRange);
+
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, dashRange);
     }
