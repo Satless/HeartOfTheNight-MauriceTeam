@@ -29,23 +29,19 @@ public class PlayerAttack2 : MonoBehaviour
         // Tạo vòng tròn quét trúng quái
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
-        foreach (Collider2D enemy in hitEnemies)
+        foreach (Collider2D enemyHit in hitEnemies)
         {
-            Debug.Log("Player chém trúng: " + enemy.name);
+            // 1. BỎ QUA nếu chém trúng cái Hitbox (isTrigger) của quái, chỉ chém vào thân chính
+            if (enemyHit.isTrigger) continue;
 
-            // 1. Dành cho quái thường
-            EnemyHealth enemyHp = enemy.GetComponent<EnemyHealth>();
-            if (enemyHp != null)
-            {
-                enemyHp.TakeDamage(attackDamage);
-            }
+            // 2. CHẶN SÁT THƯƠNG KHIÊN: Bỏ qua nếu quái không mang Tag Enemy hoặc Boss
+            // (Lúc có khiên, Mắt Đêm đã lột Tag đi nên lệnh này sẽ đá văng nhát chém)
+            if (!enemyHit.CompareTag("Enemy") && !enemyHit.CompareTag("Boss")) continue;
 
-            // 2. Dành cho Boss Doom Bringer
-            DoomBringer boss = enemy.GetComponent<DoomBringer>();
-            if (boss != null)
-            {
-                boss.TakeDamage(attackDamage);
-            }
+            Debug.Log("Player chém trúng: " + enemyHit.name);
+
+            // 3. Gây sát thương nếu thỏa mãn mọi điều kiện
+            enemyHit.SendMessageUpwards("TakeDamage", attackDamage, SendMessageOptions.DontRequireReceiver);
         }
     }
 
