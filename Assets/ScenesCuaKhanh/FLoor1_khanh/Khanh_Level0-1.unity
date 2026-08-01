@@ -50711,6 +50711,10 @@ PrefabInstance:
       propertyPath: m_SortingOrder
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 4250259313978543281, guid: c704d937cbe4ed746957aa892b9a2647, type: 3}
+      propertyPath: nextSceneName
+      value: Khanh_Level1-1
+      objectReference: {fileID: 0}
     - target: {fileID: 7716670986763848849, guid: c704d937cbe4ed746957aa892b9a2647, type: 3}
       propertyPath: m_LocalPosition.x
       value: 13.4
@@ -123256,7 +123260,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6949912397899648992, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.8331757
+      value: 330.6
       objectReference: {fileID: 0}
     - target: {fileID: 6949912397899648992, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
       propertyPath: m_LocalPosition.y
@@ -340225,7 +340229,7 @@ TilemapRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
   m_MaxChunkCount: 16
@@ -367894,8 +367898,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d202d68b8475b5449436a6ea8e89186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transitionType: 0
   nextRoomSpawnPoint: {fileID: 1325538565}
   targetDoor: {fileID: 1207744102}
+  nextSceneName: 
+  spawnIDInNextScene: 
   blackScreen: {fileID: 0}
   fadeSpeed: 3
 --- !u!114 &5913957148311659032
@@ -367910,8 +367917,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d202d68b8475b5449436a6ea8e89186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transitionType: 0
   nextRoomSpawnPoint: {fileID: 64138787}
   targetDoor: {fileID: 889667223}
+  nextSceneName: 
+  spawnIDInNextScene: 
   blackScreen: {fileID: 0}
   fadeSpeed: 3
 --- !u!4 &6300921234813071190
