@@ -50,8 +50,17 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("Đang sử dụng bản biến thể phụ (chuyển đổi bằng phím Q).")]
     [SerializeField, ReadOnly] private bool _useVariant2 = false;
 
-    // Tự động tìm trong Awake, không cần kéo tay
-    private Camera _mainCamera;
+    // Tự động tìm khi cần, tự phục hồi sau khi đổi scene (DontDestroyOnLoad safe)
+    private Camera _mainCameraCache;
+    private Camera MainCamera
+    {
+        get
+        {
+            if (_mainCameraCache == null)
+                _mainCameraCache = Camera.main;
+            return _mainCameraCache;
+        }
+    }
 
     [Header("Visuals")]
     [Tooltip("Kéo child phần thân trên (súng) vào đây (Tren)")]
@@ -113,10 +122,6 @@ public class PlayerAttack : MonoBehaviour
 
     private void Awake()
     {
-        _mainCamera = Camera.main;
-        if (_mainCamera == null)
-            Debug.LogError("PlayerAttack: Không tìm thấy Main Camera! Hãy đảm bảo Camera trong Scene được gắn tag 'MainCamera'.");
-
         _movement = GetComponent<PlayerMovement>();
         _animation = GetComponent<PlayerAnimation>();
         if (_upperBodyVisual != null) _weaponAnimator = _upperBodyVisual.GetComponent<Animator>();
@@ -333,9 +338,12 @@ public class PlayerAttack : MonoBehaviour
 
         if (_movement.IsWallJumpLocked && _movement.Data.doTurnOnWallJump) return;
 
+        Camera cam = MainCamera;
+        if (cam == null) return; // Scene chưa có camera (VD: đang loading) → bỏ qua frame này
+
         // Ưu tiên Pointer.current (hỗ trợ cả Touch Mobile, Pen, Mouse) thay vì hardcode Mouse
         Vector2 pointerPos = Pointer.current != null ? Pointer.current.position.ReadValue() : Vector2.zero;
-        Vector3 mouseWorld = _mainCamera.ScreenToWorldPoint(pointerPos);
+        Vector3 mouseWorld = cam.ScreenToWorldPoint(pointerPos);
         _isAimingRight = mouseWorld.x > transform.position.x;
     }
 
