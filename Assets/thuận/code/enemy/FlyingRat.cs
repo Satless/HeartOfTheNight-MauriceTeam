@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class FlyingRat : MonoBehaviour
@@ -55,7 +55,7 @@ public class FlyingRat : MonoBehaviour
     {
         attacking = true;
 
-        HealthPoint health = player.GetComponent<HealthPoint>();
+        PlayerHealth health = player.GetComponent<PlayerHealth>();
 
         if (health != null)
         {
