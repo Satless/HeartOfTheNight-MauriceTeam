@@ -1,4 +1,4 @@
-﻿/*using UnityEngine;
+/*using UnityEngine;
 using System.Collections;
 
 public class Wrath : MonoBehaviour
@@ -112,7 +112,7 @@ public class Wrath : MonoBehaviour
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         if (distanceX <= attackRange + 0.5f)
         {
-            PlayerHealth hp = player.GetComponent<PlayerHealth>();
+            HealthPoint hp = player.GetComponent<HealthPoint>();
             if (hp != null) hp.TakeDamage(attackDamage);
 
             AntiHeal anti = player.GetComponent<AntiHeal>();
