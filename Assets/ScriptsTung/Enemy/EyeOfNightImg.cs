@@ -5,7 +5,7 @@ using UnityEngine;
 public class EyeOfNightImg : MonoBehaviour
 {
     [Header("Hoạt ảnh")]
-    public Animator anim;
+    public Animator anim;/////////
 
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 150;

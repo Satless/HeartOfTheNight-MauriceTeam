@@ -6,7 +6,7 @@ public class AutomatonImg : MonoBehaviour
     [Header("Hoạt ảnh & Hình ảnh")]
     public Animator anim;
     public SpriteRenderer sr;
-    public Sprite dashAttackSprite;
+    public Sprite dashAttackSprite;/////
 
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 150;

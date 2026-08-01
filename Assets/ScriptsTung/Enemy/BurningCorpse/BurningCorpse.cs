@@ -123,7 +123,7 @@ public class BurningCorpseImg : MonoBehaviour
             else stuckTimer = 0f;
         }
         else stuckTimer = 0f;
-        
+        ///////
         lastXPos = transform.position.x;
 
         // ==========================================

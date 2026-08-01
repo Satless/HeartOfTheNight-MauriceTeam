@@ -6,7 +6,7 @@ public class LivingFurnaceImg : MonoBehaviour
 {
     [Header("Sinh tồn & Hoạt ảnh")]
     public int maxHealth = 200;
-    private int currentHealth;
+    private int currentHealth;/////
     private bool isDead = false;
     public Animator anim;
 

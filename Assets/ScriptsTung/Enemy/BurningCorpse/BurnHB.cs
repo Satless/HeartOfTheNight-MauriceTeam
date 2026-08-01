@@ -12,7 +12,7 @@ public class BurnHB : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             PlayerHealth pHealth = collision.GetComponent<PlayerHealth>();
-
+            ////////S
             if (pHealth != null)
             {
                 // 2. Tên sếp bây giờ là BurningCorpseImg nhé!

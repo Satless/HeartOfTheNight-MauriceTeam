@@ -21,7 +21,7 @@ public class DoomSkill : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // 1. NẾU BẮN TRÚNG PLAYER
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player"))////
         {
             PlayerHealth pHealth = collision.GetComponent<PlayerHealth>();
             if (pHealth != null)

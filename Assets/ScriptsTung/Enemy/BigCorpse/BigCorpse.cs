@@ -4,7 +4,7 @@ using System.Collections;
 public class BigCorpseImg : MonoBehaviour
 {
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 100;
+    public int maxHealth = 100;/////
     public int currentHealth;
     public bool isDead = false;
 

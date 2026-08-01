@@ -208,7 +208,7 @@ public class DoomBringer : MonoBehaviour
         }
     }
 
-    void ShootLaser()
+    void ShootLaser()//////
     {
         if (laserPrefab == null || firePoint == null) return;
         GameObject laser = Instantiate(laserPrefab, firePoint.position, Quaternion.identity);
