@@ -52,16 +52,12 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-<<<<<<< HEAD
     filterMode: 0
-=======
-    filterMode: 1
->>>>>>> 0653caef22f2c8a76af8398d1ac49a58ddb13e5a
     aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -70,11 +66,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-<<<<<<< HEAD
   spritePixelsToUnits: 16
-=======
-  spritePixelsToUnits: 100
->>>>>>> 0653caef22f2c8a76af8398d1ac49a58ddb13e5a
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -98,11 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-<<<<<<< HEAD
     textureCompression: 0
-=======
-    textureCompression: 1
->>>>>>> 0653caef22f2c8a76af8398d1ac49a58ddb13e5a
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -123,19 +111,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -143,20 +118,20 @@ TextureImporter:
       name: Her-jump-Sheet_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 171
-        width: 28
-        height: 31
+        x: 26
+        y: 172
+        width: 26
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f57076702637f5af0800000000000000
-      internalID: -405478576571873441
+      spriteID: 9b5a14fb3b4e15941b37c89732a33287
+      internalID: -1798035584
       vertices: []
       indices: 
       edges: []
@@ -165,20 +140,20 @@ TextureImporter:
       name: Her-jump-Sheet_1
       rect:
         serializedVersion: 2
-        x: 25
-        y: 137
-        width: 28
-        height: 31
+        x: 26
+        y: 138
+        width: 26
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a865bfb860d38f5a0800000000000000
-      internalID: -6487368164899596662
+      spriteID: 1616fcbe6f1a9b941aacc52a3ce11470
+      internalID: 271513381
       vertices: []
       indices: 
       edges: []
@@ -187,20 +162,20 @@ TextureImporter:
       name: Her-jump-Sheet_2
       rect:
         serializedVersion: 2
-        x: 25
-        y: 103
-        width: 28
-        height: 31
+        x: 26
+        y: 104
+        width: 26
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b0a20218418eb4d20800000000000000
-      internalID: 3263957529723415051
+      spriteID: 16a9212ad790bb243becc68578be8357
+      internalID: 242746112
       vertices: []
       indices: 
       edges: []
@@ -209,20 +184,20 @@ TextureImporter:
       name: Her-jump-Sheet_3
       rect:
         serializedVersion: 2
-        x: 25
-        y: 69
-        width: 28
-        height: 31
+        x: 26
+        y: 70
+        width: 26
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8bd8c44f8aad05f10800000000000000
-      internalID: 2256543832500637112
+      spriteID: 76131ae0d8c69304ca3ac3aa98fa1238
+      internalID: -1548217245
       vertices: []
       indices: 
       edges: []
@@ -231,20 +206,20 @@ TextureImporter:
       name: Her-jump-Sheet_4
       rect:
         serializedVersion: 2
-        x: 25
-        y: 35
-        width: 28
-        height: 31
+        x: 26
+        y: 36
+        width: 26
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2eb00802e05a3bb10800000000000000
-      internalID: 1996120539948649442
+      spriteID: b252da17f8b5bb245a4a167895acbb63
+      internalID: 1189534360
       vertices: []
       indices: 
       edges: []
@@ -253,20 +228,20 @@ TextureImporter:
       name: Her-jump-Sheet_5
       rect:
         serializedVersion: 2
-        x: 25
-        y: 1
-        width: 28
-        height: 31
+        x: 26
+        y: 2
+        width: 26
+        height: 29
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 73fd32f99e43d6e30800000000000000
-      internalID: 4498309780814946103
+      spriteID: 989acbc9c85006c4abf3a0e1553cbe6a
+      internalID: -1592327994
       vertices: []
       indices: 
       edges: []
@@ -275,7 +250,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b8b82f09567f2484988e27c566829f28
     internalID: 0
     vertices: []
     indices: 
@@ -285,12 +260,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Her-jump-Sheet_0: -405478576571873441
-      Her-jump-Sheet_1: -6487368164899596662
-      Her-jump-Sheet_2: 3263957529723415051
-      Her-jump-Sheet_3: 2256543832500637112
-      Her-jump-Sheet_4: 1996120539948649442
-      Her-jump-Sheet_5: 4498309780814946103
+      Her-jump-Sheet_0: -1798035584
+      Her-jump-Sheet_1: 271513381
+      Her-jump-Sheet_2: 242746112
+      Her-jump-Sheet_3: -1548217245
+      Her-jump-Sheet_4: 1189534360
+      Her-jump-Sheet_5: -1592327994
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

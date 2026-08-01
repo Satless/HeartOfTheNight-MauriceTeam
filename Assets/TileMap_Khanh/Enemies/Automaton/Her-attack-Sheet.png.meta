@@ -88,16 +88,12 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-<<<<<<< HEAD
     filterMode: 0
-=======
-    filterMode: 1
->>>>>>> 0653caef22f2c8a76af8398d1ac49a58ddb13e5a
     aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -106,11 +102,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-<<<<<<< HEAD
   spritePixelsToUnits: 16
-=======
-  spritePixelsToUnits: 100
->>>>>>> 0653caef22f2c8a76af8398d1ac49a58ddb13e5a
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -134,11 +126,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-<<<<<<< HEAD
     textureCompression: 0
-=======
-    textureCompression: 1
->>>>>>> 0653caef22f2c8a76af8398d1ac49a58ddb13e5a
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -159,19 +147,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -179,20 +154,20 @@ TextureImporter:
       name: Her-attack-Sheet_0
       rect:
         serializedVersion: 2
-        x: 27
-        y: 375
-        width: 28
-        height: 29
+        x: 28
+        y: 376
+        width: 26
+        height: 27
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7c9100658c08cd630800000000000000
-      internalID: 3953176170849114567
+      spriteID: 53f870c39fd02114192a22108e120bb1
+      internalID: -59221235
       vertices: []
       indices: 
       edges: []
@@ -201,20 +176,20 @@ TextureImporter:
       name: Her-attack-Sheet_1
       rect:
         serializedVersion: 2
-        x: 27
-        y: 341
-        width: 28
-        height: 29
+        x: 28
+        y: 342
+        width: 26
+        height: 27
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 07c059bc74a4173a0800000000000000
-      internalID: -6669467900940317584
+      spriteID: 04e2b1a74c2077045a30cde2acf6d0b1
+      internalID: -1783616105
       vertices: []
       indices: 
       edges: []
@@ -223,20 +198,20 @@ TextureImporter:
       name: Her-attack-Sheet_2
       rect:
         serializedVersion: 2
-        x: 27
-        y: 307
-        width: 27
-        height: 27
+        x: 28
+        y: 308
+        width: 25
+        height: 25
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a8b883ba1aead73f0800000000000000
-      internalID: -901372341018653814
+      spriteID: d58bf3de716c7f04ea17b785fb59da49
+      internalID: -1543902937
       vertices: []
       indices: 
       edges: []
@@ -245,20 +220,20 @@ TextureImporter:
       name: Her-attack-Sheet_3
       rect:
         serializedVersion: 2
-        x: 26
-        y: 273
-        width: 28
-        height: 27
+        x: 27
+        y: 274
+        width: 26
+        height: 25
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 5fc13971fedef8000800000000000000
-      internalID: 40512532818107637
+      spriteID: 6a94b20790d147f41a7b9aa92654ee07
+      internalID: 1484064816
       vertices: []
       indices: 
       edges: []
@@ -267,20 +242,20 @@ TextureImporter:
       name: Her-attack-Sheet_4
       rect:
         serializedVersion: 2
-        x: 8
-        y: 237
-        width: 77
-        height: 24
+        x: 9
+        y: 238
+        width: 75
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 12dbd262192e100d0800000000000000
-      internalID: -3458233925805163231
+      spriteID: 62a21c4ff39e59b49a4f92337051d9cb
+      internalID: -1316835037
       vertices: []
       indices: 
       edges: []
@@ -289,20 +264,20 @@ TextureImporter:
       name: Her-attack-Sheet_5
       rect:
         serializedVersion: 2
-        x: 12
-        y: 203
-        width: 44
-        height: 24
+        x: 13
+        y: 204
+        width: 42
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7ac08bfe0d9630730800000000000000
-      internalID: 3964128443112098983
+      spriteID: 3ac5e335b339b8b428503dc66c64ba9c
+      internalID: -1782890960
       vertices: []
       indices: 
       edges: []
@@ -311,20 +286,20 @@ TextureImporter:
       name: Her-attack-Sheet_6
       rect:
         serializedVersion: 2
-        x: 49
-        y: 218
-        width: 8
-        height: 7
+        x: 50
+        y: 219
+        width: 6
+        height: 5
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f4cba4cf27935fe80800000000000000
-      internalID: -8145541185007862705
+      spriteID: 0caf458175a1ac74eb29e0827b745cd4
+      internalID: 1164808102
       vertices: []
       indices: 
       edges: []
@@ -333,20 +308,20 @@ TextureImporter:
       name: Her-attack-Sheet_7
       rect:
         serializedVersion: 2
-        x: 55
-        y: 203
-        width: 31
-        height: 20
+        x: 56
+        y: 204
+        width: 29
+        height: 18
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 9dc1be06083db3010800000000000000
-      internalID: 1169761076568071385
+      spriteID: 0f045ab0192cfa04db19e3a9a7e8bd9b
+      internalID: 1581435050
       vertices: []
       indices: 
       edges: []
@@ -355,20 +330,20 @@ TextureImporter:
       name: Her-attack-Sheet_8
       rect:
         serializedVersion: 2
-        x: 12
-        y: 169
-        width: 56
-        height: 24
+        x: 13
+        y: 170
+        width: 54
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 4ef71d0db460710e0800000000000000
-      internalID: -2299362162053644316
+      spriteID: 439ed5491ba9e7445a54628178beecce
+      internalID: 14222627
       vertices: []
       indices: 
       edges: []
@@ -377,20 +352,20 @@ TextureImporter:
       name: Her-attack-Sheet_9
       rect:
         serializedVersion: 2
-        x: 73
-        y: 169
-        width: 15
-        height: 25
+        x: 74
+        y: 170
+        width: 13
+        height: 23
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 81caef44c1799f9d0800000000000000
-      internalID: -2739992750605816808
+      spriteID: 66e6702aa6e55474eb5fc85058b7d10a
+      internalID: 228664519
       vertices: []
       indices: 
       edges: []
@@ -399,20 +374,20 @@ TextureImporter:
       name: Her-attack-Sheet_10
       rect:
         serializedVersion: 2
-        x: 12
-        y: 135
-        width: 42
-        height: 24
+        x: 13
+        y: 136
+        width: 40
+        height: 22
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 00012f4743f049960800000000000000
-      internalID: 7607722388510347264
+      spriteID: fc0f19ac534448841b87baa4864dde4b
+      internalID: 1057503019
       vertices: []
       indices: 
       edges: []
@@ -421,20 +396,20 @@ TextureImporter:
       name: Her-attack-Sheet_11
       rect:
         serializedVersion: 2
-        x: 10
-        y: 101
-        width: 74
-        height: 29
+        x: 11
+        y: 102
+        width: 72
+        height: 27
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2c0f918fc7cb93360800000000000000
-      internalID: 7149953128351789250
+      spriteID: 73f49c9bb1af6eb4cb1240f23bf9f072
+      internalID: -1003148785
       vertices: []
       indices: 
       edges: []
@@ -443,20 +418,20 @@ TextureImporter:
       name: Her-attack-Sheet_12
       rect:
         serializedVersion: 2
-        x: 20
-        y: 69
-        width: 36
-        height: 27
+        x: 21
+        y: 70
+        width: 34
+        height: 25
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: bd082c73efd9702b0800000000000000
-      internalID: -5618348294938656549
+      spriteID: 68ea5d35916cfc546be36e2fee17c6ac
+      internalID: -1234941609
       vertices: []
       indices: 
       edges: []
@@ -465,20 +440,20 @@ TextureImporter:
       name: Her-attack-Sheet_13
       rect:
         serializedVersion: 2
-        x: 56
-        y: 87
-        width: 11
-        height: 9
+        x: 57
+        y: 88
+        width: 9
+        height: 7
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 34f7b3306642c2cf0800000000000000
-      internalID: -275805456616947901
+      spriteID: cbe9e485df3c1364fa6b01e3d1d43e37
+      internalID: 973213815
       vertices: []
       indices: 
       edges: []
@@ -487,20 +462,20 @@ TextureImporter:
       name: Her-attack-Sheet_14
       rect:
         serializedVersion: 2
-        x: 61
-        y: 37
-        width: 27
-        height: 38
+        x: 80
+        y: 75
+        width: 6
+        height: 9
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 1aa88a94a01260870800000000000000
-      internalID: 8648636462480788129
+      spriteID: 188b51329332eef4ca36fcac8d3bb874
+      internalID: -2015353936
       vertices: []
       indices: 
       edges: []
@@ -509,20 +484,20 @@ TextureImporter:
       name: Her-attack-Sheet_15
       rect:
         serializedVersion: 2
-        x: 79
-        y: 74
-        width: 8
-        height: 11
+        x: 22
+        y: 36
+        width: 40
+        height: 23
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 14a20f741230a2790800000000000000
-      internalID: -7554221983484859839
+      spriteID: 5d34dbd7e4badfd49a9d606c8d0d1588
+      internalID: -1128697942
       vertices: []
       indices: 
       edges: []
@@ -531,20 +506,20 @@ TextureImporter:
       name: Her-attack-Sheet_16
       rect:
         serializedVersion: 2
-        x: 21
-        y: 35
-        width: 42
-        height: 25
+        x: 62
+        y: 38
+        width: 25
+        height: 36
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b3b15115d8d10a0c0800000000000000
-      internalID: -4566617529365750981
+      spriteID: ff8693c9eb3378a4a9827147b2b56699
+      internalID: 948844668
       vertices: []
       indices: 
       edges: []
@@ -553,20 +528,20 @@ TextureImporter:
       name: Her-attack-Sheet_17
       rect:
         serializedVersion: 2
-        x: 21
-        y: 1
-        width: 32
-        height: 22
+        x: 22
+        y: 2
+        width: 30
+        height: 20
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c930ab1541ee64da0800000000000000
-      internalID: -5960815285740371044
+      spriteID: 476e58e13de2c8247a21249ad4db51d4
+      internalID: 395645617
       vertices: []
       indices: 
       edges: []
@@ -575,7 +550,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: d63a9b2a93b9be74bbb5e3e6d6cd0191
     internalID: 0
     vertices: []
     indices: 
@@ -585,24 +560,24 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Her-attack-Sheet_0: 3953176170849114567
-      Her-attack-Sheet_1: -6669467900940317584
-      Her-attack-Sheet_10: 7607722388510347264
-      Her-attack-Sheet_11: 7149953128351789250
-      Her-attack-Sheet_12: -5618348294938656549
-      Her-attack-Sheet_13: -275805456616947901
-      Her-attack-Sheet_14: 8648636462480788129
-      Her-attack-Sheet_15: -7554221983484859839
-      Her-attack-Sheet_16: -4566617529365750981
-      Her-attack-Sheet_17: -5960815285740371044
-      Her-attack-Sheet_2: -901372341018653814
-      Her-attack-Sheet_3: 40512532818107637
-      Her-attack-Sheet_4: -3458233925805163231
-      Her-attack-Sheet_5: 3964128443112098983
-      Her-attack-Sheet_6: -8145541185007862705
-      Her-attack-Sheet_7: 1169761076568071385
-      Her-attack-Sheet_8: -2299362162053644316
-      Her-attack-Sheet_9: -2739992750605816808
+      Her-attack-Sheet_0: -59221235
+      Her-attack-Sheet_1: -1783616105
+      Her-attack-Sheet_10: 1057503019
+      Her-attack-Sheet_11: -1003148785
+      Her-attack-Sheet_12: -1234941609
+      Her-attack-Sheet_13: 973213815
+      Her-attack-Sheet_14: -2015353936
+      Her-attack-Sheet_15: -1128697942
+      Her-attack-Sheet_16: 948844668
+      Her-attack-Sheet_17: 395645617
+      Her-attack-Sheet_2: -1543902937
+      Her-attack-Sheet_3: 1484064816
+      Her-attack-Sheet_4: -1316835037
+      Her-attack-Sheet_5: -1782890960
+      Her-attack-Sheet_6: 1164808102
+      Her-attack-Sheet_7: 1581435050
+      Her-attack-Sheet_8: 14222627
+      Her-attack-Sheet_9: 228664519
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
