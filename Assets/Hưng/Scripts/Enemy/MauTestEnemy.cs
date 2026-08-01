@@ -1,13 +1,14 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using HeartOfTheNight.Common;
 
 /// <summary>
 /// Script quản lý máu của Enemy, tuân thủ FSM/Data-Driven giống PlayerMovement.
 /// Không hardcode máu vào đây, mà đọc từ MauTestEnemyData (ScriptableObject).
 /// Dùng Event-Driven (UnityEvent) để dễ dàng gắn VFX/SFX trên Inspector mà không dính code.
 /// </summary>
-public class MauTestEnemy : MonoBehaviour, NhanSatThuong
+public class MauTestEnemy : MonoBehaviour, IDamageable
 {
     [Header("Data Configuration")]
     [Tooltip("Data chứa cấu hình tĩnh (Máu, Thời gian nháy đỏ...)")]
@@ -64,7 +65,7 @@ public class MauTestEnemy : MonoBehaviour, NhanSatThuong
     }
 
     /// <summary>
-    /// Triển khai interface NhanSatThuong.
+    /// Triển khai interface IDamageable.
     /// Hàm này được gọi độc lập từ bên ngoài (ví dụ Bullet.cs).
     /// </summary>
     public void TakeDamage(int damage)
@@ -75,7 +76,7 @@ public class MauTestEnemy : MonoBehaviour, NhanSatThuong
         _currentHealth -= damage;
         _currentHealth = Mathf.Max(_currentHealth, 0); // Không để máu âm
 
-        Debug.Log($"[NhanSatThuong - MauTestEnemy] Đã nhận <color=red>{damage}</color> sát thương. Máu còn: <color=green>{_currentHealth}</color>");
+        Debug.Log($"[IDamageable - MauTestEnemy] Đã nhận <color=red>{damage}</color> sát thương. Máu còn: <color=green>{_currentHealth}</color>");
 
         // Báo cho toàn hệ thống biết đã mất máu (UI, Audio Manager...)
         OnTakeDamage?.Invoke();
@@ -97,7 +98,7 @@ public class MauTestEnemy : MonoBehaviour, NhanSatThuong
 
     private void Die()
     {
-        Debug.Log($"[NhanSatThuong - MauTestEnemy] Quái {gameObject.name} <color=red>ĐÃ CHẾT</color>!");
+        Debug.Log($"[IDamageable - MauTestEnemy] Quái {gameObject.name} <color=red>ĐÃ CHẾT</color>!");
         _isDead = true;
         OnDeath?.Invoke();
 
