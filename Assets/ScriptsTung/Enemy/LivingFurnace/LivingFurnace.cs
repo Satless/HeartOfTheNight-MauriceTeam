@@ -1,119 +1,164 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
-public class LivingFurnace : MonoBehaviour
+public class LivingFurnaceImg : MonoBehaviour
 {
-    [Header("Movement")]
-    public float speed = 4f;
+    [Header("Sinh tồn & Hoạt ảnh")]
+    public int maxHealth = 200;
+    private int currentHealth;
+    private bool isDead = false;
+    public Animator anim;
 
-    [Header("Detection")]
-    public float detectionRange = 8f;
+    [Header("Cài đặt Triệu hồi (Spawner)")]
+    public GameObject burningCorpsePrefab;
+    public int maxMinions = 4;
+    public float spawnRadius = 2f;
+    public float delayBetweenWaves = 2f;
 
-    [Header("Explosion")]
-    public float explodeRange = 1.5f;
-    public int damage = 30;
-    public int hp = 1;
+    [Header("Tầm phát hiện Player")]
+    public float detectionRangeX = 12f;
+    public float detectionRangeY = 5f;
+
+    private List<GameObject> activeMinions = new List<GameObject>();
+    private bool isSpawning = false;
 
     private Transform player;
-    private bool chasing = false;
-    private bool exploding = false;
+    private Collider2D myCol;
 
-    private void Start()
+    void Start()
     {
-        GameObject obj = GameObject.FindGameObjectWithTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        myCol = GetComponent<Collider2D>();
 
-        if (obj != null)
-            player = obj.transform;
+        if (anim == null) anim = GetComponentInChildren<Animator>();
+
+        currentHealth = maxHealth;
+
+        SetupXuyenThau();
     }
 
-    private void Update()
+    void Update()
     {
-        if (player == null || exploding)
-            return;
+        if (isSpawning || isDead) return;
 
-        float distance = Vector2.Distance(transform.position, player.position);
+        activeMinions.RemoveAll(minion => minion == null);
 
-        // Player vào vùng phát hiện
-        if (distance <= detectionRange)
+        if (player != null)
         {
-            chasing = true;
-        }
+            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-        // Bay đuổi Player
-        if (chasing)
-        {
-            transform.position = Vector2.MoveTowards(
-                transform.position,
-                player.position,
-                speed * Time.deltaTime);
-
-            // Kiểm tra khoảng cách để nổ
-            distance = Vector2.Distance(transform.position, player.position);
-
-            if (distance <= explodeRange)
+            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                StartCoroutine(Explode());
+                if (activeMinions.Count == 0)
+                {
+                    StartCoroutine(SpawnWaveRoutine());
+                }
             }
         }
     }
 
-    IEnumerator Explode()
+    public void TakeDamage(int damage)
     {
-        exploding = true;
+        if (isDead) return;
 
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        currentHealth -= damage;
+        Debug.Log("Living Furnace nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
 
-        float timer = 0f;
-        float explodeTime = 1f;
-
-        while (timer < explodeTime)
+        if (currentHealth <= 0)
         {
-            if (sr != null)
-                sr.color = Color.red;
+            Die();
+        }
+    }
 
-            yield return new WaitForSeconds(0.1f);
+    void Die()
+    {
+        isDead = true;
+        Debug.Log("Living Furnace đã bị tiêu diệt!");
 
-            if (sr != null)
-                sr.color = Color.white;
+        StopAllCoroutines();
 
-            yield return new WaitForSeconds(0.1f);
-
-            timer += 0.2f;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false; // Khóa vật lý y hệt DoomBringer
         }
 
-        float distance = Vector2.Distance(transform.position, player.position);
+        gameObject.tag = "Untagged";
+        if (myCol != null) myCol.enabled = false;
 
-        if (distance <= explodeRange)
+        if (anim != null)
         {
-            HealthPoint health = player.GetComponent<HealthPoint>();
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
 
-            if (health != null)
+        Destroy(gameObject, 0.5f);
+    }
+
+    IEnumerator SpawnWaveRoutine()
+    {
+        isSpawning = true;
+        yield return new WaitForSeconds(delayBetweenWaves);
+
+        if (isDead) yield break;
+
+        float pivotOffset = 0f;
+        Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
+        if (prefabCol != null)
+        {
+            pivotOffset = burningCorpsePrefab.transform.position.y - prefabCol.bounds.min.y;
+        }
+
+        for (int i = 0; i < maxMinions; i++)
+        {
+            float randomX = transform.position.x + Random.Range(-spawnRadius, spawnRadius);
+            Vector2 rayStart = new Vector2(randomX, transform.position.y + 3f);
+            RaycastHit2D hit = Physics2D.Raycast(rayStart, Vector2.down, 10f);
+
+            Vector2 spawnPos = new Vector2(randomX, transform.position.y);
+
+            if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
             {
-                health.TakeDamage(damage);
+                spawnPos = new Vector2(randomX, hit.point.y + pivotOffset + 0.05f);
+            }
+
+            GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
+            activeMinions.Add(newMinion);
+yield return new WaitForSeconds(0.3f);
+        }
+
+        isSpawning = false;
+    }
+
+    void SetupXuyenThau()
+    {
+        if (myCol == null) return;
+
+        if (player != null)
+        {
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+        }
+
+        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject enemyObj in allEnemies)
+        {
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
             }
         }
-
-        Destroy(gameObject);
     }
 
-    public void TakeDamage(int dmg)
+    void OnDrawGizmosSelected()
     {
-        hp -= dmg;
-
-        if (hp <= 0)
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        // Vùng phát hiện (màu cam)
         Gizmos.color = new Color(1f, 0.6f, 0f);
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
-
-        // Vùng nổ (màu đỏ)
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, explodeRange);
+        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
     }
 }

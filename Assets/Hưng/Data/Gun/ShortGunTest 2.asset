@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
+  m_Name: ShortGunTest 2
+  m_EditorClassIdentifier: 
+  fireRate: 1
+  bulletSpeed: 30
+  damage: 50
+  bulletLifetime: 3
+  bulletsPerShot: 1
+  spreadAngle: 2
+  isVerticalSpread: 0
+  verticalSpacing: 0.1
+  animationSpeedMultiplier: 1
+  bulletPrefab: {fileID: 437895494315374385, guid: 0a33f90d07331144dab5096eaa00a110, type: 3}
+  weaponAnimator: {fileID: 9100000, guid: b796694b72b51cf4bb900339e6b9e128, type: 2}
+  fireAnimationClip: {fileID: 7400000, guid: 0b50002f91f4f6d44a14c028008e8900, type: 2}
+  isExplosive: 1
+  explosionRadius: 2.5
+  explosionDamage: 25
+  statusEffect: {fileID: 0}
+  pierceCount: 0
+  isContinuousFire: 0
+  continuousVfxPrefab: {fileID: 0}
+  knockbackForce: 0
+  explosionKnockbackForce: 3
+  bulletPrewarmCount: 5
+  hitVfxPrewarmCount: 5
+  canOverheat: 1
+  heatPerShot: 20

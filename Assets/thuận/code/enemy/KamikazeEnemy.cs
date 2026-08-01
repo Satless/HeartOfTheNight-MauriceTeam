@@ -4,22 +4,37 @@ using UnityEngine;
 public class KamikazeEnemy : MonoBehaviour
 {
     [Header("Movement")]
-    public float speed = 6f;
+    [SerializeField] private float moveSpeed = 6f;
 
-    [Header("Detection Circle")]
-    public float detectionRange = 6f;
+    [Header("Detection")]
+    [SerializeField] private float detectionRange = 6f;
+    [SerializeField] private float explodeRange = 1.5f;
 
     [Header("Explosion")]
-    public float explodeRange = 1.5f;  //Khoảng cách bắt đầu kích nổ
-    public float explodeDelay = 1.5f;  //Thời gian nhấp nháy trước khi nổ
-    public float flashInterval = 0.1f;  // Tốc độ nhấp nháy
+    [SerializeField] private float explodeDelay = 1.2f;
+    [SerializeField] private float flashInterval = 0.1f;
 
-    public int damage = 30;
-    public int hp = 1;
+    [Header("Stats")]
+    [SerializeField] private int maxHP = 1;
+    [SerializeField] private int damage = 30;
+
+    private int currentHP;
 
     private Transform player;
-    private bool chasing = false;
-    private bool exploding = false;
+    private SpriteRenderer spriteRenderer;
+    private Animator animator;
+
+    private bool chasing;
+    private bool exploding;
+    private bool dead;
+
+    private void Awake()
+    {
+        currentHP = maxHP;
+
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+    }
 
     private void Start()
     {
@@ -31,32 +46,37 @@ public class KamikazeEnemy : MonoBehaviour
 
     private void Update()
     {
-        if (player == null || exploding)
+        if (dead || exploding || player == null)
             return;
 
         float distance = Vector2.Distance(transform.position, player.position);
 
-        // Player vào vùng tròn thì bắt đầu đuổi
-        if (distance <= detectionRange)
+        // Player đi vào vùng phát hiện
+        if (!chasing && distance <= detectionRange)
         {
             chasing = true;
         }
 
-        // Bay đuổi Player
-        if (chasing)
+        if (!chasing)
+            return;
+
+        // Di chuyển tới Player
+        if (distance > explodeRange)
         {
             transform.position = Vector2.MoveTowards(
                 transform.position,
                 player.position,
-                speed * Time.deltaTime);
+                moveSpeed * Time.deltaTime);
 
-            distance = Vector2.Distance(transform.position, player.position);
-
-            // Đến gần thì bắt đầu nổ
-            if (distance <= explodeRange)
-            {
-                StartCoroutine(Explode());
-            }
+            // Lật hướng
+            if (player.position.x > transform.position.x)
+                transform.localScale = new Vector3(1, 1, 1);
+            else
+                transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else
+        {
+            StartCoroutine(Explode());
         }
     }
 
@@ -64,55 +84,81 @@ public class KamikazeEnemy : MonoBehaviour
     {
         exploding = true;
 
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-
+        // Dừng di chuyển và nhấp nháy trắng trong 1.5 giây
         float timer = 0f;
+        bool visible = true;
 
         while (timer < explodeDelay)
         {
-            if (sr != null)
-                sr.color = Color.red;
+            if (spriteRenderer != null)
+            {
+                if (visible)
+                    spriteRenderer.color = Color.red;                 // Hiện bình thường
+                else
+                    spriteRenderer.color = new Color(1, 1, 1, 0.2f);    // Mờ trắng
+            }
+
+            visible = !visible;
 
             yield return new WaitForSeconds(flashInterval);
 
-            if (sr != null)
-                sr.color = Color.white;
-
-            yield return new WaitForSeconds(flashInterval);
-
-            timer += flashInterval * 2f;
+            timer += flashInterval;
         }
 
-        if (Vector2.Distance(transform.position, player.position) <= explodeRange)
-        {
-            HealthPoint health = player.GetComponent<HealthPoint>();
+        // Trả sprite về bình thường
+        if (spriteRenderer != null)
+            spriteRenderer.color = Color.white;
 
-            if (health != null)
+        // Sau 1.5 giây mới phát animation Attack
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack");
+        }
+
+        // Chờ animation Attack chạy (điều chỉnh theo độ dài animation)
+        yield return new WaitForSeconds(0.3f);
+
+        // Gây sát thương
+        if (player != null)
+        {
+            float distance = Vector2.Distance(transform.position, player.position);
+
+            if (distance <= explodeRange)
             {
-                health.TakeDamage(damage);
+                PlayerHealth hp = player.GetComponent<PlayerHealth>();
+
+                if (hp != null)
+                {
+                    hp.TakeDamage(damage);
+                }
             }
         }
 
         Destroy(gameObject);
     }
 
-    public void TakeDamage(int dmg)
+    public void TakeDamage(int damageTaken)
     {
-        hp -= dmg;
+        if (dead)
+            return;
 
-        if (hp <= 0)
+        currentHP -= damageTaken;
+
+        if (currentHP <= 0)
         {
+            dead = true;
+
+            StopAllCoroutines();
+
             Destroy(gameObject);
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        // Vùng phát hiện
-        Gizmos.color = new Color(1f, 0.6f, 0f);
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Vùng nổ
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explodeRange);
     }

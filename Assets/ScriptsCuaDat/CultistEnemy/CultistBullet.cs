@@ -1,4 +1,4 @@
-using HeartOfTheNight.Common;
+﻿using HeartOfTheNight.Common;
 using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
@@ -7,8 +7,11 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class CultistBullet : MonoBehaviour
     {
+        [Header("VFX")]
+        [SerializeField] private GameObject hitVfxPrefab; // Kéo thả Prefab VFX nổ vào đây trên Inspector
+
         private Rigidbody2D rb;
-        private int   damage;
+        private int damage;
         private float lifetime;
 
         private void Awake()
@@ -22,7 +25,7 @@ namespace HeartOfTheNight.Enemy
 
         public void Launch(Vector2 direction, float speed, int dmg, float life)
         {
-            damage   = dmg;
+            damage = dmg;
             lifetime = life;
             rb.linearVelocity = direction * speed;
 
@@ -33,7 +36,11 @@ namespace HeartOfTheNight.Enemy
         private void Update()
         {
             lifetime -= Time.deltaTime;
-            if (lifetime <= 0f) Destroy(gameObject);
+            if (lifetime <= 0f)
+            {
+                SpawnVFX();
+                Destroy(gameObject);
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -41,9 +48,23 @@ namespace HeartOfTheNight.Enemy
             if (EnemyCombatRules.IsEnemyCollider(other)) return;
 
             if (EnemyCombatRules.TryGetPlayerDamageable(other, out var target))
+            {
                 target.TakeDamage(damage);
+            }
 
+            SpawnVFX();
             Destroy(gameObject);
+        }
+
+        // Hàm xử lý sinh ra VFX
+        private void SpawnVFX()
+        {
+            if (hitVfxPrefab != null)
+            {
+                // Sinh ra VFX tại vị trí của viên đạn. 
+                // Nếu VFX có script tự hủy (destroy sau khi play xong) thì chỉ cần Instantiate.
+                Instantiate(hitVfxPrefab, transform.position, Quaternion.identity);
+            }
         }
     }
 }

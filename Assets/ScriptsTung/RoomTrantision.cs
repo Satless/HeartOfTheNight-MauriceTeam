@@ -1,12 +1,25 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class RoomTransition : MonoBehaviour
 {
-    [Header("Điểm đến (Phòng mới)")]
-    public Transform nextRoomSpawnPoint;
+    public enum TransitionType { SameScene, NextLevel }
 
+
+
+
+    [Header("Loại chuyển cảnh")]
+    public TransitionType transitionType = TransitionType.SameScene;
+
+    [Header("Nếu là Same Scene (Chuyển phòng)")]
+    public Transform nextRoomSpawnPoint;
+    public RoomDoor targetDoor;
+
+    [Header("Nếu là Next Level (Chuyển Scene)")]
+    public string nextSceneName;
+    public string spawnIDInNextScene; // Tên ID của cửa đích bên Scene mới
     [Header("Hiệu ứng màn hình")]
     public Image blackScreen;
     public float fadeSpeed = 3f;
@@ -24,49 +37,74 @@ public class RoomTransition : MonoBehaviour
     IEnumerator TransitionRoutine(GameObject playerObj)
     {
         isTransitioning = true;
-
         Rigidbody2D pRb = playerObj.GetComponent<Rigidbody2D>();
+
         if (pRb != null)
         {
-            pRb.linearVelocity = Vector2.zero; // Xóa sạch đà di chuyển cũ
-            pRb.simulated = false; // "Đóng băng" hoàn toàn vật lý của Player
+            pRb.linearVelocity = Vector2.zero;
+            pRb.simulated = false;
         }
 
-        // --- 1. MỜ DẦN SANG ĐEN ---
-        blackScreen.gameObject.SetActive(true);
-        while (blackScreen.color.a < 1f)
+        if (blackScreen != null)
         {
-            Color c = blackScreen.color;
-            c.a += Time.deltaTime * fadeSpeed;
-            blackScreen.color = c;
-            yield return null;
+            blackScreen.gameObject.SetActive(true);
+            while (blackScreen.color.a < 1f)
+            {
+                Color c = blackScreen.color;
+                c.a += Time.deltaTime * fadeSpeed;
+                blackScreen.color = c;
+                yield return null;
+            }
         }
 
-        // --- 2. DỊCH CHUYỂN PLAYER & CAMERA ---
-        playerObj.transform.position = nextRoomSpawnPoint.position;
-        Camera.main.transform.position = new Vector3(nextRoomSpawnPoint.position.x, nextRoomSpawnPoint.position.y, Camera.main.transform.position.z);
-
-        yield return new WaitForSeconds(0.2f);
-
-        // --- 3. SÁNG DẦN LÊN ---
-        while (blackScreen.color.a > 0f)
+        if (transitionType == TransitionType.SameScene)
         {
-            Color c = blackScreen.color;
-            c.a -= Time.deltaTime * fadeSpeed;
-            blackScreen.color = c;
-            yield return null;
-        }
-        //as
-        blackScreen.gameObject.SetActive(false);
+            if (nextRoomSpawnPoint == null)
+            {
+                Debug.LogError("Chưa gán Next Room Spawn Point!");
+                isTransitioning = false;
+                yield break;
+            }
 
-        // ==========================================
-        // MỞ KHÓA VẬT LÝ TRỞ LẠI
-        // ==========================================
-        if (pRb != null)
+            playerObj.transform.position = nextRoomSpawnPoint.position;
+            Camera.main.transform.position = new Vector3(nextRoomSpawnPoint.position.x, nextRoomSpawnPoint.position.y, Camera.main.transform.position.z);
+
+            if (targetDoor != null) targetDoor.Open();
+
+            yield return new WaitForSeconds(0.2f);
+
+            if (blackScreen != null)
+            {
+                while (blackScreen.color.a > 0f)
+                {
+                    Color c = blackScreen.color;
+                    c.a -= Time.deltaTime * fadeSpeed;
+                    blackScreen.color = c;
+                    yield return null;
+                }
+                blackScreen.gameObject.SetActive(false);
+            }
+
+            if (pRb != null) pRb.simulated = true;
+            isTransitioning = false;
+        }
+        else if (transitionType == TransitionType.NextLevel)
         {
-            pRb.simulated = true; // Cho phép Player hoạt động vật lý bình thường
-        }
+            if (string.IsNullOrEmpty(nextSceneName))
+            {
+                Debug.LogError("Chưa nhập tên Scene tiếp theo!");
+                isTransitioning = false;
+                yield break;
+            }
 
-        isTransitioning = false;
+            // Gửi ID cửa đích vào DataManager trước khi load
+            if (DataManager.Instance != null)
+            {
+                DataManager.Instance.Data.currentScene = nextSceneName;
+                DataManager.Instance.Data.targetSpawnID = spawnIDInNextScene;
+            }
+
+            SceneManager.LoadScene(nextSceneName);
+        }
     }
 }

@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceddd35cee35c6d4298e5e2e6be3d36c, type: 3}
+  m_Name: HeartOfTheNightStats
+  m_EditorClassIdentifier: 
+  maxHealth: 800
+  enrageHealthFraction: 0.5
+  enrageSpeedMultiplier: 0.6
+  detectRange: 0
+  timeBetweenAttacks: 4
+  attackWeights:
+  - 1
+  - 1
+  - 1
+  - 0.6
+  bulletPrefab: {fileID: 8107031208782475583, guid: 0360d68402de09a46903e6a722853256, type: 3}
+  barrageBulletCount: 6
+  barrageBetweenShots: 0.5
+  barrageSpreadAngle: 18
+  bulletSpeed: 5
+  bulletDamage: 12
+  bulletLifetime: 5
+  barrageCooldown: 3
+  laserPrefab: {fileID: 2657676262953193284, guid: 91ef91da58c3d4540b5c9c4788a95322, type: 3}
+  telegraphPrefab: {fileID: 3524000206605549690, guid: 9e6dc159506f5de4ab8e31ec15b58477, type: 3}
+  laserDirections: 8
+  laserVolleys: 1
+  laserVolleyRotationStep: 22.5
+  laserAngleOffset: 0
+  laserSafeGapTowardPlayer: 1
+  laserWarnTime: 1.5
+  laserFireTime: 0.35
+  laserLength: 30
+  laserWidth: 0.35
+  laserDamage: 16
+  eightDirCooldown: 5
+  pillarCooldown: 3
+  pillarChargeTime: 2.5
+  pillarFollowPlayer: 1
+  pillarLockLeadTime: 0.45
+  pillarFireTime: 0.6
+  pillarWidth: 1.4
+  pillarHeight: 18
+  pillarDamage: 22
+  telegraphRadius: 1.1
+  telegraphSpinStart: 120
+  telegraphSpinEnd: 1440
+  summons: []
+  maxActiveSummons: 6
+  summonScatterRadius: 4
+  summonCooldown: 12
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  groundProbeDistance: 30

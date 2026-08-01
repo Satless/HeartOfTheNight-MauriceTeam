@@ -3,29 +3,33 @@ using UnityEngine;
 using HeartOfTheNight.Common;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class TestPlayerController : MonoBehaviour
+// BƯỚC 1: Thêm giao diện IDamageable vào đây
+public class TestPlayerController : MonoBehaviour, IDamageable
 {
+    [Header("Health Test")]
+    public int health = 100; // Biến test máu
+
     [Header("Movement")]
-    [SerializeField] private float moveSpeed     = 7f;
-    [SerializeField] private float groundAccel   = 60f;
-    [SerializeField] private float airAccel      = 60f;
+    [SerializeField] private float moveSpeed = 7f;
+    [SerializeField] private float groundAccel = 60f;
+    [SerializeField] private float airAccel = 60f;
     [Tooltip("Tốc độ ngang tối đa khi đang trên không, theo tỉ lệ của moveSpeed. 1 = bằng dưới đất.")]
     [Range(0f, 1f)]
     [SerializeField] private float airMoveMultiplier = 1f;
 
     [Header("Jump")]
-    [SerializeField] private float jumpForce     = 13f;
-    [SerializeField] private float coyoteTime    = 0.1f;
-    [SerializeField] private float jumpBuffer    = 0.1f;
+    [SerializeField] private float jumpForce = 13f;
+    [SerializeField] private float coyoteTime = 0.1f;
+    [SerializeField] private float jumpBuffer = 0.1f;
 
     [Header("Ground Check")]
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private Vector2   groundCheckSize = new(0.5f, 0.08f);
+    [SerializeField] private Vector2 groundCheckSize = new(0.5f, 0.08f);
     [SerializeField] private LayerMask groundLayer;
 
     [Header("Drop Through (One-Way Platform)")]
     [Tooltip("Vertical input at/below this counts as holding Down.")]
-    [SerializeField] private float downThreshold   = -0.5f;
+    [SerializeField] private float downThreshold = -0.5f;
     [Tooltip("How long collision with the platform is disabled while dropping through.")]
     [SerializeField] private float dropThroughTime = 0.35f;
 
@@ -35,33 +39,33 @@ public class TestPlayerController : MonoBehaviour
     private float inputX;
     private float coyoteCounter;
     private float jumpBufferCounter;
-    private bool  isDropping;
-    private bool  wasHoldingDown;
+    private bool isDropping;
+    private bool wasHoldingDown;
 
     private void Awake()
     {
-        rb          = GetComponent<Rigidbody2D>();
-        sprite      = GetComponentInChildren<SpriteRenderer>();
-        colliders   = GetComponentsInChildren<Collider2D>();
+        rb = GetComponent<Rigidbody2D>();
+        sprite = GetComponentInChildren<SpriteRenderer>();
+        colliders = GetComponentsInChildren<Collider2D>();
         rb.freezeRotation = true;
     }
 
     private void Update()
     {
-        inputX   = Input.GetAxisRaw("Horizontal");
+        inputX = Input.GetAxisRaw("Horizontal");
 
         coyoteCounter = IsGrounded()
             ? coyoteTime
             : coyoteCounter - Time.deltaTime;
 
         if (Input.GetButtonDown("Jump")) jumpBufferCounter = jumpBuffer;
-        else                              jumpBufferCounter -= Time.deltaTime;
+        else jumpBufferCounter -= Time.deltaTime;
 
         if (jumpBufferCounter > 0f && coyoteCounter > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpBufferCounter = 0f;
-            coyoteCounter     = 0f;
+            coyoteCounter = 0f;
         }
 
         bool holdingDown = Input.GetAxisRaw("Vertical") <= downThreshold;
@@ -78,12 +82,25 @@ public class TestPlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        bool  grounded    = IsGrounded();
+        bool grounded = IsGrounded();
         float targetSpeed = inputX * moveSpeed * (grounded ? 1f : airMoveMultiplier);
-        float accelRate   = grounded ? groundAccel : airAccel;
-        float newX        = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed,
+        float accelRate = grounded ? groundAccel : airAccel;
+        float newX = Mathf.MoveTowards(rb.linearVelocity.x, targetSpeed,
                                               accelRate * Time.fixedDeltaTime);
         rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+    }
+
+    // BƯỚC 2: Thêm hàm TakeDamage để đạn gọi tới khi va chạm
+    public void TakeDamage(int amount)
+    {
+        health -= amount;
+        Debug.Log($"Player bị trúng đạn! Mất {amount} máu. Máu còn lại: {health}");
+
+        if (health <= 0)
+        {
+            Debug.Log("Player đã chết!");
+            // Xử lý logic chết ở đây (ẩn character, load lại scene, v.v.)
+        }
     }
 
     private bool IsGrounded()
@@ -122,8 +139,6 @@ public class TestPlayerController : MonoBehaviour
         isDropping = true;
         SetIgnore(platform, true);
 
-        // Wait until the player has actually fallen below the platform, so collision
-        // never re-enables while still overlapping (which would pop the player back up).
         float timeout = Mathf.Max(dropThroughTime, 1f);
         while (timeout > 0f)
         {
@@ -146,12 +161,12 @@ public class TestPlayerController : MonoBehaviour
 
     private float GetPlayerTopY()
     {
-        float top   = float.NegativeInfinity;
-        bool  found  = false;
+        float top = float.NegativeInfinity;
+        bool found = false;
         foreach (var col in colliders)
         {
             if (col == null || col.isTrigger) continue;
-            top   = Mathf.Max(top, col.bounds.max.y);
+            top = Mathf.Max(top, col.bounds.max.y);
             found = true;
         }
         return found ? top : transform.position.y;

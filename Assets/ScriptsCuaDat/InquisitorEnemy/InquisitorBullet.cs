@@ -1,4 +1,4 @@
-using HeartOfTheNight.Common;
+﻿using HeartOfTheNight.Common;
 using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
@@ -7,6 +7,9 @@ namespace HeartOfTheNight.Enemy
     [RequireComponent(typeof(Collider2D))]
     public class InquisitorBullet : MonoBehaviour
     {
+        [Header("VFX")]
+        [SerializeField] private GameObject hitVfxPrefab; // Kéo thả Prefab VFX nổ vào đây trên Inspector
+
         private Rigidbody2D rb;
         private Transform target;
         private float speed;
@@ -95,8 +98,18 @@ namespace HeartOfTheNight.Enemy
 
             if (EnemyCombatRules.TryGetPlayerDamageable(other, out var damageable))
                 damageable.TakeDamage(damage);
-
+            SpawnVFX();
             Destroy(gameObject);
+        }
+        // Hàm xử lý sinh ra VFX
+        private void SpawnVFX()
+        {
+            if (hitVfxPrefab != null)
+            {
+                // Sinh ra VFX tại vị trí của viên đạn. 
+                // Nếu VFX có script tự hủy (destroy sau khi play xong) thì chỉ cần Instantiate.
+                Instantiate(hitVfxPrefab, transform.position, Quaternion.identity);
+            }
         }
     }
 }

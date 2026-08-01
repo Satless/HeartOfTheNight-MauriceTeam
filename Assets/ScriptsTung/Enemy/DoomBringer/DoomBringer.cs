@@ -3,10 +3,14 @@ using System.Collections;
 
 public class DoomBringer : MonoBehaviour
 {
+    [Header("Hoạt ảnh (Animation)")]
+    public Animator anim;
+
     [Header("Chỉ số Sinh tồn & Giai đoạn")]
     public int maxHealth = 1000;
     private int currentHealth;
     private bool isPhase2 = false;
+    private bool isDead = false;
 
     [Header("Buff Giai đoạn 2 (< 50% HP)")]
     public float phase2SpeedMulti = 1.5f;
@@ -19,10 +23,10 @@ public class DoomBringer : MonoBehaviour
 
     [Header("Chu kỳ Trạng Thái (State Machine)")]
     public float timePerState = 5f;
-    public float transitionDelay = 1f; // THÊM MỚI: Thời gian nghỉ giữa các Form
+    public float transitionDelay = 1f;
     private int currentState = 1;
     private float stateTimer;
-    private bool isTransitioning = false; // THÊM MỚI: Đang trong thời gian nghỉ?
+    private bool isTransitioning = false;
 
     [Header("Vũ khí & Prefabs")]
     public Transform firePoint;
@@ -50,6 +54,8 @@ public class DoomBringer : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
 
+        if (anim == null) anim = GetComponent<Animator>();
+
         currentHealth = maxHealth;
         stateTimer = timePerState;
 
@@ -61,12 +67,10 @@ public class DoomBringer : MonoBehaviour
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null || isDead) return;
 
-        // Boss LUÔN LUÔN di chuyển tiến tới dù đang nghỉ hay đang đánh
         MoveRelentlessly();
 
-        // CHÌA KHÓA: Nếu đang nghỉ chuyển form thì KHÔNG đếm thời gian và KHÔNG đánh
         if (!isTransitioning)
         {
             HandleStateSwitching();
@@ -74,10 +78,10 @@ public class DoomBringer : MonoBehaviour
         }
     }
 
-    // ================== HỆ THỐNG MÁU & GIAI ĐOẠN ==================
-
     public void TakeDamage(int damage)
     {
+        if (isDead) return;
+
         currentHealth -= damage;
         Debug.Log("Doom Bringer bị đánh! Máu: " + currentHealth + "/" + maxHealth);
 
@@ -101,8 +105,6 @@ public class DoomBringer : MonoBehaviour
         bombFireRate *= phase2FireRateMulti;
         laserFireRate *= phase2FireRateMulti;
         attackTimer *= phase2FireRateMulti;
-
-        // Khi điên lên, thời gian nghỉ 1s giữa các form cũng bị rút ngắn lại!
         transitionDelay *= phase2FireRateMulti;
 
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
@@ -111,11 +113,20 @@ public class DoomBringer : MonoBehaviour
 
     void Die()
     {
+        isDead = true;
         Debug.Log("Boss Doom Bringer đã bị tiêu diệt!");
-        Destroy(gameObject);
-    }
 
-    // ================== LOGIC HÀNH ĐỘNG ==================
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false; // Ngắt điện vật lý
+
+        gameObject.tag = "Untagged";
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        if (anim != null) anim.SetTrigger("Dead");
+
+        Destroy(gameObject, 1.5f);
+    }
 
     void MoveRelentlessly()
     {
@@ -130,30 +141,25 @@ public class DoomBringer : MonoBehaviour
 
         if (stateTimer <= 0)
         {
-            // Thay vì chuyển ngay lập tức, gọi Coroutine để nghỉ 1 giây
             StartCoroutine(TransitionRoutine());
         }
     }
 
-    // THÊM MỚI: Coroutine lo việc nghỉ ngơi chuyển dạng
     IEnumerator TransitionRoutine()
     {
-        isTransitioning = true; // Khóa súng lại
+        isTransitioning = true;
         Debug.Log("Boss ngừng bắn, đang nghỉ " + transitionDelay + " giây...");
 
-        // Đứng im chịu đòn (nhưng vẫn tiến tới) trong 1 giây
         yield return new WaitForSeconds(transitionDelay);
 
-        // Đổi sang Trạng thái tiếp theo
         currentState++;
         if (currentState > 3) currentState = 1;
 
-        // Reset lại các thông số cho chu kỳ mới
         stateTimer = timePerState;
         hasSummoned = false;
         attackTimer = 0f;
 
-        isTransitioning = false; // Mở súng ra bắn tiếp
+        isTransitioning = false;
         Debug.Log("Chuyển sang Trạng Thái: " + currentState);
     }
 
@@ -163,7 +169,7 @@ public class DoomBringer : MonoBehaviour
 
         switch (currentState)
         {
-            case 1: // NÃ BOM
+            case 1:
                 if (attackTimer <= 0)
                 {
                     ShootBomb();
@@ -171,7 +177,7 @@ public class DoomBringer : MonoBehaviour
                 }
                 break;
 
-            case 2: // BẮN LAZE
+            case 2:
                 if (attackTimer <= 0)
                 {
                     ShootLaser();
@@ -179,7 +185,7 @@ public class DoomBringer : MonoBehaviour
                 }
                 break;
 
-            case 3: // TRIỆU HỒI KAMIKAZE
+            case 3:
                 if (!hasSummoned)
                 {
                     StartCoroutine(SummonKamikazesRoutine());
@@ -192,10 +198,8 @@ public class DoomBringer : MonoBehaviour
     void ShootBomb()
     {
         if (bombPrefab == null || firePoint == null) return;
-
         GameObject bomb = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
         Rigidbody2D bombRb = bomb.GetComponent<Rigidbody2D>();
-
         if (bombRb != null)
         {
             Vector2 direction = (player.position - firePoint.position).normalized;
@@ -207,15 +211,12 @@ public class DoomBringer : MonoBehaviour
     void ShootLaser()
     {
         if (laserPrefab == null || firePoint == null) return;
-
         GameObject laser = Instantiate(laserPrefab, firePoint.position, Quaternion.identity);
         Rigidbody2D laserRb = laser.GetComponent<Rigidbody2D>();
-
         if (laserRb != null)
         {
             Vector2 direction = (player.position - firePoint.position).normalized;
             laserRb.linearVelocity = direction * laserSpeed;
-
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             laser.transform.rotation = Quaternion.Euler(0, 0, angle);
         }
@@ -224,14 +225,11 @@ public class DoomBringer : MonoBehaviour
     IEnumerator SummonKamikazesRoutine()
     {
         if (kamikazePrefab == null) yield break;
-
         int soLuongDe = isPhase2 ? 5 : 3;
-
         for (int i = 0; i < soLuongDe; i++)
         {
             Vector2 spawnPos = new Vector2(transform.position.x, transform.position.y + 1.5f + (i * 0.5f));
             Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
-
             yield return new WaitForSeconds(0.3f);
         }
     }
