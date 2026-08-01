@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 410048941121045129}
   - component: {fileID: 7752219958763663395}
   - component: {fileID: 4446359969089156640}
-  - component: {fileID: -2513435394261647353}
   m_Layer: 3
   m_Name: BurningCorpseImgFix
   m_TagString: Enemy
@@ -176,7 +175,7 @@ Animator:
   m_GameObject: {fileID: 2192743424919381986}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 8e94e9cdaf2327748b7babd441ed2959, type: 2}
+  m_Controller: {fileID: 9100000, guid: cd76827e7cf4b4f4884bac8cddf25f0a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -220,23 +219,6 @@ MonoBehaviour:
   burnTicks: 3
   timeBetweenTicks: 1
   dashSpeedThreshold: 12
---- !u!114 &-2513435394261647353
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2192743424919381986}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa7a5b7ebbbb6114ab8beaff393ab9b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hp: 150
-  shieldPrefab: {fileID: 118813027983608198, guid: c0f725d66f67941418c15cf5c20b6314, type: 3}
-  isProtected: 0
-  moveSpeed: 2
-  patrolDistance: 2
 --- !u!1 &4976792884252144235
 GameObject:
   m_ObjectHideFlags: 0

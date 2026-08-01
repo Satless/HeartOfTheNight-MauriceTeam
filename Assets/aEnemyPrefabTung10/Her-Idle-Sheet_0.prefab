@@ -88,7 +88,7 @@ SpriteRenderer:
   m_Size: {x: 1.625, y: 1.6875}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!50 &6462121462242868970
@@ -200,7 +200,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anim: {fileID: 1218021115047867800}
   sr: {fileID: 5043100976649748720}
-  dashAttackSprite: {fileID: -1003148785, guid: 361944f99599388428776ecf701b4bc4, type: 3}
+  dashAttackSprite: {fileID: 1818815299, guid: 361944f99599388428776ecf701b4bc4, type: 3}
   maxHealth: 150
   moveSpeed: 4
   detectionRangeX: 6
