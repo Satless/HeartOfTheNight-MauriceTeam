@@ -11,19 +11,20 @@ public class BurningCorpseImg : MonoBehaviour
     [Header("Hoạt ảnh & Vị trí chém (Cục atk)")]
     public Animator anim;
     public GameObject attackHitbox;
+    public Vector2 attackOffset = new Vector2(0f, 1f); // Dùng để nâng tâm chém lên cao (trục Y)
 
     [Header("Tầm nhìn & Di chuyển")]
     public float detectionRangeX = 12f;
     public float detectionRangeY = 3f;
     public float moveSpeed = 4f;
     public float attackRange = 2f;
-    public float attackRadius = 1.2f; // Độ to của vòng tròn quét sát thương
+    public float attackRadius = 1.2f;
 
     [Header("Dịch chuyển & Cảm biến kẹt")]
     public float platformHeightDiff = 0.8f;
     public float teleportDelay = 1f;
     public float postTeleportDelay = 0.5f;
-    public float timeToDetectStuck = 0.5f; // Chống kẹt góc/vách đá
+    public float timeToDetectStuck = 0.5f;
 
     [Header("Sát thương & Hiệu ứng Cháy")]
     public int attackDamage = 10;
@@ -40,7 +41,6 @@ public class BurningCorpseImg : MonoBehaviour
     private float teleportTimer = 0f;
     private bool isBusy = false;
 
-    // Biến cho cảm biến kẹt
     private float lastXPos = 0f;
     private float stuckTimer = 0f;
 
@@ -52,7 +52,6 @@ public class BurningCorpseImg : MonoBehaviour
 
         if (anim == null) anim = GetComponentInChildren<Animator>();
 
-        // Tự động bơm trạm tiếp sóng cho Animator con
         if (anim != null && anim.gameObject != this.gameObject)
         {
             if (anim.GetComponent<HitboxEventForwarder>() == null)
@@ -109,9 +108,6 @@ public class BurningCorpseImg : MonoBehaviour
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
-        // ==========================================
-        // CẢM BIẾN CHỐNG KẸT GÓC / MÉP VỰC
-        // ==========================================
         bool isStuck = false;
         if (distanceX > attackRange)
         {
@@ -123,12 +119,9 @@ public class BurningCorpseImg : MonoBehaviour
             else stuckTimer = 0f;
         }
         else stuckTimer = 0f;
-        ///////
+
         lastXPos = transform.position.x;
 
-        // ==========================================
-        // LOGIC DI CHUYỂN & TELEPORT
-        // ==========================================
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
             if (distanceY > platformHeightDiff || isStuck)
@@ -192,7 +185,7 @@ public class BurningCorpseImg : MonoBehaviour
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 1.5f);
     }
 
     void Move()
@@ -229,7 +222,7 @@ public class BurningCorpseImg : MonoBehaviour
         if (isDead) yield break;
 
         float pivotToFeetOffset = transform.position.y - myCol.bounds.min.y;
-        float distance = 1.5f; // Khoảng cách né an toàn
+        float distance = 1.5f;
         float standBehind = (player.localScale.x > 0) ? -distance : distance;
 
         Vector2 viTriSau = new Vector2(player.position.x + standBehind, player.position.y + 1f);
@@ -272,7 +265,12 @@ public class BurningCorpseImg : MonoBehaviour
     {
         if (isDead || attackHitbox == null) return;
 
-        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(attackHitbox.transform.position, attackRadius);
+        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+        Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+
+        Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
+        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, attackRadius);
 
         foreach (Collider2D p in hitPlayers)
         {
@@ -322,7 +320,12 @@ public class BurningCorpseImg : MonoBehaviour
         if (attackHitbox != null)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(attackHitbox.transform.position, attackRadius);
+            // Vẽ vòng tròn đúng với offset để bạn dễ nhìn trong Scene
+            float facingDirection = Mathf.Sign(transform.localScale.x);
+            Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+
+            Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
+            Gizmos.DrawWireSphere(finalAttackPos, attackRadius);
         }
     }
 }
