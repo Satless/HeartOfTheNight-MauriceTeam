@@ -1,10 +1,11 @@
 using UnityEngine;
+using HeartOfTheNight.Common;
 
 /// <summary>
 /// Component quản lý và tiếp nhận các hiệu ứng trạng thái (Cháy, Độc, Làm chậm...).
-/// Gắn vào bất kỳ đối tượng nào (Player, Quái, Boss) có cài Interface NhanSatThuong.
+/// Gắn vào bất kỳ đối tượng nào (Player, Quái, Boss) có cài Interface IDamageable.
 /// </summary>
-[RequireComponent(typeof(NhanSatThuong))]
+[RequireComponent(typeof(IDamageable))]
 public class StatusEffectReceiver : MonoBehaviour
 {
     [System.Serializable]
@@ -20,11 +21,11 @@ public class StatusEffectReceiver : MonoBehaviour
     [Header("Debug Tracking")]
     [Tooltip("Danh sách tối đa 4 hiệu ứng trạng thái đang bám trên người")]
     [SerializeField, ReadOnly] private ActiveStatus[] _activeStatuses = new ActiveStatus[4];
-    private NhanSatThuong _healthComponent;
+    private IDamageable _healthComponent;
 
     private void Awake()
     {
-        _healthComponent = GetComponent<NhanSatThuong>();
+        _healthComponent = GetComponent<IDamageable>();
     }
 
     private void Update()
