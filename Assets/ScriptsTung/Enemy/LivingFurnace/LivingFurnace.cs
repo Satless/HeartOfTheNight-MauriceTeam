@@ -2,11 +2,16 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class LivingFurnace : MonoBehaviour
+public class LivingFurnaceImg : MonoBehaviour
 {
+    [Header("Sinh tồn & Hoạt ảnh")]
+    public int maxHealth = 200;
+    private int currentHealth;
+    private bool isDead = false;
+    public Animator anim;
+
     [Header("Cài đặt Triệu hồi (Spawner)")]
     public GameObject burningCorpsePrefab;
-
     public int maxMinions = 4;
     public float spawnRadius = 2f;
     public float delayBetweenWaves = 2f;
@@ -26,42 +31,79 @@ public class LivingFurnace : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         myCol = GetComponent<Collider2D>();
 
-        // Kích hoạt tính năng xuyên thấu ngay khi Lò ấp xuất hiện
-        SetupXuyenThau();
+        if (anim == null) anim = GetComponentInChildren<Animator>();
 
-        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
+        currentHealth = maxHealth;
+
+        SetupXuyenThau();
     }
 
     void Update()
     {
-        if (isSpawning) return;
+        if (isSpawning || isDead) return;
 
-        // Dọn dẹp danh sách quái đã chết
         activeMinions.RemoveAll(minion => minion == null);
 
         if (player != null)
         {
-            // Đo khoảng cách giữa Lò ấp và Player
             float distanceX = Mathf.Abs(player.position.x - transform.position.x);
             float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-            // NẾU PLAYER BƯỚC VÀO VÙNG PHÁT HIỆN
             if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                // VÀ nếu trên sân không còn con quái nào
                 if (activeMinions.Count == 0)
                 {
-                    // Thì mới bắt đầu đẻ quái
                     StartCoroutine(SpawnWaveRoutine());
                 }
             }
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        if (isDead) return;
+
+        currentHealth -= damage;
+        Debug.Log("Living Furnace nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        isDead = true;
+        Debug.Log("Living Furnace đã bị tiêu diệt!");
+
+        StopAllCoroutines();
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false; // Khóa vật lý y hệt DoomBringer
+        }
+
+        gameObject.tag = "Untagged";
+        if (myCol != null) myCol.enabled = false;
+
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+
+        Destroy(gameObject, 0.5f);
+    }
+
     IEnumerator SpawnWaveRoutine()
     {
         isSpawning = true;
         yield return new WaitForSeconds(delayBetweenWaves);
+
+        if (isDead) yield break;
 
         float pivotOffset = 0f;
         Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
@@ -95,14 +137,12 @@ yield return new WaitForSeconds(0.3f);
     {
         if (myCol == null) return;
 
-        // 1. Xuyên Player
         if (player != null)
         {
             Collider2D pCol = player.GetComponent<Collider2D>();
             if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
         }
 
-        // 2. Xuyên tất cả quái vật khác có Tag là "Enemy"
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemyObj in allEnemies)
         {
@@ -114,13 +154,10 @@ yield return new WaitForSeconds(0.3f);
         }
     }
 
-    private void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
-        // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
-
-        // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
     }
