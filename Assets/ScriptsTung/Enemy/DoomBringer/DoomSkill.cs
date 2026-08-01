@@ -23,7 +23,7 @@ public class DoomSkill : MonoBehaviour
         // 1. NẾU BẮN TRÚNG PLAYER
         if (collision.CompareTag("Player"))
         {
-            PlayerHealth pHealth = collision.GetComponent<PlayerHealth>();
+            HealthPoint pHealth = collision.GetComponent<HealthPoint>();
             if (pHealth != null)
             {
                 pHealth.TakeDamage(damage);

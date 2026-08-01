@@ -26,10 +26,6 @@ public class Bullet : MonoBehaviour
     // Cache Rigidbody2D — tránh GetComponent mỗi lần bắn (Zero GC)
     public Rigidbody2D RB { get; private set; }
 
-    // Tham chiếu pool để tự trả về — set 1 lần duy nhất qua Init()
-    private BulletPool _pool;
-    public string PoolKey { get; private set; }
-
     [Header("Debug Tracking")]
     [Tooltip("Dữ liệu súng bắn ra viên đạn này")]
     [SerializeField, ReadOnly] private GunWeaponData _data;
@@ -40,7 +36,7 @@ public class Bullet : MonoBehaviour
     [Tooltip("Đã va chạm trúng đích (chống xử lý va chạm 2 lần trong cùng 1 frame)")]
     [SerializeField, ReadOnly] private bool _hasHit; 
 
-    private VfxPool _vfxPool;
+
     private HashSet<Collider2D> _hitColliders = new HashSet<Collider2D>();
     private static readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[10];
     private static readonly Collider2D[] _aoeBuffer = new Collider2D[20];
@@ -53,23 +49,15 @@ public class Bullet : MonoBehaviour
         RB = GetComponent<Rigidbody2D>(); // Cache 1 lần duy nhất
     }
 
-    /// <summary>
-    /// Gọi bởi BulletPool.CreateBullet() — chỉ chạy 1 lần khi tạo đạn.
-    /// </summary>
-    public void Init(BulletPool pool, string poolKey)
-    {
-        _pool = pool;
-        PoolKey = poolKey;
-    }
+
 
     /// <summary>
-    /// Gọi bởi PlayerAttack.Fire() mỗi lần lấy đạn từ pool.
+    /// Gọi bởi PlayerAttack.ExecuteShot() mỗi lần lấy đạn từ pool.
     /// Reset trạng thái đạn cho lần sử dụng mới.
     /// </summary>
-    public void Activate(GunWeaponData data, VfxPool vfxPool)
+    public void Activate(GunWeaponData data)
     {
         _data = data;
-        _vfxPool = vfxPool;
         
         _spawnTime = Time.time;
         _pierceLeft = data.pierceCount;
@@ -284,19 +272,23 @@ public class Bullet : MonoBehaviour
 
     private void SpawnHitVfx(Vector2 position)
     {
-        if (_vfxPool != null && _hitVfxPrefab != null)
-        {
-            // Lấy hướng bay hiện tại của đạn (1 là phải, -1 là trái)
-            float dirX = RB.linearVelocity.x != 0 ? Mathf.Sign(RB.linearVelocity.x) : 1f;
-            _vfxPool.SpawnVfx(_hitVfxPrefab, position, dirX);
-        }
+        if (_hitVfxPrefab == null) return;
+
+        // Lấy hướng bay hiện tại của đạn (1 là phải, -1 là trái)
+        float dirX = RB.linearVelocity.x != 0 ? Mathf.Sign(RB.linearVelocity.x) : 1f;
+        GameObject vfx = _hitVfxPrefab.Spawn(position);
+
+        // Lật hình ảnh theo hướng bay của đạn
+        Vector3 scale = vfx.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * Mathf.Sign(dirX);
+        vfx.transform.localScale = scale;
     }
 
     private void ReturnToPool()
     {
         _hasHit = true; // Đảm bảo không xử lý trùng nếu ReturnToPool() bị gọi nhiều lần
         RB.linearVelocity = Vector2.zero;
-        _pool.Return(this);
+        gameObject.Despawn();
     }
 
     /// <summary>
