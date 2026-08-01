@@ -1,17 +1,15 @@
 using UnityEngine;
 using System.Collections;
 
-public class AutomatonImg : MonoBehaviour
+public class Automaton : MonoBehaviour
 {
     [Header("Hoạt ảnh & Hình ảnh")]
     public Animator anim;
     public SpriteRenderer sr;
+    [Tooltip("Ảnh hiển thị khi lướt trúng người")]
     public Sprite dashAttackSprite;
 
-    [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 150;
-    private int currentHealth;
-    private bool isDead = false;
+    // ĐÃ XÓA SẠCH CÁC BIẾN HITBOX LẰNG NHẰNG Ở ĐÂY
 
     [Header("Tầm nhìn & Di chuyển")]
     public float moveSpeed = 4f;
@@ -27,7 +25,7 @@ public class AutomatonImg : MonoBehaviour
     public float teleportYOffset = 0f;
 
     [Header("Sát thương")]
-    public int meleeDamage = 10;
+    public int meleeDamage = 10; // Giờ sẽ dùng trực tiếp biến này luôn!
     public int dashDamage = 20;
 
     [Header("Chỉ số Lướt (Dash)")]
@@ -56,43 +54,41 @@ public class AutomatonImg : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         myCol = GetComponent<Collider2D>();
 
-        if (anim == null) anim = GetComponentInChildren<Animator>();
-        if (sr == null) sr = GetComponentInChildren<SpriteRenderer>();
+        if (anim == null) anim = GetComponent<Animator>();
+        if (sr == null) sr = GetComponent<SpriteRenderer>();
 
-        currentHealth = maxHealth;
         SetupXuyenThau();
     }
 
     void SetupXuyenThau()
     {
-        Collider2D[] myCols = GetComponentsInChildren<Collider2D>();
+        if (myCol == null) return;
+
         if (player != null)
         {
-            Collider2D[] pCols = player.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-                foreach (Collider2D pC in pCols)
-                    Physics2D.IgnoreCollision(myC, pC, true);
+            Collider2D pCol = player.GetComponent<Collider2D>();
+            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
         }
 
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemyObj in allEnemies)
         {
-            Collider2D[] enemyCols = enemyObj.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-                foreach (Collider2D eC in enemyCols)
-                    if (myC.gameObject != eC.gameObject)
-                        Physics2D.IgnoreCollision(myC, eC, true);
+            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
+            if (enemyCol != null && enemyCol != myCol)
+            {
+                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+            }
         }
     }
 
     void Update()
     {
-        if (player == null || dangBanRaDon || myCol == null || isDead) return;
-
         if (anim != null && !dangBanRaDon && anim.enabled)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
+
+        if (player == null || dangBanRaDon || myCol == null) return;
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
@@ -159,40 +155,6 @@ public class AutomatonImg : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
-    {
-        if (isDead) return;
-
-        currentHealth -= damage;
-        Debug.Log("Automaton nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-
-    void Die()
-    {
-        isDead = true;
-        dangBanRaDon = true;
-        Debug.Log("Automaton đã bị tiêu diệt!");
-
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false; // Khóa vật lý y hệt DoomBringer
-
-        gameObject.tag = "Untagged";
-        if (myCol != null) myCol.enabled = false;
-
-        if (anim != null)
-        {
-            anim.enabled = true;
-            anim.SetTrigger("Dead");
-        }
-
-        Destroy(gameObject, 1.5f);
-    }
-
     void Move()
     {
         LookAtPlayer();
@@ -217,8 +179,6 @@ public class AutomatonImg : MonoBehaviour
 
         if (anim != null) anim.SetTrigger("Teleport");
         yield return new WaitForSeconds(0.3f);
-
-        if (isDead) yield break;
 
         transform.position = TimViTriTeleport();
         LookAtPlayer();
@@ -253,21 +213,27 @@ public class AutomatonImg : MonoBehaviour
         return false;
     }
 
+    // ==========================================
+    // CHIẾN ĐẬU
+    // ==========================================
+
     IEnumerator ThucHienDanhThuong()
     {
         dangBanRaDon = true;
         StopMoving();
         LookAtPlayer();
 
+        // CHÌA KHÓA Ở ĐÂY: Khóa cứng trục X để quái đứng im phăng phắc, không bị trượt hay bị đẩy
         rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
 
         if (anim != null) anim.SetTrigger("Attack");
 
+        // Ngồi chờ cho clip chiếu xong
         yield return new WaitForSeconds(2f);
 
-        if (isDead) yield break;
-
+        // TRẢ LẠI TỰ DO: Mở khóa trục X để quái có thể đi bộ đuổi theo Player tiếp
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         nextMeleeTime = Time.time + meleeCooldown;
         dangBanRaDon = false;
     }
@@ -289,8 +255,6 @@ public class AutomatonImg : MonoBehaviour
 
         while (thoiGianDaLuot < dashDuration)
         {
-            if (isDead) break;
-
             Vector2 origin = myCol.bounds.center;
             Vector2 bottomFront = new Vector2(origin.x + (huongLuot * doRongQuai), myCol.bounds.min.y);
 
@@ -315,26 +279,29 @@ public class AutomatonImg : MonoBehaviour
             yield return null;
         }
 
-        if (!isDead)
+        rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        if (anim != null)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-            if (anim != null)
-            {
-                anim.enabled = true;
-                anim.SetFloat("Speed", 0f);
-            }
-
-            nextDashTime = Time.time + dashCooldown;
-            dangBanRaDon = false;
+            anim.enabled = true;
+            anim.SetFloat("Speed", 0f);
         }
+
+        nextDashTime = Time.time + dashCooldown;
+        dangBanRaDon = false;
     }
 
+    // =======================================================
+    // ANIMATION EVENT: XỬ LÝ CHÉM THƯỜNG TRỰC TIẾP BẰNG CODE
+    // =======================================================
+
+    // Gọi hàm này trong bảng Animation ở frame mà kiếm vung xuống
     public void DealMeleeDamage()
     {
-        if (player == null || isDead) return;
+        if (player == null) return;
 
+        // Nếu Player đứng trong tầm chém lúc tay vung xuống -> Trừ máu!
         if (Mathf.Abs(player.position.x - transform.position.x) <= attackRange + 0.5f)
         {
             player.GetComponent<PlayerHealth>()?.TakeDamage(meleeDamage);
