@@ -18,48 +18,48 @@ public class PlayerMovement1 : MonoBehaviour
     private bool isDashing;
     private bool canDash = true;
 
-    //void Start()
-    //{
-    //    rb = GetComponent<Rigidbody2D>();
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
 
-    //    // Bỏ qua va chạm vật lý giữa 2 layer Player và Enemy
-    //    int playerLayer = LayerMask.NameToLayer("Player");
-    //    int enemyLayer = LayerMask.NameToLayer("Enemy");
-    //    Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
-    //}
+        // Bỏ qua va chạm vật lý giữa 2 layer Player và Enemy
+        int playerLayer = LayerMask.NameToLayer("Player");
+        int enemyLayer = LayerMask.NameToLayer("Enemy");
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+    }
 
-    //void Update()
-    //{
-    //    // 1. NẾU ĐANG LƯỚT THÌ KHÔNG CHO ĐI BỘ HAY NHẢY
-    //    if (isDashing)
-    //    {
-    //        return;
-    //    }
+    void Update()
+    {
+        // 1. NẾU ĐANG LƯỚT THÌ KHÔNG CHO ĐI BỘ HAY NHẢY
+        if (isDashing)
+        {
+            return;
+        }
 
-    //    // Nhấn Left Shift để lướt
-    //    if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
-    //    {
-    //        StartCoroutine(Dash());
-    //        // CHÌA KHÓA: Dừng Update để lệnh đi bộ bên dưới không đè lên lực lướt
-    //        return;
-    //    }
+        // Nhấn Left Shift để lướt
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        {
+            StartCoroutine(Dash());
+            // CHÌA KHÓA: Dừng Update để lệnh đi bộ bên dưới không đè lên lực lướt
+            return;
+        }
 
-    //    // Nhấn A/D hoặc Mũi tên trái phải để đi
-    //    float moveInput = Input.GetAxisRaw("Horizontal");
-    //    rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        // Nhấn A/D hoặc Mũi tên trái phải để đi
+        float moveInput = Input.GetAxisRaw("Horizontal");
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-    //    // Lật mặt nhân vật quay sang trái/phải
-    //    if (moveInput != 0)
-    //    {
-    //        transform.localScale = new Vector3(moveInput, 1, 1);
-    //    }
+        // Lật mặt nhân vật quay sang trái/phải
+        if (moveInput != 0)
+        {
+            transform.localScale = new Vector3(moveInput, 1, 1);
+        }
 
-    //    // Nhấn Space để nhảy (chỉ nhảy được khi chạm đất)
-    //    if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-    //    {
-    //        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-    //    }
-    //}
+        // Nhấn Space để nhảy (chỉ nhảy được khi chạm đất)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
+    }
 
     // --- LOGIC LƯỚT (DASH) ---
     private IEnumerator Dash()
