@@ -14,13 +14,13 @@ GameObject:
   - component: {fileID: 1126824805650037879}
   - component: {fileID: 2701073587441707772}
   - component: {fileID: 7892184262299229532}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Automaton
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3990500786845730207
 Transform:
   m_ObjectHideFlags: 0
@@ -139,8 +139,8 @@ MonoBehaviour:
   moveSpeed: 3
   detectionRangeX: 12
   detectionRangeY: 3
-  dashRange: 10
-  attackRange: 0.7
+  dashRange: 9
+  attackRange: 1
   attackOffset: {x: 0.75, y: 0.77}
   platformHeightDiff: 0.8
   teleportDelay: 0.5
@@ -148,7 +148,7 @@ MonoBehaviour:
   teleportYOffset: 0
   meleeDamage: 1
   dashDamage: 10
-  dashSpeed: 15
+  dashSpeed: 20
   dashDuration: 0.5
   dashCooldown: 5
   meleeCooldown: 2
@@ -209,7 +209,7 @@ Animator:
   m_GameObject: {fileID: 6036838522198258641}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: ef996d615facc6a4e95ca5eb4da3b57b, type: 2}
+  m_Controller: {fileID: 9100000, guid: 919fa2d74e94c424dba4353eb7b3907d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
