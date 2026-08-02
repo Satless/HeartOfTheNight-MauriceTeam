@@ -27,6 +27,7 @@ namespace HeartOfTheNight.Hung
                 }
 
                 DataManager.Instance.Data.playerPosition = transform.position;
+                DataManager.Instance.Data.currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
                 DataManager.Instance.SaveGame();
                 Debug.Log($"[TestSaveLoad] Đã LƯU vị trí Player tại: {transform.position}, Máu: {DataManager.Instance.Data.playerHealth}");
             }
