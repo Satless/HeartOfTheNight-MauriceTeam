@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 5141435882979783124}
   - component: {fileID: 890032511126001227}
   - component: {fileID: 2265503281112699794}
+  - component: {fileID: 6647596655819321270}
   m_Layer: 7
   m_Name: PlayTestThemAnimation
   m_TagString: Player
@@ -352,6 +353,18 @@ MonoBehaviour:
   maxPullSpeed: 10
   timeToMaxSpeed: 1.5
   pullAcceleration: 6
+--- !u!114 &6647596655819321270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721345467516107366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 032b994cd6511834ca155da23e9a326f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4197812180855436671
 GameObject:
   m_ObjectHideFlags: 0

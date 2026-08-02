@@ -1,5 +1,7 @@
 using UnityEngine;
+using System;
 using HeartOfTheNight.Common;
+using HeartOfTheNight.Hung;
 
 namespace HeartOfTheNight.Player
 {
@@ -9,14 +11,37 @@ namespace HeartOfTheNight.Player
     public class PlayerHealth : MonoBehaviour, IDamageable
     {
         [Header("Settings")]
-        [SerializeField] private int _maxHealth = 100;
+        [SerializeField] private int _maxHealth;
 
         [Header("Debug Tracking")]
         [SerializeField, ReadOnly] private int _currentHealth;
 
+        public event Action<int, int> OnHealthChanged;
+
+        public int GetCurrentHealth() => _currentHealth;
+
         private void Start()
         {
-            _currentHealth = _maxHealth;
+            SyncHealthFromSave();
+        }
+
+        public void SyncHealthFromSave()
+        {
+            // Lấy máu từ Save Data, nếu Data bằng 0 (lần đầu chơi) thì lấy maxHealth
+            if (HeartOfTheNight.Hung.DataManager.Instance != null && HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth > 0)
+            {
+                _currentHealth = HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth;
+            }
+            else
+            {
+                _currentHealth = _maxHealth;
+                
+                // Đồng bộ ngược lại vào Data (trên RAM)
+                if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                    HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
+            }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         public void TakeDamage(int amount)
@@ -25,6 +50,14 @@ namespace HeartOfTheNight.Player
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
+
+            // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            {
+                HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
+            }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
 
             Debug.Log($"[PlayerHealth] Player bị trừ <color=red>{amount}</color> máu. Máu còn lại: <color=green>{_currentHealth}</color>");
 

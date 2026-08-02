@@ -1,7 +1,9 @@
 using UnityEngine;
 using DG.Tweening;
 
-public class PlayerAnimation : MonoBehaviour
+namespace HeartOfTheNight.Player
+{
+    public class PlayerAnimation : MonoBehaviour
 {
     [Header("References")]
     [Tooltip("Kéo phần Trên vào đây")]
@@ -413,4 +415,5 @@ public class PlayerAnimation : MonoBehaviour
         _lowerAnimator.Play(animName);
         _currentAnim = animName;
     }
+}
 }
