@@ -240,6 +240,115 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 114736794}
   m_CullTransparentMesh: 1
+--- !u!1 &123178379
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 123178381}
+  - component: {fileID: 123178380}
+  m_Layer: 0
+  m_Name: Hung_DataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &123178380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 123178379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 501ee0a22fea9b54ab20403fdf4eec42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data:
+    playerHealth: 0
+    playerCoin: 0
+    playerScore: 0
+    currentScene: 
+    targetSpawnID: 
+    playerPosition: {x: 0, y: 0, z: 0}
+    clearedRooms: []
+--- !u!4 &123178381
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 123178379}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.721044, y: 0.7288626, z: -0.01666659}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &279139501
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.7233827
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.16459042
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3615219200202039323, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
+      propertyPath: m_Name
+      value: Inquisitor
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
 --- !u!1 &346965495
 GameObject:
   m_ObjectHideFlags: 0
@@ -594,7 +703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &610123933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5683,3 +5792,5 @@ SceneRoots:
   - {fileID: 1235410640}
   - {fileID: 671278786}
   - {fileID: 1646705145}
+  - {fileID: 279139501}
+  - {fileID: 123178381}
