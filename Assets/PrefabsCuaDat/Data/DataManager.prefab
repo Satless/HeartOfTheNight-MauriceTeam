@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 533967676590791282}
-  - component: {fileID: 5309551820701401745}
+  - component: {fileID: 444335281087924032}
   m_Layer: 0
   m_Name: DataManager
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5309551820701401745
+--- !u!114 &444335281087924032
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,11 +41,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1059040278332147381}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d86961a6374ade4fb75b2d1ba22b417, type: 3}
+  m_Script: {fileID: 11500000, guid: 501ee0a22fea9b54ab20403fdf4eec42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Data:
-    playerHealth: 100
+    playerHealth: 0
+    playerCoin: 0
+    playerScore: 0
     currentScene: 
     targetSpawnID: 
+    playerPosition: {x: 0, y: 0, z: 0}
     clearedRooms: []

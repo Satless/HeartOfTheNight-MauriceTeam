@@ -11,8 +11,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+namespace HeartOfTheNight.Player
 {
+    public class PlayerMovement : MonoBehaviour
+    {
 	//Scriptable object chứa tất cả các thông số di chuyển — không hardcode
 	[Tooltip("Kéo thẳng ScriptableObject PlayerData vào đây")]
 	public PlayerData Data;
@@ -910,6 +912,7 @@ public class PlayerMovement : MonoBehaviour
 		Gizmos.DrawWireCube(_leftWallCheckPoint.position, _wallCheckSize);
 	}
     #endregion
+    }
 }
 
 // tạo bởi Dawnosaur :D
