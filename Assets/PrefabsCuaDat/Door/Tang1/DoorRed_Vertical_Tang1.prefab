@@ -101,7 +101,7 @@ Animator:
   m_GameObject: {fileID: 146302517626665117}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: bccf213af8d36e84ebaeb677e12aec84, type: 2}
+  m_Controller: {fileID: 9100000, guid: 508b5330a8a24f54f937a9c01bb658b7, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -219,8 +219,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d202d68b8475b5449436a6ea8e89186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transitionType: 0
   nextRoomSpawnPoint: {fileID: 0}
   targetDoor: {fileID: 0}
+  nextSceneName: 
+  spawnIDInNextScene: 
   blackScreen: {fileID: 0}
   fadeSpeed: 3
 --- !u!1 &1623023662239064104
@@ -262,7 +265,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1623023662239064104}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
