@@ -1,6 +1,8 @@
 using UnityEngine;
 
-public class WeaponEventRelay : MonoBehaviour
+namespace HeartOfTheNight.Player
+{
+    public class WeaponEventRelay : MonoBehaviour
 {
     private PlayerAttack _playerAttack;
 
@@ -20,4 +22,5 @@ public class WeaponEventRelay : MonoBehaviour
             _playerAttack.ExecuteShot();
         }
     }
+}
 }

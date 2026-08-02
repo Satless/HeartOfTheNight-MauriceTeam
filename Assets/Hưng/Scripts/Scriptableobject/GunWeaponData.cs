@@ -29,6 +29,8 @@ public class GunWeaponData : ScriptableObject
     public float verticalSpacing;
 
     [Header("Visuals")]
+    [Tooltip("Ảnh hiển thị vũ khí trên HUD")]
+    public Sprite weaponIcon;
     [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (Dự phòng cho súng lửa liên tục)")]
     public float animationSpeedMultiplier;
     [Tooltip("Kéo Prefab đạn của súng này vào đây")]

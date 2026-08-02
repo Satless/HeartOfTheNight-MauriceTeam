@@ -2,8 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
-[System.Serializable]
+namespace HeartOfTheNight.Player
+{
+    [System.Serializable]
 public class WeaponSlot
 {
     public GunWeaponData variant1;
@@ -105,6 +106,7 @@ public class PlayerAttack : MonoBehaviour
     public event Action<float, float> OnHeatChanged;
     /// <summary> Event cho UI/SFX: true = vừa quá nhiệt, false = vừa nguội xong. </summary>
     public event Action<bool> OnOverheatStateChanged;
+    public event Action<GunWeaponData> OnWeaponChanged;
 
     private WeaponSlot GetSlot(int slotIndex)
     {
@@ -289,6 +291,8 @@ public class PlayerAttack : MonoBehaviour
     private void EquipWeapon(GunWeaponData newWeapon, int slotNumber)
     {
         if (Data == newWeapon) return;
+
+        OnWeaponChanged?.Invoke(newWeapon);
 
         // Trả lại súng lửa cũ về Pool (nếu có)
         if (_flamethrowerInstance != null)
@@ -613,3 +617,5 @@ public class PlayerAttack : MonoBehaviour
     }
 }
 
+
+}

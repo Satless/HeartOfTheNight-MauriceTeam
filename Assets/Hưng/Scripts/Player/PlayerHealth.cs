@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using HeartOfTheNight.Common;
 using HeartOfTheNight.Hung;
 
@@ -14,6 +15,8 @@ namespace HeartOfTheNight.Player
 
         [Header("Debug Tracking")]
         [SerializeField, ReadOnly] private int _currentHealth;
+
+        public event Action<int, int> OnHealthChanged;
 
         public int GetCurrentHealth() => _currentHealth;
 
@@ -37,6 +40,8 @@ namespace HeartOfTheNight.Player
                 if (HeartOfTheNight.Hung.DataManager.Instance != null)
                     HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
             }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         public void TakeDamage(int amount)
@@ -51,6 +56,8 @@ namespace HeartOfTheNight.Player
             {
                 HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
             }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
 
             Debug.Log($"[PlayerHealth] Player bị trừ <color=red>{amount}</color> máu. Máu còn lại: <color=green>{_currentHealth}</color>");
 
