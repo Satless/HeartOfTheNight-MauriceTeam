@@ -379,6 +379,29 @@ public class PlayerAnimation : MonoBehaviour
     [Tooltip("Tên animation hiện tại đang được yêu cầu chạy")]
     [SerializeField, ReadOnly] private string _currentAnim;
     
+    public void TriggerDeath()
+    {
+        // Ẩn thân trên (súng)
+        if (_upperBodyObject != null) _upperBodyObject.SetActive(false);
+        
+        // Chạy anim chết
+        PlayAnim("Duoi-chet");
+        
+        // Tắt script này để Update không đè anim khác lên
+        this.enabled = false; 
+    }
+
+    public void DetachVisualsForDeath()
+    {
+        // Tách phần thân dưới (đang chạy anim chết) ra khỏi Player gốc 
+        // để nó không bị biến mất khi ta Destroy Player gốc.
+        // Sau khi thảo luận lại với Đạt thì xem nên làm thế nào
+        if (_lowerAnimator != null)
+        {
+            _lowerAnimator.transform.SetParent(null);
+        }
+    }
+
     /// <summary>
     /// Hàm helper để gọi Animator.Play mà không làm reset frame nếu anim đang chạy
     /// </summary>

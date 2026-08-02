@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using HeartOfTheNight.Common;
 
 /// <summary>
 /// Gắn script này vào Bullet Prefab.
@@ -174,10 +175,10 @@ public class Bullet : MonoBehaviour
 
             if (HasEnemyTag(other))
             {
-                NhanSatThuong nhanSatThuong = other.GetComponent<NhanSatThuong>();
-                if (nhanSatThuong != null)
+                IDamageable damageable = other.GetComponent<IDamageable>();
+                if (damageable != null)
                 {
-                    nhanSatThuong.TakeDamage(_data.damage);
+                    damageable.TakeDamage(_data.damage);
                 }
 
                 // Đẩy lùi theo hướng bay của đạn
@@ -250,10 +251,10 @@ public class Bullet : MonoBehaviour
                 }
 
                 // Gây sát thương nổ lan
-                NhanSatThuong nhanSatThuong = col.GetComponent<NhanSatThuong>();
-                if (nhanSatThuong != null)
+                IDamageable damageable = col.GetComponent<IDamageable>();
+                if (damageable != null)
                 {
-                    nhanSatThuong.TakeDamage(_data.explosionDamage);
+                    damageable.TakeDamage(_data.explosionDamage);
                 }
 
                 // Đẩy lùi từ tâm nổ ra ngoài

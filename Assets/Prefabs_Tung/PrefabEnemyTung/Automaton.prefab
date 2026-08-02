@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 3990500786845730207}
   - component: {fileID: 6463731281556513350}
   - component: {fileID: 1100431403190574925}
-  - component: {fileID: 2442397773279749693}
-  - component: {fileID: 4560361464305564036}
   - component: {fileID: 1126824805650037879}
+  - component: {fileID: 2701073587441707772}
+  - component: {fileID: 7892184262299229532}
   m_Layer: 7
   m_Name: Automaton
   m_TagString: Untagged
@@ -80,12 +80,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Sprite: {fileID: 876245465, guid: 4937aff588204e74595bd7cd48dd279e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 1.625, y: 1.6875}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -118,8 +118,43 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!70 &2442397773279749693
-CapsuleCollider2D:
+--- !u!114 &1126824805650037879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036838522198258641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf1b06e39e33fb94b90bb0acdc9c5f8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 150
+  currentHealth: 0
+  isDead: 0
+  anim: {fileID: 7892184262299229532}
+  sr: {fileID: 6463731281556513350}
+  dashAttackSprite: {fileID: -645322797, guid: 361944f99599388428776ecf701b4bc4, type: 3}
+  moveSpeed: 3
+  detectionRangeX: 12
+  detectionRangeY: 3
+  dashRange: 10
+  attackRange: 0.7
+  attackOffset: {x: 0.75, y: 0.77}
+  platformHeightDiff: 0.8
+  teleportDelay: 0.5
+  postTeleportDelay: 0.6
+  teleportYOffset: 0
+  meleeDamage: 1
+  dashDamage: 10
+  dashSpeed: 15
+  dashDuration: 0.5
+  dashCooldown: 5
+  meleeCooldown: 2
+  stuckTimeLimit: 1.2
+--- !u!61 &2701073587441707772
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -152,46 +187,37 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.005462885, y: 0}
-  m_Size: {x: 1.1638749, y: 2}
-  m_Direction: 1
---- !u!114 &4560361464305564036
-MonoBehaviour:
+  m_Offset: {x: 0.26020217, y: 0.7674978}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 1.625, y: 1.6875}
+    newSize: {x: 1.625, y: 1.6875}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.61246586, y: 1.519815}
+  m_EdgeRadius: 0
+--- !u!95 &7892184262299229532
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6036838522198258641}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a1fcadbd197323488e71f238405de22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  health: 500
---- !u!114 &1126824805650037879
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6036838522198258641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf1b06e39e33fb94b90bb0acdc9c5f8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 3
-  detectionRange: 8
-  dashRange: 10
-  meleeRange: 2
-  platformHeightDiff: 0.8
-  teleportDelay: 0.5
-  postTeleportDelay: 0.6
-  teleportYOffset: 0
-  meleeDamage: 1
-  dashDamage: 10
-  dashSpeed: 15
-  chargeTime: 0.8
-  dashDuration: 0.5
-  dashCooldown: 5
-  meleeCooldown: 2
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ef996d615facc6a4e95ca5eb4da3b57b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

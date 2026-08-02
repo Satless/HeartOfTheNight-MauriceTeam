@@ -1,42 +1,34 @@
-/*using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
-public class BigCorpse : MonoBehaviour
+public class BigCorpseImg : MonoBehaviour
 {
-<<<<<<< HEAD:Assets/ScriptsTung/Enemy10/BigCorpse/BigCorpse.cs
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 100;/////
+    public int maxHealth = 100;
     public int currentHealth;
     public bool isDead = false;
 
     [Header("Hoạt ảnh & Vị trí chém (Cục atk)")]
-=======
-<<<<<<< HEAD
-=======
-    [Header("Hoạt ảnh & Hitbox")]
->>>>>>> 1c33f729c40d0dca5d358e60c0fedca93ec1ebb8:Assets/ScriptsTung/Enemy/BigCorpse/BigCorpse.cs
     public Animator anim;
     public GameObject attackHitbox;
+    public Vector2 attackOffset = new Vector2(0f, 1f);
 
->>>>>>> main
     [Header("Tầm nhìn & Di chuyển")]
-    public float moveSpeed = 5f;
-    public float detectionRangeX = 12f;
+    public float detectionRangeX = 10f;
     public float detectionRangeY = 3f;
-    public float attackRange = 1.2f;
+    public float moveSpeed = 3f;
+    public float attackRange = 2.5f;
+    public float attackRadius = 1.5f;
 
-    [Header("Dịch chuyển an toàn")]
-    public float platformHeightDiff = 1.5f;
-    public float teleportDelay = 0.5f;
+    [Header("Dịch chuyển & Cảm biến kẹt")]
+    public float platformHeightDiff = 0.8f;
+    public float teleportDelay = 1f;
     public float postTeleportDelay = 0.5f;
+    public float timeToDetectStuck = 0.5f;
 
-<<<<<<< HEAD
-    [Header("Sát thương & Hiệu ứng cháy")]
-=======
-    [Header("Sát thương")]
->>>>>>> main
-    public int attackDamage = 10;
-    public float attackCooldown = 1.5f;
+    [Header("Tấn công")]
+    public int attackDamage = 15;
+    public float attackCooldown = 2.5f;
 
     private Transform player;
     private Rigidbody2D rb;
@@ -45,107 +37,145 @@ public class BigCorpse : MonoBehaviour
     private float teleportTimer = 0f;
     private bool isBusy = false;
 
+    private float lastXPos = 0f;
+    private float stuckTimer = 0f;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
         myCol = GetComponent<Collider2D>();
-<<<<<<< HEAD
-=======
 
-        if (anim == null) anim = GetComponent<Animator>();
+        if (anim == null) anim = GetComponentInChildren<Animator>();
 
-        if (attackHitbox != null)
+        if (anim != null && anim.gameObject != this.gameObject)
         {
-            hitboxScript = attackHitbox.GetComponent<EnemyHitbox>();
-            if (hitboxScript != null) hitboxScript.attackDamage = attackDamage;
-            attackHitbox.SetActive(false);
+            if (anim.GetComponent<HitboxEventForwarder>() == null)
+            {
+                anim.gameObject.AddComponent<HitboxEventForwarder>();
+            }
         }
 
-        // Kích hoạt tính năng xuyên thấu
+        currentHealth = maxHealth;
         SetupXuyenThau();
     }
 
     void SetupXuyenThau()
     {
-        if (myCol == null) return;
+        Collider2D[] myCols = GetComponentsInChildren<Collider2D>();
         if (player != null)
         {
-            Collider2D pCol = player.GetComponent<Collider2D>();
-            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+            Collider2D[] pCols = player.GetComponentsInChildren<Collider2D>();
+            foreach (Collider2D myC in myCols)
+            {
+                if (myC.isTrigger) continue;
+                foreach (Collider2D pC in pCols)
+                    Physics2D.IgnoreCollision(myC, pC, true);
+            }
         }
+
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemyObj in allEnemies)
         {
-            Collider2D enemyCol = enemyObj.GetComponent<Collider2D>();
-            if (enemyCol != null && enemyCol != myCol)
+            Collider2D[] enemyCols = enemyObj.GetComponentsInChildren<Collider2D>();
+            foreach (Collider2D myC in myCols)
             {
-                Physics2D.IgnoreCollision(myCol, enemyCol, true);
+                if (myC.isTrigger) continue;
+                foreach (Collider2D eC in enemyCols)
+                {
+                    if (eC.isTrigger) continue;
+                    if (myC.gameObject != eC.gameObject)
+                        Physics2D.IgnoreCollision(myC, eC, true);
+                }
             }
         }
->>>>>>> main
     }
 
     void Update()
     {
-<<<<<<< HEAD
-        if (player == null || isBusy) return;
-=======
-        if (anim != null && !isBusy)
-        {
-            anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
-        }
+        if (player == null || isBusy || myCol == null || isDead) return;
 
-        if (player == null || isBusy || myCol == null) return;
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
 
         float myFeetY = myCol.bounds.min.y;
         float playerFeetY = playerCol.bounds.min.y;
->>>>>>> main
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(playerFeetY - myFeetY);
 
+        bool isStuck = false;
+        if (distanceX > attackRange)
+        {
+            if (Mathf.Abs(transform.position.x - lastXPos) < 0.05f)
+            {
+                stuckTimer += Time.deltaTime;
+                if (stuckTimer >= timeToDetectStuck) isStuck = true;
+            }
+            else stuckTimer = 0f;
+        }
+        else stuckTimer = 0f;
+
+        lastXPos = transform.position.x;
+
         if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
         {
-            if (distanceY > platformHeightDiff)
+            if (distanceY > platformHeightDiff || isStuck)
             {
                 rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+                if (anim != null) anim.SetFloat("Speed", 0);
+
                 teleportTimer += Time.deltaTime;
                 if (teleportTimer >= teleportDelay)
                 {
-                    StartCoroutine(ThucHienTeleportAnToan());
+                    StartCoroutine(ThucHienTeleport());
                     teleportTimer = 0f;
+                    stuckTimer = 0f;
                 }
             }
             else
             {
                 teleportTimer = 0f;
-
-                float hitDistance = 999f;
-
-                if (myCol != null && playerCol != null)
-                    hitDistance = Physics2D.Distance(myCol, playerCol).distance;
-
-                if (hitDistance > attackRange)
-                {
-                    Move();
-                }
+                if (distanceX > attackRange) Move();
                 else
                 {
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                    if (Time.time >= nextAttackTime)
-                    {
-                        StartCoroutine(AttackRoutine());
-                    }
+                    if (anim != null) anim.SetFloat("Speed", 0);
+
+                    if (Time.time >= nextAttackTime) StartCoroutine(AttackRoutine());
                 }
             }
         }
         else
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", 0);
+            stuckTimer = 0f;
         }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (isDead) return;
+        currentHealth -= damage;
+        if (currentHealth <= 0) Die();
+    }
+
+    void Die()
+    {
+        isDead = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+
+        gameObject.tag = "Untagged";
+        if (myCol != null) myCol.enabled = false;
+
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+        Destroy(gameObject, 1.5f);
     }
 
     void Move()
@@ -153,6 +183,7 @@ public class BigCorpse : MonoBehaviour
         LookAtPlayer();
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
         rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+        if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
     }
 
     IEnumerator AttackRoutine()
@@ -161,57 +192,49 @@ public class BigCorpse : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         LookAtPlayer();
 
-<<<<<<< HEAD
-        yield return new WaitForSeconds(0.2f);
-
-        float hitDistance = 999f;
-        Collider2D playerCol = player.GetComponent<Collider2D>();
-        if (myCol != null && playerCol != null)
-            hitDistance = Physics2D.Distance(myCol, playerCol).distance;
-
-        if (hitDistance <= attackRange + 0.5f)
-        {
-            player.GetComponent<PlayerHealth>()?.TakeDamage(attackDamage);
-
-            // Bạn có thể đổi AntiHeal thành script gây sát thương Thiêu Đốt (Burn) tại đây
-            AntiHeal anti = player.GetComponent<AntiHeal>() ?? player.gameObject.AddComponent<AntiHeal>();
-            anti.thoiGianConLai = 6f;
-        }
-
-        yield return new WaitForSeconds(0.3f);
-=======
         if (anim != null) anim.SetTrigger("Attack");
 
-        yield return new WaitForSeconds(0.8f);
-        DisableHitbox();
->>>>>>> main
+        yield return new WaitForSeconds(attackCooldown);
+
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
 
-    IEnumerator ThucHienTeleportAnToan()
+    IEnumerator ThucHienTeleport()
     {
         isBusy = true;
         rb.linearVelocity = Vector2.zero;
 
-<<<<<<< HEAD
-=======
         if (anim != null) anim.SetTrigger("Teleport");
         yield return new WaitForSeconds(0.3f);
 
->>>>>>> main
-        float dirSauLung = (player.localScale.x > 0) ? -1f : 1f;
-        Vector2 viTriSauLung = new Vector2(player.position.x + (dirSauLung * 1.2f), player.position.y + 1f);
+        if (isDead) yield break;
 
         float pivotToFeetOffset = transform.position.y - myCol.bounds.min.y;
-        RaycastHit2D hit = Physics2D.Raycast(viTriSauLung, Vector2.down, 4f);
+        float distance = 1.5f;
+        float standBehind = (player.localScale.x > 0) ? -distance : distance;
 
-        if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
-            transform.position = new Vector2(viTriSauLung.x, hit.point.y + pivotToFeetOffset + 0.05f);
+        Vector2 viTriSau = new Vector2(player.position.x + standBehind, player.position.y + 1f);
+        Vector2 viTriTruoc = new Vector2(player.position.x - standBehind, player.position.y + 1f);
+
+        RaycastHit2D hitSau = Physics2D.Raycast(viTriSau, Vector2.down, 3f);
+        RaycastHit2D hitTruoc = Physics2D.Raycast(viTriTruoc, Vector2.down, 3f);
+
+        if (hitSau.collider != null && !hitSau.collider.CompareTag("Player") && !hitSau.collider.isTrigger)
+            transform.position = new Vector2(viTriSau.x, hitSau.point.y + pivotToFeetOffset + 0.05f);
+        else if (hitTruoc.collider != null && !hitTruoc.collider.CompareTag("Player") && !hitTruoc.collider.isTrigger)
+            transform.position = new Vector2(viTriTruoc.x, hitTruoc.point.y + pivotToFeetOffset + 0.05f);
         else
         {
-            float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
-            transform.position = new Vector2(viTriSauLung.x, playerFeet + pivotToFeetOffset);
+            Vector2 viTriGiua = new Vector2(player.position.x, player.position.y + 1f);
+            RaycastHit2D hitGiua = Physics2D.Raycast(viTriGiua, Vector2.down, 3f);
+            if (hitGiua.collider != null)
+                transform.position = new Vector2(player.position.x, hitGiua.point.y + pivotToFeetOffset + 0.05f);
+            else
+            {
+                float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
+                transform.position = new Vector2(player.position.x, playerFeet + pivotToFeetOffset);
+            }
         }
 
         LookAtPlayer();
@@ -221,31 +244,49 @@ public class BigCorpse : MonoBehaviour
 
     void LookAtPlayer()
     {
-        Vector3 scale = transform.localScale;
-        scale.x = (player.position.x > transform.position.x) ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
-        transform.localScale = scale;
+        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
-<<<<<<< HEAD
-    // ================= VẼ GIZMOS MÀU CAM =================
-=======
     public void EnableHitbox()
     {
-        if (attackHitbox != null) attackHitbox.SetActive(true);
+        if (isDead || attackHitbox == null) return;
+
+        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
+        float facingDirection = Mathf.Sign(transform.localScale.x);
+        Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+
+        Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
+        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, attackRadius);
+
+        foreach (Collider2D p in hitPlayers)
+        {
+            if (p.CompareTag("Player"))
+            {
+                PlayerHealth hp = p.GetComponent<PlayerHealth>();
+                if (hp != null)
+                {
+                    hp.TakeDamage(attackDamage);
+                    Debug.Log("BigCorpse Event chém trúng Player!");
+                }
+            }
+        }
     }
 
-    public void DisableHitbox()
-    {
-        if (attackHitbox != null) attackHitbox.SetActive(false);
-    }
+    public void DisableHitbox() { }
 
->>>>>>> main
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(1f, 0.6f, 0f); // Màu Cam (Orange)
+        Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        if (attackHitbox != null)
+        {
+            Gizmos.color = Color.red;
+            float facingDirection = Mathf.Sign(transform.localScale.x);
+            Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
+
+            Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
+            Gizmos.DrawWireSphere(finalAttackPos, attackRadius);
+        }
     }
-}*/
+}
