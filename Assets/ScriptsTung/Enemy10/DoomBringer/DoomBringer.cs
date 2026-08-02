@@ -4,11 +4,18 @@ using System.Collections;
 public class DoomBringer : MonoBehaviour
 {
     [Header("Hoạt ảnh (Animation)")]
-    public Animator anim; // Chỉ giữ lại để nó tự chạy clip Idle của bạn
+    public Animator anim;
+
+    [Header("Cài đặt Vụ Nổ (Dead)")]
+    [Tooltip("Độ to của vụ nổ. Kéo số này (3, 5, 10...) để bơm vụ nổ to đùng che hết quái!")]
+    public float explosionScale = 5f;
+    [Tooltip("Nhấc vụ nổ lên cao (trục Y) để nó nằm ngay giữa ngực Boss (ví dụ: 1.5 hoặc 2)")]
+    public float explosionYOffset = 1.5f;
 
     [Header("Chỉ số Sinh tồn & Giai đoạn")]
     public int maxHealth = 1000;
     private int currentHealth;
+    public bool isDead = false;
     private bool isPhase2 = false;
 
     [Header("Buff Giai đoạn 2 (< 50% HP)")]
@@ -33,7 +40,8 @@ public class DoomBringer : MonoBehaviour
     [Space]
     public GameObject bombPrefab;
     public float bombFireRate = 1.5f;
-    public float bombForce = 10f;
+    [Tooltip("Thời gian bom bay đến mục tiêu (giây). Số càng nhỏ ném càng mạnh và nhanh!")]
+    public float bombFlightTime = 1.2f; // Đã thay thế bombForce cũ bằng thuật toán ném chuẩn xác
 
     [Space]
     public GameObject laserPrefab;
@@ -66,7 +74,7 @@ public class DoomBringer : MonoBehaviour
 
     void Update()
     {
-        if (player == null) return;
+        if (player == null || isDead) return;
 
         MoveRelentlessly();
 
@@ -81,6 +89,8 @@ public class DoomBringer : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (isDead) return;
+
         currentHealth -= damage;
         Debug.Log("Doom Bringer bị đánh! Máu: " + currentHealth + "/" + maxHealth);
 
@@ -106,14 +116,38 @@ public class DoomBringer : MonoBehaviour
         attackTimer *= phase2FireRateMulti;
         transitionDelay *= phase2FireRateMulti;
 
+        bombFlightTime *= 0.8f; // Giai đoạn 2: Lực ném mạnh hơn, bom bay nhanh hơn 20%
+
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.color = Color.red;
     }
 
     void Die()
     {
+        isDead = true;
         Debug.Log("Boss Doom Bringer đã bị tiêu diệt!");
-        Destroy(gameObject);
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
+
+        gameObject.tag = "Untagged";
+        Collider2D[] cols = GetComponents<Collider2D>();
+        foreach (Collider2D c in cols) c.enabled = false;
+
+        float signX = Mathf.Sign(transform.localScale.x);
+        transform.localScale = new Vector3(signX * explosionScale, explosionScale, 1f);
+        transform.position = new Vector3(transform.position.x, transform.position.y + explosionYOffset, transform.position.z);
+
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+
+        Destroy(gameObject, 0.5f);
     }
 
     // ================== LOGIC HÀNH ĐỘNG ==================
@@ -185,6 +219,7 @@ public class DoomBringer : MonoBehaviour
         }
     }
 
+  
     void ShootBomb()
     {
         if (bombPrefab == null || firePoint == null) return;
@@ -194,13 +229,25 @@ public class DoomBringer : MonoBehaviour
 
         if (bombRb != null)
         {
-            Vector2 direction = (player.position - firePoint.position).normalized;
-            direction.y += 0.5f;
-            bombRb.linearVelocity = direction * bombForce;
+            // Tọa độ của Player (Cộng thêm 0.5f trục Y để canh ném thẳng vào ngực thay vì ném xuống gót chân)
+            Vector2 targetPos = new Vector2(player.position.x, player.position.y + 0.5f);
+
+            // Tính toán khoảng cách hai trục X, Y
+            Vector2 distance = targetPos - (Vector2)firePoint.position;
+
+            // Đo lường sức kéo của trọng lực tác dụng lên cục bom
+            float gravity = Mathf.Abs(Physics2D.gravity.y * bombRb.gravityScale);
+
+            // CÔNG THỨC TOÁN HỌC: Tính ra đúng lực ném cần thiết để chạm đích sau 'bombFlightTime' giây
+            float velocityX = distance.x / bombFlightTime;
+            float velocityY = (distance.y / bombFlightTime) + (0.5f * gravity * bombFlightTime);
+
+            // Áp dụng lực ném hoàn hảo vào cục bom!
+            bombRb.linearVelocity = new Vector2(velocityX, velocityY);
         }
     }
 
-    void ShootLaser()//////
+    void ShootLaser()
     {
         if (laserPrefab == null || firePoint == null) return;
 

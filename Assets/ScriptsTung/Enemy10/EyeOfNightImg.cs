@@ -1,48 +1,48 @@
-﻿    using System.Collections;
-    using System.Collections.Generic;
-    using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-    public class EyeOfNightImg : MonoBehaviour
+public class EyeOfNightImg : MonoBehaviour
+{
+    [Header("Hoạt ảnh")]
+    public Animator anim;
+
+    [Header("Chỉ số Sinh tồn")]
+    public int maxHealth = 150;
+    private int currentHealth;
+
+    [Header("Cài đặt Kỹ năng Khiên")]
+    public GameObject shieldPrefab;
+    public float shieldDuration = 5f;
+    public float cooldown = 10f;
+
+    // Lưu trữ khiên và danh tính (Tag) gốc của quái
+    private List<GameObject> activeShields = new List<GameObject>();
+    private Dictionary<GameObject, string> originalTags = new Dictionary<GameObject, string>();
+    private bool isDead = false;
+
+    void Start()
     {
-        [Header("Hoạt ảnh")]
-        public Animator anim;/////////
+        if (anim == null) anim = GetComponentInChildren<Animator>();
 
-        [Header("Chỉ số Sinh tồn")]
-        public int maxHealth = 150;
-        private int currentHealth;
+        currentHealth = maxHealth;
+        StartCoroutine(ShieldLoop());
+    }
 
-        [Header("Cài đặt Kỹ năng Khiên")]
-        public GameObject shieldPrefab;
-        public float shieldDuration = 5f;
-        public float cooldown = 10f;
-
-        // Lưu trữ khiên và danh tính (Tag) gốc của quái
-        private List<GameObject> activeShields = new List<GameObject>();
-        private Dictionary<GameObject, string> originalTags = new Dictionary<GameObject, string>();
-        private bool isDead = false;
-
-        void Start()
+    IEnumerator ShieldLoop()
+    {
+        while (!isDead)
         {
-            if (anim == null) anim = GetComponentInChildren<Animator>();
+            yield return new WaitForSeconds(cooldown);
+            if (isDead) break;
 
-            currentHealth = maxHealth;
-            StartCoroutine(ShieldLoop());
+            ActivateShield();
+
+            yield return new WaitForSeconds(shieldDuration);
+
+            DeactivateShield();
         }
-
-        IEnumerator ShieldLoop()
-        {
-            while (!isDead)
-            {
-                yield return new WaitForSeconds(cooldown);
-                if (isDead) break;
-
-                ActivateShield();
-
-                yield return new WaitForSeconds(shieldDuration);
-
-                DeactivateShield();
-            }
-        }
+    }
 
     void ActivateShield()
     {
@@ -64,48 +64,45 @@
                 originalTags.Add(target, target.tag);
                 target.tag = "Untagged";
 
-                // Ép hình ảnh cái khiên bám vào người quái
                 if (shieldPrefab != null)
                 {
-                    GameObject shieldClone = Instantiate(shieldPrefab, target.transform.position, Quaternion.identity, target.transform);
+                    // Sinh khiên ra ngoài không gian tự do
+                    GameObject shieldClone = Instantiate(shieldPrefab, Vector3.zero, Quaternion.identity);
 
-                    // =======================================================
-                    // THUẬT TOÁN AUTO-FIT (TỰ ĐỘNG BỌC KHÍT KHIÊN VÀO QUÁI)
-                    // =======================================================
-                    Collider2D targetCol = target.GetComponent<Collider2D>();
-                    SpriteRenderer shieldSr = shieldClone.GetComponent<SpriteRenderer>();
+                    // CHÌA KHÓA Ở ĐÂY: Dùng InChildren để lục tìm chắc chắn có hình ảnh
+                    SpriteRenderer targetSr = target.GetComponentInChildren<SpriteRenderer>();
+                    SpriteRenderer shieldSr = shieldClone.GetComponentInChildren<SpriteRenderer>();
+                    Collider2D targetCol = target.GetComponentInChildren<Collider2D>(); // Lấy thêm Collider để canh tâm
 
-                    if (targetCol != null && shieldSr != null)
+                    if (targetSr != null && shieldSr != null && targetCol != null)
                     {
-                        // 1. CHỈNH TÂM: Dời cái khiên từ gót chân (transform gốc) lên đúng tâm của Collider
-                        Vector3 offsetToCenter = targetCol.bounds.center - target.transform.position;
-                        // Phải chia cho localScale của quái vật đề phòng con quái đó bị lật mặt (scale X = -1)
-                        offsetToCenter.x /= target.transform.localScale.x;
-                        offsetToCenter.y /= target.transform.localScale.y;
-                        shieldClone.transform.localPosition = offsetToCenter;
+                        // 1. CHỈNH TÂM TUYỆT ĐỐI (Dùng Collider để tránh bị lệch xuống bóng dưới chân)
+                        shieldClone.transform.position = targetCol.bounds.center;
 
-                        // 2. CO GIÃN: Tính toán kích thước để phóng to/thu nhỏ khiên
-                        float doRongQuai = targetCol.bounds.size.x;
-                        float doCaoQuai = targetCol.bounds.size.y;
+                        // 2. KÍCH THƯỚC: Đo theo ảnh thật của quái
+                        float chieuRongQuai = targetSr.bounds.size.x;
+                        float chieuCaoQuai = targetSr.bounds.size.y;
+                        float maxKichThuocQuai = Mathf.Max(chieuRongQuai, chieuCaoQuai);
 
-                        float doRongKhien = shieldSr.sprite.bounds.size.x;
-                        float doCaoKhien = shieldSr.sprite.bounds.size.y;
+                        // Lấy kích thước gốc của bức ảnh khiên
+                        float kichThuocGocKhien = shieldSr.sprite.bounds.size.x;
 
-                        // Tính tỷ lệ cần phóng to (Nhân thêm 1.3f để tạo độ hở padding bọc ngoài quái cho đẹp)
-                        float scaleX = (doRongQuai / doRongKhien) * 1.3f;
-                        float scaleY = (doCaoQuai / doCaoKhien) * 1.3f;
+                        // Ép Scale (Nhân thêm 1.3f để tạo khoảng hở bọc ngoài)
+                        if (kichThuocGocKhien > 0)
+                        {
+                            float worldScale = (maxKichThuocQuai / kichThuocGocKhien) * 1.3f;
+                            shieldClone.transform.localScale = new Vector3(worldScale, worldScale, 1f);
+                        }
 
-                        // Dùng số lớn hơn để đảm bảo khiên vẫn giữ được form tròn (không bị méo thành hình oval)
-                        float finalScale = Mathf.Max(scaleX, scaleY);
-
-                        // Chia lại cho scale gốc của quái để khiên không bị phóng to gấp đôi nếu bản thân quái đang scale to
-                        shieldClone.transform.localScale = new Vector3(
-                            finalScale / Mathf.Abs(target.transform.localScale.x),
-                            finalScale / Mathf.Abs(target.transform.localScale.y),
-                            1f
-                        );
+                        // 3. NHÉT VÀO LÀM CON CỦA QUÁI
+                        shieldClone.transform.SetParent(target.transform, true);
                     }
-                    // =======================================================
+                    else
+                    {
+                        // Nếu lỡ prefab bị lỗi thiếu cái gì đó, gắn tạm vào gót chân
+                        shieldClone.transform.position = target.transform.position;
+                        shieldClone.transform.SetParent(target.transform, true);
+                    }
 
                     activeShields.Add(shieldClone);
                 }
@@ -114,51 +111,48 @@
     }
 
     void DeactivateShield()
+    {
+        Debug.Log("Mắt Đêm: Thu hồi Khiên!");
+
+        // Trả lại Tag gốc cho quái để Player chém trúng lại
+        foreach (var kvp in originalTags)
         {
-            Debug.Log("Mắt Đêm: Thu hồi Khiên!");
-
-            // Trả lại Tag gốc cho quái để Player chém trúng lại
-            foreach (var kvp in originalTags)
+            if (kvp.Key != null)
             {
-                if (kvp.Key != null)
-                {
-                    kvp.Key.tag = kvp.Value;
-                }
+                kvp.Key.tag = kvp.Value;
             }
-            originalTags.Clear();
-
-            // Xóa sổ hình ảnh khiên
-            foreach (GameObject shield in activeShields)
-            {
-                if (shield != null) Destroy(shield);
-            }
-            activeShields.Clear();
         }
+        originalTags.Clear();
 
-        public void TakeDamage(int damage)
+        // Xóa sổ hình ảnh khiên
+        foreach (GameObject shield in activeShields)
         {
-            if (isDead) return;
-            currentHealth -= damage;
-            if (currentHealth <= 0) Die();
+            if (shield != null) Destroy(shield);
         }
-
-        void Die()
-        {
-            isDead = true;
-
-            // 1. Thu hồi toàn bộ khiên và trả Tag lại trước khi Mắt chết
-            DeactivateShield();
-
-            Debug.Log("Eye of the Night đã bị tiêu diệt!");
-
-            // 2. Chạy Animation chết
-            if (anim != null)
-            {
-                anim.enabled = true;
-                anim.SetTrigger("Dead");
-            }
-
-            // 3. Chờ 1.5s để chạy hết Animation rồi mới xóa hẳn khỏi màn hình
-            Destroy(gameObject, 0.5f);
-        }
+        activeShields.Clear();
     }
+
+    public void TakeDamage(int damage)
+    {
+        if (isDead) return;
+        currentHealth -= damage;
+        if (currentHealth <= 0) Die();
+    }
+
+    void Die()
+    {
+        isDead = true;
+
+        DeactivateShield();
+
+        Debug.Log("Eye of the Night đã bị tiêu diệt!");
+
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+
+        Destroy(gameObject, 0.5f);
+    }
+}

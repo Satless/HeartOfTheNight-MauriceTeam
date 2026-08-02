@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9025711773550881348}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: atkPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 1383453171911249225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.99, y: 0.306, z: 0}
+  m_LocalPosition: {x: 8.9, y: 9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -43,11 +43,11 @@ GameObject:
   - component: {fileID: 789442840693208035}
   - component: {fileID: 5809605553261477230}
   - component: {fileID: 8701756682040630281}
-  - component: {fileID: 2032164882065723348}
   - component: {fileID: 7993045246824448013}
-  m_Layer: 7
+  - component: {fileID: 1558651991685687383}
+  m_Layer: 10
   m_Name: DoomBringer
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -62,7 +62,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -11.92, y: 7.38, z: 0}
-  m_LocalScale: {x: 1, y: 4.77, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.37, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 9025711773550881348}
@@ -112,7 +112,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 4487840349199372272, guid: cef095b5519cb6147a3b2b6a48011dc1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -184,31 +184,18 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.07730961, y: 8.868287}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 16.8125, y: 18}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 12.669769, y: 18.49526}
   m_EdgeRadius: 0
---- !u!114 &2032164882065723348
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4612588269366096216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a1fcadbd197323488e71f238405de22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  health: 50
 --- !u!114 &7993045246824448013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,7 +208,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9292fc8e68326e439234eb99469f6b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anim: {fileID: 1558651991685687383}
+  explosionScale: 3
+  explosionYOffset: 0
   maxHealth: 200
+  isDead: 0
   phase2SpeedMulti: 1.5
   phase2FireRateMulti: 0.5
   moveSpeed: 1
@@ -231,8 +222,30 @@ MonoBehaviour:
   firePoint: {fileID: 9025711773550881348}
   bombPrefab: {fileID: 2712588724363217790, guid: a97ee60ba2eace8488795b7c440ee07b, type: 3}
   bombFireRate: 1.5
-  bombForce: 10
+  bombFlightTime: 0.5
   laserPrefab: {fileID: 1967479979405962215, guid: cec1e8ce19d768b48a5d76c1b16c8859, type: 3}
   laserFireRate: 0.5
   laserSpeed: 20
   kamikazePrefab: {fileID: 0}
+--- !u!95 &1558651991685687383
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4612588269366096216}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a1d458fe7a4832d4bab44dd0ceab39a8, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
