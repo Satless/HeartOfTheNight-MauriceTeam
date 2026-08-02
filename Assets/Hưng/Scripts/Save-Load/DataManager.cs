@@ -37,6 +37,7 @@ namespace HeartOfTheNight.Hung
         private FirebaseUser _user;
         private DatabaseReference _dbRef;
         private bool _isFirebaseReady = false;
+        private bool _isFirebaseInitializing = false; // Thêm cờ để biết đang khởi tạo
 
         private void Awake()
         {
@@ -56,6 +57,7 @@ namespace HeartOfTheNight.Hung
 
         private void InitializeFirebase()
         {
+            _isFirebaseInitializing = true;
             FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
             {
                 if (task.Result == DependencyStatus.Available)
@@ -66,6 +68,7 @@ namespace HeartOfTheNight.Hung
                 }
                 else
                 {
+                    _isFirebaseInitializing = false;
                     Debug.LogError($"[Firebase] Không thể khởi tạo Firebase: {task.Result}. Fallback sang Local Load.");
                     LoadGameLocal(); 
                 }
@@ -79,6 +82,7 @@ namespace HeartOfTheNight.Hung
             {
                 _user = _auth.CurrentUser;
                 _isFirebaseReady = true;
+                _isFirebaseInitializing = false;
                 Debug.Log($"[Firebase] Đã nhớ tài khoản cũ! UID: {_user.UserId}");
                 LoadGameCloud();
                 return;
@@ -86,6 +90,7 @@ namespace HeartOfTheNight.Hung
 
             _auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(task =>
             {
+                _isFirebaseInitializing = false;
                 if (task.IsCanceled || task.IsFaulted)
                 {
                     Debug.LogError("[Firebase] Đăng nhập ẩn danh thất bại! Fallback sang Local Load.");
@@ -129,11 +134,28 @@ namespace HeartOfTheNight.Hung
             {
                 LoadGameCloud(onLoaded);
             }
+            else if (_isFirebaseInitializing)
+            {
+                Debug.LogWarning("[Firebase] Hệ thống mạng đang khởi tạo, xin vui lòng đợi...");
+                StartCoroutine(WaitAndLoadCloud(onLoaded));
+            }
             else
             {
                 LoadGameLocal();
                 onLoaded?.Invoke();
             }
+        }
+
+        private System.Collections.IEnumerator WaitAndLoadCloud(Action onLoaded)
+        {
+            // Chờ cho đến khi cờ Initializing tắt (nghĩa là Firebase đã kết nối xong hoặc thất bại)
+            while (_isFirebaseInitializing)
+            {
+                yield return null;
+            }
+            
+            // Chờ xong thì tự động gọi lại LoadGame (lúc này nó sẽ lọt vào if (_isFirebaseReady) hoặc else)
+            LoadGame(onLoaded);
         }
 
         private void LoadGameCloud(Action onLoaded = null)
