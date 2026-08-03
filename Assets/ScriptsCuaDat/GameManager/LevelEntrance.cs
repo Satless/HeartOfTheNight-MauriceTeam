@@ -9,24 +9,32 @@ public class LevelEntrance : MonoBehaviour
     [Header("Cửa tại vị trí này")]
     public RoomDoor entranceDoor;
 
-    private void Start()
+    // Đổi private void Start() thành dạng IEnumerator:
+    private System.Collections.IEnumerator Start()
     {
-        if (DataManager.Instance != null && DataManager.Instance.Data.targetSpawnID == entranceID)
+        // Ép hệ thống chờ 1 khung hình để đảm bảo Player đã xuất hiện trên Scene
+        yield return new UnityEngine.WaitForEndOfFrame();
+
+        if (HeartOfTheNight.Hung.DataManager.Instance != null && HeartOfTheNight.Hung.DataManager.Instance.Data.targetSpawnID == entranceID)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player != null)
             {
+                var rb = player.GetComponent<Rigidbody2D>();
+                if (rb != null) rb.simulated = false;
+
                 player.transform.position = transform.position;
                 Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, Camera.main.transform.position.z);
+
+                var hp = player.GetComponent<HeartOfTheNight.Player.PlayerHealth>();
+                if (hp != null) hp.SyncHealthFromSave();
+
+                if (rb != null) rb.simulated = true;
             }
 
-            // THÊM LỆNH NÀY: Mở cửa ngay khi ném Player tới
-            if (entranceDoor != null)
-            {
-                entranceDoor.Open();
-            }
+            if (entranceDoor != null) entranceDoor.Open();
 
-            DataManager.Instance.Data.targetSpawnID = "";
+            HeartOfTheNight.Hung.DataManager.Instance.Data.targetSpawnID = "";
         }
     }
 }

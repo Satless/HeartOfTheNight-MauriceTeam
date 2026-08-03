@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using HeartOfTheNight.Hung;
+using HeartOfTheNight.Player;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
@@ -7,7 +9,7 @@ public class RoomTransition : MonoBehaviour
 {
     public enum TransitionType { SameScene, NextLevel }
 
-
+    public int nextLevelIndex;
 
 
     [Header("Loại chuyển cảnh")]
@@ -97,11 +99,22 @@ public class RoomTransition : MonoBehaviour
                 yield break;
             }
 
-            // Gửi ID cửa đích vào DataManager trước khi load
-            if (DataManager.Instance != null)
+            // Ép tuyệt đối tới đúng namespace chứa PlayerHealth
+            var hp = playerObj.GetComponent<HeartOfTheNight.Player.PlayerHealth>();
+            if (hp != null) hp.HealToFull();
+
+            // Ép tuyệt đối tới đúng namespace chứa DataManager của Hùng
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
             {
-                DataManager.Instance.Data.currentScene = nextSceneName;
-                DataManager.Instance.Data.targetSpawnID = spawnIDInNextScene;
+                // THÊM LOGIC MỞ KHÓA LEVEL TẠI ĐÂY
+                if (nextLevelIndex > HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel)
+                {
+                    HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
+                }
+
+                HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
+                HeartOfTheNight.Hung.DataManager.Instance.Data.targetSpawnID = spawnIDInNextScene;
+                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             }
 
             SceneManager.LoadScene(nextSceneName);
