@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Script gắn trên Prefab hiệu ứng va chạm (tia lửa, nổ...).
+/// Tự động trả về Pool sau khi chạy xong animation/particle.
+/// </summary>
 public class HitVfx : MonoBehaviour
 {
-    private VfxPool _pool;
-    private string _poolKey;
     private ParticleSystem _particle;
     private Animator _anim;
 
@@ -12,12 +14,6 @@ public class HitVfx : MonoBehaviour
     {
         _particle = GetComponent<ParticleSystem>();
         _anim = GetComponent<Animator>();
-    }
-
-    public void Init(VfxPool pool, string key)
-    {
-        _pool = pool;
-        _poolKey = key;
     }
 
     private void OnEnable()
@@ -38,16 +34,14 @@ public class HitVfx : MonoBehaviour
         StartCoroutine(WaitAndReturn(duration));
     }
 
+    private void OnDisable()
+    {
+        StopAllCoroutines(); // Dừng coroutine khi bị Despawn sớm
+    }
+
     private IEnumerator WaitAndReturn(float time)
     {
         yield return new WaitForSeconds(time);
-        if (_pool != null)
-        {
-            _pool.Return(this, _poolKey);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        gameObject.Despawn();
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
   m_Name: MiniGunTest
   m_EditorClassIdentifier: 
-  fireRate: 0.2
+  fireRate: 0.5
   bulletSpeed: 30
   damage: 1
   bulletLifetime: 3
@@ -20,9 +20,11 @@ MonoBehaviour:
   spreadAngle: 0
   isVerticalSpread: 1
   verticalSpacing: 0.25
+  weaponIcon: {fileID: -5888906391496729053, guid: 96853d3f26a49074e816d8818184ead7, type: 3}
   animationSpeedMultiplier: 1
   bulletPrefab: {fileID: 437895494315374385, guid: d5ae70dc5fc06ea498b11c8ebb6f3c4c, type: 3}
   weaponAnimator: {fileID: 9100000, guid: 5e4b6089c26b362409a32581062ed367, type: 2}
+  fireAnimationClip: {fileID: 7400000, guid: cf78d6d503a7a1c429d3d6384a5a2605, type: 2}
   isExplosive: 0
   explosionRadius: 0
   explosionDamage: 0
@@ -32,5 +34,7 @@ MonoBehaviour:
   continuousVfxPrefab: {fileID: 0}
   knockbackForce: 1
   explosionKnockbackForce: 0
+  bulletPrewarmCount: 5
+  hitVfxPrewarmCount: 5
   canOverheat: 1
   heatPerShot: 12

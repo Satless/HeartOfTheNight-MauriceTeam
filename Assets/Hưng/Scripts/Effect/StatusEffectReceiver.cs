@@ -1,12 +1,14 @@
 using UnityEngine;
+using HeartOfTheNight.Common;
 
 /// <summary>
 /// Component quản lý và tiếp nhận các hiệu ứng trạng thái (Cháy, Độc, Làm chậm...).
-/// Gắn vào bất kỳ đối tượng nào (Player, Quái, Boss) có cài Interface NhanSatThuong.
+/// Gắn vào bất kỳ đối tượng nào (Player, Quái, Boss) có cài Interface IDamageable.
 /// </summary>
-[RequireComponent(typeof(NhanSatThuong))]
+[RequireComponent(typeof(IDamageable))]
 public class StatusEffectReceiver : MonoBehaviour
 {
+    [System.Serializable]
     private struct ActiveStatus
     {
         public StatusEffectData data;
@@ -16,12 +18,14 @@ public class StatusEffectReceiver : MonoBehaviour
         public bool isActive;
     }
 
-    private ActiveStatus[] _activeStatuses = new ActiveStatus[4];
-    private NhanSatThuong _healthComponent;
+    [Header("Debug Tracking")]
+    [Tooltip("Danh sách tối đa 4 hiệu ứng trạng thái đang bám trên người")]
+    [SerializeField, ReadOnly] private ActiveStatus[] _activeStatuses = new ActiveStatus[4];
+    private IDamageable _healthComponent;
 
     private void Awake()
     {
-        _healthComponent = GetComponent<NhanSatThuong>();
+        _healthComponent = GetComponent<IDamageable>();
     }
 
     private void Update()
@@ -51,7 +55,8 @@ public class StatusEffectReceiver : MonoBehaviour
                     _activeStatuses[i].isActive = false;
                     if (_activeStatuses[i].vfxInstance != null)
                     {
-                        Destroy(_activeStatuses[i].vfxInstance);
+                        _activeStatuses[i].vfxInstance.Despawn();
+                        _activeStatuses[i].vfxInstance = null;
                     }
                 }
             }
@@ -86,20 +91,21 @@ public class StatusEffectReceiver : MonoBehaviour
 
             if (statusData.effectVfxPrefab != null)
             {
-                // Instantiate ngoài Root (không truyền transform làm parent) để giữ nguyên tỷ lệ scale
-                _activeStatuses[emptySlot].vfxInstance = Instantiate(statusData.effectVfxPrefab, transform.position, Quaternion.identity);
+                // Lấy VFX từ Pool (thay vì Instantiate)
+                _activeStatuses[emptySlot].vfxInstance = statusData.effectVfxPrefab.Spawn(transform.position, Quaternion.identity);
             }
         }
     }
 
     private void OnDisable()
     {
-        // Dọn dẹp VFX nếu object bị tắt/xóa
+        // Trả VFX về Pool nếu object bị tắt/xóa
         for (int i = 0; i < _activeStatuses.Length; i++)
         {
             if (_activeStatuses[i].isActive && _activeStatuses[i].vfxInstance != null)
             {
-                Destroy(_activeStatuses[i].vfxInstance);
+                _activeStatuses[i].vfxInstance.Despawn();
+                _activeStatuses[i].vfxInstance = null;
             }
             _activeStatuses[i].isActive = false;
         }

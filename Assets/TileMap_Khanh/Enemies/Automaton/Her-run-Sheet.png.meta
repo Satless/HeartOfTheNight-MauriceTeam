@@ -58,12 +58,12 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -72,7 +72,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -96,7 +96,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -117,19 +117,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -137,20 +124,20 @@ TextureImporter:
       name: Her-run-Sheet_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 239
-        width: 28
-        height: 33
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 240
+        width: 26
+        height: 31
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: ebc8f81bbf0081720800000000000000
-      internalID: 2817002647936011454
+      spriteID: 357eb550839219c4e81573958fe89533
+      internalID: -420799599
       vertices: []
       indices: 
       edges: []
@@ -159,20 +146,20 @@ TextureImporter:
       name: Her-run-Sheet_1
       rect:
         serializedVersion: 2
-        x: 26
-        y: 205
-        width: 28
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 27
+        y: 206
+        width: 26
+        height: 29
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b8553b0a240c07d60800000000000000
-      internalID: 7886014339922220427
+      spriteID: deb7482330397ce49a0f19d2592b39fd
+      internalID: 476688058
       vertices: []
       indices: 
       edges: []
@@ -181,20 +168,20 @@ TextureImporter:
       name: Her-run-Sheet_2
       rect:
         serializedVersion: 2
-        x: 27
-        y: 171
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 172
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a29397cd61c327330800000000000000
-      internalID: 3707091512165218602
+      spriteID: 4020ad76549ee77429227813ab0560de
+      internalID: -1651782183
       vertices: []
       indices: 
       edges: []
@@ -203,20 +190,20 @@ TextureImporter:
       name: Her-run-Sheet_3
       rect:
         serializedVersion: 2
-        x: 28
-        y: 137
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 29
+        y: 138
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 74383c6317c1825a0800000000000000
-      internalID: -6545950785807350969
+      spriteID: c44856f0a3d6dde4eb1b850ce8db980a
+      internalID: 1714311262
       vertices: []
       indices: 
       edges: []
@@ -225,20 +212,20 @@ TextureImporter:
       name: Her-run-Sheet_4
       rect:
         serializedVersion: 2
-        x: 29
-        y: 103
-        width: 28
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 30
+        y: 104
+        width: 26
+        height: 30
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 08ce19a2019436590800000000000000
-      internalID: -7682216205581423488
+      spriteID: d63836cc509402a4b866c735c6c2d32a
+      internalID: 1931873479
       vertices: []
       indices: 
       edges: []
@@ -247,20 +234,20 @@ TextureImporter:
       name: Her-run-Sheet_5
       rect:
         serializedVersion: 2
-        x: 28
-        y: 70
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 29
+        y: 71
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8ce66b08767de6d70800000000000000
-      internalID: 9038398341720207048
+      spriteID: 25de123a3dd909f41bc99ff150bbfe05
+      internalID: 84906881
       vertices: []
       indices: 
       edges: []
@@ -269,20 +256,20 @@ TextureImporter:
       name: Her-run-Sheet_6
       rect:
         serializedVersion: 2
-        x: 27
-        y: 35
-        width: 28
-        height: 28
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 36
+        width: 26
+        height: 26
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 0977109248adcca20800000000000000
-      internalID: 3084080106000447376
+      spriteID: 1d17c9ab476458b4eb3cfc135b3f3a22
+      internalID: -266831782
       vertices: []
       indices: 
       edges: []
@@ -291,20 +278,20 @@ TextureImporter:
       name: Her-run-Sheet_7
       rect:
         serializedVersion: 2
-        x: 26
-        y: 1
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 27
+        y: 2
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d22b195a95cadc760800000000000000
-      internalID: 7479824057162117677
+      spriteID: 214644595840fa64f950d5a8c76087d2
+      internalID: 314634224
       vertices: []
       indices: 
       edges: []
@@ -313,7 +300,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 02742040854420147b42e50735d90ec3
     internalID: 0
     vertices: []
     indices: 
@@ -323,14 +310,14 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Her-run-Sheet_0: 2817002647936011454
-      Her-run-Sheet_1: 7886014339922220427
-      Her-run-Sheet_2: 3707091512165218602
-      Her-run-Sheet_3: -6545950785807350969
-      Her-run-Sheet_4: -7682216205581423488
-      Her-run-Sheet_5: 9038398341720207048
-      Her-run-Sheet_6: 3084080106000447376
-      Her-run-Sheet_7: 7479824057162117677
+      Her-run-Sheet_0: -420799599
+      Her-run-Sheet_1: 476688058
+      Her-run-Sheet_2: -1651782183
+      Her-run-Sheet_3: 1714311262
+      Her-run-Sheet_4: 1931873479
+      Her-run-Sheet_5: 84906881
+      Her-run-Sheet_6: -266831782
+      Her-run-Sheet_7: 314634224
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

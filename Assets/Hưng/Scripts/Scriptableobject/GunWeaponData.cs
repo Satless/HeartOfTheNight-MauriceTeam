@@ -29,13 +29,17 @@ public class GunWeaponData : ScriptableObject
     public float verticalSpacing;
 
     [Header("Visuals")]
-    [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (1=Bình thường, 2=Nhanh gấp đôi)")]
+    [Tooltip("Ảnh hiển thị vũ khí trên HUD")]
+    public Sprite weaponIcon;
+    [Tooltip("Tốc độ chạy clip hoạt ảnh bắn (Dự phòng cho súng lửa liên tục)")]
     public float animationSpeedMultiplier;
     [Tooltip("Kéo Prefab đạn của súng này vào đây")]
     public Bullet bulletPrefab;
 
     [Tooltip("Kéo Animator Override Controller của súng này vào đây")]
     public RuntimeAnimatorController weaponAnimator;
+    [Tooltip("Kéo ĐÚNG Clip Fire/Shoot của súng này vào đây để hệ thống tự động đồng bộ tốc độ bắn (Auto-Sync)")]
+    public AnimationClip fireAnimationClip;
 
     [Header("Explosive / AOE")]
     [Tooltip("Đạn có phát nổ AOE khi chạm mục tiêu/tường không?")]
@@ -56,13 +60,19 @@ public class GunWeaponData : ScriptableObject
     [Tooltip("Prefab dùng cho súng bắn liên tục (Súng lửa) - Sẽ thay thế Bullet Prefab")]
     public GameObject continuousVfxPrefab;
 
-    [Header("Knockback (Đẩy lùi)")]
+    [Header("Knockback")]
     [Tooltip("Lực đẩy lùi khi đạn trúng mục tiêu trực tiếp (0 = không đẩy). " +
              "VD: Lục thường = 5, Minigun = 2, Lục điện/Lửa = 0")]
     public float knockbackForce;
     [Tooltip("Lực đẩy lùi từ vụ nổ AOE (0 = không đẩy). " +
              "Chỉ áp dụng cho súng có isExplosive = true. Hướng đẩy = tâm nổ → mục tiêu.")]
     public float explosionKnockbackForce;
+
+    [Header("Pooling")]
+    [Tooltip("Số lượng đạn tạo sẵn trong Pool khi game khởi động")]
+    public int bulletPrewarmCount;
+    [Tooltip("Số lượng hiệu ứng nổ (HitVfx) tạo sẵn trong Pool khi game khởi động")]
+    public int hitVfxPrewarmCount;
 
     [Header("Overheat (Quá nhiệt)")]
     [Tooltip("Tích vào nếu súng này sinh nhiệt khi bắn. " +

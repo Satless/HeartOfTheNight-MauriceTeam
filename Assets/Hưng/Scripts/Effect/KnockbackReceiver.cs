@@ -32,9 +32,13 @@ public class KnockbackReceiver : MonoBehaviour, INhanKnockback
     private Rigidbody2D _rb;
 
     // Trạng thái knockback nội bộ
-    private Vector2 _knockbackVelocity;
-    private bool _isInKnockback;
-    private float _stunEndTime;
+    [Header("Debug Tracking")]
+    [Tooltip("Vận tốc văng đi hiện tại")]
+    [SerializeField, ReadOnly] private Vector2 _knockbackVelocity;
+    [Tooltip("Cờ đánh dấu đang trong trạng thái văng đi")]
+    [SerializeField, ReadOnly] private bool _isInKnockback;
+    [Tooltip("Thời điểm kết thúc choáng (tính theo Time.time)")]
+    [SerializeField, ReadOnly] private float _stunEndTime;
 
     /// <summary>
     /// Enemy script có thể đọc biến này để biết quái đang bị choáng hay không.

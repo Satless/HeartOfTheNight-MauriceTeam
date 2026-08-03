@@ -52,12 +52,12 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -66,7 +66,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -90,7 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -111,19 +111,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -131,20 +118,20 @@ TextureImporter:
       name: Her-fall-Sheet_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 171
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 172
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6c447252c5aabbbf0800000000000000
-      internalID: -307464836807703354
+      spriteID: 5f0867eae159c5e4f9a921f355b37e41
+      internalID: 1527708761
       vertices: []
       indices: 
       edges: []
@@ -153,20 +140,20 @@ TextureImporter:
       name: Her-fall-Sheet_1
       rect:
         serializedVersion: 2
-        x: 25
-        y: 137
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 138
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7c3fbef20952259b0800000000000000
-      internalID: -5092966927393098809
+      spriteID: 7b0c16a4fecd01141b41491a6cbf6bb3
+      internalID: -991620761
       vertices: []
       indices: 
       edges: []
@@ -175,20 +162,20 @@ TextureImporter:
       name: Her-fall-Sheet_2
       rect:
         serializedVersion: 2
-        x: 25
-        y: 103
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 104
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 09e398eedf3bbfdb0800000000000000
-      internalID: -4757010678176727408
+      spriteID: 0450ed11d80a9d9448d1ad4365928a3b
+      internalID: 1669368927
       vertices: []
       indices: 
       edges: []
@@ -197,20 +184,20 @@ TextureImporter:
       name: Her-fall-Sheet_3
       rect:
         serializedVersion: 2
-        x: 25
-        y: 69
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 70
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8bd72d7870dcc5480800000000000000
-      internalID: -8909020530618499656
+      spriteID: a2e6976935f0787499f15aef3ae39b66
+      internalID: -630101769
       vertices: []
       indices: 
       edges: []
@@ -219,20 +206,20 @@ TextureImporter:
       name: Her-fall-Sheet_4
       rect:
         serializedVersion: 2
-        x: 25
-        y: 35
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 36
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 559b969ee18636b60800000000000000
-      internalID: 7738143066726971733
+      spriteID: 5fad67fe9840e5245ab7f4ec6d5cf3c8
+      internalID: 1917955279
       vertices: []
       indices: 
       edges: []
@@ -241,20 +228,20 @@ TextureImporter:
       name: Her-fall-Sheet_5
       rect:
         serializedVersion: 2
-        x: 25
-        y: 1
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 26
+        y: 2
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b87304ad7747c8bd0800000000000000
-      internalID: -2626596424552269941
+      spriteID: e8f25b09580e03f4f9e00a5f472f819b
+      internalID: 1032112156
       vertices: []
       indices: 
       edges: []
@@ -263,7 +250,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 493fca1485d2198449e7de7ccae507e7
     internalID: 0
     vertices: []
     indices: 
@@ -273,12 +260,12 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Her-fall-Sheet_0: -307464836807703354
-      Her-fall-Sheet_1: -5092966927393098809
-      Her-fall-Sheet_2: -4757010678176727408
-      Her-fall-Sheet_3: -8909020530618499656
-      Her-fall-Sheet_4: 7738143066726971733
-      Her-fall-Sheet_5: -2626596424552269941
+      Her-fall-Sheet_0: 1527708761
+      Her-fall-Sheet_1: -991620761
+      Her-fall-Sheet_2: 1669368927
+      Her-fall-Sheet_3: -630101769
+      Her-fall-Sheet_4: 1917955279
+      Her-fall-Sheet_5: 1032112156
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

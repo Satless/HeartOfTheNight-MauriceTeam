@@ -19,7 +19,9 @@ public class FlamethrowerLogic : MonoBehaviour
     [TagSelector]
     [SerializeField] private string[] _targetTags;
 
-    private StatusEffectData _statusEffect;
+    [Header("Debug Tracking")]
+    [Tooltip("Hiệu ứng trạng thái (Cháy, Độc...) đang được gán cho luồng lửa này")]
+    [SerializeField, ReadOnly] private StatusEffectData _statusEffect;
 
     public void Activate(StatusEffectData effectData)
     {

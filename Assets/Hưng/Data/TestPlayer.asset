@@ -13,16 +13,16 @@ MonoBehaviour:
   m_Name: TestPlayer
   m_EditorClassIdentifier: 
   gravityStrength: -55.55555
-  gravityScale: 5.6631546
+  gravityScale: 1.8518517
   fallGravityMult: 1.5
   maxFallSpeed: 20
-  fastFallGravityMult: 15
-  maxFastFallSpeed: 3
-  runMaxSpeed: 15
-  runAcceleration: 2
-  runAccelAmount: 6.6666694
-  runDecceleration: 3.5
-  runDeccelAmount: 11.666671
+  fastFallGravityMult: 3
+  maxFastFallSpeed: 15
+  runMaxSpeed: 11.15
+  runAcceleration: 2.17
+  runAccelAmount: 9.730947
+  runDecceleration: 1.57
+  runDeccelAmount: 7.040362
   accelInAir: 0.65
   deccelInAir: 0.8
   doConserveMomentum: 1
@@ -40,16 +40,16 @@ MonoBehaviour:
   doTurnOnWallJump: 1
   allowReverseWallClingDash: 1
   bonusJumpAmount: 1
-  slideSpeed: -0.5
+  slideSpeed: -4.01
   slideAccel: 25
   allowShootWhileSliding: 0
-  wallClimbSpeed: 10
+  wallClimbSpeed: 6.66
   wallClimbAccel: 25
   coyoteTime: 0.2
   jumpInputBufferTime: 0.2
   dashAmount: 1
-  dashSpeed: 30
-  dashSleepTime: 0.03
+  dashSpeed: 35
+  dashSleepTime: 0.05
   dashAttackTime: 0.15
   dashEndTime: 0.1
   dashEndSpeed: {x: 5, y: 8}

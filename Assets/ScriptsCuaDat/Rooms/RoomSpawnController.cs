@@ -216,6 +216,18 @@ namespace HeartOfTheNight.Rooms
 
             onRoomCleared?.Invoke();
 
+            // AUTO-SAVE KHI QUA PHÒNG
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            {
+                // Tạo ID độc nhất cho phòng này để không bị reset quái khi quay lại
+                string roomID = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
+                if (!HeartOfTheNight.Hung.DataManager.Instance.Data.clearedRooms.Contains(roomID))
+                {
+                    HeartOfTheNight.Hung.DataManager.Instance.Data.clearedRooms.Add(roomID);
+                }
+                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+            }
+
             if (!activateOnce)
             {
                 state = RoomState.Idle;
@@ -223,7 +235,6 @@ namespace HeartOfTheNight.Rooms
                 currentWaveIndex = -1;
             }
         }
-
         // Sửa lại logic đóng/mở toàn bộ cửa trong phòng:
         private void SetDoorsClosed(bool isClosed)
         {
