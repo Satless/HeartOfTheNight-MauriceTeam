@@ -102,5 +102,12 @@ namespace HeartOfTheNight.Player
             
             // TODO: Bắn Event Game Over ra UI (nếu có)
         }
+        //đạt vừa thêm 9h30 8/3/2026
+        public void HealToFull()
+        {
+            _currentHealth = _maxHealth;
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
+        }
     }
 }

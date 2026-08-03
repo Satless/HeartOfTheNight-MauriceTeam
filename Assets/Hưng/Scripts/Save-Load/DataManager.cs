@@ -19,6 +19,9 @@ namespace HeartOfTheNight.Hung
         public string targetSpawnID; 
         public Vector3 playerPosition; // Thêm vị trí Player
         public List<string> clearedRooms = new List<string>();
+
+        public int maxUnlockedLevel = 1; // Mặc định luôn mở Level 1\
+
         //sau này thêm các dữ liệu tiếp theo...
     }
 
