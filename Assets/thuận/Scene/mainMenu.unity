@@ -875,7 +875,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 300250063}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 794740995}
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: PlayGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &300250063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3206,7 +3218,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 261.7846, y: 372.9077}
+  m_AnchoredPosition: {x: 261.7846, y: 316}
   m_SizeDelta: {x: 576.0806, y: 73.9356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &702196496
@@ -3477,6 +3489,7 @@ GameObject:
   - component: {fileID: 794740993}
   - component: {fileID: 794740992}
   - component: {fileID: 794740994}
+  - component: {fileID: 794740995}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -3534,6 +3547,18 @@ MonoBehaviour:
   masterSlider: {fileID: 1761965556}
   musicSlider: {fileID: 1001016483}
   sfxSlider: {fileID: 2083191624}
+--- !u!114 &794740995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 794740990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: deacd201cc7e035428697328d3d2e59f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &802950437
 GameObject:
   m_ObjectHideFlags: 0
@@ -6382,7 +6407,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 14.999939, y: -130.11621}
+  m_AnchoredPosition: {x: 14.999939, y: -197}
   m_SizeDelta: {x: 576.0806, y: 73.9356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1162963889
@@ -7882,7 +7907,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 14.999939, y: 72.39563}
+  m_AnchoredPosition: {x: 14.999939, y: 47}
   m_SizeDelta: {x: 576.0806, y: 73.9356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1334392847
@@ -9105,7 +9130,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 15, y: -34}
+  m_AnchoredPosition: {x: 15, y: -75}
   m_SizeDelta: {x: 576.0806, y: 73.9356}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1527026469
@@ -12473,7 +12498,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2023892785
 RectTransform:
   m_ObjectHideFlags: 0
