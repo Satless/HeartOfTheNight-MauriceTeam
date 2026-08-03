@@ -3,20 +3,22 @@ using UnityEngine;
 public class GameMnagaer : MonoBehaviour
 {
     [Header("Level")]
-    public GameObject level1;
+    public GameObject chapter1;
     public GameObject menuLevel;
+    
 
 
-    public void OpenLevel1()
+    public void Openchapter1()
     {
         menuLevel.SetActive(false);
-        level1.SetActive(true);
+        chapter1.SetActive(true);
     }
     
 
 
-    public void CloseLevel1()
+    public void Closechapter1()
     {
-        level1.SetActive(false);
+        chapter1.SetActive(false);
+        menuLevel.SetActive(true);
     }
 }
