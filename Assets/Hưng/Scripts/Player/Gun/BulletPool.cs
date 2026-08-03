@@ -88,8 +88,13 @@ public class BulletPool : MonoBehaviour
 
     private Bullet CreateBullet(Bullet prefab, string key)
     {
+        
         Bullet bullet = Instantiate(prefab, transform);
         bullet.Init(this, key); // Truyền key để viên đạn nhớ nhà của nó
+
+        SoundManager.Instance.PlaySound3D("Weapons", "BulletSpawn", transform.position); // sfx for bullet when it spawns
+
         return bullet;
+        
     }
 }

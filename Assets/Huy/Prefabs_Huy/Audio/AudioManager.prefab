@@ -196,6 +196,52 @@ MonoBehaviour:
       - {fileID: 8300000, guid: bf84310ec6eede54d8801caf06439de8, type: 3}
       - {fileID: 8300000, guid: f79165ff0ea54ba40a1d99d5f4676b33, type: 3}
       - {fileID: 8300000, guid: 385157804eb38574ca8655125d7d4628, type: 3}
+  - categoryID: Weapons
+    soundEffects:
+    - groupID: BulletSpawn
+      clips:
+      - {fileID: 8300000, guid: 6ebf605377f1bf545a37503aa58ca720, type: 3}
+    - groupID: FlamethrowerFire
+      clips:
+      - {fileID: 0}
+    - groupID: OverheatOn
+      clips:
+      - {fileID: 8300000, guid: eea5efb487902d544bead7d6f7e24d99, type: 3}
+    - groupID: OverheatOff
+      clips:
+      - {fileID: 8300000, guid: 4b9e9a3f216336f4c8c6038bd4173f29, type: 3}
+    - groupID: Explosive
+      clips:
+      - {fileID: 8300000, guid: 3d5ccdd577fa4e9478e4edade63e2145, type: 3}
+  - categoryID: Player
+    soundEffects:
+    - groupID: Run
+      clips:
+      - {fileID: 8300000, guid: 01dc8ec6536e5574e9e3d6cefd0448f8, type: 3}
+      - {fileID: 8300000, guid: 639d97c11d88a904aae81657bb564d2b, type: 3}
+      - {fileID: 8300000, guid: d1a76b15406be5f47844c312699be1c8, type: 3}
+      - {fileID: 8300000, guid: be66339f0dbcb534a8e844c02078bff7, type: 3}
+    - groupID: Jump
+      clips:
+      - {fileID: 8300000, guid: 60bc6830d139df8409489fffaebfbbd8, type: 3}
+    - groupID: Jump
+      clips:
+      - {fileID: 8300000, guid: cf70630f2e1f99e4c925b13156c8b7bd, type: 3}
+    - groupID: Dash
+      clips:
+      - {fileID: 8300000, guid: 5f34796c8c467e84dbd8d79cbecc6435, type: 3}
+    - groupID: StopDash
+      clips:
+      - {fileID: 8300000, guid: f797463d27f962640b389c6517e95916, type: 3}
+    - groupID: Slide
+      clips:
+      - {fileID: 8300000, guid: b872fd576d4cdec4ebc3597748c7f403, type: 3}
+    - groupID: WallClimb
+      clips:
+      - {fileID: 8300000, guid: 5034f5c8583f4574c8d71cdcbdddfc63, type: 3}
+    - groupID: Equip
+      clips:
+      - {fileID: 8300000, guid: 280f4488a34edfd45b54e5ebce84e566, type: 3}
 --- !u!114 &7837030559445061944
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -238,6 +238,8 @@ public class Bullet : MonoBehaviour
 
         if (_data.explosionRadius <= 0) return;
 
+        SoundManager.Instance.PlaySound3D("Weapons", "Explosive", transform.position);
+
         // 2. Quét các mục tiêu trong bán kính nổ (API mới, tự Zero-GC)
         var aoeResults = Physics2D.OverlapCircleAll(explosionCenter, _data.explosionRadius, _enemyLayer);
         int count = aoeResults.Length;

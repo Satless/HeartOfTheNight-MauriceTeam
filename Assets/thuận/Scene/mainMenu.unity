@@ -15286,6 +15286,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 205443832350791518, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: tracks.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: categories.Array.data[2].soundEffects.Array.size
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: categories.Array.data[2].soundEffects.Array.data[8].groupID
+      value: CollectItems
+      objectReference: {fileID: 0}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: categories.Array.data[1].soundEffects.Array.data[1].clips.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: categories.Array.data[2].soundEffects.Array.data[8].clips.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: 'categories.Array.data[2].soundEffects.Array.data[8].clips.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 559954e5fa095f24ebc7ab1de5065191, type: 3}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: 'categories.Array.data[2].soundEffects.Array.data[8].clips.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 6cba1ad51710da84c9291602cce77237, type: 3}
+    - target: {fileID: 1134344534449575616, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+      propertyPath: 'categories.Array.data[2].soundEffects.Array.data[8].clips.Array.data[2]'
+      value: 
+      objectReference: {fileID: 8300000, guid: b9bd51b97345b5f4e8622753ac086f2b, type: 3}
     - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
       propertyPath: m_LocalPosition.x
       value: 495.5513

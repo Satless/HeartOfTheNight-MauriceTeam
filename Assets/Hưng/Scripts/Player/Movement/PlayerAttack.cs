@@ -227,7 +227,9 @@ public class PlayerAttack : MonoBehaviour
         WeaponSlot slot = slotNumber == 1 ? Weapon1 : (slotNumber == 2 ? Weapon2 : Weapon3);
         
         GunWeaponData weaponToEquip = _useVariant2 ? slot.variant2 : slot.variant1;
-        
+
+        SoundManager.Instance.PlaySound3D("Player", "Equip", transform.position);
+
         // Nếu biến thể 2 không tồn tại thì tự động lấy biến thể 1 (để khỏi văng lỗi)
         if (weaponToEquip == null) 
             weaponToEquip = slot.variant1;
@@ -540,6 +542,8 @@ public class PlayerAttack : MonoBehaviour
             slot.isOverheated = true;
             OnOverheatStateChanged?.Invoke(true);
             Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
+
+            SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
         }
     }
 
@@ -574,6 +578,8 @@ public class PlayerAttack : MonoBehaviour
             {
                 OnOverheatStateChanged?.Invoke(false);
                 Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {slot.currentHeat:F1}/{slot.maxHeat}. Mở khóa bắn.");
+
+                SoundManager.Instance.PlaySound3D("Weapons", "OverheatOff", transform.position);
             }
         }
     }
