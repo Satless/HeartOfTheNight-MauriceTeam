@@ -12,21 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceddd35cee35c6d4298e5e2e6be3d36c, type: 3}
   m_Name: HeartOfTheNightStats
   m_EditorClassIdentifier: 
-  maxHealth: 800
+  maxHealth: 100
   enrageHealthFraction: 0.5
-  enrageSpeedMultiplier: 0.6
+  enrageSpeedMultiplier: 0.75
   detectRange: 0
-  timeBetweenAttacks: 4
+  timeBetweenAttacks: 5
   attackWeights:
   - 1
   - 1
   - 1
-  - 0.6
+  - 0
   bulletPrefab: {fileID: 8107031208782475583, guid: 0360d68402de09a46903e6a722853256, type: 3}
-  barrageBulletCount: 6
-  barrageBetweenShots: 0.5
-  barrageSpreadAngle: 18
-  bulletSpeed: 5
+  barrageBulletCount: 5
+  barrageBetweenShots: 0.15
+  barrageSpreadAngle: 25
+  bulletSpeed: 6
   bulletDamage: 12
   bulletLifetime: 5
   barrageCooldown: 3
@@ -42,11 +42,11 @@ MonoBehaviour:
   laserLength: 30
   laserWidth: 0.35
   laserDamage: 16
-  eightDirCooldown: 5
-  pillarCooldown: 3
-  pillarChargeTime: 2.5
+  eightDirCooldown: 10
+  pillarCooldown: 2
+  pillarChargeTime: 1.5
   pillarFollowPlayer: 1
-  pillarLockLeadTime: 0.45
+  pillarLockLeadTime: 0.3
   pillarFireTime: 0.6
   pillarWidth: 1.4
   pillarHeight: 18

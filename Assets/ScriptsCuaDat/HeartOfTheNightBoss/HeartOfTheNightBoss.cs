@@ -159,6 +159,7 @@ namespace HeartOfTheNight.Enemy
 
         public void TriggerSkillFromAnimation()
         {
+            Debug.Log("Đã gọi hàm!");
             switch (currentAttack)
             {
                 case Attack.Barrage:
@@ -193,7 +194,7 @@ namespace HeartOfTheNight.Enemy
 
             for (int i = 0; i < count; i++)
             {
-                if (player == null) yield break;
+                if (player == null) break; // Dùng break thay vì yield break
 
                 Vector2 origin = FireOrigin;
                 Vector2 baseDir = ((Vector2)player.position - origin).normalized;
@@ -201,7 +202,6 @@ namespace HeartOfTheNight.Enemy
                 float angle = count > 1 ? Mathf.Lerp(-spread, spread, i / (float)(count - 1)) : 0f;
                 Vector2 dir = Rotate(baseDir, angle);
 
-                // Khởi tạo dạng GameObject và ép kiểu lấy Script
                 var bulletGo = Instantiate(stats.bulletPrefab, origin, Quaternion.identity);
                 if (bulletGo.TryGetComponent<HeartOfTheNightBullet>(out var bullet))
                 {
@@ -210,6 +210,8 @@ namespace HeartOfTheNight.Enemy
 
                 if (interval > 0f && i < count - 1) yield return new WaitForSeconds(interval);
             }
+            Debug.Log("ĐÃ CHẠY XONG SKILL - GỌI FINISH ATTACK");
+            anim.SetTrigger("FinishAttack");   // thay vì anim.Play("HeartAttack_End")
         }
 
         private IEnumerator DoEightDirLaser()
@@ -245,18 +247,23 @@ namespace HeartOfTheNight.Enemy
 
                 yield return new WaitForSeconds(warn + fire + 0.1f);
             }
+            Debug.Log("ĐÃ CHẠY XONG SKILL - GỌI FINISH ATTACK");
+            anim.SetTrigger("FinishAttack");   // thay vì anim.Play("HeartAttack_End")
         }
 
         private IEnumerator DoFirePillar()
         {
-            if (player == null) yield break;
+            if (player == null)
+            {
+                anim.SetTrigger("FinishAttack");
+                yield break;
+            }
 
             float charge = stats.pillarChargeTime * SpeedMul;
             float lockLead = Mathf.Clamp(stats.pillarLockLeadTime, 0f, charge * 0.9f);
             float followUntil = charge - lockLead;
             Vector2 spot = player.position;
 
-            // Đã sửa lại việc ép kiểu và khởi tạo 1 lần
             var telegraphGo = Instantiate(stats.telegraphPrefab, GroundUnder(spot), Quaternion.identity);
             if (telegraphGo.TryGetComponent<HeartOfTheNightTelegraph>(out var telegraph))
             {
@@ -280,15 +287,26 @@ namespace HeartOfTheNight.Enemy
 
             SpawnLaser(pillarBase, Vector2.up, stats.pillarHeight, stats.pillarWidth, stats.pillarDamage, 0f, stats.pillarFireTime, 0.1f);
             yield return new WaitForSeconds(stats.pillarFireTime);
+            Debug.Log("ĐÃ CHẠY XONG SKILL - GỌI FINISH ATTACK");
+            anim.SetTrigger("FinishAttack");   // thay vì anim.Play("HeartAttack_End")
         }
 
         private void DoSummon()
         {
             PruneSummons();
-            if (stats.summons == null) return;
+
+            if (stats.summons == null)
+            {
+                anim.SetTrigger("FinishAttack");
+                return;
+            }
 
             int slots = stats.maxActiveSummons - activeSummons.Count;
-            if (slots <= 0) return;
+            if (slots <= 0)
+            {
+                anim.SetTrigger("FinishAttack");
+                return;
+            }
 
             int pointIndex = 0;
             foreach (var entry in stats.summons)
@@ -297,13 +315,15 @@ namespace HeartOfTheNight.Enemy
 
                 for (int c = 0; c < Mathf.Max(1, entry.count); c++)
                 {
-                    if (slots <= 0) return;
+                    if (slots <= 0) break; // Dùng break để thoát vòng lặp, chạy tới trigger ở dưới
                     Vector3 pos = NextSummonPosition(ref pointIndex);
                     var go = Instantiate(entry.prefab, pos, Quaternion.identity);
                     activeSummons.Add(go);
                     slots--;
                 }
             }
+            Debug.Log("ĐÃ CHẠY XONG SKILL - GỌI FINISH ATTACK");
+            anim.SetTrigger("FinishAttack");   // thay vì anim.Play("HeartAttack_End")
         }
 
         private Vector3 NextSummonPosition(ref int pointIndex)
