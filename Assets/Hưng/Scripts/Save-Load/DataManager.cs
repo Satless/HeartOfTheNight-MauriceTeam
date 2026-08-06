@@ -86,7 +86,7 @@ namespace HeartOfTheNight.Hung
                 _user = _auth.CurrentUser;
                 _isFirebaseReady = true;
                 _isFirebaseInitializing = false;
-                Debug.Log($"[Firebase] Đã nhớ tài khoản cũ! UID: {_user.UserId}");
+                Debug.Log($"[Firebase] Đã nhớ tài khoản cũ! UID: {_user.UserId}");  
                 LoadGameCloud();
                 return;
             }
