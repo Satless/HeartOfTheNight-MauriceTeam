@@ -453,10 +453,25 @@ namespace HeartOfTheNight.Enemy
                     Vector3 pos = NextSummonPosition(ref pointIndex);
                     var go = Instantiate(entry.prefab, pos, Quaternion.identity);
                     activeSummons.Add(go);
+                    SpawnSummonVfx(go, pos);
                     slots--;
                 }
             }
             yield return new WaitForSeconds(0.2f);
+        }
+
+        private void SpawnSummonVfx(GameObject enemy, Vector3 fallbackPos)
+        {
+            if (stats == null || stats.summonSpawnVfxPrefab == null) return;
+
+            Vector3 vfxPos = fallbackPos;
+            if (enemy != null)
+            {
+                var enemyCol = enemy.GetComponent<Collider2D>();
+                if (enemyCol != null) vfxPos = enemyCol.bounds.center;
+            }
+
+            Instantiate(stats.summonSpawnVfxPrefab, vfxPos, Quaternion.identity);
         }
 
         private Vector3 NextSummonPosition(ref int pointIndex)

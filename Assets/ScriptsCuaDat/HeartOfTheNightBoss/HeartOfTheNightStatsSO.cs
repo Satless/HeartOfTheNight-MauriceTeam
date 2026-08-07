@@ -78,6 +78,8 @@ namespace HeartOfTheNight.Enemy
         public int maxActiveSummons = 6;
         public float summonScatterRadius = 4f;
         public float summonCooldown = 12f;
+        [Tooltip("Hieu ung spawn giong luc vao phong (RoomSpawnController.spawnVfxPrefab).")]
+        public GameObject summonSpawnVfxPrefab;
 
         [Header("Ground Detection (cho cot lua)")]
         public LayerMask groundLayer;
