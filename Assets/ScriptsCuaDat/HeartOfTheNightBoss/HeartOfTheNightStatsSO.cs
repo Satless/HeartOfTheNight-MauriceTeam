@@ -24,6 +24,10 @@ namespace HeartOfTheNight.Enemy
 
         [Header("Attack Loop")]
         public float timeBetweenAttacks = 1.25f;
+        [Tooltip("Thoi diem trong HeartAttack_Start de xả skill (khop Animation Event ~0.78s). Khong phu thuoc Event.")]
+        public float skillCastDelay = 0.78f;
+        [Tooltip("Thoi gian cho clip HeartAttack_End chay xong truoc khi tinh timeBetweenAttacks.")]
+        public float attackEndDuration = 0.6f;
         public float[] attackWeights = { 1f, 1f, 1f, 0.6f };
 
         [Header("State 1 - Barrage (Na dan)")]

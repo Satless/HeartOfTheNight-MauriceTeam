@@ -12,24 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceddd35cee35c6d4298e5e2e6be3d36c, type: 3}
   m_Name: HeartOfTheNightStats
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 600
   enrageHealthFraction: 0.5
   enrageSpeedMultiplier: 0.75
   detectRange: 0
   timeBetweenAttacks: 5
+  skillCastDelay: 0.78
+  attackEndDuration: 0.6
   attackWeights:
+  - 1.2
   - 1
-  - 1
-  - 1
+  - 0.7
   - 0
   bulletPrefab: {fileID: 8107031208782475583, guid: 0360d68402de09a46903e6a722853256, type: 3}
   barrageBulletCount: 5
   barrageBetweenShots: 0.15
   barrageSpreadAngle: 25
-  bulletSpeed: 6
-  bulletDamage: 12
+  bulletSpeed: 7
+  bulletDamage: 8
   bulletLifetime: 5
-  barrageCooldown: 3
+  barrageCooldown: 4
   laserPrefab: {fileID: 2657676262953193284, guid: 91ef91da58c3d4540b5c9c4788a95322, type: 3}
   telegraphPrefab: {fileID: 3524000206605549690, guid: 9e6dc159506f5de4ab8e31ec15b58477, type: 3}
   laserDirections: 8
@@ -37,16 +39,16 @@ MonoBehaviour:
   laserVolleyRotationStep: 22.5
   laserAngleOffset: 0
   laserSafeGapTowardPlayer: 1
-  laserWarnTime: 1.5
+  laserWarnTime: 1.2
   laserFireTime: 0.35
   laserLength: 30
   laserWidth: 0.35
-  laserDamage: 16
-  eightDirCooldown: 10
-  pillarCooldown: 2
-  pillarChargeTime: 1.5
+  laserDamage: 12
+  eightDirCooldown: 8
+  pillarCooldown: 6
+  pillarChargeTime: 1.4
   pillarFollowPlayer: 1
-  pillarLockLeadTime: 0.3
+  pillarLockLeadTime: 0.6
   pillarFireTime: 0.6
   pillarWidth: 1.4
   pillarHeight: 18

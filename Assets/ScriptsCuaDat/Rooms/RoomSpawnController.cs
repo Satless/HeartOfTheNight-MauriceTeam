@@ -178,8 +178,11 @@ namespace HeartOfTheNight.Rooms
 
             foreach (var s in scripts)
             {
+                if (s == null || !s.enabled) continue;
+                // Boss dung yen tren tran — freeze disable/enable se restart AttackLoop (bug cast 2 lan).
+                if (s is HeartOfTheNight.Enemy.HeartOfTheNightBoss) continue;
                 // Bỏ qua các component gốc của Unity, chỉ lấy script tự code
-                if (s.enabled && (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine")))
+                if (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine"))
                 {
                     s.enabled = false;
                     disabledScripts.Add(s);
