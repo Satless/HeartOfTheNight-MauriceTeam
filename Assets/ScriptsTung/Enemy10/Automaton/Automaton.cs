@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common; // 1. GỌI THƯ VIỆN CHỨA BỘ LUẬT CỦA TEAM
 
-public class Automaton : MonoBehaviour
+// 2. THAY NhanSatThuong THÀNH IDamageable
+public class Automaton : MonoBehaviour, IDamageable
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 150;
@@ -163,6 +165,7 @@ public class Automaton : MonoBehaviour
         }
     }
 
+    // 3. HÀM NÀY TỰ ĐỘNG KHỚP VỚI KHUÔN MẪU CỦA IDamageable
     public void TakeDamage(int damage)
     {
         if (isDead) return;
@@ -305,7 +308,16 @@ public class Automaton : MonoBehaviour
             if (!daTrungDon && Mathf.Abs(player.position.x - transform.position.x) <= attackRange)
             {
                 daTrungDon = true;
-                player.GetComponent<PlayerHealth>()?.TakeDamage(dashDamage);
+
+                Collider2D pCol = player.GetComponent<Collider2D>();
+                if (pCol != null && pCol.CompareTag("Player"))
+                {
+                    IDamageable target = pCol.GetComponent<IDamageable>();
+                    if (target != null)
+                    {
+                        target.TakeDamage(dashDamage);
+                    }
+                }
 
                 if (anim != null) anim.enabled = false;
                 if (sr != null && dashAttackSprite != null) sr.sprite = dashAttackSprite;
@@ -335,7 +347,6 @@ public class Automaton : MonoBehaviour
     {
         if (player == null || isDead) return;
 
-        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
@@ -344,13 +355,15 @@ public class Automaton : MonoBehaviour
 
         foreach (Collider2D p in hitPlayers)
         {
+            if (p.CompareTag("Enemy")) continue;
+
             if (p.CompareTag("Player"))
             {
-                PlayerHealth hp = p.GetComponent<PlayerHealth>();
-                if (hp != null)
+                IDamageable target = p.GetComponent<IDamageable>();
+                if (target != null)
                 {
-                    hp.TakeDamage(meleeDamage);
-                    Debug.Log("Automaton chém thường trúng Player!");
+                    target.TakeDamage(meleeDamage);
+                    Debug.Log("Automaton chém thường trúng Player qua IDamageable!");
                 }
             }
         }
