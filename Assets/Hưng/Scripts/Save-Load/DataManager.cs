@@ -22,6 +22,13 @@ namespace HeartOfTheNight.Hung
 
         public int maxUnlockedLevel = 1; // Mặc định luôn mở Level 1\
 
+        // Chìa khóa cửa (Blue/Red) + cửa đã mở khóa vĩnh viễn
+        public int blueKeys;
+        public int redKeys;
+        public bool collectedBlueKey; // true sau khi nhặt lần đầu (HUD)
+        public bool collectedRedKey;
+        public List<string> unlockedDoors = new List<string>();
+
         //sau này thêm các dữ liệu tiếp theo...
     }
 
@@ -31,6 +38,10 @@ namespace HeartOfTheNight.Hung
         public static DataManager Instance { get; private set; }
 
         public GameData Data = new GameData();
+
+        [Header("Debug / Test")]
+        [Tooltip("Chi Editor: bat = giu chìa từ save khi Play. Tat (mac dinh) = moi lan Play chìa ve 0.")]
+        [SerializeField] private bool keepSavedKeysWhenPlayInEditor = false;
 
         private string SavePath => Application.persistentDataPath + "/save_data.json";
         private string BackupPath => Application.persistentDataPath + "/save_data.bak";
@@ -185,6 +196,8 @@ namespace HeartOfTheNight.Hung
                         
                         // Tải cloud xong thì lưu đè xuống Local để làm backup cho lần sau mất mạng
                         SaveGameLocal();
+                        ApplyEditorKeyResetIfNeeded();
+                        HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     }
                     else
                     {
@@ -195,6 +208,8 @@ namespace HeartOfTheNight.Hung
                 
                 // Báo cho TestSaveLoad biết là đã load xong (có thể dịch chuyển nhân vật)
                 onLoaded?.Invoke();
+                ApplyEditorKeyResetIfNeeded();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
             });
         }
 
@@ -229,6 +244,8 @@ namespace HeartOfTheNight.Hung
                     if (Data == null) Data = new GameData();
                     JsonUtility.FromJsonOverwrite(json, Data);
                     Debug.Log($"[Save System] Tải local thành công. RAM: playerHealth={Data.playerHealth}");
+                    ApplyEditorKeyResetIfNeeded();
+                    HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     return; 
                 }
                 catch (Exception e)
@@ -253,18 +270,41 @@ namespace HeartOfTheNight.Hung
                     if (Data == null) Data = new GameData();
                     JsonUtility.FromJsonOverwrite(json, Data);
                     Debug.Log("[Save System] Đã khôi phục thành công từ file Backup.");
+                    ApplyEditorKeyResetIfNeeded();
+                    HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                 }
                 catch (Exception e)
                 {
                     Debug.LogError($"[Save System] File Backup cũng bị lỗi! Tạo data mới hoàn toàn. Lỗi: {e.Message}");
                     Data = new GameData();
+                    ApplyEditorKeyResetIfNeeded();
+                    HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                 }
             }
             else
             {
                 Debug.Log("[Save System] Chưa có file save nào (Game mới). Bắt đầu với Data gốc.");
                 Data = new GameData();
+                ApplyEditorKeyResetIfNeeded();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
             }
+        }
+
+        /// <summary>
+        /// Editor only: sau khi load save, ep chìa về 0 để test scene không bị dính chìa cũ.
+        /// Chỉ sửa RAM, không ghi đè cloud ngay.
+        /// </summary>
+        private void ApplyEditorKeyResetIfNeeded()
+        {
+#if UNITY_EDITOR
+            if (keepSavedKeysWhenPlayInEditor || Data == null) return;
+
+            Data.blueKeys = 0;
+            Data.redKeys = 0;
+            Data.collectedBlueKey = false;
+            Data.collectedRedKey = false;
+            Debug.Log("[DataManager] Editor: reset chìa về 0 cho session Play này.");
+#endif
         }
     }
 }
