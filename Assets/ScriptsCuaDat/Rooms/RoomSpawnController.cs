@@ -172,16 +172,24 @@ namespace HeartOfTheNight.Rooms
 
         private IEnumerator ApplySpawnFreeze(GameObject enemy, float duration)
         {
-            // Tạm tắt toàn bộ các script tự viết (logic AI, di chuyển...) để quái khựng lại
+            if (enemy == null) yield break;
+
+            // Boss: khong disable script (tranh restart AttackLoop). Chi bao delay dung yen.
+            var boss = enemy.GetComponent<HeartOfTheNight.Enemy.HeartOfTheNightBoss>();
+            if (boss != null)
+            {
+                boss.ApplySpawnHold(duration);
+                yield return new WaitForSeconds(duration);
+                yield break;
+            }
+
+            // Quai thuong: tạm tắt script AI / di chuyển
             var scripts = enemy.GetComponentsInChildren<MonoBehaviour>();
             var disabledScripts = new List<MonoBehaviour>();
 
             foreach (var s in scripts)
             {
                 if (s == null || !s.enabled) continue;
-                // Boss dung yen tren tran — freeze disable/enable se restart AttackLoop (bug cast 2 lan).
-                if (s is HeartOfTheNight.Enemy.HeartOfTheNightBoss) continue;
-                // Bỏ qua các component gốc của Unity, chỉ lấy script tự code
                 if (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine"))
                 {
                     s.enabled = false;
@@ -189,7 +197,6 @@ namespace HeartOfTheNight.Rooms
                 }
             }
 
-            // Đóng băng vị trí vật lý (không bị trôi hay bị đẩy lùi trong lúc khựng)
             var rb = enemy.GetComponent<Rigidbody2D>();
             var oldConstraints = RigidbodyConstraints2D.None;
             if (rb != null)
@@ -202,7 +209,6 @@ namespace HeartOfTheNight.Rooms
 
             if (enemy == null) yield break;
 
-            // Hết thời gian: Mở khóa vật lý và bật lại toàn bộ script AI
             if (rb != null) rb.constraints = oldConstraints;
             foreach (var s in disabledScripts)
             {

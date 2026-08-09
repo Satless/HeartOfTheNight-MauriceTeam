@@ -23,6 +23,8 @@ namespace HeartOfTheNight.Enemy
         public float detectRange = 0f;
 
         [Header("Attack Loop")]
+        [Tooltip("Thoi gian dung yen sau khi spawn/vao phong truoc khi bat dau tan cong.")]
+        public float fightStartDelay = 2f;
         public float timeBetweenAttacks = 1.25f;
         [Tooltip("Thoi diem trong HeartAttack_Start de xả skill (khop Animation Event ~0.78s). Khong phu thuoc Event.")]
         public float skillCastDelay = 0.78f;

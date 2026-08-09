@@ -42,6 +42,8 @@ namespace HeartOfTheNight.Enemy
         private bool preloadStarted;
         private bool fightBooted;
         private float nextAllowedTime;
+        private float combatUnlockTime;
+        private bool receivedSpawnHold;
 
         private readonly Dictionary<Attack, float> nextReadyTime = new();
         private readonly List<GameObject> activeSummons = new();
@@ -99,14 +101,25 @@ namespace HeartOfTheNight.Enemy
 
         private void OnEnable()
         {
-            // Chi boot tu Start / sau OnDisable. Tranh OnEnable lap (SetActive/freeze) tao 2 AttackLoop.
             if (fightBooted) EnsureAttackLoopRunning();
         }
 
         private void OnDisable()
         {
-            // Unity tu stop coroutine khi disable — chi clear reference.
             attackLoopCo = null;
+        }
+
+        /// <summary>
+        /// RoomSpawnController goi khi spawn — boss dung yen dung thoi gian freeze cua phong.
+        /// Khong disable script (tranh bug restart AttackLoop).
+        /// </summary>
+        public void ApplySpawnHold(float duration)
+        {
+            receivedSpawnHold = true;
+            combatUnlockTime = Mathf.Max(combatUnlockTime, Time.time + Mathf.Max(0f, duration));
+            ForceIdlePose();
+            if (debugLogs)
+                Debug.Log($"[{name}] Spawn hold {duration:F2}s → unlock @ {combatUnlockTime:F2}", this);
         }
 
         private void BootFightIfNeeded()
@@ -148,7 +161,26 @@ namespace HeartOfTheNight.Enemy
 
         private IEnumerator AttackLoop(int generation)
         {
-            yield return new WaitForSeconds(1f);
+            // Cho RoomSpawnController kip goi ApplySpawnHold trong frame spawn.
+            yield return null;
+
+            // Uu tien delay tu room spawn; neu spawn thu cong (khong qua room) thi dung fightStartDelay.
+            float deadline = combatUnlockTime;
+            if (!receivedSpawnHold)
+            {
+                float fallback = stats != null && stats.fightStartDelay > 0f ? stats.fightStartDelay : 2f;
+                deadline = Mathf.Max(deadline, Time.time + fallback);
+            }
+
+            while (Time.time < deadline)
+            {
+                deadline = Mathf.Max(deadline, combatUnlockTime);
+                ForceIdlePose();
+                yield return null;
+            }
+
+            if (debugLogs)
+                Debug.Log($"[{name}] Combat unlocked @ {Time.time:F2}", this);
 
             while (!dead && stats != null && generation == loopGeneration)
             {
