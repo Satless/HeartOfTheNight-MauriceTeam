@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN CHỨA BỘ LUẬT CỦA TEAM
 
-public class BurningCorpseImg : MonoBehaviour
+// 2. KẾT NỐI VỚI INTERFACE IDamageable
+public class BurningCorpseImg : MonoBehaviour, IDamageable
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 60;
@@ -164,6 +166,7 @@ public class BurningCorpseImg : MonoBehaviour
         }
     }
 
+    // 3. KHỚP VỚI KHUÔN MẪU IDamageable ĐỂ BỊ ĐÁNH MẤT MÁU
     public void TakeDamage(int damage)
     {
         if (isDead) return;
@@ -265,7 +268,6 @@ public class BurningCorpseImg : MonoBehaviour
     {
         if (isDead || attackHitbox == null) return;
 
-        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
@@ -274,38 +276,52 @@ public class BurningCorpseImg : MonoBehaviour
 
         foreach (Collider2D p in hitPlayers)
         {
+            // 4. CHỐNG CHÉM NHẦM PHE MÌNH
+            if (p.CompareTag("Enemy")) continue;
+
             if (p.CompareTag("Player"))
             {
-                PlayerHealth hp = p.GetComponent<PlayerHealth>();
-                if (hp != null)
+                // 5. CHUẨN HÓA SANG IDamageable
+                IDamageable target = p.GetComponent<IDamageable>();
+                if (target != null)
                 {
-                    DealDamageAndBurn(hp); // Quét trúng thì kích hoạt luôn hiệu ứng cháy
-                    Debug.Log("Xác cháy chém trúng Player!");
+                    DealDamageAndBurn(p); // Truyền luôn Collider2D của Player sang hàm Burn
+                    Debug.Log("Xác cháy chém trúng Player qua IDamageable!");
                 }
             }
         }
     }
 
-    public void DealDamageAndBurn(PlayerHealth pHealth)
+    public void DealDamageAndBurn(Collider2D playerCol)
     {
         if (isDead) return;
-        pHealth.TakeDamage(attackDamage);
-        StartCoroutine(GayHieuUngChay(pHealth));
+
+        IDamageable target = playerCol.GetComponent<IDamageable>();
+        if (target != null)
+        {
+            target.TakeDamage(attackDamage);
+            StartCoroutine(GayHieuUngChay(playerCol));
+        }
     }
 
-    IEnumerator GayHieuUngChay(PlayerHealth pHealth)
+    IEnumerator GayHieuUngChay(Collider2D playerCol)
     {
-        Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>();
+        Rigidbody2D playerRb = playerCol.GetComponent<Rigidbody2D>();
+        IDamageable target = playerCol.GetComponent<IDamageable>();
+
         for (int i = 0; i < burnTicks; i++)
         {
             float thoiGianDaCho = 0f;
             while (thoiGianDaCho < timeBetweenTicks)
             {
+                // Giữ nguyên logic dập lửa khi lướt (dash)
                 if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break;
                 thoiGianDaCho += Time.deltaTime;
                 yield return null;
             }
-            if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick);
+
+            // Gây sát thương thiêu đốt thông qua IDamageable
+            if (target != null) target.TakeDamage(burnDamagePerTick);
             else yield break;
         }
     }
@@ -320,7 +336,6 @@ public class BurningCorpseImg : MonoBehaviour
         if (attackHitbox != null)
         {
             Gizmos.color = Color.red;
-            // Vẽ vòng tròn đúng với offset để bạn dễ nhìn trong Scene
             float facingDirection = Mathf.Sign(transform.localScale.x);
             Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 

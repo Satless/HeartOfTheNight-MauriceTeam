@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN BỘ LUẬT CHUNG CỦA TEAM
 
-public class BigCorpseImg : MonoBehaviour
+// 2. KẾT NỐI VỚI INTERFACE IDamageable
+public class BigCorpseImg : MonoBehaviour, IDamageable
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 100;
@@ -154,6 +156,7 @@ public class BigCorpseImg : MonoBehaviour
         }
     }
 
+    // 3. HÀM NÀY ĐÃ TỰ ĐỘNG KHỚP VỚI INTERFACE IDamageable
     public void TakeDamage(int damage)
     {
         if (isDead) return;
@@ -251,7 +254,6 @@ public class BigCorpseImg : MonoBehaviour
     {
         if (isDead || attackHitbox == null) return;
 
-        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
@@ -260,13 +262,16 @@ public class BigCorpseImg : MonoBehaviour
 
         foreach (Collider2D p in hitPlayers)
         {
+            // 4. SỬA LẠI LOGIC CHÉM THEO IDamageable
+            if (p.CompareTag("Enemy")) continue; // Chống chém nhầm phe mình
+
             if (p.CompareTag("Player"))
             {
-                PlayerHealth hp = p.GetComponent<PlayerHealth>();
-                if (hp != null)
+                IDamageable target = p.GetComponent<IDamageable>();
+                if (target != null)
                 {
-                    hp.TakeDamage(attackDamage);
-                    Debug.Log("BigCorpse Event chém trúng Player!");
+                    target.TakeDamage(attackDamage);
+                    Debug.Log("BigCorpse Event chém trúng Player qua IDamageable!");
                 }
             }
         }

@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using HeartOfTheNight.Common; // 1. GỌI BỘ LUẬT CHUNG CỦA TEAM VÀO ĐÂY
 
-public class EyeOfNightImg : MonoBehaviour
+// 2. KẾT NỐI VỚI INTERFACE IDamageable
+public class EyeOfNightImg : MonoBehaviour, IDamageable
 {
     [Header("Hoạt ảnh")]
     public Animator anim;
@@ -132,10 +134,13 @@ public class EyeOfNightImg : MonoBehaviour
         activeShields.Clear();
     }
 
+    // 3. HÀM NÀY ĐÃ CHUẨN ĐỂ NHẬN SÁT THƯƠNG TỪ PLAYER
     public void TakeDamage(int damage)
     {
         if (isDead) return;
         currentHealth -= damage;
+        Debug.Log("Mắt đêm bị chém! Máu: " + currentHealth + "/" + maxHealth);
+
         if (currentHealth <= 0) Die();
     }
 
