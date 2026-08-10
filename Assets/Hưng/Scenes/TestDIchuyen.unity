@@ -176,6 +176,17 @@ Transform:
   - {fileID: 1574680154}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &118639300 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2116224063823340808, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
+  m_PrefabInstance: {fileID: 886907473}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &123178379
 GameObject:
   m_ObjectHideFlags: 0
@@ -789,6 +800,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 432820539}
   m_CullTransparentMesh: 1
+--- !u!114 &444617824 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6641093004499998610, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
+  m_PrefabInstance: {fileID: 886907473}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &529647557
 GameObject:
   m_ObjectHideFlags: 0
@@ -1266,6 +1288,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponIcon: {fileID: 886907476}
+  switchCooldownFill: {fileID: 444617824}
+  cooldownText: {fileID: 118639300}
   heatBarFill: {fileID: 886907475}
   healthContainer: {fileID: 744089584}
 --- !u!1 &744089584 stripped
@@ -7811,10 +7835,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3261405851226279749, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -5645676359138813822, guid: 96853d3f26a49074e816d8818184ead7, type: 3}
     - target: {fileID: 3262381172999643117, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1784298128}
+    - target: {fileID: 3262381172999643117, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 3710224252525136543, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7849,7 +7881,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4685034076071795095, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5673445276807163311, guid: f12fea8f9fc0bd943a712bc59cfad6b7, type: 3}
       propertyPath: m_AnchorMax.y
@@ -8269,7 +8301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76433357e619cee49bb8cab2914537c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: {fileID: 0}
+  _player: {fileID: 1168107661}
   _debugCanvas: {fileID: 1574680154}
 --- !u!4 &955577674
 Transform:
@@ -8789,6 +8821,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1087950188}
   m_CullTransparentMesh: 1
+--- !u!1 &1168107661 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1721345467516107366, guid: 6df4a8d377f34694393919ad0b626e07, type: 3}
+  m_PrefabInstance: {fileID: 2105934241}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1235410635
 GameObject:
   m_ObjectHideFlags: 0

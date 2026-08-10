@@ -33,7 +33,7 @@ public class DebugPanelController : MonoBehaviour
     private TMP_Text _txtSung3;
 
     // Nháy sáng: Input indicators
-    private TMP_Text _txtDoivukhi;
+    private TMP_Text _txtDoichedo;
     private TMP_Text _txtNhay;
     private TMP_Text _txtLuot;
     private TMP_Text _txtTancong;
@@ -45,7 +45,7 @@ public class DebugPanelController : MonoBehaviour
     private TMP_Text _txtW;
 
     // Trạng thái hiện/ẩn
-    private bool _isVisible = false;
+    private bool _isVisible = true;
 
     // Cache màu — tránh tạo Color mới mỗi frame
     private static readonly Color DIM_COLOR = new Color(1f, 1f, 1f, 0.19f);
@@ -76,8 +76,8 @@ public class DebugPanelController : MonoBehaviour
             CacheUIReferences(khung);
         }
 
-        // Ẩn panel lúc đầu
-        SetPanelVisible(false);
+        // Đảm bảo panel luôn bật
+        SetPanelVisible(_isVisible);
     }
 
     private void CacheUIReferences(Transform khung)
@@ -102,7 +102,7 @@ public class DebugPanelController : MonoBehaviour
         }
 
         // Input indicators
-        _txtDoivukhi = FindTMP(khung, "Doivukhi");
+        _txtDoichedo = FindTMP(khung, "Doichedo");
         _txtNhay = FindTMP(khung, "Nhay");
         _txtLuot = FindTMP(khung, "Luot");
         _txtTancong = FindTMP(khung, "Tancong");
@@ -127,13 +127,6 @@ public class DebugPanelController : MonoBehaviour
 
     private void Update()
     {
-        // Toggle bằng F1
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            _isVisible = !_isVisible;
-            SetPanelVisible(_isVisible);
-        }
-
         if (!_isVisible) return;
 
         UpdateInfoTexts();
@@ -155,8 +148,20 @@ public class DebugPanelController : MonoBehaviour
             _txtTenTrangthai.text = _movement.CurrentState.ToString();
 
         // 2. Animation đang chạy → ghi tên vào child TenAnimation
-        if (_txtTenAnimation != null && _animation != null)
-            _txtTenAnimation.text = _animation.CurrentAnimName ?? "";
+        if (_txtTenAnimation != null)
+        {
+            string lowerAnim = _animation != null ? _animation.CurrentAnimName : "";
+            string upperAnim = _attack != null ? _attack.CurrentWeaponAnimName : "";
+            
+            if (!string.IsNullOrEmpty(upperAnim) && !string.IsNullOrEmpty(lowerAnim))
+                _txtTenAnimation.text = $"{upperAnim}\n{lowerAnim}";
+            else if (!string.IsNullOrEmpty(upperAnim))
+                _txtTenAnimation.text = upperAnim;
+            else if (!string.IsNullOrEmpty(lowerAnim))
+                _txtTenAnimation.text = lowerAnim;
+            else
+                _txtTenAnimation.text = "";
+        }
 
         // 3. Súng — chỉ nháy sáng số slot, không hiện tên
         if (_attack != null)
@@ -182,8 +187,9 @@ public class DebugPanelController : MonoBehaviour
         SetIndicator(_txtW, moveInput.y > 0.1f);
         SetIndicator(_txtS, moveInput.y < -0.1f);
 
-        // Đổi chế độ súng (Q) — sáng khi đang ở variant 2
-        SetIndicator(_txtDoivukhi, _attack.IsUsingVariant2);
+        // Đổi chế độ súng (Q) — sáng trong 0.2s sau khi bấm (nháy)
+        bool isFlashingVariant = Time.time - _attack.LastPressedToggleTime < 0.2f;
+        SetIndicator(_txtDoichedo, isFlashingVariant);
 
         // Nhảy — sáng khi phím Space đang được nhấn (Input System IsPressed)
         SetIndicator(_txtNhay, _movement.IsPressingJump);
