@@ -45,6 +45,13 @@ namespace HeartOfTheNight.UI
             {
                 _playerAttack.OnHeatChanged += UpdateHeat;
                 _playerAttack.OnWeaponChanged += UpdateWeapon;
+                // Force update ngay lập tức để hiển thị vũ khí mặc định
+                // (phòng trường hợp PlayerAttack.Start() đã chạy trước và event đã fire rồi)
+                if (_playerAttack.Data != null)
+                    UpdateWeapon(_playerAttack.Data);
+
+                // Cũng sync thanh nhiệt ban đầu
+                UpdateHeat(_playerAttack.CurrentHeat, _playerAttack.MaxHeat);
             }
             else
             {

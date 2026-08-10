@@ -142,17 +142,21 @@ namespace HeartOfTheNight.Player
             // Xác định đang bám tường nào dựa vào timer trong PlayerMovement
             bool onRightWall = _movement.LastOnWallRightTime > 0;
             bool onLeftWall = _movement.LastOnWallLeftTime > 0;
+            
+            // Khói ma sát chỉ xuất hiện khi thực sự trượt XUỐNG (trọng lực kéo)
+            // Không hiện khi leo lên (velocity.y > 0) hoặc kẹt góc (velocity.y ≈ 0)
+            bool isSlidingDown = _movement.RB.linearVelocity.y < 0;
 
             if (_rightWallVfx != null)
             {
                 var em = _rightWallVfx.emission;
-                em.enabled = onRightWall;
+                em.enabled = onRightWall && isSlidingDown;
             }
 
             if (_leftWallVfx != null)
             {
                 var em = _leftWallVfx.emission;
-                em.enabled = onLeftWall;
+                em.enabled = onLeftWall && isSlidingDown;
             }
         }
         else if (!isDoingFullBodyAction)

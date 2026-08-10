@@ -320,6 +320,10 @@ namespace HeartOfTheNight.Player
 		// Chạm đất → reset về Grounded
 		if (LastOnGroundTime > 0 && !IsJumping && !IsWallJumping && CurrentState != PlayerState.Grounded)
 			TransitionToState(PlayerState.Grounded);
+		
+		// Bước ra khỏi mép (Coyote Fall): đang Grounded nhưng hết thời gian đất và đang rơi
+		if (CurrentState == PlayerState.Grounded && LastOnGroundTime <= 0 && RB.linearVelocity.y < 0)
+			TransitionToState(PlayerState.Falling);
 
 		if (IsDashing) return;
 
