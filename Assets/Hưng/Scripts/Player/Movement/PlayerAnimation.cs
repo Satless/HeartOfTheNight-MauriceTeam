@@ -113,12 +113,33 @@ namespace HeartOfTheNight.Player
 
         if (state == PlayerMovement.PlayerState.Grounded)
         {
-            // Kết hợp cả Input và Velocity để giải quyết triệt để lỗi Moonwalk và lỗi trượt Move
-            bool isMoving = Mathf.Abs(_movement.MoveInput.x) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
-            if (_isHoldingGun)
-                PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+            // VISUAL-ONLY COYOTE FALL: FSM vẫn giữ Grounded (để CanJump() hoạt động),
+            // nhưng nếu velocity.y âm đáng kể → người chơi đã rời mép → hiện animation rơi.
+            // Ngưỡng -0.5f lọc bỏ nhiễu vật lý trên mặt phẳng (sleep mode ~1e-05).
+            bool isCoyoteFalling = _movement.RB.linearVelocity.y < -0.5f
+                                && _movement.LastOnGroundTime > 0
+                                && _movement.LastOnGroundTime < _movement.Data.coyoteTime;
+
+            if (isCoyoteFalling)
+            {
+                // Hiện animation rơi nhưng KHÔNG thay đổi FSM state
+                if (_isHoldingGun)
+                {
+                    bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+                }
+                else
+                    PlayAnim("Nhay");
+            }
             else
-                PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+            {
+                // Kết hợp cả Input và Velocity để giải quyết triệt để lỗi Moonwalk và lỗi trượt Move
+                bool isMoving = Mathf.Abs(_movement.MoveInput.x) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                if (_isHoldingGun)
+                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+                else
+                    PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+            }
                 
             // Chắc chắn tắt khói tường
             if (_rightWallVfx != null)
@@ -384,6 +405,8 @@ namespace HeartOfTheNight.Player
     [Header("State Tracking")]
     [Tooltip("Tên animation hiện tại đang được yêu cầu chạy")]
     [SerializeField, ReadOnly] private string _currentAnim;
+    /// <summary>Tên animation đang chạy (cho Debug Panel đọc).</summary>
+    public string CurrentAnimName => _currentAnim;
     
     public void TriggerDeath()
     {

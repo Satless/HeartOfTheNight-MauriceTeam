@@ -121,6 +121,11 @@ public class PlayerAttack : MonoBehaviour
     public bool IsAimingRight => _isAimingRight;
     public event Action<float, float> OnRecoil; // (dirX, fireRate)
 
+    /// <summary>Ô súng đang dùng (1, 2, 3) — cho Debug Panel.</summary>
+    public int CurrentSlotIndex => _currentSlotIndex;
+    /// <summary>Đang dùng biến thể phụ (Q) — cho Debug Panel.</summary>
+    public bool IsUsingVariant2 => _useVariant2;
+
 
     private void Awake()
     {

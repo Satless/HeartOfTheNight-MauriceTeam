@@ -143,6 +143,11 @@ namespace HeartOfTheNight.Player
 
 	public float LastPressedJumpTime { get; private set; }
 	public float LastPressedDashTime { get; private set; }
+
+	/// <summary>Phím nhảy đang được nhấn giữ — cho Debug Panel.</summary>
+	public bool IsPressingJump => _input != null && _input.Player.Jump.IsPressed();
+	/// <summary>Phím dash đang được nhấn giữ — cho Debug Panel.</summary>
+	public bool IsPressingDash => _input != null && _input.Player.Dash.IsPressed();
 	#endregion
 
 	#region CHECK PARAMETERS
@@ -321,7 +326,9 @@ namespace HeartOfTheNight.Player
 		if (LastOnGroundTime > 0 && !IsJumping && !IsWallJumping && CurrentState != PlayerState.Grounded)
 			TransitionToState(PlayerState.Grounded);
 		
-		// Bước ra khỏi mép (Coyote Fall): đang Grounded nhưng hết thời gian đất và đang rơi
+		// Bước ra khỏi mép (Coyote Fall): đang Grounded, hết thời gian châm chước, và đang rơi
+		// FSM giữ nguyên Grounded trong suốt coyote time để tránh jitter.
+		// Animation rơi được xử lý riêng bên PlayerAnimation (visual-only).
 		if (CurrentState == PlayerState.Grounded && LastOnGroundTime <= 0 && RB.linearVelocity.y < 0)
 			TransitionToState(PlayerState.Falling);
 
