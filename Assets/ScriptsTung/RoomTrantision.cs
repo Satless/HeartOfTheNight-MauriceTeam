@@ -30,10 +30,12 @@ public class RoomTransition : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && !isTransitioning)
-        {
-            StartCoroutine(TransitionRoutine(collision.gameObject));
-        }
+        // Player body may hit with a child collider (Hurtbox / EnvironmentCollider).
+        // Always resolve to root so tag check + teleport target the Rigidbody owner.
+        Transform root = collision.transform.root;
+        if (!root.CompareTag("Player") || isTransitioning) return;
+
+        StartCoroutine(TransitionRoutine(root.gameObject));
     }
 
     IEnumerator TransitionRoutine(GameObject playerObj)
@@ -71,7 +73,8 @@ public class RoomTransition : MonoBehaviour
             playerObj.transform.position = nextRoomSpawnPoint.position;
             Camera.main.transform.position = new Vector3(nextRoomSpawnPoint.position.x, nextRoomSpawnPoint.position.y, Camera.main.transform.position.z);
 
-            if (targetDoor != null) targetDoor.Open();
+            // Mo ngay cua dich (khong cho anim delay) de spawn khong bi blocker chan.
+            if (targetDoor != null) targetDoor.Open(instant: true);
 
             yield return new WaitForSeconds(0.2f);
 

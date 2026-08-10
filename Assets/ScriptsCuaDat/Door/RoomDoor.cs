@@ -1,4 +1,5 @@
-﻿using HeartOfTheNight.Rooms;
+﻿using System.Collections;
+using HeartOfTheNight.Rooms;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,8 +18,13 @@ public class RoomDoor : MonoBehaviour
     [SerializeField] private string doorSaveId = "";
     [SerializeField] private string playerTag = "Player";
 
+    [Header("Open Timing")]
+    [Tooltip("Thoi gian cho animation Open xong moi cho di qua. < 0 = lay tu clip Animator.")]
+    [SerializeField] private float openPassageDelay = -1f;
+
     private bool isOpen = false;
     private bool keyRequirementMet = true;
+    private Coroutine openSequenceRoutine;
 
     public KeyType RequiredKey => requiredKey;
     public bool IsOpen => isOpen;
@@ -54,7 +60,7 @@ public class RoomDoor : MonoBehaviour
 
         keyRequirementMet = PlayerKeyInventory.IsDoorUnlocked(GetDoorSaveId());
         if (keyRequirementMet)
-            Open();
+            Open(instant: true);
     }
 
     private string GetDoorSaveId()
@@ -94,7 +100,11 @@ public class RoomDoor : MonoBehaviour
         return true;
     }
 
-    public void Open()
+    /// <summary>
+    /// Mo cua. Mac dinh choi animation truoc, roi moi tat blocker / bat transition.
+    /// </summary>
+    /// <param name="instant">true = mo ngay (load save / tele toi cua dich).</param>
+    public void Open(bool instant = false)
     {
         // Cua khoa chua duoc mo bang chia: khong cho Open() (ke ca RoomSpawnController).
         if (requiredKey != KeyType.None && !keyRequirementMet)
@@ -103,22 +113,73 @@ public class RoomDoor : MonoBehaviour
         if (isOpen) return;
         isOpen = true;
 
+        if (openSequenceRoutine != null)
+        {
+            StopCoroutine(openSequenceRoutine);
+            openSequenceRoutine = null;
+        }
+
         if (anim != null) anim.SetTrigger("Open");
 
-        if (blockerCollider != null) blockerCollider.enabled = false;
-        if (transitionTrigger != null) transitionTrigger.enabled = true;
+        if (instant)
+        {
+            SetPassageOpen(true);
+            return;
+        }
+
+        // Giu blocker trong luc anim: player dung xem cua mo, khong tele xen ngang.
+        openSequenceRoutine = StartCoroutine(OpenSequence());
+    }
+
+    private IEnumerator OpenSequence()
+    {
+        yield return new WaitForSeconds(GetOpenPassageDelay());
+
+        openSequenceRoutine = null;
+        if (!isOpen) yield break;
+
+        SetPassageOpen(true);
+    }
+
+    private float GetOpenPassageDelay()
+    {
+        if (openPassageDelay >= 0f)
+            return openPassageDelay;
+
+        if (anim != null && anim.runtimeAnimatorController != null)
+        {
+            var clips = anim.runtimeAnimatorController.animationClips;
+            for (int i = 0; i < clips.Length; i++)
+            {
+                var clip = clips[i];
+                if (clip != null && clip.name.IndexOf("Open", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    return clip.length;
+            }
+        }
+
+        return 1.4f;
+    }
+
+    private void SetPassageOpen(bool open)
+    {
+        if (blockerCollider != null) blockerCollider.enabled = !open;
+        if (transitionTrigger != null) transitionTrigger.enabled = open;
     }
 
     public void Close()
     {
+        if (openSequenceRoutine != null)
+        {
+            StopCoroutine(openSequenceRoutine);
+            openSequenceRoutine = null;
+        }
+
         if (isOpen)
         {
             if (anim != null) anim.SetTrigger("Close");
         }
 
         isOpen = false;
-
-        if (blockerCollider != null) blockerCollider.enabled = true;
-        if (transitionTrigger != null) transitionTrigger.enabled = false;
+        SetPassageOpen(false);
     }
 }
