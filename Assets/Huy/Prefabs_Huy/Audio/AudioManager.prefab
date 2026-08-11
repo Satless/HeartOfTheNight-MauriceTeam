@@ -193,17 +193,16 @@ MonoBehaviour:
       - {fileID: 8300000, guid: ccaf594d6ef3c394f84ab9842e5c72b5, type: 3}
     - groupID: StopDrag
       clips:
-      - {fileID: 8300000, guid: bf84310ec6eede54d8801caf06439de8, type: 3}
-      - {fileID: 8300000, guid: f79165ff0ea54ba40a1d99d5f4676b33, type: 3}
-      - {fileID: 8300000, guid: 385157804eb38574ca8655125d7d4628, type: 3}
+      - {fileID: 8300000, guid: 542ee51677e8f9043b8a99de0b3100b3, type: 3}
+      - {fileID: 8300000, guid: f8a3d4725ea9b9e45aacb6f811e7a71c, type: 3}
+      - {fileID: 8300000, guid: 0201229a9b891dd44bca4341b1e5e5b5, type: 3}
   - categoryID: Weapons
     soundEffects:
     - groupID: BulletSpawn
       clips:
       - {fileID: 8300000, guid: 6ebf605377f1bf545a37503aa58ca720, type: 3}
     - groupID: FlamethrowerFire
-      clips:
-      - {fileID: 0}
+      clips: []
     - groupID: OverheatOn
       clips:
       - {fileID: 8300000, guid: eea5efb487902d544bead7d6f7e24d99, type: 3}
@@ -242,6 +241,15 @@ MonoBehaviour:
     - groupID: Equip
       clips:
       - {fileID: 8300000, guid: 280f4488a34edfd45b54e5ebce84e566, type: 3}
+    - groupID: CollectItems
+      clips:
+      - {fileID: 8300000, guid: 559954e5fa095f24ebc7ab1de5065191, type: 3}
+      - {fileID: 8300000, guid: 6cba1ad51710da84c9291602cce77237, type: 3}
+      - {fileID: 8300000, guid: b9bd51b97345b5f4e8622753ac086f2b, type: 3}
+  - categoryID: Enemy
+    soundEffects: []
+  - categoryID: Others
+    soundEffects: []
 --- !u!114 &7837030559445061944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,8 +277,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tracks:
-  - trackName: 
-    clip: {fileID: 0}
+  - trackName: MainMenu
+    clip: {fileID: 8300000, guid: c6b4d668525a506439f41d04527cbbe5, type: 3}
 --- !u!114 &4748444479032100685
 MonoBehaviour:
   m_ObjectHideFlags: 0
