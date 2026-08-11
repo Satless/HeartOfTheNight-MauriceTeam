@@ -8,7 +8,7 @@ namespace HeartOfTheNight.Rooms
     [RequireComponent(typeof(Collider2D))]
     public class RoomSpawnController : MonoBehaviour
     {
-        //ss
+        //aa
         private enum RoomState { Idle, Fighting, Cleared }
 
         [System.Serializable]
@@ -172,21 +172,31 @@ namespace HeartOfTheNight.Rooms
 
         private IEnumerator ApplySpawnFreeze(GameObject enemy, float duration)
         {
-            // Tạm tắt toàn bộ các script tự viết (logic AI, di chuyển...) để quái khựng lại
+            if (enemy == null) yield break;
+
+            // Boss: khong disable script (tranh restart AttackLoop). Chi bao delay dung yen.
+            var boss = enemy.GetComponent<HeartOfTheNight.Enemy.HeartOfTheNightBoss>();
+            if (boss != null)
+            {
+                boss.ApplySpawnHold(duration);
+                yield return new WaitForSeconds(duration);
+                yield break;
+            }
+
+            // Quai thuong: tạm tắt script AI / di chuyển
             var scripts = enemy.GetComponentsInChildren<MonoBehaviour>();
             var disabledScripts = new List<MonoBehaviour>();
 
             foreach (var s in scripts)
             {
-                // Bỏ qua các component gốc của Unity, chỉ lấy script tự code
-                if (s.enabled && (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine")))
+                if (s == null || !s.enabled) continue;
+                if (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine"))
                 {
                     s.enabled = false;
                     disabledScripts.Add(s);
                 }
             }
 
-            // Đóng băng vị trí vật lý (không bị trôi hay bị đẩy lùi trong lúc khựng)
             var rb = enemy.GetComponent<Rigidbody2D>();
             var oldConstraints = RigidbodyConstraints2D.None;
             if (rb != null)
@@ -199,7 +209,6 @@ namespace HeartOfTheNight.Rooms
 
             if (enemy == null) yield break;
 
-            // Hết thời gian: Mở khóa vật lý và bật lại toàn bộ script AI
             if (rb != null) rb.constraints = oldConstraints;
             foreach (var s in disabledScripts)
             {
@@ -216,6 +225,18 @@ namespace HeartOfTheNight.Rooms
 
             onRoomCleared?.Invoke();
 
+            // AUTO-SAVE KHI QUA PHÒNG
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            {
+                // Tạo ID độc nhất cho phòng này để không bị reset quái khi quay lại
+                string roomID = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
+                if (!HeartOfTheNight.Hung.DataManager.Instance.Data.clearedRooms.Contains(roomID))
+                {
+                    HeartOfTheNight.Hung.DataManager.Instance.Data.clearedRooms.Add(roomID);
+                }
+                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+            }
+
             if (!activateOnce)
             {
                 state = RoomState.Idle;
@@ -223,7 +244,6 @@ namespace HeartOfTheNight.Rooms
                 currentWaveIndex = -1;
             }
         }
-
         // Sửa lại logic đóng/mở toàn bộ cửa trong phòng:
         private void SetDoorsClosed(bool isClosed)
         {

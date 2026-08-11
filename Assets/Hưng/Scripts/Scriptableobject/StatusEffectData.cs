@@ -17,4 +17,8 @@ public class StatusEffectData : ScriptableObject
 
     [Tooltip("Hình ảnh/VFX đính lên người mục tiêu khi dính hiệu ứng này")]
     public GameObject effectVfxPrefab;
+
+    [Header("Pooling")]
+    [Tooltip("Số lượng VFX tạo sẵn trong Pool khi game khởi động (mỗi hiệu ứng tự quyết số lượng riêng)")]
+    public int prewarmCount;
 }

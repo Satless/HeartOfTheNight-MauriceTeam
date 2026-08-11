@@ -55,12 +55,12 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: 0
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -69,7 +69,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -93,7 +93,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -114,19 +114,6 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -134,20 +121,20 @@ TextureImporter:
       name: Her-Idle-Sheet_0
       rect:
         serializedVersion: 2
-        x: 27
-        y: 205
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 206
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 5ac530d42bc6a3600800000000000000
-      internalID: 448790625928830117
+      spriteID: 462286af30567d54dafa2de379469bb0
+      internalID: 876245465
       vertices: []
       indices: 
       edges: []
@@ -156,20 +143,20 @@ TextureImporter:
       name: Her-Idle-Sheet_1
       rect:
         serializedVersion: 2
-        x: 27
-        y: 171
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 172
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 616f8f55a0912eaa0800000000000000
-      internalID: -6133312210342447594
+      spriteID: 035656a384f79664fa13e3f8689b689b
+      internalID: 1235131917
       vertices: []
       indices: 
       edges: []
@@ -178,20 +165,20 @@ TextureImporter:
       name: Her-Idle-Sheet_2
       rect:
         serializedVersion: 2
-        x: 27
-        y: 137
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 138
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b0034f43d010d02e0800000000000000
-      internalID: -2158067490205978613
+      spriteID: 88dea4b53129518429a48229a546a636
+      internalID: -1947150317
       vertices: []
       indices: 
       edges: []
@@ -200,20 +187,20 @@ TextureImporter:
       name: Her-Idle-Sheet_3
       rect:
         serializedVersion: 2
-        x: 27
-        y: 103
-        width: 28
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 104
+        width: 26
+        height: 28
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: feff8a3ac26587ba0800000000000000
-      internalID: -6091023746294284305
+      spriteID: bf774cb7d19062247a2ebd45cf903916
+      internalID: -1813511675
       vertices: []
       indices: 
       edges: []
@@ -222,20 +209,20 @@ TextureImporter:
       name: Her-Idle-Sheet_4
       rect:
         serializedVersion: 2
-        x: 27
-        y: 69
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 70
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3f97be4dc0ea18570800000000000000
-      internalID: 8467240144568285683
+      spriteID: 28ffddd4c679a2e4082b9755f8d7753b
+      internalID: 1344500329
       vertices: []
       indices: 
       edges: []
@@ -244,20 +231,20 @@ TextureImporter:
       name: Her-Idle-Sheet_5
       rect:
         serializedVersion: 2
-        x: 27
-        y: 35
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 36
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6ffe4991deb9226f0800000000000000
-      internalID: -710834348532371466
+      spriteID: b241fb3513be2b74a8ab1a8a88e2cbd3
+      internalID: -191519852
       vertices: []
       indices: 
       edges: []
@@ -266,20 +253,20 @@ TextureImporter:
       name: Her-Idle-Sheet_6
       rect:
         serializedVersion: 2
-        x: 27
-        y: 1
-        width: 28
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 28
+        y: 2
+        width: 26
+        height: 27
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b95085490dbf20fd0800000000000000
-      internalID: -2377060780037634661
+      spriteID: 868858ca9fef806468211ac8f375e7c4
+      internalID: 1592598272
       vertices: []
       indices: 
       edges: []
@@ -288,7 +275,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: e891b65c36123ee42b19990db5d84691
     internalID: 0
     vertices: []
     indices: 
@@ -298,13 +285,13 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Her-Idle-Sheet_0: 448790625928830117
-      Her-Idle-Sheet_1: -6133312210342447594
-      Her-Idle-Sheet_2: -2158067490205978613
-      Her-Idle-Sheet_3: -6091023746294284305
-      Her-Idle-Sheet_4: 8467240144568285683
-      Her-Idle-Sheet_5: -710834348532371466
-      Her-Idle-Sheet_6: -2377060780037634661
+      Her-Idle-Sheet_0: 876245465
+      Her-Idle-Sheet_1: 1235131917
+      Her-Idle-Sheet_2: -1947150317
+      Her-Idle-Sheet_3: -1813511675
+      Her-Idle-Sheet_4: 1344500329
+      Her-Idle-Sheet_5: -191519852
+      Her-Idle-Sheet_6: 1592598272
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

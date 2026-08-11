@@ -1,16 +1,27 @@
-﻿using UnityEngine;
+﻿using HeartOfTheNight.Hung;
+using HeartOfTheNight.Player;
+using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class RoomTransition : MonoBehaviour
 {
-    [Header("Điểm đến (Phòng mới)")]
-    public Transform nextRoomSpawnPoint;
+    public enum TransitionType { SameScene, NextLevel }
 
-    // THÊM BIẾN NÀY: Tham chiếu đến script RoomDoor của cửa đích
-    [Header("Cửa ở phòng đích (Để gọi Animation Mở)")]
+    public int nextLevelIndex;
+
+
+    [Header("Loại chuyển cảnh")]
+    public TransitionType transitionType = TransitionType.SameScene;
+
+    [Header("Nếu là Same Scene (Chuyển phòng)")]
+    public Transform nextRoomSpawnPoint;
     public RoomDoor targetDoor;
 
+    [Header("Nếu là Next Level (Chuyển Scene)")]
+    public string nextSceneName;
+    public string spawnIDInNextScene; // Tên ID của cửa đích bên Scene mới
     [Header("Hiệu ứng màn hình")]
     public Image blackScreen;
     public float fadeSpeed = 3f;
@@ -19,10 +30,12 @@ public class RoomTransition : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && !isTransitioning)
-        {
-            StartCoroutine(TransitionRoutine(collision.gameObject));
-        }
+        // Player body may hit with a child collider (Hurtbox / EnvironmentCollider).
+        // Always resolve to root so tag check + teleport target the Rigidbody owner.
+        Transform root = collision.transform.root;
+        if (!root.CompareTag("Player") || isTransitioning) return;
+
+        StartCoroutine(TransitionRoutine(root.gameObject));
     }
 
     IEnumerator TransitionRoutine(GameObject playerObj)
@@ -30,20 +43,12 @@ public class RoomTransition : MonoBehaviour
         isTransitioning = true;
         Rigidbody2D pRb = playerObj.GetComponent<Rigidbody2D>();
 
-        if (nextRoomSpawnPoint == null)
-        {
-            Debug.LogError("Chưa gán Next Room Spawn Point!");
-            isTransitioning = false;
-            yield break;
-        }
-
         if (pRb != null)
         {
             pRb.linearVelocity = Vector2.zero;
             pRb.simulated = false;
         }
 
-        // 1. Chỉ chạy hiệu ứng mờ nếu ĐÃ GÁN Black Screen
         if (blackScreen != null)
         {
             blackScreen.gameObject.SetActive(true);
@@ -56,35 +61,66 @@ public class RoomTransition : MonoBehaviour
             }
         }
 
-        // 2. Dịch chuyển Player
-        playerObj.transform.position = nextRoomSpawnPoint.position;
-        Camera.main.transform.position = new Vector3(nextRoomSpawnPoint.position.x, nextRoomSpawnPoint.position.y, Camera.main.transform.position.z);
-
-        if (targetDoor != null)
+        if (transitionType == TransitionType.SameScene)
         {
-            targetDoor.Open();
-        }
-
-        yield return new WaitForSeconds(0.2f);
-
-        // 3. Sáng dần lên (Nếu có Black Screen)
-        if (blackScreen != null)
-        {
-            while (blackScreen.color.a > 0f)
+            if (nextRoomSpawnPoint == null)
             {
-                Color c = blackScreen.color;
-                c.a -= Time.deltaTime * fadeSpeed;
-                blackScreen.color = c;
-                yield return null;
+                Debug.LogError("Chưa gán Next Room Spawn Point!");
+                isTransitioning = false;
+                yield break;
             }
-            blackScreen.gameObject.SetActive(false);
-        }
 
-        if (pRb != null)
+            playerObj.transform.position = nextRoomSpawnPoint.position;
+            Camera.main.transform.position = new Vector3(nextRoomSpawnPoint.position.x, nextRoomSpawnPoint.position.y, Camera.main.transform.position.z);
+
+            // Mo ngay cua dich (khong cho anim delay) de spawn khong bi blocker chan.
+            if (targetDoor != null) targetDoor.Open(instant: true);
+
+            yield return new WaitForSeconds(0.2f);
+
+            if (blackScreen != null)
+            {
+                while (blackScreen.color.a > 0f)
+                {
+                    Color c = blackScreen.color;
+                    c.a -= Time.deltaTime * fadeSpeed;
+                    blackScreen.color = c;
+                    yield return null;
+                }
+                blackScreen.gameObject.SetActive(false);
+            }
+
+            if (pRb != null) pRb.simulated = true;
+            isTransitioning = false;
+        }
+        else if (transitionType == TransitionType.NextLevel)
         {
-            pRb.simulated = true;
-        }
+            if (string.IsNullOrEmpty(nextSceneName))
+            {
+                Debug.LogError("Chưa nhập tên Scene tiếp theo!");
+                isTransitioning = false;
+                yield break;
+            }
 
-        isTransitioning = false;
+            // Ép tuyệt đối tới đúng namespace chứa PlayerHealth
+            var hp = playerObj.GetComponent<HeartOfTheNight.Player.PlayerHealth>();
+            if (hp != null) hp.HealToFull();
+
+            // Ép tuyệt đối tới đúng namespace chứa DataManager của Hùng
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            {
+                // THÊM LOGIC MỞ KHÓA LEVEL TẠI ĐÂY
+                if (nextLevelIndex > HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel)
+                {
+                    HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
+                }
+
+                HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
+                HeartOfTheNight.Hung.DataManager.Instance.Data.targetSpawnID = spawnIDInNextScene;
+                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+            }
+
+            SceneManager.LoadScene(nextSceneName);
+        }
     }
 }

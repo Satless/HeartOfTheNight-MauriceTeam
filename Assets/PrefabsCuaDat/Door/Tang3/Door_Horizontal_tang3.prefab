@@ -34,6 +34,7 @@ Transform:
   m_Children:
   - {fileID: 5858558856935037755}
   - {fileID: 8130869024179758702}
+  - {fileID: 2036335051531682649}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6039253837893221706
@@ -81,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -5880776864424831475, guid: 999a2e9dfec9a974da49fcbb541cdb56, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -128,6 +129,10 @@ MonoBehaviour:
   anim: {fileID: 3414535643816478424}
   blockerCollider: {fileID: 3308727061738101337}
   transitionTrigger: {fileID: 2151364739941542439}
+  requiredKey: 0
+  consumeKeyOnUnlock: 1
+  doorSaveId: 
+  playerTag: Player
 --- !u!1 &2676081004938281784
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,7 +143,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5858558856935037755}
   - component: {fileID: 3308727061738101337}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Blocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,7 +172,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2676081004938281784}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
@@ -217,7 +222,7 @@ GameObject:
   - component: {fileID: 8130869024179758702}
   - component: {fileID: 2151364739941542439}
   - component: {fileID: 6357188083610927213}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Transition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -297,7 +302,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d202d68b8475b5449436a6ea8e89186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nextLevelIndex: 0
+  transitionType: 0
   nextRoomSpawnPoint: {fileID: 0}
   targetDoor: {fileID: 0}
+  nextSceneName: 
+  spawnIDInNextScene: 
   blackScreen: {fileID: 0}
   fadeSpeed: 3
+--- !u!1 &7283645145850042771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2036335051531682649}
+  m_Layer: 0
+  m_Name: SpawnPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2036335051531682649
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7283645145850042771}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2291460555216053631}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

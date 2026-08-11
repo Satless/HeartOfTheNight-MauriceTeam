@@ -1,7 +1,7 @@
-namespace HeartOfTheNight.Common
-{
-    public interface IDamageable
+    namespace HeartOfTheNight.Common
     {
-        void TakeDamage(int amount);
+        public interface IDamageable
+        {
+            void TakeDamage(int amount);
+        }
     }
-}

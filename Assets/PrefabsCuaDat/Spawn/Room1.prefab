@@ -129,13 +129,9 @@ MonoBehaviour:
   spawnVfxPrefab: {fileID: 4328365533006917027, guid: 7f405a30c8ef2694c82e5c2845189070, type: 3}
   waves:
   - waveName: Dot 1
-    enemies:
-    - enemyPrefab: {fileID: 0}
-      spawnPoint: {fileID: 4358217505354415550}
-    - enemyPrefab: {fileID: 0}
-      spawnPoint: {fileID: 6300921235717897511}
+    enemies: []
     spawnInterval: 0
-  spawnFreezeDuration: 1.5
+  spawnFreezeDuration: 2
   doors: []
   closeDoorsOnStart: 1
   onRoomStarted:

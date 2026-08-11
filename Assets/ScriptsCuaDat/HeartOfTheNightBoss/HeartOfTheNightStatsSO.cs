@@ -23,7 +23,13 @@ namespace HeartOfTheNight.Enemy
         public float detectRange = 0f;
 
         [Header("Attack Loop")]
+        [Tooltip("Thoi gian dung yen sau khi spawn/vao phong truoc khi bat dau tan cong.")]
+        public float fightStartDelay = 2f;
         public float timeBetweenAttacks = 1.25f;
+        [Tooltip("Thoi diem trong HeartAttack_Start de xả skill (khop Animation Event ~0.78s). Khong phu thuoc Event.")]
+        public float skillCastDelay = 0.78f;
+        [Tooltip("Thoi gian cho clip HeartAttack_End chay xong truoc khi tinh timeBetweenAttacks.")]
+        public float attackEndDuration = 0.6f;
         public float[] attackWeights = { 1f, 1f, 1f, 0.6f };
 
         [Header("State 1 - Barrage (Na dan)")]
@@ -74,6 +80,8 @@ namespace HeartOfTheNight.Enemy
         public int maxActiveSummons = 6;
         public float summonScatterRadius = 4f;
         public float summonCooldown = 12f;
+        [Tooltip("Hieu ung spawn giong luc vao phong (RoomSpawnController.spawnVfxPrefab).")]
+        public GameObject summonSpawnVfxPrefab;
 
         [Header("Ground Detection (cho cot lua)")]
         public LayerMask groundLayer;

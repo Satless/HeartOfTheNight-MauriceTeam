@@ -20,6 +20,7 @@ MonoBehaviour:
   spreadAngle: 0
   isVerticalSpread: 0
   verticalSpacing: 0.1
+  weaponIcon: {fileID: 7717001206870577498, guid: 96853d3f26a49074e816d8818184ead7, type: 3}
   animationSpeedMultiplier: 1
   bulletPrefab: {fileID: 0}
   weaponAnimator: {fileID: 9100000, guid: f786475421da09748b6dbb9b883c7a91, type: 2}
@@ -33,5 +34,7 @@ MonoBehaviour:
   continuousVfxPrefab: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
   knockbackForce: 0
   explosionKnockbackForce: 0
+  bulletPrewarmCount: 0
+  hitVfxPrewarmCount: 0
   canOverheat: 1
   heatPerShot: 12

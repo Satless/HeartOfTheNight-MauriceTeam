@@ -11,8 +11,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+namespace HeartOfTheNight.Player
 {
+    public class PlayerMovement : MonoBehaviour
+    {
 	//Scriptable object chứa tất cả các thông số di chuyển — không hardcode
 	[Tooltip("Kéo thẳng ScriptableObject PlayerData vào đây")]
 	public PlayerData Data;
@@ -141,6 +143,13 @@ public class PlayerMovement : MonoBehaviour
 
 	public float LastPressedJumpTime { get; private set; }
 	public float LastPressedDashTime { get; private set; }
+
+	private bool _isPressingJump;
+	private bool _isPressingDash;
+	/// <summary>Phím nhảy đang được nhấn giữ — cho Debug Panel.</summary>
+	public bool IsPressingJump => _isPressingJump;
+	/// <summary>Phím dash đang được nhấn giữ — cho Debug Panel.</summary>
+	public bool IsPressingDash => _isPressingDash;
 	#endregion
 
 	#region CHECK PARAMETERS
@@ -151,6 +160,7 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Checks")] 
 	[Tooltip("Kéo child kiểm tra dưới chân")]
 	[SerializeField] private Transform _groundCheckPoint;
+	public Transform GroundCheckPoint => _groundCheckPoint;
 	[Tooltip("Kích thước hộp kiểm tra dưới chân, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _groundCheckSize = new Vector2(0.49f, 0.03f);
 	[Space(5)]
@@ -205,6 +215,7 @@ public class PlayerMovement : MonoBehaviour
 
 		_input.Player.Jump.started += (InputAction.CallbackContext context) => 
 		{
+			_isPressingJump = true;
 			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
 			{
 				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
@@ -216,9 +227,22 @@ public class PlayerMovement : MonoBehaviour
 				OnJumpInput();
 			}
 		};
-		_input.Player.Jump.canceled += (InputAction.CallbackContext context) => OnJumpUpInput();
+		_input.Player.Jump.canceled += (InputAction.CallbackContext context) => 
+		{
+			_isPressingJump = false;
+			OnJumpUpInput();
+		};
 		
-		_input.Player.Dash.started += (InputAction.CallbackContext context) => OnDashInput();
+		_input.Player.Dash.started += (InputAction.CallbackContext context) => 
+		{
+			_isPressingDash = true;
+			OnDashInput();
+		};
+
+		_input.Player.Dash.canceled += (InputAction.CallbackContext context) => 
+		{
+			_isPressingDash = false;
+		};
 	}
 
 	private void OnEnable() => _input.Enable();
@@ -321,6 +345,12 @@ public class PlayerMovement : MonoBehaviour
 		// Chạm đất → reset về Grounded
 		if (LastOnGroundTime > 0 && !IsJumping && !IsWallJumping && CurrentState != PlayerState.Grounded)
 			TransitionToState(PlayerState.Grounded);
+		
+		// Bước ra khỏi mép (Coyote Fall): đang Grounded, hết thời gian châm chước, và đang rơi
+		// FSM giữ nguyên Grounded trong suốt coyote time để tránh jitter.
+		// Animation rơi được xử lý riêng bên PlayerAnimation (visual-only).
+		if (CurrentState == PlayerState.Grounded && LastOnGroundTime <= 0 && RB.linearVelocity.y < 0)
+			TransitionToState(PlayerState.Falling);
 
 		if (IsDashing) return;
 
@@ -940,6 +970,7 @@ public class PlayerMovement : MonoBehaviour
 		Gizmos.DrawWireCube(_leftWallCheckPoint.position, _wallCheckSize);
 	}
     #endregion
+    }
 }
 
 // tạo bởi Dawnosaur :D
