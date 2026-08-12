@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace HeartOfTheNight.Rooms
 {
     /// <summary>
     /// Đếm chìa Blue/Red qua DataManager của Hưng (lưu local + cloud).
+    /// Track từng KeyPickup bằng pickupId khi map có nhiều chìa cùng màu.
     /// </summary>
     public static class PlayerKeyInventory
     {
@@ -39,7 +41,36 @@ namespace HeartOfTheNight.Rooms
             };
         }
 
+        public static bool IsPickupCollected(string pickupId)
+        {
+            if (string.IsNullOrEmpty(pickupId)) return false;
+            var data = GetData();
+            return data?.collectedKeyPickupIds != null && data.collectedKeyPickupIds.Contains(pickupId);
+        }
+
+        public static void MarkPickupCollected(string pickupId)
+        {
+            if (string.IsNullOrEmpty(pickupId)) return;
+
+            var data = GetData();
+            if (data == null) return;
+
+            if (data.collectedKeyPickupIds == null)
+                data.collectedKeyPickupIds = new List<string>();
+
+            if (data.collectedKeyPickupIds.Contains(pickupId)) return;
+
+            data.collectedKeyPickupIds.Add(pickupId);
+            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+            OnKeysChanged?.Invoke();
+        }
+
         public static void Add(KeyType type, int amount = 1)
+        {
+            Add(type, null, amount);
+        }
+
+        public static void Add(KeyType type, string pickupId, int amount = 1)
         {
             if (type == KeyType.None || amount <= 0) return;
 
@@ -47,6 +78,13 @@ namespace HeartOfTheNight.Rooms
             if (data == null)
             {
                 Debug.LogWarning("[PlayerKeyInventory] DataManager chua san sang, khong the nhat chia.");
+                return;
+            }
+
+            // Đã nhặt đúng pickup này rồi → không cộng trùng.
+            if (!string.IsNullOrEmpty(pickupId) && IsPickupCollected(pickupId))
+            {
+                Debug.Log($"[PlayerKeyInventory] Pickup '{pickupId}' da nhat roi, bo qua.");
                 return;
             }
 
@@ -62,9 +100,18 @@ namespace HeartOfTheNight.Rooms
                     break;
             }
 
+            if (!string.IsNullOrEmpty(pickupId))
+            {
+                if (data.collectedKeyPickupIds == null)
+                    data.collectedKeyPickupIds = new List<string>();
+                if (!data.collectedKeyPickupIds.Contains(pickupId))
+                    data.collectedKeyPickupIds.Add(pickupId);
+            }
+
             HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
-            Debug.Log($"[PlayerKeyInventory] +{amount} {type} (con {GetCount(type)})");
+            Debug.Log($"[PlayerKeyInventory] +{amount} {type} (con {GetCount(type)})" +
+                      (string.IsNullOrEmpty(pickupId) ? "" : $" pickupId={pickupId}"));
         }
 
         public static bool TryConsume(KeyType type, int amount = 1)
@@ -109,13 +156,29 @@ namespace HeartOfTheNight.Rooms
             if (data == null) return;
 
             if (data.unlockedDoors == null)
-                data.unlockedDoors = new System.Collections.Generic.List<string>();
+                data.unlockedDoors = new List<string>();
 
             if (!data.unlockedDoors.Contains(doorId))
                 data.unlockedDoors.Add(doorId);
 
             HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// Sang scene moi: tui chia ve 0 (chi dung trong scene nhat).
+        /// Giu collectedKeyPickupIds + unlockedDoors de key/cua da xu ly khong hien lai.
+        /// </summary>
+        public static void ClearKeyCountsForNewScene()
+        {
+            var data = GetData();
+            if (data == null) return;
+
+            data.blueKeys = 0;
+            data.redKeys = 0;
+            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+            OnKeysChanged?.Invoke();
+            Debug.Log("[PlayerKeyInventory] Sang scene moi: tui chia ve 0 (pickup da nhat van an).");
         }
 
         /// <summary>Goi khi load save xong de HUD cap nhat.</summary>
@@ -131,6 +194,11 @@ namespace HeartOfTheNight.Rooms
             data.redKeys = 0;
             data.collectedBlueKey = false;
             data.collectedRedKey = false;
+            if (data.collectedKeyPickupIds == null)
+                data.collectedKeyPickupIds = new List<string>();
+            else
+                data.collectedKeyPickupIds.Clear();
+
             HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log("[PlayerKeyInventory] Da xoa het chia.");

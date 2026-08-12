@@ -48,6 +48,9 @@ public class SceneTransition : MonoBehaviour
 
         yield return ScreenFader.Instance.FadeOut(fadeDuration);
 
+        if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
+
         // Continuation on ScreenFader so loading + FadeIn survive scene unload.
         ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);
     }

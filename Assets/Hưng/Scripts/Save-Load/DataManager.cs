@@ -28,6 +28,8 @@ namespace HeartOfTheNight.Hung
         public bool collectedBlueKey; // true sau khi nhặt lần đầu (HUD)
         public bool collectedRedKey;
         public List<string> unlockedDoors = new List<string>();
+        /// <summary>Id từng KeyPickup đã nhặt trên map (nhiều key cùng màu / cùng scene).</summary>
+        public List<string> collectedKeyPickupIds = new List<string>();
 
         //sau này thêm các dữ liệu tiếp theo...
     }
@@ -139,6 +141,15 @@ namespace HeartOfTheNight.Hung
                         Debug.Log("[Firebase] Đã đồng bộ Save lên Cloud thành công!");
                 });
             }
+        }
+
+        /// <summary>
+        /// Gọi trước khi LoadScene: chìa chỉ dùng trong scene hiện tại, túi về 0.
+        /// Pickup đã nhặt / cửa đã mở vẫn persist.
+        /// </summary>
+        public void PrepareForNewScene()
+        {
+            HeartOfTheNight.Rooms.PlayerKeyInventory.ClearKeyCountsForNewScene();
         }
 
         // Gọi hàm này khi bấm F9. Có action callback để chờ mạng load xong mới dịch chuyển nhân vật
@@ -303,6 +314,10 @@ namespace HeartOfTheNight.Hung
             Data.redKeys = 0;
             Data.collectedBlueKey = false;
             Data.collectedRedKey = false;
+            if (Data.collectedKeyPickupIds == null)
+                Data.collectedKeyPickupIds = new List<string>();
+            else
+                Data.collectedKeyPickupIds.Clear();
             Debug.Log("[DataManager] Editor: reset chìa về 0 cho session Play này.");
 #endif
         }
