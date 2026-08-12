@@ -19,6 +19,7 @@ namespace HeartOfTheNight.Player
 	[Tooltip("Kéo thẳng ScriptableObject PlayerData vào đây")]
 	public PlayerData Data;
 
+
 	#region COMPONENTS
     public Rigidbody2D RB { get; private set; }
 	private PlayerAnimation _animation;
@@ -173,6 +174,7 @@ namespace HeartOfTheNight.Player
 
     private float _footstepTimer;
     private float _slideSoundTimer; // thời gian để chạy sfx
+	private float _wallClimbTimer;
 
     #endregion
 
@@ -573,8 +575,8 @@ namespace HeartOfTheNight.Player
     #region RUN METHODS
     private void Run(float lerpAmount)
 	{
-		// Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
-		float targetSpeed = _moveInput.x * Data.runMaxSpeed;
+        // Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
+        float targetSpeed = _moveInput.x * Data.runMaxSpeed;
 		// Nội suy giữa vận tốc hiện tại và tốc độ mục tiêu.
 		// lerpAmount = 1 → nhảy thẳng sang targetSpeed (full quyền điều khiển).
 		// lerpAmount = 0 → giữ nguyên vận tốc hiện tại (không cho bẻ lái).
@@ -776,8 +778,13 @@ namespace HeartOfTheNight.Player
 		movement = Mathf.Clamp(movement, -Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime), Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime));
 		RB.AddForce(movement * Vector2.up);
 
-        SoundManager.Instance.PlaySound3D("Player", "WallClimb", transform.position);
-    }
+		_wallClimbTimer -= Time.fixedDeltaTime;
+         if (_wallClimbTimer <= 0f)
+         {
+                SoundManager.Instance.PlaySound3D("Player", "WallClimb", transform.position);
+                _wallClimbTimer = 0.3f; // Phát lại sau mỗi 0.2s
+         }
+        }
     #endregion
 
 	// -------------------------------------------------------------------------

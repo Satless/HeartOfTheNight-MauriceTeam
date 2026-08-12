@@ -249,18 +249,20 @@ private void ApplyVelocity(int dir)
 }
 // Sửa đổi hàm Fire cũ: Giờ chỉ dùng để kích hoạt Animation đánh
 private void Fire()
-{
-    if (anim != null) anim.SetTrigger("Attack");
-}
-// Thêm hàm public này để Animation Event gọi vào đúng frame vung gậy
-        public void ExecuteFire()
-{
-    if (bulletPrefab == null || firePoint == null || player == null) return;
+    {
+        if (anim != null) anim.SetTrigger("Attack");
+    }
+    // Thêm hàm public này để Animation Event gọi vào đúng frame vung gậy
+            public void ExecuteFire()
+    {
+        if (bulletPrefab == null || firePoint == null || player == null) return;
 
-    Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
-    var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
-    bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
-}
+        Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
+        var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+        bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
+
+            SoundManager.Instance.PlaySound3D("Enemy", "ShootGeneral", transform.position);
+    }
 
         private float EffectiveMoveSpeed =>
             stats.moveSpeed * (strengthMod != null ? strengthMod.MoveSpeedMultiplier : 1f);
@@ -274,10 +276,15 @@ private void Fire()
     if (health <= 0) return; // Tránh dính đòn nhiều lần khi đang chết
 
     health -= amount;
+
+            SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+
     if (health <= 0) 
     {
         if (anim != null) anim.SetTrigger("Die");
-        
+
+                SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+
         // Vô hiệu hóa vật lý và logic để quái không di chuyển/bắn nữa
         rb.linearVelocity = Vector2.zero;
         rb.simulated = false;

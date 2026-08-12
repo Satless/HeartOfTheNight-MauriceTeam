@@ -212,6 +212,19 @@ MonoBehaviour:
     - groupID: Explosive
       clips:
       - {fileID: 8300000, guid: 3d5ccdd577fa4e9478e4edade63e2145, type: 3}
+      - {fileID: 8300000, guid: 7335a94b25c2e5047b96eefcfffdbbf0, type: 3}
+    - groupID: BulletHitWall
+      clips:
+      - {fileID: 8300000, guid: 62c64f017a7b5d24daaf9079e229ae5f, type: 3}
+    - groupID: Pistol
+      clips:
+      - {fileID: 8300000, guid: 6ebf605377f1bf545a37503aa58ca720, type: 3}
+    - groupID: Machine gun
+      clips:
+      - {fileID: 8300000, guid: 3f10a86f789c05e46b64ba9a1a983861, type: 3}
+    - groupID: Shotgun
+      clips:
+      - {fileID: 8300000, guid: 7f4cfec8338c38d479e0c3a926af9fbe, type: 3}
   - categoryID: Player
     soundEffects:
     - groupID: Run
@@ -223,9 +236,6 @@ MonoBehaviour:
     - groupID: Jump
       clips:
       - {fileID: 8300000, guid: 60bc6830d139df8409489fffaebfbbd8, type: 3}
-    - groupID: Jump
-      clips:
-      - {fileID: 8300000, guid: cf70630f2e1f99e4c925b13156c8b7bd, type: 3}
     - groupID: Dash
       clips:
       - {fileID: 8300000, guid: 5f34796c8c467e84dbd8d79cbecc6435, type: 3}
@@ -246,6 +256,16 @@ MonoBehaviour:
       - {fileID: 8300000, guid: 559954e5fa095f24ebc7ab1de5065191, type: 3}
       - {fileID: 8300000, guid: 6cba1ad51710da84c9291602cce77237, type: 3}
       - {fileID: 8300000, guid: b9bd51b97345b5f4e8622753ac086f2b, type: 3}
+    - groupID: Death
+      clips:
+      - {fileID: 8300000, guid: ea4e17b96c0edeb48ae3772ca9357e02, type: 3}
+      - {fileID: 8300000, guid: 493ab4dbeea40254e828f0d156201cd5, type: 3}
+      - {fileID: 8300000, guid: 493ab4dbeea40254e828f0d156201cd5, type: 3}
+    - groupID: Hurt
+      clips:
+      - {fileID: 8300000, guid: b84198777c0b7a94bbc4f79cf873a060, type: 3}
+      - {fileID: 8300000, guid: c5b583bb2f605cc43a3be285d2114965, type: 3}
+      - {fileID: 8300000, guid: 9f4cb28bb74b5a24c897319b6b1d954d, type: 3}
   - categoryID: Enemy
     soundEffects: []
   - categoryID: Others

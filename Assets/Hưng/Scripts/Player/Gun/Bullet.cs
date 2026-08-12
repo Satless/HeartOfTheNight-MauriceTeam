@@ -160,6 +160,9 @@ public class Bullet : MonoBehaviour
             if (_data.isExplosive)
             {
                 Explode(hitPoint, hitNormal, null);
+
+                SoundManager.Instance.PlaySound3D("Weapons", "BulletHitWall", transform.position);
+
             }
             else
             {
@@ -199,6 +202,9 @@ public class Bullet : MonoBehaviour
             {
                 // Đạn nổ AOE: không xuyên, nổ ngay
                 Explode(hitPoint, hitNormal, other);
+
+                SoundManager.Instance.PlaySound3D("Weapons", "Explosive", transform.position);
+
                 return true; 
             }
             else
@@ -226,8 +232,6 @@ public class Bullet : MonoBehaviour
         SpawnHitVfx(explosionCenter);
 
         if (_data.explosionRadius <= 0) return;
-
-        SoundManager.Instance.PlaySound3D("Weapons", "Explosive", transform.position);
 
         // 2. Quét các mục tiêu trong bán kính nổ (API mới, tự Zero-GC)
         var aoeResults = Physics2D.OverlapCircleAll(explosionCenter, _data.explosionRadius, _enemyLayer);
