@@ -102,7 +102,7 @@ public class RoomTransition : MonoBehaviour
                     HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
 
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
-                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
             }
 
             // Continuation on ScreenFader — dùng timing prefab nếu muốn: truyền -1f.
