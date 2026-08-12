@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using HeartOfTheNight.Player;
 
 namespace HeartOfTheNight.UI
@@ -8,6 +9,8 @@ namespace HeartOfTheNight.UI
     {
         [Header("Weapon")]
         [SerializeField] private Image weaponIcon;
+        [SerializeField] private Image switchCooldownFill;
+        [SerializeField] private TextMeshProUGUI cooldownText;
 
         [Header("Heat Bar")]
         [SerializeField] private Image heatBarFill;
@@ -45,10 +48,66 @@ namespace HeartOfTheNight.UI
             {
                 _playerAttack.OnHeatChanged += UpdateHeat;
                 _playerAttack.OnWeaponChanged += UpdateWeapon;
+                // Force update ngay lập tức để hiển thị vũ khí mặc định
+                // (phòng trường hợp PlayerAttack.Start() đã chạy trước và event đã fire rồi)
+                if (_playerAttack.Data != null)
+                    UpdateWeapon(_playerAttack.Data);
+
+                // Cũng sync thanh nhiệt ban đầu
+                UpdateHeat(_playerAttack.CurrentHeat, _playerAttack.MaxHeat);
             }
             else
             {
                 Debug.LogWarning("[HUDManager] Không tìm thấy PlayerAttack trong Scene!");
+            }
+        }
+
+        private void Update()
+        {
+            if (_playerAttack != null)
+            {
+                float remainingTime = _playerAttack.SwitchEndTime - Time.time;
+                
+                // Cập nhật Vòng tròn (Fill)
+                if (switchCooldownFill != null)
+                {
+                    if (remainingTime > 0 && _playerAttack.SwitchDelay > 0)
+                    {
+                        switchCooldownFill.fillAmount = remainingTime / _playerAttack.SwitchDelay;
+                    }
+                    else
+                    {
+                        switchCooldownFill.fillAmount = 0;
+                    }
+                }
+
+                // Cập nhật Số đếm ngược (Text)
+                if (cooldownText != null)
+                {
+                    if (remainingTime > 0)
+                    {
+                        cooldownText.enabled = true;
+                        
+                        if (remainingTime >= 0.6f)
+                        {
+                            // 2.0 -> 1.01: Hiện 2
+                            // 1.0 -> 0.6: Hiện 1
+                            cooldownText.text = Mathf.CeilToInt(remainingTime).ToString();
+                        }
+                        else
+                        {
+                            // 0.5 -> 0.0: Hiện 0.5, 0.4... 
+                            // Dùng Floor để cắt bỏ việc tự động làm tròn lên của string format
+                            float decimalTime = Mathf.Floor(remainingTime * 10f) / 10f;
+                            // Format "0.0" (hoặc "F1") bắt buộc hiển thị đúng 1 chữ số thập phân
+                            cooldownText.text = decimalTime.ToString("0.0");
+                        }
+                    }
+                    else
+                    {
+                        cooldownText.enabled = false;
+                    }
+                }
             }
         }
 
@@ -74,8 +133,6 @@ namespace HeartOfTheNight.UI
                 {
                     weaponIcon.sprite = data.weaponIcon;
                     weaponIcon.enabled = true;
-                    // Bật Preserve Aspect tự động qua code cho chắc
-                    weaponIcon.preserveAspect = true;
                 }
                 else
                 {

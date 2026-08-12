@@ -121,6 +121,31 @@ public class PlayerAttack : MonoBehaviour
     public bool IsAimingRight => _isAimingRight;
     public event Action<float, float> OnRecoil; // (dirX, fireRate)
 
+    /// <summary>Ô súng đang dùng (1, 2, 3) — cho Debug Panel.</summary>
+    public int CurrentSlotIndex => _currentSlotIndex;
+    /// <summary>Đang dùng biến thể phụ (Q) — cho Debug Panel.</summary>
+    public bool IsUsingVariant2 => _useVariant2;
+
+    /// <summary>Tên animation súng đang chạy — cho Debug Panel.</summary>
+    public string CurrentWeaponAnimName 
+    {
+        get 
+        {
+            if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled && _weaponAnimator.runtimeAnimatorController != null)
+            {
+                var clipInfo = _weaponAnimator.GetCurrentAnimatorClipInfo(0);
+                if (clipInfo.Length > 0 && clipInfo[0].clip != null)
+                    return clipInfo[0].clip.name;
+            }
+            return "";
+        }
+    }
+    
+    public float LastPressedToggleTime { get; private set; }
+    
+    public float SwitchDelay => _switchDelay;
+    public float SwitchEndTime => _switchEndTime;
+
 
     private void Awake()
     {
@@ -136,6 +161,7 @@ public class PlayerAttack : MonoBehaviour
         
         _input.Player.ToggleVariant.started += (InputAction.CallbackContext context) => 
         {
+            LastPressedToggleTime = Time.time;
             _useVariant2 = !_useVariant2;
             EquipSlot(_currentSlotIndex);
         };

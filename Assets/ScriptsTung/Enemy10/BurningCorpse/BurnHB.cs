@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN BỘ LUẬT CHUNG
 
 public class BurnHB : MonoBehaviour
 {
@@ -11,23 +12,26 @@ public class BurnHB : MonoBehaviour
 
         if (collision.CompareTag("Player"))
         {
-            PlayerHealth pHealth = collision.GetComponent<PlayerHealth>();
-            ////////S
-            if (pHealth != null)
+            // 2. TÌM INTERFACE IDamageable THAY VÌ PlayerHealth
+            IDamageable target = collision.GetComponent<IDamageable>();
+
+            if (target != null)
             {
-                // 2. Tên sếp bây giờ là BurningCorpseImg nhé!
+                // Tên sếp vẫn là BurningCorpseImg
                 BurningCorpseImg burnScript = GetComponentInParent<BurningCorpseImg>();
 
                 if (burnScript != null)
                 {
-                    burnScript.DealDamageAndBurn(pHealth);
+                    // 3. Truyền thẳng Collider2D (collision) vào hàm như đã sửa ở file sếp
+                    burnScript.DealDamageAndBurn(collision);
                 }
                 else
                 {
-                    pHealth.TakeDamage(attackDamage);
+                    // Nếu không có sếp thì tự hitbox trừ máu luôn
+                    target.TakeDamage(attackDamage);
                 }
 
-                // 3. Đánh xong thì tự tắt
+                // 4. Đánh xong thì tự tắt
                 gameObject.SetActive(false);
             }
         }

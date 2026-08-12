@@ -143,6 +143,13 @@ namespace HeartOfTheNight.Player
 
 	public float LastPressedJumpTime { get; private set; }
 	public float LastPressedDashTime { get; private set; }
+
+	private bool _isPressingJump;
+	private bool _isPressingDash;
+	/// <summary>Phím nhảy đang được nhấn giữ — cho Debug Panel.</summary>
+	public bool IsPressingJump => _isPressingJump;
+	/// <summary>Phím dash đang được nhấn giữ — cho Debug Panel.</summary>
+	public bool IsPressingDash => _isPressingDash;
 	#endregion
 
 	#region CHECK PARAMETERS
@@ -204,6 +211,7 @@ namespace HeartOfTheNight.Player
 
 		_input.Player.Jump.started += (InputAction.CallbackContext context) => 
 		{
+			_isPressingJump = true;
 			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
 			{
 				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
@@ -215,9 +223,22 @@ namespace HeartOfTheNight.Player
 				OnJumpInput();
 			}
 		};
-		_input.Player.Jump.canceled += (InputAction.CallbackContext context) => OnJumpUpInput();
+		_input.Player.Jump.canceled += (InputAction.CallbackContext context) => 
+		{
+			_isPressingJump = false;
+			OnJumpUpInput();
+		};
 		
-		_input.Player.Dash.started += (InputAction.CallbackContext context) => OnDashInput();
+		_input.Player.Dash.started += (InputAction.CallbackContext context) => 
+		{
+			_isPressingDash = true;
+			OnDashInput();
+		};
+
+		_input.Player.Dash.canceled += (InputAction.CallbackContext context) => 
+		{
+			_isPressingDash = false;
+		};
 	}
 
 	private void OnEnable() => _input.Enable();
@@ -320,6 +341,12 @@ namespace HeartOfTheNight.Player
 		// Chạm đất → reset về Grounded
 		if (LastOnGroundTime > 0 && !IsJumping && !IsWallJumping && CurrentState != PlayerState.Grounded)
 			TransitionToState(PlayerState.Grounded);
+		
+		// Bước ra khỏi mép (Coyote Fall): đang Grounded, hết thời gian châm chước, và đang rơi
+		// FSM giữ nguyên Grounded trong suốt coyote time để tránh jitter.
+		// Animation rơi được xử lý riêng bên PlayerAnimation (visual-only).
+		if (CurrentState == PlayerState.Grounded && LastOnGroundTime <= 0 && RB.linearVelocity.y < 0)
+			TransitionToState(PlayerState.Falling);
 
 		if (IsDashing) return;
 

@@ -1,4 +1,3 @@
-// --- HeartOfTheNightLaser.cs ---
 using UnityEngine;
 
 namespace HeartOfTheNight.Enemy
@@ -17,32 +16,33 @@ namespace HeartOfTheNight.Enemy
 
         private float timer;
         private bool firing;
+        private bool fireTriggered;
         private float nextDamageTime;
 
         private void Awake()
         {
             anim = GetComponent<Animator>();
+            if (anim == null) anim = GetComponentInChildren<Animator>();
         }
 
-        public void Configure(Vector2 beamOrigin, Vector2 beamDirection, float beamLength, float beamWidth, int beamDamage, float warn, float fire, float tickInterval = 0.12f)
+        public void Configure(Vector2 beamOrigin, Vector2 beamDirection, float beamLength, float beamWidth,
+                              int beamDamage, float warn, float fire, float tickInterval = 0.12f)
         {
             origin = beamOrigin;
             direction = beamDirection.sqrMagnitude > 0.0001f ? beamDirection.normalized : Vector2.up;
             length = beamLength;
             width = beamWidth;
             damage = beamDamage;
-            warnTime = Mathf.Max(0f, warn);
+            // Luôn chờ ít nhất 1 frame / 0.05s trước khi Fire — tránh mất SetTrigger
+            // cùng frame với Instantiate (bug lần đầu Animator chưa init).
+            warnTime = Mathf.Max(0.05f, warn);
             fireTime = Mathf.Max(0.05f, fire);
             damageTickInterval = Mathf.Max(0.02f, tickInterval);
 
             timer = 0f;
-            firing = warnTime <= 0f;
+            firing = false;
+            fireTriggered = false;
             nextDamageTime = 0f;
-
-            if (anim != null && firing)
-            {
-                anim.SetTrigger("Fire");
-            }
         }
 
         private void Update()
@@ -55,7 +55,7 @@ namespace HeartOfTheNight.Enemy
                 {
                     firing = true;
                     timer = 0f;
-                    if (anim != null) anim.SetTrigger("Fire");
+                    TriggerFire();
                 }
                 return;
             }
@@ -67,6 +67,24 @@ namespace HeartOfTheNight.Enemy
             }
 
             if (timer >= fireTime) Destroy(gameObject);
+        }
+
+        private void TriggerFire()
+        {
+            if (fireTriggered) return;
+            fireTriggered = true;
+
+            if (anim == null)
+            {
+                anim = GetComponent<Animator>();
+                if (anim == null) anim = GetComponentInChildren<Animator>();
+            }
+
+            if (anim == null) return;
+
+            // Reset rồi set lại để chắc chắn trigger không bị “nuốt” lần đầu.
+            anim.ResetTrigger("Fire");
+            anim.SetTrigger("Fire");
         }
 
         private void ApplyDamage()
