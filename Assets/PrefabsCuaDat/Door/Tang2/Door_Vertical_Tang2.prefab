@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3996263263116923083}
   - component: {fileID: 8505255303321583617}
   - component: {fileID: 3256609413339480356}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Transition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -91,13 +91,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d202d68b8475b5449436a6ea8e89186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nextLevelIndex: 0
   transitionType: 0
   nextRoomSpawnPoint: {fileID: 0}
   targetDoor: {fileID: 0}
   nextSceneName: 
   spawnIDInNextScene: 
   blackScreen: {fileID: 0}
-  fadeSpeed: 3
+  fadeDuration: 0.5
+  delayBeforeFadeIn: 0.2
 --- !u!1 &6782410662772928971
 GameObject:
   m_ObjectHideFlags: 0
@@ -108,7 +110,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1981855346315201751}
   - component: {fileID: 5249310523218269282}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Blocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -336,3 +338,8 @@ MonoBehaviour:
   anim: {fileID: 3483048060693813248}
   blockerCollider: {fileID: 5249310523218269282}
   transitionTrigger: {fileID: 8505255303321583617}
+  requiredKey: 0
+  consumeKeyOnUnlock: 1
+  doorSaveId: 
+  playerTag: Player
+  openPassageDelay: -1
