@@ -12,17 +12,18 @@ public class SelectLevelManager : MonoBehaviour
 
     private void Start()
     {
-        /*// Level 1 luôn mở
+        // Level 1 luôn mở
         level1Button.interactable = true;
 
         // Nếu chưa mở khóa thì sẽ bị khóa
         level2Button.interactable = PlayerPrefs.GetInt("Level2Unlocked", 0) == 1;
-        level3Button.interactable = PlayerPrefs.GetInt("Level3Unlocked", 0) == 1;*/
+        level3Button.interactable = PlayerPrefs.GetInt("Level3Unlocked", 0) == 1;
+        level4Button.interactable = PlayerPrefs.GetInt("Level4Unlocked", 0) == 1;
     }
 
     public void LoadLevel1()
     {
-        SceneManager.LoadScene("Khanh_Level1-1");
+        SceneManager.LoadScene("Khanh_Level0-1");
     }
 
     public void LoadLevel2()
