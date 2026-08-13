@@ -46,6 +46,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     private float lastXPos = 0f;
     private float stuckTimer = 0f;
 
+
+    private float _dmgEffectTimer;
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -171,6 +173,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= damage;
+        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+
         if (currentHealth <= 0) Die();
     }
 
@@ -188,6 +192,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
+
+        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
         Destroy(gameObject, 1.5f);
     }
 
@@ -198,6 +204,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
 
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+
+        SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
     }
 
     IEnumerator AttackRoutine()
@@ -323,6 +331,13 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             // Gây sát thương thiêu đốt thông qua IDamageable
             if (target != null) target.TakeDamage(burnDamagePerTick);
             else yield break;
+
+            _dmgEffectTimer -= Time.fixedDeltaTime;
+            if (_dmgEffectTimer <= 0f)
+            {
+                SoundManager.Instance.PlaySound3D("Enemy", "DmgEffectGeneral", transform.position);
+                _dmgEffectTimer = 0.2f; 
+            }
         }
     }
 

@@ -15,7 +15,7 @@ public class CodexUI : MonoBehaviour
 
     private void Start()
     {
-        MusicManager.Instance.PlayMusic("");
+        //MusicManager.Instance.PlayMusic("");
     }
 
     public void OpenMenu()

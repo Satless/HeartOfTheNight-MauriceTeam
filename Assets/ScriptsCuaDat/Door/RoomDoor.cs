@@ -88,6 +88,9 @@ public class RoomDoor : MonoBehaviour
         if (!PlayerKeyInventory.Has(requiredKey))
         {
             Debug.Log($"[{name}] Can chia {requiredKey} de mo cua.", this);
+
+            SoundManager.Instance.PlaySound3D("Others", "DoorKeyRequired", transform.position);
+
             return false;
         }
 
@@ -108,6 +111,9 @@ public class RoomDoor : MonoBehaviour
     {
         // Cua khoa chua duoc mo bang chia: khong cho Open() (ke ca RoomSpawnController).
         if (requiredKey != KeyType.None && !keyRequirementMet)
+
+            SoundManager.Instance.PlaySound3D("Others", "DoorOpen", transform.position);
+
             return;
 
         if (isOpen) return;
@@ -181,5 +187,7 @@ public class RoomDoor : MonoBehaviour
 
         isOpen = false;
         SetPassageOpen(false);
+
+        SoundManager.Instance.PlaySound3D("Others", "DoorClosed", transform.position);
     }
 }
