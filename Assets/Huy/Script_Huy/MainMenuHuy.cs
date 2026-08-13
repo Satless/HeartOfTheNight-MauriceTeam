@@ -14,13 +14,18 @@ public class MainMenuHuy : MonoBehaviour
     private void Start()
     {
         LoadVolume();
-        MusicManager.Instance.PlayMusic("MainMenu");
+
+        // automatically adjust and save value
+        masterSlider.onValueChanged.AddListener(UpdateMaster);
+        musicSlider.onValueChanged.AddListener(UpdateMusicVolume);
+        sfxSlider.onValueChanged.AddListener(UpdateSoundVolume);
+
+        PlayMenuMusic();
     }
 
-    public void Play()
+    private void PlayMenuMusic()
     {
-        //LevelManager.Instance.LoadScene("Game", "CrossFade");
-        //MusicManager.Instance.PlayMusic("Game");
+        MusicManager.Instance.PlayMusic("MainMenu");
     }
 
     public void Quit()
@@ -28,29 +33,26 @@ public class MainMenuHuy : MonoBehaviour
         Application.Quit();
     }
 
-    // update volume
-
     public void UpdateMaster(float volume)
     {
-        // log10 makes changing volume slider smoother
         audioMixer.SetFloat("Master", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
+        SaveVolume();
     }
 
     public void UpdateMusicVolume(float volume)
     {
         audioMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
+        SaveVolume();
     }
 
     public void UpdateSoundVolume(float volume)
     {
         audioMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
+        SaveVolume();
     }
-
-    // save and downloaded file
 
     public void SaveVolume()
     {
-        //save value of Slider (0 -> 1)
         PlayerPrefs.SetFloat("Master", masterSlider.value);
         PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
         PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
@@ -59,12 +61,14 @@ public class MainMenuHuy : MonoBehaviour
 
     public void LoadVolume()
     {
-        // take saved value (1f if open game for first time)
+        //take saved value, 1f as default if there is none
         masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
         musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
         sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
 
-        // apply value into the mixer
+
+
+        //update SFX into audiomixer right when loading
         UpdateMaster(masterSlider.value);
         UpdateMusicVolume(musicSlider.value);
         UpdateSoundVolume(sfxSlider.value);

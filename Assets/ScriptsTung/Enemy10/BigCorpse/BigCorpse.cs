@@ -42,6 +42,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     private float lastXPos = 0f;
     private float stuckTimer = 0f;
 
+
+    private float _moveTimer;
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -161,6 +163,9 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= damage;
+
+        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+
         if (currentHealth <= 0) Die();
     }
 
@@ -178,6 +183,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
+        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+
         Destroy(gameObject, 1.5f);
     }
 
@@ -187,6 +194,13 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
         rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+
+        _moveTimer -= Time.fixedDeltaTime;
+        if (_moveTimer <= 0f)
+        {
+            SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
+            _moveTimer = 0.3f; // Phát lại sau mỗi 0.2s
+        }
     }
 
     IEnumerator AttackRoutine()

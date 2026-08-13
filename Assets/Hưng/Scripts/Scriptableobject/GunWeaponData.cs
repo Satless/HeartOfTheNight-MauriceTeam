@@ -82,6 +82,14 @@ public class GunWeaponData : ScriptableObject
              "VD: Minigun = 3 (nóng nhanh), Pistol = 1 (nóng chậm), Shotgun = 5 (nóng vừa do bắn chậm)")]
     public float heatPerShot;
 
+    [Header("Audio / SFX")]
+    [Tooltip("Âm thanh phát ra khi bắn súng(Tên Event/Clip tiếng bắn trong SoundManager)")]
+    public string fireSoundName;
+    [Tooltip("Âm thanh khi đạn phát nổ - dùng cho súng IsExplosive(Tên Event/Clip tiếng đạn nổ trong SoundManager)")]
+    public string explosionSoundName;
+
+
+
     private void OnValidate()
     {
         // Rào trước tránh lỗi
