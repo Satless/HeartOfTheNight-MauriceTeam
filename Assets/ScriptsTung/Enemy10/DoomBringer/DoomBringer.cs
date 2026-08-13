@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN BỘ LUẬT
+using HeartOfTheNight.Common;
 
-// 2. KẾT NỐI VỚI INTERFACE IDamageable
 public class DoomBringer : MonoBehaviour, IDamageable
 {
     [Header("Hoạt ảnh (Animation)")]
@@ -19,6 +18,12 @@ public class DoomBringer : MonoBehaviour, IDamageable
     private int currentHealth;
     public bool isDead = false;
     private bool isPhase2 = false;
+
+    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
+    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
+    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
+    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
+    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
 
     [Header("Buff Giai đoạn 2 (< 50% HP)")]
     public float phase2SpeedMulti = 1.5f;
@@ -78,6 +83,16 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         if (player == null || isDead) return;
 
+        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
+        CheckGroundStatus();
+
+        // 2. NẾU RỚT KHỎI ĐẤT -> NGỪNG LƯỚT TỚI VÀ NGỪNG BẮN
+        if (!isGrounded)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+
         MoveRelentlessly();
 
         if (!isTransitioning)
@@ -87,9 +102,14 @@ public class DoomBringer : MonoBehaviour, IDamageable
         }
     }
 
-    // ================== HỆ THỐNG MÁU & GIAI ĐOẠN ==================
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
 
-    // 3. HÀM NÀY ĐÃ CHUẨN VỚI IDamageable
+        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
     public void TakeDamage(int damage)
     {
         if (isDead) return;
@@ -153,8 +173,6 @@ public class DoomBringer : MonoBehaviour, IDamageable
         Destroy(gameObject, 0.5f);
     }
 
-    // ================== LOGIC HÀNH ĐỘNG ==================
-
     void MoveRelentlessly()
     {
         float dir = isWallOfFleshMode ? fixedDirection : Mathf.Sign(player.position.x - transform.position.x);
@@ -196,7 +214,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
 
         switch (currentState)
         {
-            case 1: // NÃ BOM
+            case 1:
                 if (attackTimer <= 0)
                 {
                     ShootBomb();
@@ -204,7 +222,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
                 }
                 break;
 
-            case 2: // BẮN LAZE
+            case 2:
                 if (attackTimer <= 0)
                 {
                     ShootLaser();
@@ -212,7 +230,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
                 }
                 break;
 
-            case 3: // TRIỆU HỒI KAMIKAZE
+            case 3:
                 if (!hasSummoned)
                 {
                     StartCoroutine(SummonKamikazesRoutine());
@@ -271,6 +289,16 @@ public class DoomBringer : MonoBehaviour, IDamageable
             Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
 
             yield return new WaitForSeconds(0.3f);
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // Vẽ vòng tròn check ground màu vàng
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
     }
 }
