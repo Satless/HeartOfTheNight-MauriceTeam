@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common;
 
-public class DoomBringer : MonoBehaviour
+public class DoomBringer : MonoBehaviour, IDamageable
 {
     [Header("Hoạt ảnh (Animation)")]
     public Animator anim;
@@ -17,6 +18,12 @@ public class DoomBringer : MonoBehaviour
     private int currentHealth;
     public bool isDead = false;
     private bool isPhase2 = false;
+
+    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
+    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
+    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
+    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
+    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
 
     [Header("Buff Giai đoạn 2 (< 50% HP)")]
     public float phase2SpeedMulti = 1.5f;
@@ -41,7 +48,7 @@ public class DoomBringer : MonoBehaviour
     public GameObject bombPrefab;
     public float bombFireRate = 1.5f;
     [Tooltip("Thời gian bom bay đến mục tiêu (giây). Số càng nhỏ ném càng mạnh và nhanh!")]
-    public float bombFlightTime = 1.2f; // Đã thay thế bombForce cũ bằng thuật toán ném chuẩn xác
+    public float bombFlightTime = 1.2f;
 
     [Space]
     public GameObject laserPrefab;
@@ -76,6 +83,16 @@ public class DoomBringer : MonoBehaviour
     {
         if (player == null || isDead) return;
 
+        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
+        CheckGroundStatus();
+
+        // 2. NẾU RỚT KHỎI ĐẤT -> NGỪNG LƯỚT TỚI VÀ NGỪNG BẮN
+        if (!isGrounded)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+
         MoveRelentlessly();
 
         if (!isTransitioning)
@@ -85,7 +102,13 @@ public class DoomBringer : MonoBehaviour
         }
     }
 
-    // ================== HỆ THỐNG MÁU & GIAI ĐOẠN ==================
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
+
+        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
 
     public void TakeDamage(int damage)
     {
@@ -116,7 +139,7 @@ public class DoomBringer : MonoBehaviour
         attackTimer *= phase2FireRateMulti;
         transitionDelay *= phase2FireRateMulti;
 
-        bombFlightTime *= 0.8f; // Giai đoạn 2: Lực ném mạnh hơn, bom bay nhanh hơn 20%
+        bombFlightTime *= 0.8f;
 
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr != null) sr.color = Color.red;
@@ -149,8 +172,6 @@ public class DoomBringer : MonoBehaviour
 
         Destroy(gameObject, 0.5f);
     }
-
-    // ================== LOGIC HÀNH ĐỘNG ==================
 
     void MoveRelentlessly()
     {
@@ -193,7 +214,7 @@ public class DoomBringer : MonoBehaviour
 
         switch (currentState)
         {
-            case 1: // NÃ BOM
+            case 1:
                 if (attackTimer <= 0)
                 {
                     ShootBomb();
@@ -201,7 +222,7 @@ public class DoomBringer : MonoBehaviour
                 }
                 break;
 
-            case 2: // BẮN LAZE
+            case 2:
                 if (attackTimer <= 0)
                 {
                     ShootLaser();
@@ -209,7 +230,7 @@ public class DoomBringer : MonoBehaviour
                 }
                 break;
 
-            case 3: // TRIỆU HỒI KAMIKAZE
+            case 3:
                 if (!hasSummoned)
                 {
                     StartCoroutine(SummonKamikazesRoutine());
@@ -219,7 +240,6 @@ public class DoomBringer : MonoBehaviour
         }
     }
 
-  
     void ShootBomb()
     {
         if (bombPrefab == null || firePoint == null) return;
@@ -229,20 +249,13 @@ public class DoomBringer : MonoBehaviour
 
         if (bombRb != null)
         {
-            // Tọa độ của Player (Cộng thêm 0.5f trục Y để canh ném thẳng vào ngực thay vì ném xuống gót chân)
             Vector2 targetPos = new Vector2(player.position.x, player.position.y + 0.5f);
-
-            // Tính toán khoảng cách hai trục X, Y
             Vector2 distance = targetPos - (Vector2)firePoint.position;
-
-            // Đo lường sức kéo của trọng lực tác dụng lên cục bom
             float gravity = Mathf.Abs(Physics2D.gravity.y * bombRb.gravityScale);
 
-            // CÔNG THỨC TOÁN HỌC: Tính ra đúng lực ném cần thiết để chạm đích sau 'bombFlightTime' giây
             float velocityX = distance.x / bombFlightTime;
             float velocityY = (distance.y / bombFlightTime) + (0.5f * gravity * bombFlightTime);
 
-            // Áp dụng lực ném hoàn hảo vào cục bom!
             bombRb.linearVelocity = new Vector2(velocityX, velocityY);
         }
     }
@@ -276,6 +289,16 @@ public class DoomBringer : MonoBehaviour
             Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
 
             yield return new WaitForSeconds(0.3f);
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // Vẽ vòng tròn check ground màu vàng
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using HeartOfTheNight.Common;
 
 public class BurnHB : MonoBehaviour
 {
@@ -9,25 +10,30 @@ public class BurnHB : MonoBehaviour
         // 1. In ra để test xem Hitbox đã chạm được Player chưa
         Debug.Log("Hitbox chém trúng: " + collision.gameObject.name);
 
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            PlayerHealth pHealth = collision.GetComponent<PlayerHealth>();
-            ////////S
-            if (pHealth != null)
+            // LỌC: Đảm bảo chỉ đánh trúng Hurtbox, không đánh vào Collider đất
+            if (!collision.isTrigger) return;
+
+            // 2. TÌM INTERFACE IDamageable TỪ HURTBOX HOẶC TỪ OBJECT CHA
+            IDamageable target = collision.GetComponent<IDamageable>();
+            if (target == null) target = collision.GetComponentInParent<IDamageable>();
+
+            if (target != null)
             {
-                // 2. Tên sếp bây giờ là BurningCorpseImg nhé!
                 BurningCorpseImg burnScript = GetComponentInParent<BurningCorpseImg>();
 
                 if (burnScript != null)
                 {
-                    burnScript.DealDamageAndBurn(pHealth);
+                    // 3. Truyền thẳng Hurtbox vào hàm để BurnScript xử lý
+                    burnScript.DealDamageAndBurn(collision);
                 }
                 else
                 {
-                    pHealth.TakeDamage(attackDamage);
+                    target.TakeDamage(attackDamage);
                 }
 
-                // 3. Đánh xong thì tự tắt
+                // 4. Đánh xong thì tự tắt
                 gameObject.SetActive(false);
             }
         }

@@ -38,7 +38,6 @@ namespace HeartOfTheNight.Player
     [SerializeField, ReadOnly] private float _lastShootInputTime = -999f;
     [Tooltip("Cờ báo hiệu đang cầm súng (ngăn các hoạt ảnh không tay)")]
     [SerializeField, ReadOnly] private bool _isHoldingGun;
-    
     // Cờ đặc biệt: Vừa chuyển súng thì bắt buộc show súng một lúc
     private float _lastWeaponSwitchTime = -999f;
 
@@ -113,12 +112,33 @@ namespace HeartOfTheNight.Player
 
         if (state == PlayerMovement.PlayerState.Grounded)
         {
-            // Kết hợp cả Input và Velocity để giải quyết triệt để lỗi Moonwalk và lỗi trượt Move
-            bool isMoving = Mathf.Abs(_movement.MoveInput.x) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
-            if (_isHoldingGun)
-                PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+            // VISUAL-ONLY COYOTE FALL: FSM vẫn giữ Grounded (để CanJump() hoạt động),
+            // nhưng nếu velocity.y âm đáng kể → người chơi đã rời mép → hiện animation rơi.
+            // Ngưỡng -0.5f lọc bỏ nhiễu vật lý trên mặt phẳng (sleep mode ~1e-05).
+            bool isCoyoteFalling = _movement.RB.linearVelocity.y < -0.5f
+                                && _movement.LastOnGroundTime > 0
+                                && _movement.LastOnGroundTime < _movement.Data.coyoteTime;
+
+            if (isCoyoteFalling)
+            {
+                // Hiện animation rơi nhưng KHÔNG thay đổi FSM state
+                if (_isHoldingGun)
+                {
+                    bool isMoving = Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+                }
+                else
+                    PlayAnim("Nhay");
+            }
             else
-                PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+            {
+                // Kết hợp cả Input và Velocity để giải quyết triệt để lỗi Moonwalk và lỗi trượt Move
+                bool isMoving = Mathf.Abs(_movement.MoveInput.x) > 0.1f && Mathf.Abs(_movement.RB.linearVelocity.x) > 0.1f;
+                if (_isHoldingGun)
+                    PlayAnim(isMoving ? "ThanDuoi-dichuyen" : "ThanDuoi-dungban");
+                else
+                    PlayAnim(isMoving ? "Duoi-move" : "Duoi-ide");
+            }
                 
             // Chắc chắn tắt khói tường
             if (_rightWallVfx != null)
@@ -142,18 +162,36 @@ namespace HeartOfTheNight.Player
             // Xác định đang bám tường nào dựa vào timer trong PlayerMovement
             bool onRightWall = _movement.LastOnWallRightTime > 0;
             bool onLeftWall = _movement.LastOnWallLeftTime > 0;
+            
+            // Khói ma sát chỉ xuất hiện khi thực sự trượt XUỐNG (trọng lực kéo)
+            // Không hiện khi leo lên (velocity.y > 0) hoặc kẹt góc (velocity.y ≈ 0)
+            bool isSlidingDown = _movement.RB.linearVelocity.y < 0;
 
             if (_rightWallVfx != null)
             {
                 var em = _rightWallVfx.emission;
-                em.enabled = onRightWall;
+                em.enabled = onRightWall && isSlidingDown;
             }
 
             if (_leftWallVfx != null)
             {
                 var em = _leftWallVfx.emission;
-                em.enabled = onLeftWall;
+                em.enabled = onLeftWall && isSlidingDown;
             }
+        }
+        else if (state == PlayerMovement.PlayerState.WallJumping)
+        {
+            // Trong 0.15s đầu tiên của cú nhảy tường: giữ dáng đạp tường (Duoi-TruotTuong).
+            // Mẹo ở LateUpdate sẽ lật mặt nhân vật úp vào tường để tạo cảm giác dùng chân đạp ra.
+            // Sau 0.15s: chuyển sang dáng bay (Nhay).
+            if (Time.time - _movement.WallJumpStartTime < 0.15f)
+                PlayAnim("Duoi-TruotTuong");
+            else
+                PlayAnim("Nhay");
+                
+            // Chắc chắn tắt VFX vì đang rời tường
+            if (_rightWallVfx != null) { var em = _rightWallVfx.emission; em.enabled = false; }
+            if (_leftWallVfx != null)  { var em = _leftWallVfx.emission;  em.enabled = false; }
         }
         else if (!isDoingFullBodyAction)
         {
@@ -165,11 +203,8 @@ namespace HeartOfTheNight.Player
             }
             else
             {
-                // Vừa nhả chuột giữa không trung -> Trả lại animation gốc!
-                if (state == PlayerMovement.PlayerState.WallJumping)
-                    PlayAnim("Duoi-TruotTuong");
-                else 
-                    PlayAnim("Nhay");
+                // Đang bay lơ lửng (Falling, Jumping...) — WallJumping không rơi vào đây (isDoingFullBodyAction)
+                PlayAnim("Nhay");
             }
 
             // Tắt hết khói bụi liên tục khi đang bay lơ lửng
@@ -228,7 +263,7 @@ namespace HeartOfTheNight.Player
             float moveSign = _movement.IsFacingRight ? 1f : -1f;
 
             // MẸO VISUAL: Khi vừa búng tường, vật lý đã quay mặt ra ngoài,
-            // nhưng ta muốn giữ dáng "đạp tường" hướng vào trong tường.
+            // nhưng ta muốn giữ dáng "đạp tường" hướng vào trong tường (0.15s đầu tiên).
             if (_movement.CurrentState == PlayerMovement.PlayerState.WallJumping && _currentAnim == "Duoi-TruotTuong")
             {
                 moveSign *= -1f;
@@ -368,7 +403,11 @@ namespace HeartOfTheNight.Player
                 break;
                 
             case PlayerMovement.PlayerState.WallJumping:
+                // Khởi đầu cú nhảy tường luôn là dáng bám tường (đạp ván)
                 PlayAnim("Duoi-TruotTuong");
+                // Tắt VFX khói tường ngay khi bật
+                if (_rightWallVfx != null) { var em = _rightWallVfx.emission; em.enabled = false; }
+                if (_leftWallVfx != null)  { var em = _leftWallVfx.emission;  em.enabled = false; }
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
@@ -380,6 +419,8 @@ namespace HeartOfTheNight.Player
     [Header("State Tracking")]
     [Tooltip("Tên animation hiện tại đang được yêu cầu chạy")]
     [SerializeField, ReadOnly] private string _currentAnim;
+    /// <summary>Tên animation đang chạy (cho Debug Panel đọc).</summary>
+    public string CurrentAnimName => _currentAnim;
     
     public void TriggerDeath()
     {

@@ -193,9 +193,126 @@ MonoBehaviour:
       - {fileID: 8300000, guid: ccaf594d6ef3c394f84ab9842e5c72b5, type: 3}
     - groupID: StopDrag
       clips:
-      - {fileID: 8300000, guid: bf84310ec6eede54d8801caf06439de8, type: 3}
-      - {fileID: 8300000, guid: f79165ff0ea54ba40a1d99d5f4676b33, type: 3}
-      - {fileID: 8300000, guid: 385157804eb38574ca8655125d7d4628, type: 3}
+      - {fileID: 8300000, guid: 542ee51677e8f9043b8a99de0b3100b3, type: 3}
+      - {fileID: 8300000, guid: f8a3d4725ea9b9e45aacb6f811e7a71c, type: 3}
+      - {fileID: 8300000, guid: 0201229a9b891dd44bca4341b1e5e5b5, type: 3}
+  - categoryID: Weapons
+    soundEffects:
+    - groupID: BulletSpawn
+      clips:
+      - {fileID: 8300000, guid: 6ebf605377f1bf545a37503aa58ca720, type: 3}
+    - groupID: Explosive
+      clips:
+      - {fileID: 8300000, guid: 3d5ccdd577fa4e9478e4edade63e2145, type: 3}
+      - {fileID: 8300000, guid: 7335a94b25c2e5047b96eefcfffdbbf0, type: 3}
+    - groupID: FlamethrowerFire
+      clips: []
+    - groupID: OverheatOn
+      clips:
+      - {fileID: 8300000, guid: eea5efb487902d544bead7d6f7e24d99, type: 3}
+    - groupID: OverheatOff
+      clips:
+      - {fileID: 8300000, guid: 4b9e9a3f216336f4c8c6038bd4173f29, type: 3}
+    - groupID: BulletHitWall
+      clips:
+      - {fileID: 8300000, guid: 62c64f017a7b5d24daaf9079e229ae5f, type: 3}
+    - groupID: Pistol
+      clips:
+      - {fileID: 8300000, guid: 6ebf605377f1bf545a37503aa58ca720, type: 3}
+    - groupID: Machine gun
+      clips:
+      - {fileID: 8300000, guid: 3f10a86f789c05e46b64ba9a1a983861, type: 3}
+    - groupID: Shotgun
+      clips:
+      - {fileID: 8300000, guid: 7f4cfec8338c38d479e0c3a926af9fbe, type: 3}
+  - categoryID: Player
+    soundEffects:
+    - groupID: Run
+      clips:
+      - {fileID: 8300000, guid: 01dc8ec6536e5574e9e3d6cefd0448f8, type: 3}
+      - {fileID: 8300000, guid: 639d97c11d88a904aae81657bb564d2b, type: 3}
+      - {fileID: 8300000, guid: d1a76b15406be5f47844c312699be1c8, type: 3}
+      - {fileID: 8300000, guid: be66339f0dbcb534a8e844c02078bff7, type: 3}
+    - groupID: Jump
+      clips:
+      - {fileID: 8300000, guid: 60bc6830d139df8409489fffaebfbbd8, type: 3}
+    - groupID: Dash
+      clips:
+      - {fileID: 8300000, guid: 5f34796c8c467e84dbd8d79cbecc6435, type: 3}
+    - groupID: StopDash
+      clips:
+      - {fileID: 8300000, guid: f797463d27f962640b389c6517e95916, type: 3}
+    - groupID: Slide
+      clips:
+      - {fileID: 8300000, guid: b872fd576d4cdec4ebc3597748c7f403, type: 3}
+    - groupID: WallClimb
+      clips:
+      - {fileID: 8300000, guid: 5034f5c8583f4574c8d71cdcbdddfc63, type: 3}
+    - groupID: Equip
+      clips:
+      - {fileID: 8300000, guid: 280f4488a34edfd45b54e5ebce84e566, type: 3}
+    - groupID: CollectItems
+      clips:
+      - {fileID: 8300000, guid: 559954e5fa095f24ebc7ab1de5065191, type: 3}
+      - {fileID: 8300000, guid: 6cba1ad51710da84c9291602cce77237, type: 3}
+      - {fileID: 8300000, guid: b9bd51b97345b5f4e8622753ac086f2b, type: 3}
+    - groupID: Hurt
+      clips:
+      - {fileID: 8300000, guid: b84198777c0b7a94bbc4f79cf873a060, type: 3}
+      - {fileID: 8300000, guid: c5b583bb2f605cc43a3be285d2114965, type: 3}
+      - {fileID: 8300000, guid: 9f4cb28bb74b5a24c897319b6b1d954d, type: 3}
+    - groupID: Death
+      clips:
+      - {fileID: 8300000, guid: ea4e17b96c0edeb48ae3772ca9357e02, type: 3}
+      - {fileID: 8300000, guid: 493ab4dbeea40254e828f0d156201cd5, type: 3}
+      - {fileID: 8300000, guid: 493ab4dbeea40254e828f0d156201cd5, type: 3}
+  - categoryID: Enemy
+    soundEffects:
+    - groupID: MoveGeneral
+      clips:
+      - {fileID: 8300000, guid: 5034f5c8583f4574c8d71cdcbdddfc63, type: 3}
+      - {fileID: 8300000, guid: aa0f74e9f4286c0448c4bc2944dd95e4, type: 3}
+      - {fileID: 8300000, guid: b49eebe962e7c97408c0b722458cd432, type: 3}
+      - {fileID: 8300000, guid: ae79dcfd1dfff284cb320e462e313db4, type: 3}
+    - groupID: MeleeGeneral
+      clips:
+      - {fileID: 8300000, guid: 1333c9f4b7116c74eb0705a0be0632c1, type: 3}
+      - {fileID: 8300000, guid: b9461086255918643bb83a7db15c4523, type: 3}
+    - groupID: ShootGeneral
+      clips:
+      - {fileID: 8300000, guid: 85535be047500864496c008f2cd29ea5, type: 3}
+      - {fileID: 8300000, guid: 310dc6453fb2ef942a1b19124ee3bd39, type: 3}
+      - {fileID: 8300000, guid: 246f53f386a58134183ef1e438709830, type: 3}
+      - {fileID: 8300000, guid: ecab8fbc5c984a24a94c5329bcc7c462, type: 3}
+      - {fileID: 8300000, guid: 8140e76866f14274fb6a2c805b22a7da, type: 3}
+    - groupID: HurtGeneral
+      clips:
+      - {fileID: 8300000, guid: b84198777c0b7a94bbc4f79cf873a060, type: 3}
+      - {fileID: 8300000, guid: c5b583bb2f605cc43a3be285d2114965, type: 3}
+      - {fileID: 8300000, guid: 9f4cb28bb74b5a24c897319b6b1d954d, type: 3}
+    - groupID: DeathGeneral
+      clips:
+      - {fileID: 8300000, guid: 38bb36d2eed04f9499c8afa215c2db00, type: 3}
+    - groupID: SpawnPeonsGeneral
+      clips:
+      - {fileID: 8300000, guid: e6ce3c8507836b048aa231c94fcb3728, type: 3}
+    - groupID: BuffGeneral
+      clips:
+      - {fileID: 8300000, guid: f63d2fd7f6123154c969972a5ff96af3, type: 3}
+    - groupID: DmgEffectGeneral
+      clips:
+      - {fileID: 8300000, guid: f19947e09befcad4b83b8722bd884946, type: 3}
+  - categoryID: Others
+    soundEffects:
+    - groupID: DoorKeyRequired
+      clips:
+      - {fileID: 8300000, guid: e8d70adba476314439bf5be86a00ea63, type: 3}
+    - groupID: DoorOpen
+      clips:
+      - {fileID: 8300000, guid: 5ea5f5bff85ef2b428f75f15a53fd42c, type: 3}
+    - groupID: DoorClosed
+      clips:
+      - {fileID: 8300000, guid: a6c80b339a65d70448c4b0799deae049, type: 3}
 --- !u!114 &7837030559445061944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223,8 +340,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tracks:
-  - trackName: 
-    clip: {fileID: 0}
+  - trackName: MainMenu
+    clip: {fileID: 8300000, guid: c6b4d668525a506439f41d04527cbbe5, type: 3}
 --- !u!114 &4748444479032100685
 MonoBehaviour:
   m_ObjectHideFlags: 0

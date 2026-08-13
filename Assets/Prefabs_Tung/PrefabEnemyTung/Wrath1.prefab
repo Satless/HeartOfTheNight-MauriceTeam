@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &703235199864277662
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 342520986139658425}
+  m_Layer: 0
+  m_Name: GroundCheckWrath
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &342520986139658425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703235199864277662}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.03, y: -1.34, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8342390841403196841}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8064944565031437488
 GameObject:
   m_ObjectHideFlags: 0
@@ -13,10 +44,10 @@ GameObject:
   - component: {fileID: 3939387108107811522}
   - component: {fileID: 3212184006190387893}
   - component: {fileID: 6374820363963554430}
-  - component: {fileID: 4006879737708091736}
-  m_Layer: 7
+  - component: {fileID: 229900370268365192}
+  m_Layer: 10
   m_Name: Wrath1
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -33,7 +64,8 @@ Transform:
   m_LocalPosition: {x: -0, y: 5.76, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 342520986139658425}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4264220254150672747
@@ -80,7 +112,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: -7051469675471283345, guid: 8c220ec2c5cde90419f778b14f7e612e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -152,18 +184,18 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.08604431, y: 0.02331543}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 3.75, y: 2.8125}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
+  m_Size: {x: 1.610199, y: 2.7370052}
+  m_EdgeRadius: 0.02
 --- !u!114 &6374820363963554430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,27 +208,50 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d4c7fb0a07cbb44f98887cba0dee4c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 8
-  detectionRangeX: 5
+  maxHealth: 150
+  currentHealth: 0
+  isDead: 0
+  anim: {fileID: 229900370268365192}
+  groundCheck: {fileID: 342520986139658425}
+  groundCheckRadius: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  isGrounded: 0
+  moveSpeed: 5
+  detectionRangeX: 10
   detectionRangeY: 2
-  attackRange: 2
+  attackRange: 6
   platformHeightDiff: 0.8
   teleportDelay: 0.5
   postTeleportDelay: 0.5
-  attackDamage: 1
-  attackCooldown: 2
-  timeBetweenHits: 0.3
+  attackDamage: 10
+  attackCooldown: 1
   antiHealDuration: 6
---- !u!114 &4006879737708091736
-MonoBehaviour:
+  chargeWindupTime: 1
+  chargeSpeed: 25
+  chargeDuration: 0.5
+  hitRadius: 1.5
+  recoveryTime: 1.5
+--- !u!95 &229900370268365192
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8064944565031437488}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a1fcadbd197323488e71f238405de22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  health: 50
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 7ff5db240f1672a449755e27a349082f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

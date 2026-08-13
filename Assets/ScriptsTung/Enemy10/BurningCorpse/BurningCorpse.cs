@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common;
 
-public class BurningCorpseImg : MonoBehaviour
+public class BurningCorpseImg : MonoBehaviour, IDamageable
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 60;
@@ -11,7 +12,7 @@ public class BurningCorpseImg : MonoBehaviour
     [Header("Hoạt ảnh & Vị trí chém (Cục atk)")]
     public Animator anim;
     public GameObject attackHitbox;
-    public Vector2 attackOffset = new Vector2(0f, 1f); // Dùng để nâng tâm chém lên cao (trục Y)
+    public Vector2 attackOffset = new Vector2(0f, 1f);
 
     [Header("Tầm nhìn & Di chuyển")]
     public float detectionRangeX = 12f;
@@ -19,6 +20,12 @@ public class BurningCorpseImg : MonoBehaviour
     public float moveSpeed = 4f;
     public float attackRange = 2f;
     public float attackRadius = 1.2f;
+
+    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
+    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
+    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
+    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
+    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
 
     [Header("Dịch chuyển & Cảm biến kẹt")]
     public float platformHeightDiff = 0.8f;
@@ -43,6 +50,7 @@ public class BurningCorpseImg : MonoBehaviour
 
     private float lastXPos = 0f;
     private float stuckTimer = 0f;
+    private float _dmgEffectTimer;
 
     void Start()
     {
@@ -98,6 +106,17 @@ public class BurningCorpseImg : MonoBehaviour
     void Update()
     {
         if (player == null || isBusy || myCol == null || isDead) return;
+
+        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
+        CheckGroundStatus();
+
+        // 2. NẾU ĐANG RƠI -> DỪNG ĐI CHÉO BẬY BẠ
+        if (!isGrounded)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", 0);
+            return;
+        }
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
@@ -164,10 +183,20 @@ public class BurningCorpseImg : MonoBehaviour
         }
     }
 
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
+
+        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
     public void TakeDamage(int damage)
     {
         if (isDead) return;
         currentHealth -= damage;
+        // SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+
         if (currentHealth <= 0) Die();
     }
 
@@ -185,6 +214,8 @@ public class BurningCorpseImg : MonoBehaviour
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
+
+        // SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
         Destroy(gameObject, 1.5f);
     }
 
@@ -195,6 +226,8 @@ public class BurningCorpseImg : MonoBehaviour
         rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
 
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+
+        // SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
     }
 
     IEnumerator AttackRoutine()
@@ -258,14 +291,10 @@ public class BurningCorpseImg : MonoBehaviour
         transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
-    // ==========================================
-    // SÁT THƯƠNG QUÉT VÒNG TRÒN (GỌI TỪ EVENT)
-    // ==========================================
     public void EnableHitbox()
     {
         if (isDead || attackHitbox == null) return;
 
-        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
@@ -274,28 +303,45 @@ public class BurningCorpseImg : MonoBehaviour
 
         foreach (Collider2D p in hitPlayers)
         {
-            if (p.CompareTag("Player"))
+            if (p.CompareTag("Enemy")) continue;
+
+            // LỌC: Bỏ qua va chạm cứng, chỉ chém trúng cái Hurtbox (isTrigger = true)
+            if (!p.isTrigger) continue;
+
+            if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
-                PlayerHealth hp = p.GetComponent<PlayerHealth>();
-                if (hp != null)
+                // Dò tìm lên thằng Cha để kiếm cho ra IDamageable
+                IDamageable target = p.GetComponent<IDamageable>();
+                if (target == null) target = p.GetComponentInParent<IDamageable>();
+
+                if (target != null)
                 {
-                    DealDamageAndBurn(hp); // Quét trúng thì kích hoạt luôn hiệu ứng cháy
-                    Debug.Log("Xác cháy chém trúng Player!");
+                    DealDamageAndBurn(p);
+                    Debug.Log("Xác cháy chém trúng HURTBOX của Player!");
                 }
             }
         }
     }
 
-    public void DealDamageAndBurn(PlayerHealth pHealth)
+    public void DealDamageAndBurn(Collider2D playerCol)
     {
         if (isDead) return;
-        pHealth.TakeDamage(attackDamage);
-        StartCoroutine(GayHieuUngChay(pHealth));
+
+        IDamageable target = playerCol.GetComponent<IDamageable>();
+        if (target == null) target = playerCol.GetComponentInParent<IDamageable>();
+
+        if (target != null)
+        {
+            target.TakeDamage(attackDamage);
+            StartCoroutine(GayHieuUngChay(playerCol, target)); // Truyền thêm target vào để Coroutine xài
+        }
     }
 
-    IEnumerator GayHieuUngChay(PlayerHealth pHealth)
+    IEnumerator GayHieuUngChay(Collider2D playerCol, IDamageable target)
     {
-        Rigidbody2D playerRb = pHealth.GetComponent<Rigidbody2D>();
+        // Chú ý: Vì playerCol bây giờ là Hurtbox (nằm ở cục con), nên phải GetComponentInParent để lấy Rigidbody2D (nằm ở cục cha)
+        Rigidbody2D playerRb = playerCol.GetComponentInParent<Rigidbody2D>();
+
         for (int i = 0; i < burnTicks; i++)
         {
             float thoiGianDaCho = 0f;
@@ -305,8 +351,16 @@ public class BurningCorpseImg : MonoBehaviour
                 thoiGianDaCho += Time.deltaTime;
                 yield return null;
             }
-            if (pHealth != null) pHealth.TakeDamage(burnDamagePerTick);
+
+            if (target != null) target.TakeDamage(burnDamagePerTick);
             else yield break;
+
+            _dmgEffectTimer -= Time.fixedDeltaTime;
+            if (_dmgEffectTimer <= 0f)
+            {
+                // SoundManager.Instance.PlaySound3D("Enemy", "DmgEffectGeneral", transform.position);
+                _dmgEffectTimer = 0.2f;
+            }
         }
     }
 
@@ -320,17 +374,22 @@ public class BurningCorpseImg : MonoBehaviour
         if (attackHitbox != null)
         {
             Gizmos.color = Color.red;
-            // Vẽ vòng tròn đúng với offset để bạn dễ nhìn trong Scene
             float facingDirection = Mathf.Sign(transform.localScale.x);
             Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
             Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
             Gizmos.DrawWireSphere(finalAttackPos, attackRadius);
         }
+
+        // VẼ VÒNG TRÒN CHECK GROUND MÀU VÀNG
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
     }
 }
 
-// KHÔNG XÓA CLASS NÀY - Bắt buộc phải có để nhận Animation Event từ Object con
 public class HitboxEventForwarder : MonoBehaviour
 {
     public void EnableHitbox()

@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 
@@ -13,6 +14,10 @@ public class CodexUI : MonoBehaviour
     public TMP_Text contentText;
 
 
+    private void Start()
+    {
+        //MusicManager.Instance.PlayMusic("");
+    }
 
     public void OpenMenu()
     {

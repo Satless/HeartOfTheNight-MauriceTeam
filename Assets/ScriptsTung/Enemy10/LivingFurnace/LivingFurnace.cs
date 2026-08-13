@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using HeartOfTheNight.Common;
 
-public class LivingFurnace : MonoBehaviour
+public class LivingFurnaceImg : MonoBehaviour, IDamageable
 {
-
     [Header("Sinh tồn & Hoạt ảnh")]
     public int maxHealth = 200;
-    private int currentHealth;/////
+    private int currentHealth;
     private bool isDead = false;
     public Animator anim;
 
@@ -28,37 +28,38 @@ public class LivingFurnace : MonoBehaviour
     private Transform player;
     private Collider2D myCol;
 
+    // 1. FIX LỖI RỚT MAP: Khai báo thêm Rigidbody2D
+    private Rigidbody2D rb;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         myCol = GetComponent<Collider2D>();
 
-        // Kích hoạt tính năng xuyên thấu ngay khi Lò ấp xuất hiện
-        SetupXuyenThau();
+        // 2. FIX LỖI RỚT MAP: Tìm Rigidbody2D lúc mới sinh ra
+        rb = GetComponent<Rigidbody2D>();
 
-        // ĐÃ XÓA LỆNH SPAWN Ở ĐÂY ĐỂ KHÔNG ĐẺ QUÁI SỚM NỮA!
+        currentHealth = maxHealth;
+        SetupXuyenThau();
     }
 
     void Update()
     {
+        if (isDead) return;
+
         if (isSpawning) return;
 
-        // Dọn dẹp danh sách quái đã chết
         activeMinions.RemoveAll(minion => minion == null);
 
         if (player != null)
         {
-            // Đo khoảng cách giữa Lò ấp và Player
             float distanceX = Mathf.Abs(player.position.x - transform.position.x);
             float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-            // NẾU PLAYER BƯỚC VÀO VÙNG PHÁT HIỆN
             if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                // VÀ nếu trên sân không còn con quái nào
                 if (activeMinions.Count == 0)
                 {
-                    // Thì mới bắt đầu đẻ quái
                     StartCoroutine(SpawnWaveRoutine());
                 }
             }
@@ -68,7 +69,13 @@ public class LivingFurnace : MonoBehaviour
     IEnumerator SpawnWaveRoutine()
     {
         isSpawning = true;
+
+        SoundManager.Instance.PlaySound3D("Enemy", "SpawnPeonsGeneral", transform.position);
+
         yield return new WaitForSeconds(delayBetweenWaves);
+
+
+        if (isDead) yield break;
 
         float pivotOffset = 0f;
         Collider2D prefabCol = burningCorpsePrefab.GetComponent<Collider2D>();
@@ -92,7 +99,8 @@ public class LivingFurnace : MonoBehaviour
 
             GameObject newMinion = Instantiate(burningCorpsePrefab, spawnPos, Quaternion.identity);
             activeMinions.Add(newMinion);
-yield return new WaitForSeconds(0.3f);
+
+            yield return new WaitForSeconds(0.3f);
         }
 
         isSpawning = false;
@@ -102,14 +110,12 @@ yield return new WaitForSeconds(0.3f);
     {
         if (myCol == null) return;
 
-        // 1. Xuyên Player
         if (player != null)
         {
             Collider2D pCol = player.GetComponent<Collider2D>();
             if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
         }
 
-        // 2. Xuyên tất cả quái vật khác có Tag là "Enemy"
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject enemyObj in allEnemies)
         {
@@ -121,13 +127,53 @@ yield return new WaitForSeconds(0.3f);
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        if (isDead) return;
+
+        currentHealth -= damage;
+        Debug.Log("Lò ấp bị chém! Máu: " + currentHealth + "/" + maxHealth);
+
+        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        isDead = true;
+        Debug.Log("Lò ấp đã bị phá hủy!");
+
+        gameObject.tag = "Untagged";
+
+        // 3. FIX LỖI RỚT MAP: Đóng băng trọng lực trước khi tắt va chạm
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero; // Chặn gia tốc đang rơi dở (nếu có)
+            rb.simulated = false; // Tắt hoàn toàn tác động vật lý (trọng lực)
+        }
+
+        if (myCol != null) myCol.enabled = false;
+
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+
+        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+
+        Destroy(gameObject, 1.5f);
+    }
+
     private void OnDrawGizmosSelected()
     {
-        // Vẽ vùng phát hiện Player (HÌNH CHỮ NHẬT MÀU CAM)
         Gizmos.color = new Color(1f, 0.6f, 0f);
         Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
 
-        // Vẽ phạm vi đẻ quái (ĐƯỜNG KẺ MÀU VÀNG)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(transform.position, new Vector3(spawnRadius * 2, 0.1f, 0));
     }

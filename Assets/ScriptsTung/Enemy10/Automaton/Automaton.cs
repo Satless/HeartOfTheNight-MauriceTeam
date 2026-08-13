@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common;
 
-public class Automaton : MonoBehaviour
+public class Automaton : MonoBehaviour, IDamageable
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 150;
@@ -11,8 +12,6 @@ public class Automaton : MonoBehaviour
     [Header("Hoạt ảnh & Hình ảnh")]
     public Animator anim;
     public SpriteRenderer sr;
-
-    [Tooltip("Ảnh hiển thị khi lướt trúng người")]
     public Sprite dashAttackSprite;
 
     [Header("Tầm nhìn & Di chuyển")]
@@ -22,6 +21,12 @@ public class Automaton : MonoBehaviour
     public float dashRange = 5.5f;
     public float attackRange = 2f;
     public Vector2 attackOffset = new Vector2(0f, 1f);
+
+    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
+    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
+    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
+    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
+    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
 
     [Header("Dịch chuyển an toàn")]
     public float platformHeightDiff = 0.8f;
@@ -91,12 +96,22 @@ public class Automaton : MonoBehaviour
     {
         if (isDead || player == null || myCol == null) return;
 
+        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
+        CheckGroundStatus();
+
         if (anim != null && !dangBanRaDon && anim.enabled)
         {
             anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
 
         if (dangBanRaDon) return;
+
+        // 2. NẾU KHÔNG CHẠM ĐẤT (ĐANG RƠI) -> DỪNG ĐI CHÉO TRÊN KHÔNG
+        if (!isGrounded)
+        {
+            StopMoving();
+            return;
+        }
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
@@ -162,6 +177,15 @@ public class Automaton : MonoBehaviour
             StopMoving();
         }
     }
+
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
+
+        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+    // ==========================================
 
     public void TakeDamage(int damage)
     {
@@ -243,7 +267,8 @@ public class Automaton : MonoBehaviour
         RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector2(xPos, player.position.y + 2f), Vector2.down, 5f);
         foreach (RaycastHit2D hit in hits)
         {
-            if (!hit.collider.CompareTag("Player") && hit.collider.gameObject.layer != LayerMask.NameToLayer("Enemy") && !hit.collider.isTrigger)
+            // Bỏ qua Player, Quái khác, và các Trigger mềm
+            if (!hit.collider.CompareTag("Player") && !hit.collider.CompareTag("Enemy") && !hit.collider.isTrigger)
             {
                 groundY = hit.point.y + GetComponent<Collider2D>().bounds.extents.y + teleportYOffset;
                 return true;
@@ -305,7 +330,16 @@ public class Automaton : MonoBehaviour
             if (!daTrungDon && Mathf.Abs(player.position.x - transform.position.x) <= attackRange)
             {
                 daTrungDon = true;
-                player.GetComponent<PlayerHealth>()?.TakeDamage(dashDamage);
+
+                // TÌM IDAMAGEABLE ĐỂ TRỪ MÁU PLAYER KHI LƯỚT
+                IDamageable target = player.GetComponent<IDamageable>();
+                if (target == null) target = player.GetComponentInChildren<IDamageable>();
+
+                if (target != null)
+                {
+                    target.TakeDamage(dashDamage);
+                    Debug.Log("Automaton lướt trúng Player!");
+                }
 
                 if (anim != null) anim.enabled = false;
                 if (sr != null && dashAttackSprite != null) sr.sprite = dashAttackSprite;
@@ -335,7 +369,6 @@ public class Automaton : MonoBehaviour
     {
         if (player == null || isDead) return;
 
-        // TỰ ĐỘNG XOAY TÂM CHÉM THEO HƯỚNG QUAY MẶT
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
@@ -344,13 +377,21 @@ public class Automaton : MonoBehaviour
 
         foreach (Collider2D p in hitPlayers)
         {
-            if (p.CompareTag("Player"))
+            if (p.CompareTag("Enemy")) continue;
+
+            // LỌC: Bỏ qua va chạm cứng, chỉ chém trúng cái Hurtbox (isTrigger = true)
+            if (!p.isTrigger) continue;
+
+            if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
-                PlayerHealth hp = p.GetComponent<PlayerHealth>();
-                if (hp != null)
+                // Dò tìm lên thằng Cha để kiếm cho ra IDamageable
+                IDamageable target = p.GetComponent<IDamageable>();
+                if (target == null) target = p.GetComponentInParent<IDamageable>();
+
+                if (target != null)
                 {
-                    hp.TakeDamage(meleeDamage);
-                    Debug.Log("Automaton chém thường trúng Player!");
+                    target.TakeDamage(meleeDamage);
+                    Debug.Log("Automaton chém trúng HURTBOX của Player!");
                 }
             }
         }
@@ -370,5 +411,12 @@ public class Automaton : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, dashRange);
+
+        // VẼ VÒNG TRÒN CHECK GROUND BẰNG TAG (MÀU VÀNG)
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
     }
 }
