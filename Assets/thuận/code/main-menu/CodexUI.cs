@@ -5,11 +5,12 @@ using UnityEngine;
 public class CodexUI : MonoBehaviour
 {
     public GameObject menuPanel;
+    public GameObject saveSlotPanel;
     public GameObject codexPanel;
     public GameObject CreditPanel;
     public GameObject SettingPanel;
     public GameObject ControlsPanel;
-    public GameObject SaveLostPanel;
+    
     public TMP_Text contentText;
 
 
@@ -21,6 +22,12 @@ public class CodexUI : MonoBehaviour
     public void OpenMenu()
     {
         menuPanel.SetActive(true);
+    }
+
+    public void OpenSaveSlot()
+    {
+        saveSlotPanel.SetActive(true);
+        menuPanel.SetActive(false);
     }
     public void OpenCodex()
     {
@@ -38,7 +45,7 @@ public class CodexUI : MonoBehaviour
         menuPanel.SetActive(false);
 
     }
-    public void OpenControls()
+    /*public void OpenControls()
     {
         SettingPanel.SetActive(false);
         SaveLostPanel.SetActive(false);
@@ -49,7 +56,7 @@ public class CodexUI : MonoBehaviour
         ControlsPanel.SetActive(false);
         SettingPanel.SetActive(false);
         SaveLostPanel.SetActive(true);
-    }
+    }*/
 
 
 
@@ -63,6 +70,12 @@ public class CodexUI : MonoBehaviour
         CreditPanel.SetActive(false);
         menuPanel.SetActive(true);
     }
+
+    public void CloseSaveSlot()
+    {
+        saveSlotPanel.SetActive(false);
+        menuPanel.SetActive(true);
+    }
     public void CloseCodex()
     {
         codexPanel.SetActive(false);
@@ -73,7 +86,7 @@ public class CodexUI : MonoBehaviour
         SettingPanel.SetActive(false);
         menuPanel.SetActive(true);
     }
-    public void CloseControls()
+   /* public void CloseControls()
     {
         SettingPanel.SetActive(false);
         ControlsPanel.SetActive(false);
@@ -84,7 +97,7 @@ public class CodexUI : MonoBehaviour
         SettingPanel.SetActive(false);
         ControlsPanel.SetActive(false);
         SaveLostPanel.SetActive(false);
-    }
+    }*/
 
     public void ShowCharacters()
     {
