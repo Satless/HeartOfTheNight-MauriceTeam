@@ -1,10 +1,13 @@
 using UnityEngine;
 using System.Collections;
-using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN BỘ LUẬT CHUNG CỦA TEAM
+using HeartOfTheNight.Common;
 
-// 2. KẾT NỐI VỚI INTERFACE IDamageable
 public class BigCorpseImg : MonoBehaviour, IDamageable
 {
+    [Header("Chỉnh tọa độ lúc Chết")]
+    [Tooltip("Lệch tâm chết? Chỉnh số này để nhấc ảnh lên/xuống (VD: 1.5 hoặc -1)")]
+    public float deathYOffset = 1.2f;
+
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 100;
     public int currentHealth;
@@ -21,6 +24,12 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     public float moveSpeed = 3f;
     public float attackRange = 2.5f;
     public float attackRadius = 1.5f;
+
+    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
+    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
+    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
+    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
+    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
 
     [Header("Dịch chuyển & Cảm biến kẹt")]
     public float platformHeightDiff = 0.8f;
@@ -42,8 +51,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     private float lastXPos = 0f;
     private float stuckTimer = 0f;
 
-
     private float _moveTimer;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -98,6 +107,17 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     void Update()
     {
         if (player == null || isBusy || myCol == null || isDead) return;
+
+        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
+        CheckGroundStatus();
+
+        // 2. NẾU ĐANG RƠI -> DỪNG ĐI CHÉO BẬY BẠ
+        if (!isGrounded)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", 0);
+            return;
+        }
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
@@ -158,13 +178,20 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         }
     }
 
-    // 3. HÀM NÀY ĐÃ TỰ ĐỘNG KHỚP VỚI INTERFACE IDamageable
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
+
+        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
     public void TakeDamage(int damage)
     {
         if (isDead) return;
         currentHealth -= damage;
 
-        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+        // SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
 
         if (currentHealth <= 0) Die();
     }
@@ -180,12 +207,20 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
 
         if (anim != null)
         {
+            // BÙ TRỪ LỆCH TÂM: Dịch chuyển cái ảnh lên/xuống đúng bằng khoảng cách bị lệch
+            anim.transform.localPosition = new Vector3(
+                anim.transform.localPosition.x,
+                anim.transform.localPosition.y + deathYOffset,
+                anim.transform.localPosition.z
+            );
+
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
-        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
-        Destroy(gameObject, 1.5f);
+        // SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+
+        Destroy(gameObject, 0.5f);
     }
 
     void Move()
@@ -198,8 +233,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         _moveTimer -= Time.fixedDeltaTime;
         if (_moveTimer <= 0f)
         {
-            SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
-            _moveTimer = 0.3f; // Phát lại sau mỗi 0.2s
+            // SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
+            _moveTimer = 0.3f;
         }
     }
 
@@ -276,16 +311,18 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
 
         foreach (Collider2D p in hitPlayers)
         {
-            // 4. SỬA LẠI LOGIC CHÉM THEO IDamageable
-            if (p.CompareTag("Enemy")) continue; // Chống chém nhầm phe mình
+            if (p.CompareTag("Enemy")) continue;
+            if (!p.isTrigger) continue;
 
-            if (p.CompareTag("Player"))
+            if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
                 IDamageable target = p.GetComponent<IDamageable>();
+                if (target == null) target = p.GetComponentInParent<IDamageable>();
+
                 if (target != null)
                 {
                     target.TakeDamage(attackDamage);
-                    Debug.Log("BigCorpse Event chém trúng Player qua IDamageable!");
+                    Debug.Log("BigCorpse chém trúng HURTBOX của Player!");
                 }
             }
         }
@@ -306,6 +343,13 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
 
             Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
             Gizmos.DrawWireSphere(finalAttackPos, attackRadius);
+        }
+
+        // VẼ VÒNG TRÒN CHECK GROUND MÀU VÀNG
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
     }
 }

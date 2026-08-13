@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections;
-using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN CHỨA BỘ LUẬT CỦA TEAM
+using HeartOfTheNight.Common;
 
-// 2. KẾT NỐI VỚI INTERFACE IDamageable
 public class BurningCorpseImg : MonoBehaviour, IDamageable
 {
     [Header("Chỉ số Sinh tồn")]
@@ -13,7 +12,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     [Header("Hoạt ảnh & Vị trí chém (Cục atk)")]
     public Animator anim;
     public GameObject attackHitbox;
-    public Vector2 attackOffset = new Vector2(0f, 1f); // Dùng để nâng tâm chém lên cao (trục Y)
+    public Vector2 attackOffset = new Vector2(0f, 1f);
 
     [Header("Tầm nhìn & Di chuyển")]
     public float detectionRangeX = 12f;
@@ -21,6 +20,12 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     public float moveSpeed = 4f;
     public float attackRange = 2f;
     public float attackRadius = 1.2f;
+
+    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
+    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
+    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
+    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
+    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
 
     [Header("Dịch chuyển & Cảm biến kẹt")]
     public float platformHeightDiff = 0.8f;
@@ -45,9 +50,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
     private float lastXPos = 0f;
     private float stuckTimer = 0f;
-
-
     private float _dmgEffectTimer;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -102,6 +106,17 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     void Update()
     {
         if (player == null || isBusy || myCol == null || isDead) return;
+
+        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
+        CheckGroundStatus();
+
+        // 2. NẾU ĐANG RƠI -> DỪNG ĐI CHÉO BẬY BẠ
+        if (!isGrounded)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", 0);
+            return;
+        }
 
         Collider2D playerCol = player.GetComponent<Collider2D>();
         if (playerCol == null) return;
@@ -168,12 +183,19 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         }
     }
 
-    // 3. KHỚP VỚI KHUÔN MẪU IDamageable ĐỂ BỊ ĐÁNH MẤT MÁU
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
+
+        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
     public void TakeDamage(int damage)
     {
         if (isDead) return;
         currentHealth -= damage;
-        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+        // SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
 
         if (currentHealth <= 0) Die();
     }
@@ -193,7 +215,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
 
-        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+        // SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
         Destroy(gameObject, 1.5f);
     }
 
@@ -205,7 +227,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
 
-        SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
+        // SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
     }
 
     IEnumerator AttackRoutine()
@@ -269,9 +291,6 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
-    // ==========================================
-    // SÁT THƯƠNG QUÉT VÒNG TRÒN (GỌI TỪ EVENT)
-    // ==========================================
     public void EnableHitbox()
     {
         if (isDead || attackHitbox == null) return;
@@ -284,17 +303,21 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
         foreach (Collider2D p in hitPlayers)
         {
-            // 4. CHỐNG CHÉM NHẦM PHE MÌNH
             if (p.CompareTag("Enemy")) continue;
 
-            if (p.CompareTag("Player"))
+            // LỌC: Bỏ qua va chạm cứng, chỉ chém trúng cái Hurtbox (isTrigger = true)
+            if (!p.isTrigger) continue;
+
+            if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
-                // 5. CHUẨN HÓA SANG IDamageable
+                // Dò tìm lên thằng Cha để kiếm cho ra IDamageable
                 IDamageable target = p.GetComponent<IDamageable>();
+                if (target == null) target = p.GetComponentInParent<IDamageable>();
+
                 if (target != null)
                 {
-                    DealDamageAndBurn(p); // Truyền luôn Collider2D của Player sang hàm Burn
-                    Debug.Log("Xác cháy chém trúng Player qua IDamageable!");
+                    DealDamageAndBurn(p);
+                    Debug.Log("Xác cháy chém trúng HURTBOX của Player!");
                 }
             }
         }
@@ -305,38 +328,38 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         if (isDead) return;
 
         IDamageable target = playerCol.GetComponent<IDamageable>();
+        if (target == null) target = playerCol.GetComponentInParent<IDamageable>();
+
         if (target != null)
         {
             target.TakeDamage(attackDamage);
-            StartCoroutine(GayHieuUngChay(playerCol));
+            StartCoroutine(GayHieuUngChay(playerCol, target)); // Truyền thêm target vào để Coroutine xài
         }
     }
 
-    IEnumerator GayHieuUngChay(Collider2D playerCol)
+    IEnumerator GayHieuUngChay(Collider2D playerCol, IDamageable target)
     {
-        Rigidbody2D playerRb = playerCol.GetComponent<Rigidbody2D>();
-        IDamageable target = playerCol.GetComponent<IDamageable>();
+        // Chú ý: Vì playerCol bây giờ là Hurtbox (nằm ở cục con), nên phải GetComponentInParent để lấy Rigidbody2D (nằm ở cục cha)
+        Rigidbody2D playerRb = playerCol.GetComponentInParent<Rigidbody2D>();
 
         for (int i = 0; i < burnTicks; i++)
         {
             float thoiGianDaCho = 0f;
             while (thoiGianDaCho < timeBetweenTicks)
             {
-                // Giữ nguyên logic dập lửa khi lướt (dash)
                 if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break;
                 thoiGianDaCho += Time.deltaTime;
                 yield return null;
             }
 
-            // Gây sát thương thiêu đốt thông qua IDamageable
             if (target != null) target.TakeDamage(burnDamagePerTick);
             else yield break;
 
             _dmgEffectTimer -= Time.fixedDeltaTime;
             if (_dmgEffectTimer <= 0f)
             {
-                SoundManager.Instance.PlaySound3D("Enemy", "DmgEffectGeneral", transform.position);
-                _dmgEffectTimer = 0.2f; 
+                // SoundManager.Instance.PlaySound3D("Enemy", "DmgEffectGeneral", transform.position);
+                _dmgEffectTimer = 0.2f;
             }
         }
     }
@@ -357,10 +380,16 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
             Gizmos.DrawWireSphere(finalAttackPos, attackRadius);
         }
+
+        // VẼ VÒNG TRÒN CHECK GROUND MÀU VÀNG
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
     }
 }
 
-// KHÔNG XÓA CLASS NÀY - Bắt buộc phải có để nhận Animation Event từ Object con
 public class HitboxEventForwarder : MonoBehaviour
 {
     public void EnableHitbox()
