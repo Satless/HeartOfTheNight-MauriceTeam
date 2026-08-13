@@ -119,6 +119,7 @@ namespace HeartOfTheNight.Player
 	// Nhảy tường
 	[Tooltip("Thời điểm bắt đầu Wall Jump (dùng để tính thời gian khóa bẻ lái ngang)")]
 	[SerializeField, ReadOnly] private float _wallJumpStartTime;
+	public float WallJumpStartTime => _wallJumpStartTime;
 	[Tooltip("Hướng bật tường (-1 hoặc 1)")]
 	[SerializeField, ReadOnly] private int _lastWallJumpDir;
 
@@ -653,12 +654,9 @@ namespace HeartOfTheNight.Player
 
 		SoundManager.Instance.PlaySound3D("Player", "Jump", transform.position);
 
-		// Bù vận tốc âm trước khi apply lực — đảm bảo luôn nhảy đúng độ cao
-		float force = Data.jumpForce;
-		if (RB.linearVelocity.y < 0)
-			force -= RB.linearVelocity.y;
-
-		RB.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+		// Reset đà rơi về 0 → nhảy luôn đạt đúng jumpHeight dù đang rơi nhanh cỡ nào
+		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
+		RB.AddForce(Vector2.up * Data.jumpForce, ForceMode2D.Impulse);
 	}
 
 	private void WallJump(int dir)
@@ -673,11 +671,18 @@ namespace HeartOfTheNight.Player
         Vector2 force = new Vector2(Data.wallJumpForce.x, Data.wallJumpForce.y);
 		force.x *= dir; //Lực ngược chiều tường
 
-		// Bù vận tốc ngang và dọc để đảm bảo wall jump đạt đúng độ lớn
+		// Giữ nguyên bù vận tốc ngang (chaining tech)
 		if (Mathf.Sign(RB.linearVelocity.x) != Mathf.Sign(force.x))
 			force.x -= RB.linearVelocity.x;
-		if (RB.linearVelocity.y < 0)
-			force.y -= RB.linearVelocity.y;
+
+		// Giới hạn trần vận tốc ngang sau wall jump.
+		// Ngăn doConserveMomentum "đóng băng" tốc độ cao mãi khi player nhấn cùng hướng bật tường.
+		float targetVelX = RB.linearVelocity.x + force.x;
+		targetVelX = Mathf.Clamp(targetVelX, -Data.wallJumpMaxSpeedX, Data.wallJumpMaxSpeedX);
+		force.x = targetVelX - RB.linearVelocity.x;
+
+		// Reset đà rơi dọc về 0 để tránh "bắn đại bác"
+		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
 
 		RB.AddForce(force, ForceMode2D.Impulse);
 

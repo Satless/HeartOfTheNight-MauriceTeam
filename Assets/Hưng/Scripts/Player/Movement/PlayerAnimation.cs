@@ -38,7 +38,6 @@ namespace HeartOfTheNight.Player
     [SerializeField, ReadOnly] private float _lastShootInputTime = -999f;
     [Tooltip("Cờ báo hiệu đang cầm súng (ngăn các hoạt ảnh không tay)")]
     [SerializeField, ReadOnly] private bool _isHoldingGun;
-    
     // Cờ đặc biệt: Vừa chuyển súng thì bắt buộc show súng một lúc
     private float _lastWeaponSwitchTime = -999f;
 
@@ -180,6 +179,20 @@ namespace HeartOfTheNight.Player
                 em.enabled = onLeftWall && isSlidingDown;
             }
         }
+        else if (state == PlayerMovement.PlayerState.WallJumping)
+        {
+            // Trong 0.15s đầu tiên của cú nhảy tường: giữ dáng đạp tường (Duoi-TruotTuong).
+            // Mẹo ở LateUpdate sẽ lật mặt nhân vật úp vào tường để tạo cảm giác dùng chân đạp ra.
+            // Sau 0.15s: chuyển sang dáng bay (Nhay).
+            if (Time.time - _movement.WallJumpStartTime < 0.15f)
+                PlayAnim("Duoi-TruotTuong");
+            else
+                PlayAnim("Nhay");
+                
+            // Chắc chắn tắt VFX vì đang rời tường
+            if (_rightWallVfx != null) { var em = _rightWallVfx.emission; em.enabled = false; }
+            if (_leftWallVfx != null)  { var em = _leftWallVfx.emission;  em.enabled = false; }
+        }
         else if (!isDoingFullBodyAction)
         {
             // Đang trên không (vì đã lọt qua Grounded và Dashing/Sliding)
@@ -190,11 +203,8 @@ namespace HeartOfTheNight.Player
             }
             else
             {
-                // Vừa nhả chuột giữa không trung -> Trả lại animation gốc!
-                if (state == PlayerMovement.PlayerState.WallJumping)
-                    PlayAnim("Duoi-TruotTuong");
-                else 
-                    PlayAnim("Nhay");
+                // Đang bay lơ lửng (Falling, Jumping...) — WallJumping không rơi vào đây (isDoingFullBodyAction)
+                PlayAnim("Nhay");
             }
 
             // Tắt hết khói bụi liên tục khi đang bay lơ lửng
@@ -253,7 +263,7 @@ namespace HeartOfTheNight.Player
             float moveSign = _movement.IsFacingRight ? 1f : -1f;
 
             // MẸO VISUAL: Khi vừa búng tường, vật lý đã quay mặt ra ngoài,
-            // nhưng ta muốn giữ dáng "đạp tường" hướng vào trong tường.
+            // nhưng ta muốn giữ dáng "đạp tường" hướng vào trong tường (0.15s đầu tiên).
             if (_movement.CurrentState == PlayerMovement.PlayerState.WallJumping && _currentAnim == "Duoi-TruotTuong")
             {
                 moveSign *= -1f;
@@ -393,7 +403,11 @@ namespace HeartOfTheNight.Player
                 break;
                 
             case PlayerMovement.PlayerState.WallJumping:
+                // Khởi đầu cú nhảy tường luôn là dáng bám tường (đạp ván)
                 PlayAnim("Duoi-TruotTuong");
+                // Tắt VFX khói tường ngay khi bật
+                if (_rightWallVfx != null) { var em = _rightWallVfx.emission; em.enabled = false; }
+                if (_leftWallVfx != null)  { var em = _leftWallVfx.emission;  em.enabled = false; }
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:

@@ -521,10 +521,10 @@ public class PlayerAttack : MonoBehaviour
 
 
         //sfx for weapons
-        if (!string.IsNullOrEmpty(Data.fireSoundName))
-        {
-                SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
-        }
+        // if (!string.IsNullOrEmpty(Data.fireSoundName))
+        // {
+        //         SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
+        // }
 
 
             // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
