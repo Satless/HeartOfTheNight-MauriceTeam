@@ -14,7 +14,6 @@ namespace HeartOfTheNight.Hung
     {
         public int playerHealth;
         public int playerCoin;
-        public int playerScore;
         public string currentScene;
         public string targetSpawnID; 
         public Vector3 playerPosition; // Thêm vị trí Player
