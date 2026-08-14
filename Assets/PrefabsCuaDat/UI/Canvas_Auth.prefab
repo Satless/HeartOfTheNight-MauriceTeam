@@ -1327,6 +1327,7 @@ GameObject:
   - component: {fileID: 1141707677068025922}
   - component: {fileID: 1538973822739404808}
   - component: {fileID: 8781983523788278773}
+  - component: {fileID: 8110000000000000001}
   m_Layer: 0
   m_Name: Bg
   m_TagString: Untagged
@@ -1391,6 +1392,62 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8110000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3282294348316453504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 0
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 0
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 8781983523788278773}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8204378438242124399}
+        m_TargetAssemblyTypeName: HeartOfTheNight.UI.AuthLoginUI, Assembly-CSharp
+        m_MethodName: ShowLogin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &3375864811758614309
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,6 +1597,7 @@ GameObject:
   - component: {fileID: 1240264061164898343}
   - component: {fileID: 7927235989453041427}
   - component: {fileID: 8211146447704756185}
+  - component: {fileID: 8110000000000000002}
   m_Layer: 0
   m_Name: Bg_RedSmearL
   m_TagString: Untagged
@@ -1588,7 +1646,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.55, g: 0.08, b: 0.08, a: 0.85}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1604,6 +1662,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8110000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3417414540455138326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 081e8f4a740e7e3449f40c070987d3da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  intensity: 1
+  interval: 0.1
 --- !u!1 &3954659604060995663
 GameObject:
   m_ObjectHideFlags: 0
@@ -2117,6 +2189,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   loginRoot: {fileID: 469777745900151049}
+  loginPanel: {fileID: 7721513168567710000}
+  loginTitle: {fileID: 5096006824281408738}
   guestConfirmPopup: {fileID: 1851995817419204433}
   networkPopup: {fileID: 137701913091518361}
   nextSceneName: mainMenu
@@ -2484,7 +2558,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5494408430278837747
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3023,6 +3097,9 @@ GameObject:
   - component: {fileID: 4728436403202997683}
   - component: {fileID: 493787313827312112}
   - component: {fileID: 3229869680255692880}
+  - component: {fileID: 8110000000000000004}
+  - component: {fileID: 8110000000000000005}
+  - component: {fileID: 8110000000000000006}
   m_Layer: 0
   m_Name: Txt_Brand
   m_TagString: Untagged
@@ -3149,6 +3226,48 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &8110000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5781976896658848754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d894421b7c45e5044bf0a03a2b54d560, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  amplitude: 20
+  speed: 1
+--- !u!225 &8110000000000000005
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5781976896658848754}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
+--- !u!114 &8110000000000000006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5781976896658848754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9808c83bf5da0f243b4ff6b63262e1b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasGroup: {fileID: 8110000000000000005}
+  speed: 3
+  minAlpha: 0.3
+  maxAlpha: 1
 --- !u!1 &5891315136792142624
 GameObject:
   m_ObjectHideFlags: 0
@@ -4202,7 +4321,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1187216376172128254
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4618,6 +4737,7 @@ GameObject:
   - component: {fileID: 1726095503677709911}
   - component: {fileID: 974307989167250539}
   - component: {fileID: 682032229393735341}
+  - component: {fileID: 8110000000000000003}
   m_Layer: 0
   m_Name: Bg_RedSmearR
   m_TagString: Untagged
@@ -4666,7 +4786,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.55, g: 0.08, b: 0.08, a: 0.85}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4682,6 +4802,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8110000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8776036862687520218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 081e8f4a740e7e3449f40c070987d3da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  intensity: 1
+  interval: 0.1
 --- !u!1 &8887773565026199768
 GameObject:
   m_ObjectHideFlags: 0

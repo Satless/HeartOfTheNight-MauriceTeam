@@ -1,33 +1,56 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace HeartOfTheNight.UI
 {
     /// <summary>
-    /// Điều khiển màn Auth (Login Google / Guest + popup confirm / network).
-    /// Auth Firebase thật gắn sau — hiện chỉ UI + chuyển mainMenu.
+    /// Màn Auth: splash (background + logo) → bấm bất kỳ hiện bảng login.
+    /// Giống flow MainMenu của Thuận (click Background → OpenMenu).
     /// </summary>
     public class AuthLoginUI : MonoBehaviour
     {
         [Header("Screens")]
         [SerializeField] private GameObject loginRoot;
+        [Tooltip("Bảng login (Window_Login). Để trống thì dùng loginRoot.")]
+        [SerializeField] private GameObject loginPanel;
+        [Tooltip("Chữ ACCOUNT phía trên bảng — ẩn lúc splash.")]
+        [SerializeField] private GameObject loginTitle;
         [SerializeField] private GameObject guestConfirmPopup;
         [SerializeField] private GameObject networkPopup;
 
         [Header("Flow")]
         [Tooltip("Scene sau khi đăng nhập / chơi khách thành công")]
-        [SerializeField] private string nextSceneName = "MenuDat";
+        [SerializeField] private string nextSceneName = "mainMenu";
+
+        private bool waitingForClick = true;
 
         private void Start()
         {
-            ShowLogin();
+            SetActiveSafe(loginRoot, true);
+            SetActiveSafe(guestConfirmPopup, false);
+            SetActiveSafe(networkPopup, false);
+            SetActiveSafe(LoginWindow, false);
+            SetActiveSafe(loginTitle, false);
+            waitingForClick = true;
         }
+
+        private void Update()
+        {
+            if (!waitingForClick)
+                return;
+
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.anyKeyDown)
+                ShowLogin();
+        }
+
+        private GameObject LoginWindow => loginPanel != null ? loginPanel : loginRoot;
 
         public void ShowLogin()
         {
+            waitingForClick = false;
             SetActiveSafe(loginRoot, true);
+            SetActiveSafe(LoginWindow, true);
+            SetActiveSafe(loginTitle, true);
             SetActiveSafe(guestConfirmPopup, false);
             SetActiveSafe(networkPopup, false);
         }
@@ -41,7 +64,8 @@ namespace HeartOfTheNight.UI
                 return;
             }
 
-            Debug.Log("[AuthLoginUI] Google sign-in (placeholder) → next scene");
+            Debug.Log("[AuthLoginUI] Google sign-in (placeholder) → mainMenu");
+            AuthSession.SignInWithGoogle();
             GoNext();
         }
 
@@ -52,15 +76,14 @@ namespace HeartOfTheNight.UI
 
         public void OnGuestContinue()
         {
-            Debug.Log("[AuthLoginUI] Play as guest → next scene");
-            // TODO: giữ / kích hoạt anonymous Firebase (DataManager hiện đã anonymous)
+            Debug.Log("[AuthLoginUI] Play as guest → mainMenu");
+            AuthSession.SignInAsGuest();
             GoNext();
         }
 
         public void OnGuestSignInInstead()
         {
             SetActiveSafe(guestConfirmPopup, false);
-            // Quay lại login — user bấm Google
         }
 
         public void ShowNetworkPopup()

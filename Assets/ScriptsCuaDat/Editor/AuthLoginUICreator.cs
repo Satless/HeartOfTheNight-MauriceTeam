@@ -73,7 +73,7 @@ public static class AuthLoginUICreator
         so.FindProperty("loginRoot").objectReferenceValue = loginRoot.gameObject;
         so.FindProperty("guestConfirmPopup").objectReferenceValue = guestPopup;
         so.FindProperty("networkPopup").objectReferenceValue = networkPopup;
-        so.FindProperty("nextSceneName").stringValue = "MenuDat";
+        so.FindProperty("nextSceneName").stringValue = "mainMenu";
         so.ApplyModifiedPropertiesWithoutUndo();
 
         Selection.activeGameObject = canvasGo;
