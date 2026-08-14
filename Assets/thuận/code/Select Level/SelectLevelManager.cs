@@ -1,10 +1,13 @@
-﻿using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SelectLevelManager : MonoBehaviour
 {
-    [Header("Buttons")]
+    [Header("UI mới — Chapter 1 missions")]
+    [SerializeField] private Transform chapter1MissionsRoot;
+
+    [Header("Nút cũ (panel ẩn, giữ để không mất reference scene)")]
     public Button level1Button;
     public Button level2Button;
     public Button level3Button;
@@ -20,9 +23,36 @@ public class SelectLevelManager : MonoBehaviour
 
     private void Start()
     {
-        EnsureFifthButton();
-        RelayoutChapter1Buttons();
+        BindChapter1Missions();
         RefreshUnlocks();
+    }
+
+    private void BindChapter1Missions()
+    {
+        var root = chapter1MissionsRoot != null
+            ? chapter1MissionsRoot
+            : FindChapter1MissionsRoot();
+
+        if (root == null)
+        {
+            Debug.LogWarning("[SelectLevel] Không thấy Chapter 1 missions trên Select Level (1).");
+            return;
+        }
+
+        var hovers = root.GetComponentsInChildren<MissionHover>(true);
+        var scenes = ChapterProgress.Chapter1Scenes;
+        var count = Mathf.Min(hovers.Length, scenes.Length);
+        for (var i = 0; i < count; i++)
+            hovers[i].Configure(scenes[i]);
+    }
+
+    private static Transform FindChapter1MissionsRoot()
+    {
+        var select = GameObject.Find("Select Level (1)");
+        if (select == null)
+            return null;
+
+        return select.transform.Find("MenuLevel/Chapter/Chapter 1");
     }
 
     private void RefreshUnlocks()
@@ -32,6 +62,10 @@ public class SelectLevelManager : MonoBehaviour
         ApplyUnlock(level3Button, level3Scene);
         ApplyUnlock(level4Button, level4Scene);
         ApplyUnlock(level5Button, level5Scene);
+
+        var hovers = FindObjectsByType<MissionHover>(FindObjectsSortMode.None);
+        for (var i = 0; i < hovers.Length; i++)
+            hovers[i].RefreshLock();
     }
 
     private static void ApplyUnlock(Button button, string sceneName)
@@ -50,7 +84,7 @@ public class SelectLevelManager : MonoBehaviour
 
     public void Back()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("mainMenu");
+        SceneManager.LoadScene("mainMenu");
     }
 
     private static void Load(string sceneName)
@@ -61,70 +95,6 @@ public class SelectLevelManager : MonoBehaviour
             return;
         }
 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);
-    }
-
-    private void EnsureFifthButton()
-    {
-        if (level5Button != null || level4Button == null)
-            return;
-
-        var parent = level4Button.transform.parent;
-        var existing = parent.Find("Level 1-5");
-        if (existing != null)
-        {
-            level5Button = existing.GetComponent<Button>();
-            SetButtonLabel(level5Button, "LEVEL 1-5");
-            WireLoadLevel5(level5Button);
-            return;
-        }
-
-        var clone = Instantiate(level4Button.gameObject, parent);
-        clone.name = "Level 1-5";
-        clone.transform.SetSiblingIndex(level4Button.transform.GetSiblingIndex() + 1);
-
-        level5Button = clone.GetComponent<Button>();
-        SetButtonLabel(level5Button, "LEVEL 1-5");
-        WireLoadLevel5(level5Button);
-    }
-
-    private void WireLoadLevel5(Button button)
-    {
-        if (button == null)
-            return;
-
-        button.onClick = new Button.ButtonClickedEvent();
-        button.onClick.AddListener(LoadLevel5);
-    }
-
-    private void RelayoutChapter1Buttons()
-    {
-        var buttons = new[] { level1Button, level2Button, level3Button, level4Button, level5Button };
-        var labels = new[] { "LEVEL 1-1", "LEVEL 1-2", "LEVEL 1-3", "LEVEL 1-4", "LEVEL 1-5" };
-
-        const float startY = 210f;
-        const float spacing = 118f;
-        const float height = 88f;
-
-        for (var i = 0; i < buttons.Length; i++)
-        {
-            if (buttons[i] == null)
-                continue;
-
-            var rt = buttons[i].GetComponent<RectTransform>();
-            rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, startY - i * spacing);
-            rt.sizeDelta = new Vector2(rt.sizeDelta.x, height);
-            SetButtonLabel(buttons[i], labels[i]);
-        }
-    }
-
-    private static void SetButtonLabel(Button button, string text)
-    {
-        if (button == null)
-            return;
-
-        var tmp = button.GetComponentInChildren<TextMeshProUGUI>(true);
-        if (tmp != null)
-            tmp.text = text;
+        SceneManager.LoadScene(sceneName);
     }
 }
