@@ -12,6 +12,7 @@ public class CodexUI : MonoBehaviour
     public GameObject ControlsPanel;
     
     public TMP_Text contentText;
+    public GameObject AccountPanel;
 
 
     private void Start()
@@ -44,6 +45,13 @@ public class CodexUI : MonoBehaviour
         SettingPanel.SetActive(true);
         menuPanel.SetActive(false);
 
+    }
+
+    public void OpenAccount()
+    {
+        if (AccountPanel != null)
+            AccountPanel.SetActive(true);
+        menuPanel.SetActive(false);
     }
     /*public void OpenControls()
     {
@@ -84,6 +92,13 @@ public class CodexUI : MonoBehaviour
     public void CloseSetting()
     {
         SettingPanel.SetActive(false);
+        menuPanel.SetActive(true);
+    }
+
+    public void CloseAccount()
+    {
+        if (AccountPanel != null)
+            AccountPanel.SetActive(false);
         menuPanel.SetActive(true);
     }
    /* public void CloseControls()

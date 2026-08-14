@@ -7,21 +7,36 @@ public class HorrorMenuButton : MonoBehaviour, IPointerEnterHandler, IPointerExi
     public TMP_Text text;
 
     private Vector3 originalScale;
+    private Color originalColor = Color.white;
 
-    private void Start()
+    private void Awake()
     {
         originalScale = transform.localScale;
+        if (text != null)
+            originalColor = text.color;
+    }
+
+    private void OnDisable()
+    {
+        ResetVisual();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        text.color = Color.red;
+        if (text != null)
+            text.color = Color.red;
         transform.localScale = originalScale * 1.15f;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        text.color = Color.white;
+        ResetVisual();
+    }
+
+    private void ResetVisual()
+    {
+        if (text != null)
+            text.color = originalColor;
         transform.localScale = originalScale;
     }
 }
