@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN CHỨA BỘ LUẬT
+using HeartOfTheNight.Common; // THÊM THƯ VIỆN CHỨA BỘ LUẬT
 
 public class DoomSkill : MonoBehaviour
 {
@@ -20,21 +20,26 @@ public class DoomSkill : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // 1. NẾU BẮN TRÚNG PLAYER
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            // 2. TÌM IDamageable THAY VÌ PlayerHealth
+            // LỌC: Bỏ qua va chạm cứng, chỉ xét Hurtbox mềm (isTrigger = true)
+            if (!collision.isTrigger) return;
+
+            // TÌM IDamageable TỪ HURTBOX HOẶC TỪ OBJECT CHA
             IDamageable target = collision.GetComponent<IDamageable>();
+            if (target == null) target = collision.GetComponentInParent<IDamageable>();
+
             if (target != null)
             {
                 target.TakeDamage(damage);
-                Debug.Log("Đạn DoomBringer trúng Player qua IDamageable! Trừ " + damage + " máu.");
+                Debug.Log("Đạn DoomBringer trúng HURTBOX Player qua IDamageable! Trừ " + damage + " máu.");
             }
 
             // Trúng người là nổ/biến mất luôn
             TuHuy();
         }
-        // 2. NẾU RỚT XUỐNG ĐẤT / ĐẬP VÀO TƯỜNG (Dành cho Bom)
-        else if (collision.CompareTag("Ground"))
+        // 2. NẾU RỚT XUỐNG ĐẤT / ĐẬP VÀO TƯỜNG (Check bằng Layer Ground)
+        else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             TuHuy();
         }

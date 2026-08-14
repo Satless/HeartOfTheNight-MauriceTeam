@@ -83,6 +83,14 @@ public class RoomTransition : MonoBehaviour
         {
             if (string.IsNullOrEmpty(nextSceneName))
             {
+                var current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                var idx = ChapterProgress.IndexOf(current);
+                if (idx >= 0 && idx < ChapterProgress.Chapter1Scenes.Length - 1)
+                    nextSceneName = ChapterProgress.Chapter1Scenes[idx + 1];
+            }
+
+            if (string.IsNullOrEmpty(nextSceneName))
+            {
                 Debug.LogError("Chưa nhập tên Scene tiếp theo!", this);
                 yield return ScreenFader.Instance.FadeIn(fadeDuration);
                 if (pRb != null) pRb.simulated = true;
@@ -96,13 +104,15 @@ public class RoomTransition : MonoBehaviour
             // Static pending không bị Firebase LoadGame ghi đè targetSpawnID trên RAM.
             LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
 
+            ChapterProgress.UnlockIfChapterScene(nextSceneName);
+
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
             {
                 if (nextLevelIndex > HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel)
                     HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
 
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
-                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
             }
 
             // Continuation on ScreenFader — dùng timing prefab nếu muốn: truyền -1f.

@@ -88,6 +88,10 @@ public class RoomDoor : MonoBehaviour
         if (!PlayerKeyInventory.Has(requiredKey))
         {
             Debug.Log($"[{name}] Can chia {requiredKey} de mo cua.", this);
+
+            // TODO: bật lại khi scene có SoundManager
+            // SoundManager.Instance.PlaySound3D("Others", "DoorKeyRequired", transform.position);
+
             return false;
         }
 
@@ -112,6 +116,9 @@ public class RoomDoor : MonoBehaviour
 
         if (isOpen) return;
         isOpen = true;
+
+        // TODO: bật lại khi scene có SoundManager
+        // SoundManager.Instance.PlaySound3D("Others", "DoorOpen", transform.position);
 
         if (openSequenceRoutine != null)
         {
@@ -181,5 +188,8 @@ public class RoomDoor : MonoBehaviour
 
         isOpen = false;
         SetPassageOpen(false);
+
+        // TODO: bật lại khi scene có SoundManager
+        // SoundManager.Instance.PlaySound3D("Others", "DoorClosed", transform.position);
     }
 }
