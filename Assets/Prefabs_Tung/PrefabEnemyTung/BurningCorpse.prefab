@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &289437337993314575
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1069917305108128500}
+  m_Layer: 10
+  m_Name: CheckMepBurn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1069917305108128500
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 289437337993314575}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.588, y: 0.542, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7884483578826963148}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1763551910709341642
 GameObject:
   m_ObjectHideFlags: 0
@@ -26,6 +57,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.13, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7884483578826963148}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2008648996225811043
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1456197583277624646}
+  m_Layer: 10
+  m_Name: CheckWallBurn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1456197583277624646
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2008648996225811043}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.588, y: 1.122, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -145,6 +207,8 @@ Transform:
   m_Children:
   - {fileID: 551799552014456267}
   - {fileID: 7518122489274988907}
+  - {fileID: 1069917305108128500}
+  - {fileID: 1456197583277624646}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &307409281958034442
@@ -293,10 +357,13 @@ MonoBehaviour:
   anim: {fileID: 1545656820512012261}
   attackHitbox: {fileID: 2668810523740595134}
   attackOffset: {x: 0, y: 1}
-  detectionRangeX: 12
-  detectionRangeY: 3
   moveSpeed: 4
+  patrolSpeed: 2
+  patrolDistance: 5
+  detectionRangeX: 6
+  detectionRangeY: 3
   attackRange: 2
+  attackRangeY: 1.5
   attackRadius: 1.2
   groundCheck: {fileID: 7518122489274988907}
   groundCheckRadius: 0.2
@@ -304,10 +371,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   isGrounded: 0
-  platformHeightDiff: 0.8
-  teleportDelay: 1
-  postTeleportDelay: 0.5
-  timeToDetectStuck: 0.5
+  edgeCheck: {fileID: 1069917305108128500}
+  wallCheck: {fileID: 1456197583277624646}
+  edgeCheckDistance: 3
+  wallCheckDistance: 0.5
   attackDamage: 10
   attackCooldown: 2
   burnDamagePerTick: 2

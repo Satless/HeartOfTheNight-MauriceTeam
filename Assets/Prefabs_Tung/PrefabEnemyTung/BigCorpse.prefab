@@ -1,5 +1,67 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &414277998448119279
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3823528332310706900}
+  m_Layer: 10
+  m_Name: CheckWallBig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3823528332310706900
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 414277998448119279}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.78, y: 1.53, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6133021915995128367}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1038229771059565492
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2441634690281828419}
+  m_Layer: 10
+  m_Name: CheckMepBig
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2441634690281828419
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1038229771059565492}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.78, y: 0.84, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6133021915995128367}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5974252196976683058
 GameObject:
   m_ObjectHideFlags: 0
@@ -114,6 +176,8 @@ Transform:
   m_Children:
   - {fileID: 2965302119143702492}
   - {fileID: 4216033094691158943}
+  - {fileID: 2441634690281828419}
+  - {fileID: 3823528332310706900}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8113873224156500538
@@ -256,17 +320,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 484765bd3e9ad824f8c228e756945723, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deathYOffset: 2
   maxHealth: 100
   currentHealth: 0
   isDead: 0
+  deathYOffset: 2
   anim: {fileID: 539931980909869456}
   attackHitbox: {fileID: 5974252196976683058}
   attackOffset: {x: 0, y: 1.61}
-  detectionRangeX: 10
-  detectionRangeY: 3
   moveSpeed: 3
+  patrolSpeed: 1.5
+  patrolDistance: 5
+  detectionRangeX: 6
+  detectionRangeY: 3
   attackRange: 1
+  attackRangeY: 1.5
   attackRadius: 1.5
   groundCheck: {fileID: 4216033094691158943}
   groundCheckRadius: 0.2
@@ -274,10 +341,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   isGrounded: 0
-  platformHeightDiff: 0.8
-  teleportDelay: 1
-  postTeleportDelay: 0.5
-  timeToDetectStuck: 0.5
+  edgeCheck: {fileID: 2441634690281828419}
+  wallCheck: {fileID: 3823528332310706900}
+  edgeCheckDistance: 3
+  wallCheckDistance: 0.5
   attackDamage: 15
   attackCooldown: 2.5
 --- !u!95 &539931980909869456
