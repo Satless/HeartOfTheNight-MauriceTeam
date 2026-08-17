@@ -5,25 +5,29 @@ using UnityEngine.UI;
 namespace HeartOfTheNight.UI
 {
     /// <summary>
-    /// Điều khiển HUD chìa trên Canvas có sẵn trong Editor.
-    /// Gán Image + Text trong Inspector — không tự tạo UI lúc Play.
-    /// Layout khuyến nghị: [BlueIcon][BlueCount]  [RedIcon][RedCount] góc phải.
+    /// HUD chìa: 2 skull trên nền.
+    /// Hết chìa = SkullHubSkullInLine (xám). Có chìa = SkullKey (xanh/đỏ đúng art).
     /// </summary>
     public class KeyHUD : MonoBehaviour
     {
         public static KeyHUD Instance { get; private set; }
 
-        [Header("Blue Key")]
+        [Header("Blue Key (skull trái)")]
         [SerializeField] private Image blueKeyImage;
         [SerializeField] private Text blueCountText;
+        [SerializeField] private Sprite emptyBlueSprite;
+        [SerializeField] private Sprite ownedBlueSprite;
 
-        [Header("Red Key")]
+        [Header("Red Key (skull phải)")]
         [SerializeField] private Image redKeyImage;
         [SerializeField] private Text redCountText;
+        [SerializeField] private Sprite emptyRedSprite;
+        [SerializeField] private Sprite ownedRedSprite;
 
         [Header("Look")]
-        [SerializeField] private Color ownedColor = Color.white;
-        [SerializeField] private Color emptyColor = new Color(0.45f, 0.45f, 0.45f, 0.9f);
+        [SerializeField] private Color emptyLabelColor = Color.white;
+        [SerializeField] private Color blueLabelColor = new Color(0.45f, 0.82f, 1f, 1f);
+        [SerializeField] private Color redLabelColor = new Color(1f, 0.45f, 0.28f, 1f);
 
         private void Awake()
         {
@@ -35,11 +39,10 @@ namespace HeartOfTheNight.UI
 
             Instance = this;
 
-            if (blueKeyImage == null || redKeyImage == null || blueCountText == null || redCountText == null)
+            if (blueKeyImage == null || redKeyImage == null)
             {
                 Debug.LogWarning(
-                    "[KeyHUD] Chua gan du Image/Text trong Inspector. " +
-                    "Mo prefab KeyHUD va keo BlueKeyIcon, BlueCount, RedKeyIcon, RedCount vao.",
+                    "[KeyHUD] Chua gan BlueKeyIcon / RedKeyIcon trong Inspector.",
                     this);
             }
         }
@@ -58,7 +61,6 @@ namespace HeartOfTheNight.UI
         private void Start()
         {
             Refresh();
-            // Save Firebase load async
             Invoke(nameof(Refresh), 0.5f);
             Invoke(nameof(Refresh), 1.5f);
             Invoke(nameof(Refresh), 3f);
@@ -72,24 +74,49 @@ namespace HeartOfTheNight.UI
 
         public void Refresh()
         {
-            ApplySlot(blueKeyImage, blueCountText, PlayerKeyInventory.GetCount(KeyType.Blue));
-            ApplySlot(redKeyImage, redCountText, PlayerKeyInventory.GetCount(KeyType.Red));
+            ApplySlot(
+                blueKeyImage,
+                blueCountText,
+                PlayerKeyInventory.GetCount(KeyType.Blue),
+                emptyBlueSprite,
+                ownedBlueSprite,
+                blueLabelColor);
+
+            ApplySlot(
+                redKeyImage,
+                redCountText,
+                PlayerKeyInventory.GetCount(KeyType.Red),
+                emptyRedSprite,
+                ownedRedSprite,
+                redLabelColor);
         }
 
-        private void ApplySlot(Image image, Text label, int count)
+        private void ApplySlot(
+            Image image,
+            Text label,
+            int count,
+            Sprite emptySprite,
+            Sprite ownedSprite,
+            Color ownedLabelColor)
         {
-            Color color = count > 0 ? ownedColor : emptyColor;
+            bool owned = count > 0;
 
             if (image != null)
             {
                 image.enabled = true;
-                image.color = color;
+                image.color = Color.white;
+                Sprite sprite = owned ? ownedSprite : emptySprite;
+                if (sprite != null)
+                    image.sprite = sprite;
             }
 
             if (label != null)
             {
+                label.gameObject.SetActive(true);
+                label.enabled = true;
+                label.transform.SetAsLastSibling();
                 label.text = count.ToString();
-                label.color = color;
+                label.color = owned ? ownedLabelColor : emptyLabelColor;
             }
         }
     }

@@ -18,12 +18,16 @@ public class WeaponSlot
     [Tooltip("Mức % cần nguội để được bắn lại")]
     [Range(0f, 0.9f)]
     public float unlockThreshold;
+    [Tooltip("Thời gian đóng băng (giây) khi thanh nhiệt đầy. Thanh nhiệt sẽ KHÔNG tản nhiệt trong khoảng này.")]
+    public float overheatFreezeDuration;
 
     // Runtime variables (Debug Tracking)
     [Tooltip("Nhiệt lượng hiện tại của súng. Súng sẽ ngừng bắn nếu chạm mức maxHeat.")]
     [ReadOnly] public float currentHeat;
     [Tooltip("Cờ đánh dấu súng đang bị quá nhiệt. Phải chờ nguội dưới mức unlockThreshold mới được bắn tiếp.")]
     [ReadOnly] public bool isOverheated;
+    
+    [HideInInspector] public float overheatFreezeEndTime; // Lưu thời điểm kết thúc đóng băng tản nhiệt
 
     [Header("Designer Info (Auto-Calculated)")]
     [Tooltip("Băng đạn ảo (Số viên / thời gian) xả liên tục trước khi quá nhiệt của Biến thể 1")]
@@ -493,9 +497,17 @@ public class PlayerAttack : MonoBehaviour
 
     private void TryFire()
     {
-        _lastFireTime = Time.time;
-
         if (Data == null) return;
+
+        // ═══ CHẶN KÉP: Phòng trường hợp isOverheated bật giữa lúc HandleFire() và TryFire() ═══
+        // Vì Animation Event bắn đạn (ExecuteShot) chạy BẤT ĐỒNG BỘ (sau khi Animator xử lý),
+        // nên có thể xảy ra: HandleFire() thấy chưa quá nhiệt → gọi TryFire() → SetTrigger("Fire").
+        // Nhưng cùng frame đó, Animator xử lý trigger CŨ và ExecuteShot gây quá nhiệt.
+        // Trigger MỚI vừa set sẽ bị queue lại → bắn thêm 1 phát oan.
+        // Guard này triệt tiêu hoàn toàn kịch bản đó.
+        if (IsOverheated) return;
+
+        _lastFireTime = Time.time;
 
         if (_weaponAnimator == null || _weaponAnimator.runtimeAnimatorController == null)
         {
@@ -519,12 +531,15 @@ public class PlayerAttack : MonoBehaviour
         // Bỏ qua nếu chưa trang bị súng
         if (Data == null) return;
 
+        // Bỏ qua nếu súng đã quá nhiệt (tránh lỗi Animator đã queue sẵn lệnh Fire từ frame trước)
+        if (IsOverheated) return;
+
 
         //sfx for weapons
-        if (!string.IsNullOrEmpty(Data.fireSoundName))
-        {
-                SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
-        }
+        // if (!string.IsNullOrEmpty(Data.fireSoundName))
+        // {
+        //         SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
+        // }
 
 
             // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
@@ -604,10 +619,23 @@ public class PlayerAttack : MonoBehaviour
         if (!slot.isOverheated && slot.currentHeat >= slot.maxHeat)
         {
             slot.isOverheated = true;
+            slot.overheatFreezeEndTime = Time.time + slot.overheatFreezeDuration;
             OnOverheatStateChanged?.Invoke(true);
-            Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
+            Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Đóng băng {slot.overheatFreezeDuration}s. Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
 
             SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
+
+            // ═══ ÉP ANIMATOR HỦY DÁNG BẮN TỨC THÌ ═══
+            // ResetTrigger xóa mọi trigger "Fire" đang chờ trong hàng đợi Animator.
+            // Play("Idle", 0, 0f) ép nhảy thẳng về frame đầu tiên của Idle, bỏ qua mọi Transition.
+            // Update(0) ép Animator xử lý ngay lập tức trong frame này (không chờ sang frame sau).
+            if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
+            {
+                _weaponAnimator.ResetTrigger("Fire");
+                _weaponAnimator.SetBool("Fire", false);
+                _weaponAnimator.Play("Idle", 0, 0f);
+                _weaponAnimator.Update(0f); // Ép xử lý tức thì, triệt tiêu hoàn toàn trigger còn sót
+            }
 
             // Yêu cầu bên Animation sinh khói tại nòng súng
             if (_animation != null)
@@ -627,6 +655,12 @@ public class PlayerAttack : MonoBehaviour
     private void UpdateSlotCooldown(WeaponSlot slot, bool isFiringThisFrame)
     {
         if (slot == null) return;
+
+        // Khóa tản nhiệt nếu đang trong thời gian đóng băng 0.2s
+        if (slot.isOverheated && Time.time < slot.overheatFreezeEndTime)
+        {
+            return;
+        }
 
         // Chỉ nguội khi frame này KHÔNG bắn súng này
         if (!isFiringThisFrame && slot.currentHeat > 0)
