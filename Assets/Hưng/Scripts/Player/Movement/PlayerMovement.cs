@@ -613,15 +613,15 @@ namespace HeartOfTheNight.Player
 		float movement = speedDif * accelRate; // Lực cần áp dụng = chênh lệch × tỷ lệ gia tốc
 		RB.AddForce(movement * Vector2.right, ForceMode2D.Force); // Áp dụng lực ngang lên Rigidbody
 
-        if (LastOnGroundTime > 0 && Mathf.Abs(RB.linearVelocity.x) > 0.5f)
-        {
-            _footstepTimer -= Time.deltaTime;
-            if (_footstepTimer <= 0f)
-            {
-                SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
-                _footstepTimer = 0.35f; 
-            }
-        }
+        //if (LastOnGroundTime > 0 && Mathf.Abs(RB.linearVelocity.x) > 0.5f)
+        //{
+        //    _footstepTimer -= Time.deltaTime;
+        //    if (_footstepTimer <= 0f)
+        //    {
+        //        SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+        //        _footstepTimer = 0.35f; 
+        //    }
+        //}
     }
 
 	private void Turn()
@@ -652,7 +652,7 @@ namespace HeartOfTheNight.Player
 		LastPressedJumpTime = 0;
 		LastOnGroundTime = 0;
 
-		SoundManager.Instance.PlaySound3D("Player", "Jump", transform.position);
+		//SoundManager.Instance.PlaySound3D("Player", "Jump", transform.position);
 
 		// Reset đà rơi về 0 → nhảy luôn đạt đúng jumpHeight dù đang rơi nhanh cỡ nào
 		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
