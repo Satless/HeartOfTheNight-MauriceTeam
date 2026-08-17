@@ -35,6 +35,7 @@ namespace HeartOfTheNight.Enemy
 
         private Rigidbody2D rb;
         private SpriteRenderer sprite;
+        private Collider2D playerCol;
         private State current = State.Chase;
         private float fireTimer;
         private float panicTimer;
@@ -55,6 +56,7 @@ namespace HeartOfTheNight.Enemy
                 var found = GameObject.FindGameObjectWithTag("Player");
                 if (found != null) player = found.transform;
             }
+            CachePlayerCollider();
 
             ValidateSetup();
             if (anim == null) anim = GetComponentInChildren<Animator>();
@@ -84,7 +86,7 @@ namespace HeartOfTheNight.Enemy
             if (isDead || player == null || stats == null) return;
 
             float dx = player.position.x - transform.position.x;
-            float distance = Mathf.Abs(dx);
+            float distance = Vector2.Distance(transform.position, player.position);
             facing = dx >= 0 ? 1 : -1;
             FaceTarget();
 
@@ -118,7 +120,7 @@ namespace HeartOfTheNight.Enemy
         {
             if (isDead || stats == null || player == null) return;
 
-            float distance = Mathf.Abs(player.position.x - transform.position.x);
+            float distance = Vector2.Distance(transform.position, player.position);
 
             switch (current)
             {
@@ -126,7 +128,8 @@ namespace HeartOfTheNight.Enemy
                     ApplyHorizontalMove(-facing, stats.retreatSpeed);
                     break;
                 case State.Chase:
-                    if (distance > stats.chaseStopDistance && distance <= stats.detectRange)
+                    // Trong tầm detect: đuổi ngang (mép platform sẽ chặn). Ngoài tầm: đứng.
+                    if (distance <= stats.detectRange)
                         ApplyHorizontalMove(facing, stats.chaseSpeed);
                     else
                         Decelerate();
@@ -143,15 +146,17 @@ namespace HeartOfTheNight.Enemy
         {
             State prev = current;
             float retreatExit = stats.panicDistance + stats.retreatHysteresis;
+            bool canShoot = HasClearShot();
 
             if (current == State.Retreat)
             {
                 if (distance > retreatExit)
-                    current = distance > stats.chaseStopDistance ? State.Chase : State.Aim;
+                    current = (distance > stats.chaseStopDistance || !canShoot) ? State.Chase : State.Aim;
                 return;
             }
 
-            if (distance < stats.panicDistance)
+            // Chỉ panic/lùi khi đạn bay tới được player (không lùi vì người ở tầng dưới).
+            if (distance < stats.panicDistance && canShoot)
             {
                 panicTimer += Time.deltaTime;
                 if (panicTimer >= stats.panicReactionDelay)
@@ -175,14 +180,20 @@ namespace HeartOfTheNight.Enemy
                 return;
             }
 
-            current = distance > stats.chaseStopDistance ? State.Chase : State.Aim;
+            current = (distance > stats.chaseStopDistance || !canShoot) ? State.Chase : State.Aim;
 
             if (debugLogs && prev != current)
-                Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2})", this);
+                Debug.Log($"[{name}] State: {prev} -> {current} (distance={distance:F2} los={canShoot})", this);
         }
 
         private void TickCombat()
         {
+            if (!HasClearShot())
+            {
+                if (anim != null) anim.ResetTrigger("Attack");
+                return;
+            }
+
             fireTimer -= Time.deltaTime;
             if (fireTimer <= 0f)
             {
@@ -295,11 +306,13 @@ namespace HeartOfTheNight.Enemy
         public void ExecuteFire()
         {
             if (bulletPrefab == null || firePoint == null || player == null) return;
+            if (!HasClearShot()) return;
 
-            Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
+            Vector2 dir = (GetAimPoint() - (Vector2)firePoint.position).normalized;
             var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
             bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
-                          stats.homingStopDistance, stats.bulletDamage, stats.bulletLifetime);
+                          stats.homingStopDistance, stats.homingLockPlayerSpeed,
+                          stats.bulletDamage, stats.bulletLifetime, groundLayer);
 
             SoundManager.Instance.PlaySound3D("Enemy", "ShootGeneral", transform.position);
         }
@@ -328,6 +341,43 @@ namespace HeartOfTheNight.Enemy
             }
         }
 
+        private void CachePlayerCollider()
+        {
+            if (player == null) return;
+            playerCol = player.GetComponent<Collider2D>();
+            if (playerCol == null)
+                playerCol = player.GetComponentInChildren<Collider2D>();
+        }
+
+        private Vector2 GetAimPoint()
+        {
+            if (playerCol == null) CachePlayerCollider();
+            if (playerCol != null) return playerCol.bounds.center;
+            return player != null ? (Vector2)player.position : Vector2.zero;
+        }
+
+        private bool HasClearShot()
+        {
+            if (firePoint == null || player == null || groundLayer.value == 0)
+                return false;
+
+            Vector2 origin = firePoint.position;
+            Vector2 target = GetAimPoint();
+            Vector2 delta  = target - origin;
+            float distance = delta.magnitude;
+            if (distance < 0.05f) return false;
+
+            Vector2 dir   = delta / distance;
+            Vector2 start = origin + dir * 0.05f;
+
+            RaycastHit2D hit = Physics2D.Linecast(start, target, groundLayer);
+            if (debugLogs)
+                Debug.DrawLine(start, hit.collider != null ? hit.point : target,
+                               hit.collider != null ? Color.red : Color.green);
+
+            return hit.collider == null;
+        }
+
         private void OnDrawGizmosSelected()
         {
             if (stats == null) return;
@@ -340,6 +390,15 @@ namespace HeartOfTheNight.Enemy
             Gizmos.DrawWireSphere(transform.position, stats.panicDistance);
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(transform.position, stats.buffRadius);
+
+            if (firePoint != null && player != null)
+            {
+                Vector3 origin = firePoint.position;
+                Vector3 target = Application.isPlaying ? (Vector3)GetAimPoint() : player.position;
+                bool blocked = Application.isPlaying && !HasClearShot();
+                Gizmos.color = blocked ? Color.red : Color.green;
+                Gizmos.DrawLine(origin, target);
+            }
         }
     }
 }

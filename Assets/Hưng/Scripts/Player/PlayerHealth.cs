@@ -18,6 +18,7 @@ namespace HeartOfTheNight.Player
 
         public event Action<int, int> OnHealthChanged;
 
+        public int MaxHealth => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
 
         private void Start()
