@@ -206,7 +206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Priority:
     Enabled: 1
-    m_Value: 10
+    m_Value: 9
   OutputChannel: 1
   StandbyUpdate: 2
   m_StreamingVersion: 20241001
@@ -523,11 +523,6 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: 6704112272212434461, guid: e4b490a7c5d349348984ec46dbec844e, type: 3}
   m_PrefabInstance: {fileID: 1250490469}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &170339377 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 9121070957693087162, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-  m_PrefabInstance: {fileID: 5367405195548529538}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &244508863
 GameObject:
@@ -8945,28 +8940,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 637980176}
   m_CullTransparentMesh: 1
---- !u!114 &662596915 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 9192798148625582715, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-  m_PrefabInstance: {fileID: 5367405195548529538}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &668404013 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6116920179282208220, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-  m_PrefabInstance: {fileID: 5367405195548529538}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &671278781
 GameObject:
   m_ObjectHideFlags: 0
@@ -9383,6 +9356,36 @@ MonoBehaviour:
   switchCooldownFill: {fileID: 444617824}
   cooldownText: {fileID: 118639300}
   heatBarFill: {fileID: 886907475}
+  heatGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
   healthContainer: {fileID: 744089584}
   healthBlockPrefab: {fileID: 0}
 --- !u!1 &744089584
@@ -16963,17 +16966,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8a8af00dfe1cf7c45b3e752acafb618e, type: 3}
---- !u!114 &998909651 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7707616520550639217, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-  m_PrefabInstance: {fileID: 5367405195548529538}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1004934818
 GameObject:
   m_ObjectHideFlags: 0
@@ -18606,17 +18598,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1406084292}
   m_CullTransparentMesh: 1
---- !u!114 &1407027893 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6763519795533589198, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-  m_PrefabInstance: {fileID: 5367405195548529538}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1443609258
 GameObject:
   m_ObjectHideFlags: 0
@@ -21756,37 +21737,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5611676003470377432, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: weaponIcon
-      value: 
-      objectReference: {fileID: 998909651}
-    - target: {fileID: 5611676003470377432, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: heatBarFill
-      value: 
-      objectReference: {fileID: 1407027893}
-    - target: {fileID: 5611676003470377432, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: cooldownText
-      value: 
-      objectReference: {fileID: 668404013}
-    - target: {fileID: 5611676003470377432, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: healthContainer
-      value: 
-      objectReference: {fileID: 170339377}
-    - target: {fileID: 5611676003470377432, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: healthBlockPrefab
-      value: 
-      objectReference: {fileID: 2782180407962128897, guid: f704482d43f6f504786b445a5dbf54a2, type: 3}
-    - target: {fileID: 5611676003470377432, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: switchCooldownFill
-      value: 
-      objectReference: {fileID: 662596915}
     - target: {fileID: 5814700407619526038, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
       propertyPath: m_IsActive
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6116920179282208220, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
-      propertyPath: m_text
-      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6128404151786897622, guid: 058e5d725ba68d940ae3ce201c766342, type: 3}
       propertyPath: m_AnchorMax.y
