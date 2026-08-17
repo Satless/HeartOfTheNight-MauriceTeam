@@ -139,7 +139,7 @@ namespace HeartOfTheNight.Player
 
         /// <summary>
         /// Tăng giới hạn máu tối đa (VD: nhặt Heart Container kiểu Zelda).
-        /// Đồng thời hồi luôn phần máu mới thêm.
+        /// Chỉ nâng trần, KHÔNG hồi máu. Máu hiện tại giữ nguyên.
         /// HUD sẽ tự sinh thêm ô máu nhờ Inline Pool.
         /// </summary>
         public void IncreaseMaxHealth(int amount)
@@ -147,7 +147,7 @@ namespace HeartOfTheNight.Player
             if (amount <= 0) return;
 
             _maxHealth += amount;
-            _currentHealth += amount; // Hồi luôn phần máu mới thêm
+            // Không cộng _currentHealth — chỉ nâng trần, để người chơi tự hồi máu
             SyncDataAndNotify();
             Debug.Log($"[PlayerHealth] Max máu tăng <color=cyan>+{amount}</color>. Máu hiện tại: <color=green>{_currentHealth}/{_maxHealth}</color>");
         }
@@ -177,6 +177,9 @@ namespace HeartOfTheNight.Player
 
         [ContextMenu("🛠️ Test: Bị đánh trừ 15 Máu")]
         private void DebugTakeDamage() => TakeDamage(15);
+
+        [ContextMenu("🛠️ Test: Nhặt thuốc hồi 10 Máu")]
+        private void DebugHeal10() => Heal(10);
 #endif
 
         // ─── ĐỒNG BỘ NỘI BỘ ─────────────────────────────────────────────────────
