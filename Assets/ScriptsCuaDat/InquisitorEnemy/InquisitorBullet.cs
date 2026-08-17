@@ -8,15 +8,19 @@ namespace HeartOfTheNight.Enemy
     public class InquisitorBullet : MonoBehaviour
     {
         [Header("VFX")]
-        [SerializeField] private GameObject hitVfxPrefab; // Kéo thả Prefab VFX nổ vào đây trên Inspector
+        [SerializeField] private GameObject hitVfxPrefab;
 
         private Rigidbody2D rb;
         private Transform target;
+        private Collider2D targetCol;
+        private Rigidbody2D targetRb;
         private float speed;
-        private float homingTurnRate;
+        private float homingTurnRateDeg;
         private float homingStopDistance;
-        private bool  homingLocked;
-        private int   damage;
+        private float homingLockPlayerSpeed;
+        private LayerMask groundLayer;
+        private bool homingLocked;
+        private int damage;
         private float lifetime;
 
         private void Awake()
@@ -29,37 +33,60 @@ namespace HeartOfTheNight.Enemy
         }
 
         public void Launch(Transform playerTarget, Vector2 initialDirection, float bulletSpeed,
-                           float turnRate, float stopHomingDistance, int dmg, float life)
+                           float turnRateDeg, float stopHomingDistance, float lockPlayerSpeed,
+                           int dmg, float life, LayerMask ground)
         {
-            target              = playerTarget;
-            speed               = bulletSpeed;
-            homingTurnRate      = turnRate;
-            homingStopDistance  = Mathf.Max(0f, stopHomingDistance);
-            homingLocked        = false;
-            damage              = dmg;
-            lifetime            = life;
-            rb.linearVelocity   = initialDirection.normalized * speed;
+            target = playerTarget;
+            CacheTarget();
+            speed = bulletSpeed;
+            homingTurnRateDeg = Mathf.Max(0f, turnRateDeg);
+            homingStopDistance = Mathf.Max(0f, stopHomingDistance);
+            homingLockPlayerSpeed = Mathf.Max(0f, lockPlayerSpeed);
+            groundLayer = ground;
+            homingLocked = homingTurnRateDeg <= 0f;
+            damage = dmg;
+            lifetime = life;
+            rb.linearVelocity = initialDirection.normalized * speed;
 
             float angle = Mathf.Atan2(initialDirection.y, initialDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
 
+        private void CacheTarget()
+        {
+            targetCol = null;
+            targetRb = null;
+            if (target == null) return;
+
+            targetCol = target.GetComponent<Collider2D>();
+            if (targetCol == null)
+                targetCol = target.GetComponentInChildren<Collider2D>();
+
+            targetRb = target.GetComponent<Rigidbody2D>();
+            if (targetRb == null)
+                targetRb = target.GetComponentInParent<Rigidbody2D>();
+        }
+
         private void Update()
         {
             lifetime -= Time.deltaTime;
-            if (lifetime <= 0f) Destroy(gameObject);
+            if (lifetime <= 0f)
+            {
+                SpawnVFX();
+                Destroy(gameObject);
+            }
         }
 
         private void FixedUpdate()
         {
-            if (target == null) return;
+            if (target == null)
+            {
+                MaintainStraightFlight();
+                return;
+            }
 
             if (!homingLocked)
-            {
-                float dist = Vector2.Distance(transform.position, target.position);
-                if (dist <= homingStopDistance)
-                    homingLocked = true;
-            }
+                TryLockHoming();
 
             if (homingLocked)
             {
@@ -67,20 +94,43 @@ namespace HeartOfTheNight.Enemy
                 return;
             }
 
-            Vector2 toPlayer = (Vector2)target.position - (Vector2)transform.position;
+            Vector2 toPlayer = AimPoint - rb.position;
             if (toPlayer.sqrMagnitude < 0.0001f) return;
 
-            Vector2 desired = toPlayer.normalized;
-            Vector2 current = rb.linearVelocity.sqrMagnitude > 0.01f
-                ? rb.linearVelocity.normalized
-                : desired;
-
-            Vector2 steered = Vector2.MoveTowards(current, desired, homingTurnRate * Time.fixedDeltaTime);
-            rb.linearVelocity = steered.normalized * speed;
-
-            float angle = Mathf.Atan2(steered.y, steered.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+            Vector2 vel = rb.linearVelocity;
+            float currentAngle = vel.sqrMagnitude > 0.01f
+                ? Mathf.Atan2(vel.y, vel.x) * Mathf.Rad2Deg
+                : Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
+            float desiredAngle = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
+            float newAngle = Mathf.MoveTowardsAngle(currentAngle, desiredAngle,
+                                                    homingTurnRateDeg * Time.fixedDeltaTime);
+            float rad = newAngle * Mathf.Deg2Rad;
+            rb.linearVelocity = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * speed;
+            transform.rotation = Quaternion.Euler(0f, 0f, newAngle);
         }
+
+        private void TryLockHoming()
+        {
+            float dist = Vector2.Distance(rb.position, AimPoint);
+            if (dist <= homingStopDistance)
+            {
+                homingLocked = true;
+                return;
+            }
+
+            // Lướt (~35) vượt ngưỡng → khóa thẳng để né được; đi bộ (~11) vẫn bị bám.
+            if (targetRb != null && targetRb.linearVelocity.magnitude >= homingLockPlayerSpeed)
+            {
+                homingLocked = true;
+                return;
+            }
+
+            if (groundLayer.value != 0 && Physics2D.Linecast(rb.position, AimPoint, groundLayer).collider != null)
+                homingLocked = true;
+        }
+
+        private Vector2 AimPoint =>
+            targetCol != null ? (Vector2)targetCol.bounds.center : (Vector2)target.position;
 
         private void MaintainStraightFlight()
         {
@@ -98,18 +148,15 @@ namespace HeartOfTheNight.Enemy
 
             if (EnemyCombatRules.TryGetPlayerDamageable(other, out var damageable))
                 damageable.TakeDamage(damage);
+
             SpawnVFX();
             Destroy(gameObject);
         }
-        // Hàm xử lý sinh ra VFX
+
         private void SpawnVFX()
         {
             if (hitVfxPrefab != null)
-            {
-                // Sinh ra VFX tại vị trí của viên đạn. 
-                // Nếu VFX có script tự hủy (destroy sau khi play xong) thì chỉ cần Instantiate.
                 Instantiate(hitVfxPrefab, transform.position, Quaternion.identity);
-            }
         }
     }
 }
