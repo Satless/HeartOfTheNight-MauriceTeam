@@ -14,6 +14,8 @@ namespace HeartOfTheNight.UI
 
         [Header("Heat Bar")]
         [SerializeField] private Image heatBarFill;
+        [Tooltip("Dải màu của thanh nhiệt (ví dụ: Trắng/Xanh -> Vàng -> Đỏ)")]
+        [SerializeField] private Gradient heatGradient;
 
         [Header("Health Bar")]
         [Tooltip("Kéo GameObject 'Mau' vào đây")]
@@ -147,7 +149,14 @@ namespace HeartOfTheNight.UI
         {
             if (heatBarFill != null)
             {
-                heatBarFill.fillAmount = maxHeat > 0 ? currentHeat / maxHeat : 0;
+                float percent = maxHeat > 0 ? currentHeat / maxHeat : 0;
+                heatBarFill.fillAmount = percent;
+                
+                // Đổi màu thanh nhiệt (Xanh -> Đỏ)
+                if (heatGradient != null)
+                {
+                    heatBarFill.color = heatGradient.Evaluate(percent);
+                }
             }
         }
 
@@ -157,27 +166,53 @@ namespace HeartOfTheNight.UI
 
             int expectedBlocks = Mathf.Max(1, maxHealth / 10); // Đảm bảo luôn có ít nhất 1 ô (nếu maxHealth < 10)
 
-            // Tự động sinh/xóa block nếu có Prefab
+            // Tự động sinh/ẩn block nếu có Prefab (Inline Pool — Zero-GC)
             if (healthBlockPrefab != null)
             {
-                int currentChildCount = healthContainer.transform.childCount;
-                
-                // Tạo thêm nếu thiếu
-                if (currentChildCount < expectedBlocks)
+                // Đếm số ô đang active
+                int activeCount = 0;
+                for (int i = 0; i < healthContainer.transform.childCount; i++)
                 {
-                    int childrenToCreate = expectedBlocks - currentChildCount;
-                    for (int i = 0; i < childrenToCreate; i++)
+                    if (healthContainer.transform.GetChild(i).gameObject.activeSelf)
+                        activeCount++;
+                }
+                
+                // Tạo thêm nếu thiếu: ưu tiên tái sử dụng child inactive trước khi Instantiate
+                if (activeCount < expectedBlocks)
+                {
+                    // Bước 1: Bật lại các child đang inactive (tái sử dụng)
+                    for (int i = 0; i < healthContainer.transform.childCount && activeCount < expectedBlocks; i++)
+                    {
+                        GameObject child = healthContainer.transform.GetChild(i).gameObject;
+                        if (!child.activeSelf)
+                        {
+                            child.SetActive(true);
+                            activeCount++;
+                        }
+                    }
+                    
+                    // Bước 2: Nếu vẫn thiếu (chưa từng tạo bao giờ) → Instantiate bổ sung
+                    while (activeCount < expectedBlocks)
                     {
                         Instantiate(healthBlockPrefab, healthContainer.transform);
+                        activeCount++;
                     }
                 }
                 
-                // Ẩn và hủy nếu dư (trường hợp maxHealth bị giảm)
-                for (int i = expectedBlocks; i < healthContainer.transform.childCount; i++)
+                // Ẩn đi nếu dư (trường hợp maxHealth bị giảm) — KHÔNG Destroy, giữ lại để tái sử dụng
+                if (activeCount > expectedBlocks)
                 {
-                    GameObject child = healthContainer.transform.GetChild(i).gameObject;
-                    child.SetActive(false);
-                    Destroy(child);
+                    int toHide = activeCount - expectedBlocks;
+                    // Duyệt ngược để ẩn từ cuối lên
+                    for (int i = healthContainer.transform.childCount - 1; i >= 0 && toHide > 0; i--)
+                    {
+                        GameObject child = healthContainer.transform.GetChild(i).gameObject;
+                        if (child.activeSelf)
+                        {
+                            child.SetActive(false);
+                            toHide--;
+                        }
+                    }
                 }
             }
 
