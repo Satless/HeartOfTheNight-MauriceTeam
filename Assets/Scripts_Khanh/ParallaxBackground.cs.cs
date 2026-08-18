@@ -15,24 +15,24 @@ public class ParallaxBackground : MonoBehaviour
         if (parallaxCamera != null)
             parallaxCamera.onCameraTranslate += Move;
 
-        SetLayers();
+        //SetLayers();
     }
 
-    void SetLayers()
-    {
-        parallaxLayers.Clear();
+    //void SetLayers()
+    //{
+    //    parallaxLayers.Clear();
 
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            ParallaxLayer layer = transform.GetChild(i).GetComponent<ParallaxLayer>();
+    //    for (int i = 0; i < transform.childCount; i++)
+    //    {
+    //        ParallaxLayer layer = transform.GetChild(i).GetComponent<ParallaxLayer>();
 
-            if (layer != null)
-            {
-                layer.name = "Layer-" + i;
-                parallaxLayers.Add(layer);
-            }
-        }
-    }
+    //        if (layer != null)
+    //        {
+    //            layer.name = "Layer-" + i;
+    //            parallaxLayers.Add(layer);
+    //        }
+    //    }
+    //}
 
     void Move(float delta)
     {
