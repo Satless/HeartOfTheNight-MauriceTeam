@@ -103,8 +103,16 @@ namespace HeartOfTheNight.Player
 	public bool IsDashing => CurrentState == PlayerState.Dashing;
 	public bool IsSliding => CurrentState == PlayerState.Sliding;
 
-	// Timers coyote time & input buffer
-	public float LastOnGroundTime { get; private set; }
+        #region BUFF MULTIPLIERS
+        [Header("Buff Multipliers (Item Hệ Thống)")]
+        [Tooltip("Hệ số nhân tốc độ chạy (Ăn giày tăng tốc)")]
+        public float moveSpeedMultiplier = 1f;
+        [Tooltip("Hệ số nhân lực nhảy (Ăn lò xo)")]
+        public float jumpForceMultiplier = 1f;
+        #endregion
+
+        // Timers coyote time & input buffer
+        public float LastOnGroundTime { get; private set; }
 	public float LastOnWallTime { get; private set; }
 	public float LastOnWallRightTime { get; private set; }
 	public float LastOnWallLeftTime { get; private set; }
@@ -576,13 +584,13 @@ namespace HeartOfTheNight.Player
     #region RUN METHODS
     private void Run(float lerpAmount)
 	{
-        // Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
-        float targetSpeed = _moveInput.x * Data.runMaxSpeed;
-		// Nội suy giữa vận tốc hiện tại và tốc độ mục tiêu.
-		// lerpAmount = 1 → nhảy thẳng sang targetSpeed (full quyền điều khiển).
-		// lerpAmount = 0 → giữ nguyên vận tốc hiện tại (không cho bẻ lái).
-		// lerpAmount ở giữa (vd: 0.13, 0.4) → chỉ trả một phần quyền bẻ lái (dùng cho dash end, wall jump).
-		targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
+            // Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
+            float targetSpeed = _moveInput.x * (Data.runMaxSpeed * moveSpeedMultiplier);
+            // Nội suy giữa vận tốc hiện tại và tốc độ mục tiêu.
+            // lerpAmount = 1 → nhảy thẳng sang targetSpeed (full quyền điều khiển).
+            // lerpAmount = 0 → giữ nguyên vận tốc hiện tại (không cho bẻ lái).
+            // lerpAmount ở giữa (vd: 0.13, 0.4) → chỉ trả một phần quyền bẻ lái (dùng cho dash end, wall jump).
+            targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
 
 		// Chọn tỷ lệ gia tốc: đang giữ phím → dùng Accel (tăng tốc), buông phím → dùng Deccel (phanh).
 		// Trên không thì nhân thêm hệ số accelInAir/deccelInAir để giảm kiểm soát trên không trung.
@@ -656,8 +664,8 @@ namespace HeartOfTheNight.Player
 
 		// Reset đà rơi về 0 → nhảy luôn đạt đúng jumpHeight dù đang rơi nhanh cỡ nào
 		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
-		RB.AddForce(Vector2.up * Data.jumpForce, ForceMode2D.Impulse);
-	}
+            RB.AddForce(Vector2.up * (Data.jumpForce * jumpForceMultiplier), ForceMode2D.Impulse);
+        }
 
 	private void WallJump(int dir)
 	{

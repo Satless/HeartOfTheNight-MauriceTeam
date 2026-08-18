@@ -15,7 +15,7 @@ public class Bomb : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerHealth hp = other.GetComponent<PlayerHealth>();
+            PlayerHealth1 hp = other.GetComponent<PlayerHealth1>();
 
             if (hp != null)
                 hp.TakeDamage(damage);
