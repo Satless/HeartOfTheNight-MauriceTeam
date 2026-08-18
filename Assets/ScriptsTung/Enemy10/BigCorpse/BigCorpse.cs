@@ -4,38 +4,40 @@ using HeartOfTheNight.Common;
 
 public class BigCorpseImg : MonoBehaviour, IDamageable
 {
-    [Header("Chỉnh tọa độ lúc Chết")]
-    [Tooltip("Lệch tâm chết? Chỉnh số này để nhấc ảnh lên/xuống (VD: 1.5 hoặc -1)")]
-    public float deathYOffset = 1.2f;
-
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 100;
     public int currentHealth;
     public bool isDead = false;
+    public float deathYOffset = 0f;
 
-    [Header("Hoạt ảnh & Vị trí chém (Cục atk)")]
+    [Header("Hoạt ảnh & Vị trí chém")]
     public Animator anim;
     public GameObject attackHitbox;
     public Vector2 attackOffset = new Vector2(0f, 1f);
 
-    [Header("Tầm nhìn & Di chuyển")]
+    [Header("Tầm nhìn & Tầm Đánh")]
+    public float moveSpeed = 3f;
+    public float patrolSpeed = 1.5f;
+    public float patrolDistance = 5f;
+    private float startX;
+
     public float detectionRangeX = 10f;
     public float detectionRangeY = 3f;
-    public float moveSpeed = 3f;
     public float attackRange = 2.5f;
+    public float attackRangeY = 1.5f; // Chống lỗi chém không khí
     public float attackRadius = 1.5f;
 
-    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
-    public Transform groundCheck;           // Kéo thả cục Empty GroundCheck dưới gót chân vào đây
-    public float groundCheckRadius = 0.2f;  // Độ to vòng tròn quét
-    public LayerMask groundLayer;           // Chọn Layer "Ground" ở Inspector
-    public bool isGrounded;                 // True = chạm đất, False = lơ lửng
+    [Header("Kiểm tra Mặt đất & Mép vực")]
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.2f;
+    public LayerMask groundLayer;
+    public bool isGrounded;
 
-    [Header("Dịch chuyển & Cảm biến kẹt")]
-    public float platformHeightDiff = 0.8f;
-    public float teleportDelay = 1f;
-    public float postTeleportDelay = 0.5f;
-    public float timeToDetectStuck = 0.5f;
+    [Space]
+    public Transform edgeCheck;
+    public Transform wallCheck;
+    public float edgeCheckDistance = 1.5f;
+    public float wallCheckDistance = 0.5f;
 
     [Header("Tấn công")]
     public int attackDamage = 15;
@@ -45,197 +47,111 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     private Rigidbody2D rb;
     private Collider2D myCol;
     private float nextAttackTime = 0f;
-    private float teleportTimer = 0f;
     private bool isBusy = false;
-
-    private float lastXPos = 0f;
-    private float stuckTimer = 0f;
-
-    private float _moveTimer;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
         myCol = GetComponent<Collider2D>();
-
         if (anim == null) anim = GetComponentInChildren<Animator>();
 
-        if (anim != null && anim.gameObject != this.gameObject)
-        {
-            if (anim.GetComponent<HitboxEventForwarder>() == null)
-            {
-                anim.gameObject.AddComponent<HitboxEventForwarder>();
-            }
-        }
-
         currentHealth = maxHealth;
-        SetupXuyenThau();
-    }
-
-    void SetupXuyenThau()
-    {
-        Collider2D[] myCols = GetComponentsInChildren<Collider2D>();
-        if (player != null)
-        {
-            Collider2D[] pCols = player.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-            {
-                if (myC.isTrigger) continue;
-                foreach (Collider2D pC in pCols)
-                    Physics2D.IgnoreCollision(myC, pC, true);
-            }
-        }
-
-        GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemyObj in allEnemies)
-        {
-            Collider2D[] enemyCols = enemyObj.GetComponentsInChildren<Collider2D>();
-            foreach (Collider2D myC in myCols)
-            {
-                if (myC.isTrigger) continue;
-                foreach (Collider2D eC in enemyCols)
-                {
-                    if (eC.isTrigger) continue;
-                    if (myC.gameObject != eC.gameObject)
-                        Physics2D.IgnoreCollision(myC, eC, true);
-                }
-            }
-        }
+        startX = transform.position.x;
     }
 
     void Update()
     {
-        if (player == null || isBusy || myCol == null || isDead) return;
+        if (isBusy || isDead) return;
 
-        // 1. LIÊN TỤC QUÉT MẶT ĐẤT
         CheckGroundStatus();
 
-        // 2. NẾU ĐANG RƠI -> DỪNG ĐI CHÉO BẬY BẠ
-        if (!isGrounded)
+        if (player != null)
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            if (anim != null) anim.SetFloat("Speed", 0);
-            return;
-        }
+            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-        Collider2D playerCol = player.GetComponent<Collider2D>();
-        if (playerCol == null) return;
-
-        float myFeetY = myCol.bounds.min.y;
-        float playerFeetY = playerCol.bounds.min.y;
-
-        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(playerFeetY - myFeetY);
-
-        bool isStuck = false;
-        if (distanceX > attackRange)
-        {
-            if (Mathf.Abs(transform.position.x - lastXPos) < 0.05f)
+            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                stuckTimer += Time.deltaTime;
-                if (stuckTimer >= timeToDetectStuck) isStuck = true;
-            }
-            else stuckTimer = 0f;
-        }
-        else stuckTimer = 0f;
-
-        lastXPos = transform.position.x;
-
-        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
-        {
-            if (distanceY > platformHeightDiff || isStuck)
-            {
-                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                if (anim != null) anim.SetFloat("Speed", 0);
-
-                teleportTimer += Time.deltaTime;
-                if (teleportTimer >= teleportDelay)
-                {
-                    StartCoroutine(ThucHienTeleport());
-                    teleportTimer = 0f;
-                    stuckTimer = 0f;
-                }
-            }
-            else
-            {
-                teleportTimer = 0f;
-                if (distanceX > attackRange) Move();
-                else
+                // Ép phải cùng độ cao Y mới được chém
+                if (distanceX <= attackRange && distanceY <= attackRangeY)
                 {
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
                     if (anim != null) anim.SetFloat("Speed", 0);
 
                     if (Time.time >= nextAttackTime) StartCoroutine(AttackRoutine());
                 }
+                else
+                {
+                    ChasePlayer();
+                }
+                return;
             }
         }
-        else
-        {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            if (anim != null) anim.SetFloat("Speed", 0);
-            stuckTimer = 0f;
-        }
+
+        Patrol();
     }
 
     void CheckGroundStatus()
     {
         if (groundCheck == null) return;
-
-        // Physics2D.OverlapCircle kết hợp LayerMask chạy mượt và nhẹ hơn Tag rất nhiều
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
-    public void TakeDamage(int damage)
+    bool IsNearEdge()
     {
-        if (isDead) return;
-        currentHealth -= damage;
-
-        // SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
-
-        if (currentHealth <= 0) Die();
+        if (edgeCheck == null) return false;
+        RaycastHit2D hit = Physics2D.Raycast(edgeCheck.position, Vector2.down, edgeCheckDistance, groundLayer);
+        return hit.collider == null;
     }
 
-    void Die()
+    bool IsHittingWall()
     {
-        isDead = true;
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+        if (wallCheck == null) return false;
+        float dir = Mathf.Sign(transform.localScale.x);
+        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, Vector2.right * dir, wallCheckDistance, groundLayer);
+        return hit.collider != null && !hit.collider.isTrigger;
+    }
 
-        gameObject.tag = "Untagged";
-        if (myCol != null) myCol.enabled = false;
+    void Patrol()
+    {
+        float distanceFromStart = Mathf.Abs(transform.position.x - startX);
+        float currentDir = Mathf.Sign(transform.localScale.x);
+        float dirToStart = Mathf.Sign(startX - transform.position.x);
 
-        if (anim != null)
+        if (IsNearEdge() || IsHittingWall() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
         {
-            // BÙ TRỪ LỆCH TÂM: Dịch chuyển cái ảnh lên/xuống đúng bằng khoảng cách bị lệch
-            anim.transform.localPosition = new Vector3(
-                anim.transform.localPosition.x,
-                anim.transform.localPosition.y + deathYOffset,
-                anim.transform.localPosition.z
-            );
-
-            anim.enabled = true;
-            anim.SetTrigger("Dead");
+            Vector3 scale = transform.localScale;
+            scale.x *= -1;
+            transform.localScale = scale;
         }
 
-        // SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
-
-        Destroy(gameObject, 0.5f);
+        float dir = Mathf.Sign(transform.localScale.x);
+        rb.linearVelocity = new Vector2(dir * patrolSpeed, rb.linearVelocity.y);
+        if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
     }
 
-    void Move()
+    void ChasePlayer()
     {
         LookAtPlayer();
-        float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
-        if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
 
-        _moveTimer -= Time.fixedDeltaTime;
-        if (_moveTimer <= 0f)
+        if (IsNearEdge() || IsHittingWall())
         {
-            // SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
-            _moveTimer = 0.3f;
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", 0);
         }
+        else
+        {
+            float dir = (player.position.x > transform.position.x) ? 1 : -1;
+            rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+        }
+    }
+
+    void LookAtPlayer()
+    {
+        float dir = (player.position.x > transform.position.x) ? 1 : -1;
+        transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
     IEnumerator AttackRoutine()
@@ -245,111 +161,54 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         LookAtPlayer();
 
         if (anim != null) anim.SetTrigger("Attack");
-
         yield return new WaitForSeconds(attackCooldown);
 
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
 
-    IEnumerator ThucHienTeleport()
-    {
-        isBusy = true;
-        rb.linearVelocity = Vector2.zero;
-
-        if (anim != null) anim.SetTrigger("Teleport");
-        yield return new WaitForSeconds(0.3f);
-
-        if (isDead) yield break;
-
-        float pivotToFeetOffset = transform.position.y - myCol.bounds.min.y;
-        float distance = 1.5f;
-        float standBehind = (player.localScale.x > 0) ? -distance : distance;
-
-        Vector2 viTriSau = new Vector2(player.position.x + standBehind, player.position.y + 1f);
-        Vector2 viTriTruoc = new Vector2(player.position.x - standBehind, player.position.y + 1f);
-
-        RaycastHit2D hitSau = Physics2D.Raycast(viTriSau, Vector2.down, 3f);
-        RaycastHit2D hitTruoc = Physics2D.Raycast(viTriTruoc, Vector2.down, 3f);
-
-        if (hitSau.collider != null && !hitSau.collider.CompareTag("Player") && !hitSau.collider.isTrigger)
-            transform.position = new Vector2(viTriSau.x, hitSau.point.y + pivotToFeetOffset + 0.05f);
-        else if (hitTruoc.collider != null && !hitTruoc.collider.CompareTag("Player") && !hitTruoc.collider.isTrigger)
-            transform.position = new Vector2(viTriTruoc.x, hitTruoc.point.y + pivotToFeetOffset + 0.05f);
-        else
-        {
-            Vector2 viTriGiua = new Vector2(player.position.x, player.position.y + 1f);
-            RaycastHit2D hitGiua = Physics2D.Raycast(viTriGiua, Vector2.down, 3f);
-            if (hitGiua.collider != null)
-                transform.position = new Vector2(player.position.x, hitGiua.point.y + pivotToFeetOffset + 0.05f);
-            else
-            {
-                float playerFeet = player.GetComponent<Collider2D>().bounds.min.y;
-                transform.position = new Vector2(player.position.x, playerFeet + pivotToFeetOffset);
-            }
-        }
-
-        LookAtPlayer();
-        yield return new WaitForSeconds(postTeleportDelay);
-        isBusy = false;
-    }
-
-    void LookAtPlayer()
-    {
-        transform.localScale = new Vector3((player.position.x > transform.position.x ? 1 : -1) * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-    }
-
     public void EnableHitbox()
     {
         if (isDead || attackHitbox == null) return;
-
         float facingDirection = Mathf.Sign(transform.localScale.x);
-        Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
-
-        Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
+        Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + new Vector2(attackOffset.x * facingDirection, attackOffset.y);
         Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, attackRadius);
 
         foreach (Collider2D p in hitPlayers)
         {
-            if (p.CompareTag("Enemy")) continue;
-            if (!p.isTrigger) continue;
-
+            if (p.CompareTag("Enemy") || !p.isTrigger) continue;
             if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
                 IDamageable target = p.GetComponent<IDamageable>();
                 if (target == null) target = p.GetComponentInParent<IDamageable>();
-
-                if (target != null)
-                {
-                    target.TakeDamage(attackDamage);
-                    Debug.Log("BigCorpse chém trúng HURTBOX của Player!");
-                }
+                if (target != null) target.TakeDamage(attackDamage);
             }
         }
     }
 
     public void DisableHitbox() { }
 
-    void OnDrawGizmosSelected()
+    public void TakeDamage(int damage)
     {
-        Gizmos.color = new Color(1f, 0.6f, 0f);
-        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
+        if (isDead) return;
+        currentHealth -= damage;
+        if (currentHealth <= 0) Die();
+    }
 
-        if (attackHitbox != null)
+    void Die()
+    {
+        isDead = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+        gameObject.tag = "Untagged";
+        if (myCol != null) myCol.enabled = false;
+
+        transform.position = new Vector3(transform.position.x, transform.position.y + deathYOffset, transform.position.z);
+        if (anim != null)
         {
-            Gizmos.color = Color.red;
-            float facingDirection = Mathf.Sign(transform.localScale.x);
-            Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
-
-            Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + adjustedOffset;
-            Gizmos.DrawWireSphere(finalAttackPos, attackRadius);
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
         }
-
-        // VẼ VÒNG TRÒN CHECK GROUND MÀU VÀNG
-        if (groundCheck != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-        }
+        Destroy(gameObject, 0.5f);
     }
 }
