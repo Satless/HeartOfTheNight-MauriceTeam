@@ -110104,7 +110104,6 @@ GameObject:
   - component: {fileID: 689509324}
   - component: {fileID: 689509328}
   - component: {fileID: 689509327}
-  - component: {fileID: 689509326}
   - component: {fileID: 689509325}
   m_Layer: 0
   m_Name: CinemachineCamera
@@ -110148,18 +110147,6 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
---- !u!114 &689509326
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 689509323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a8a05de0ac134f4f9d01bef6b9da077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &689509327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -233612,7 +233599,6 @@ GameObject:
   - component: {fileID: 1239926460}
   - component: {fileID: 1239926459}
   - component: {fileID: 1239926458}
-  - component: {fileID: 1239926463}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -233739,7 +233725,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 8.4375
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -233770,30 +233756,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1239926463
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1239926457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ComponentVersion: 1
-  m_AssetsPPU: 16
-  m_RefResolutionX: 640
-  m_RefResolutionY: 480
-  m_CropFrame: 0
-  m_GridSnapping: 2
-  m_FilterMode: 0
-  m_UpscaleRT: 0
-  m_PixelSnapping: 0
-  m_CropFrameX: 0
-  m_CropFrameY: 0
-  m_StretchFill: 0
 --- !u!1 &1257080751
 GameObject:
   m_ObjectHideFlags: 0
@@ -233805,7 +233767,6 @@ GameObject:
   - component: {fileID: 1257080752}
   - component: {fileID: 1257080756}
   - component: {fileID: 1257080757}
-  - component: {fileID: 1257080754}
   - component: {fileID: 1257080753}
   m_Layer: 0
   m_Name: CinemachineCamera
@@ -233849,18 +233810,6 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
---- !u!114 &1257080754
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1257080751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a8a05de0ac134f4f9d01bef6b9da077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1257080756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279103,7 +279052,6 @@ GameObject:
   - component: {fileID: 1483741377}
   - component: {fileID: 1483741381}
   - component: {fileID: 1483741380}
-  - component: {fileID: 1483741379}
   - component: {fileID: 1483741378}
   m_Layer: 0
   m_Name: CinemachineCamera
@@ -279147,18 +279095,6 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
---- !u!114 &1483741379
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1483741376}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a8a05de0ac134f4f9d01bef6b9da077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1483741380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279356,7 +279292,6 @@ GameObject:
   - component: {fileID: 1596839554}
   - component: {fileID: 1596839550}
   - component: {fileID: 1596839553}
-  - component: {fileID: 1596839552}
   - component: {fileID: 1596839551}
   m_Layer: 0
   m_Name: CinemachineCamera
@@ -279428,18 +279363,6 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
---- !u!114 &1596839552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1596839549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a8a05de0ac134f4f9d01bef6b9da077, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1596839553
 MonoBehaviour:
   m_ObjectHideFlags: 0
