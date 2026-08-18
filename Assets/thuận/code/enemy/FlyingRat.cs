@@ -55,7 +55,7 @@ public class FlyingRat : MonoBehaviour
     {
         attacking = true;
 
-        PlayerHealth health = player.GetComponent<PlayerHealth>();
+        PlayerHealth1 health = player.GetComponent<PlayerHealth1>();
 
         if (health != null)
         {

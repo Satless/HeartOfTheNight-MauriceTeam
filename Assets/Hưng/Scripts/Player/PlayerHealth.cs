@@ -17,11 +17,13 @@ namespace HeartOfTheNight.Player
         [SerializeField, ReadOnly] private int _maxHealth;
         [SerializeField, ReadOnly] private int _currentHealth;
 
+        public bool hasShield = false;
+
         public event Action<int, int> OnHealthChanged;
 
         public int MaxHealth => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
-
+       
         private void Start()
         {
             InitHealth();
@@ -67,6 +69,8 @@ namespace HeartOfTheNight.Player
 
         public void TakeDamage(int amount)
         {
+            if (hasShield) return;
+
             if (_currentHealth <= 0) return;
 
             _currentHealth -= amount;
@@ -141,6 +145,14 @@ namespace HeartOfTheNight.Player
         public void Heal(int amount)
         {
             if (_currentHealth <= 0 || amount <= 0) return; // Đã chết thì không hồi
+
+            // THÊM ĐOẠN CHẶN ANTI-HEAL VÀO ĐÂY
+            AntiHeal anti = GetComponent<AntiHeal>();
+            if (anti != null && anti.thoiGianConLai > 0)
+            {
+                Debug.Log("[PlayerHealth] Bơm máu thất bại! Đang dính hiệu ứng Anti-Heal của quái.");
+                return; // Đá văng ra ngoài, không cho cộng máu
+            }
 
             _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
             SyncDataAndNotify();
