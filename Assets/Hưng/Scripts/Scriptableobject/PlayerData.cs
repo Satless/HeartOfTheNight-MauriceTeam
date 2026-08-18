@@ -3,6 +3,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewPlayerData", menuName = "Data/Player Data")] //Tạo một đối tượng playerData mới bằng cách nhấp chuột phải vào Menu Project rồi chọn Create/Player/Player Data và kéo vào người chơi
 public class PlayerData : ScriptableObject
 {
+	[Header("Stats")]
+	[Tooltip("Lượng máu tối đa cơ bản của nhân vật khi mới bắt đầu màn chơi.")]
+	public int baseMaxHealth;
+
 	[Header("Gravity")]
 	[Tooltip("Được tự động tính toán từ jumpHeight và jumpTimeToApex.\nCông thức: -(2 * jumpHeight) / (jumpTimeToApex^2)")]
 	[ReadOnly] public float gravityStrength;
