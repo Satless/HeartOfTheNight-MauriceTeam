@@ -11,9 +11,10 @@ namespace HeartOfTheNight.Player
     public class PlayerHealth : MonoBehaviour, IDamageable
     {
         [Header("Settings")]
-        [SerializeField] private int _maxHealth;
+        [SerializeField] private PlayerData _playerData;
 
         [Header("Debug Tracking")]
+        [SerializeField, ReadOnly] private int _maxHealth;
         [SerializeField, ReadOnly] private int _currentHealth;
 
         public event Action<int, int> OnHealthChanged;
@@ -23,24 +24,43 @@ namespace HeartOfTheNight.Player
 
         private void Start()
         {
-            SyncHealthFromSave();
+            InitHealth();
         }
 
+        private void InitHealth()
+        {
+            if (_playerData != null)
+            {
+                _maxHealth = _playerData.baseMaxHealth;
+                _currentHealth = _maxHealth;
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerHealth] Chưa gán PlayerData! Tạm dùng máu mặc định = 100.");
+                _maxHealth = 100;
+                _currentHealth = 100;
+            }
+
+            // Đồng bộ vào DataManager để UI hoặc Save/Load khác đọc
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            {
+                HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
+            }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
+        /// <summary>
+        /// Khôi phục máu từ Save Data (dùng cho luồng "Continue / Tiếp tục chơi dở").
+        /// Gọi bởi LevelEntrance hoặc TestSaveLoad khi người chơi chọn tiếp tục màn đang dở.
+        /// </summary>
         public void SyncHealthFromSave()
         {
-            // Lấy máu từ Save Data, nếu Data bằng 0 (lần đầu chơi) thì lấy maxHealth
             if (HeartOfTheNight.Hung.DataManager.Instance != null && HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth > 0)
             {
                 _currentHealth = HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth;
             }
-            else
-            {
-                _currentHealth = _maxHealth;
-                
-                // Đồng bộ ngược lại vào Data (trên RAM)
-                if (HeartOfTheNight.Hung.DataManager.Instance != null)
-                    HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
-            }
+            // Nếu save data = 0 (chưa từng lưu), giữ nguyên _currentHealth từ InitHealth()
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
@@ -51,7 +71,7 @@ namespace HeartOfTheNight.Player
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
-            SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
+            //SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
 
 
             // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
