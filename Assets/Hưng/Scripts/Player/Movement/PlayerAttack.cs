@@ -523,7 +523,7 @@ public class PlayerAttack : MonoBehaviour
         //sfx for weapons
         if (!string.IsNullOrEmpty(Data.fireSoundName))
         {
-                SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
+                //SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
         }
 
 
@@ -607,8 +607,6 @@ public class PlayerAttack : MonoBehaviour
             OnOverheatStateChanged?.Invoke(true);
             Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
 
-            SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
-
             // Yêu cầu bên Animation sinh khói tại nòng súng
             if (_animation != null)
             {
@@ -649,7 +647,6 @@ public class PlayerAttack : MonoBehaviour
                 OnOverheatStateChanged?.Invoke(false);
                 Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {slot.currentHeat:F1}/{slot.maxHeat}. Mở khóa bắn.");
 
-                SoundManager.Instance.PlaySound3D("Weapons", "OverheatOff", transform.position);
             }
         }
     }

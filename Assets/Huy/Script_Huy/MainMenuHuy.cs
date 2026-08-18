@@ -25,7 +25,7 @@ public class MainMenuHuy : MonoBehaviour
 
     private void PlayMenuMusic()
     {
-        MusicManager.Instance.PlayMusic("MainMenu");
+        //MusicManager.Instance.PlayMusic("MainMenu");
     }
 
     public void Quit()

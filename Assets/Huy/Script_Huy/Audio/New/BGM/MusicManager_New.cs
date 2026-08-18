@@ -1,39 +1,33 @@
 using System.Collections;
 using UnityEngine;
 
-public class MusicManager : MonoBehaviour
+public class MusicManager_New : MonoBehaviour
 {
-    public static MusicManager Instance;
+    public static MusicManager_New Instance;
 
-    [SerializeField]
-    private MusicLibrary musicLibrary;
-    [SerializeField]
-    private AudioSource musicSource;
+    [SerializeField] private MusicLibrary_New musicLibrary;
+    [SerializeField] private AudioSource musicSource;
 
     private void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+        if (Instance != null) { Destroy(gameObject); }
+        else { Instance = this; DontDestroyOnLoad(gameObject); }
     }
+
+    private void OnEnable() => AudioEvents.OnPlayMusic += PlayMusic;
+    private void OnDisable() => AudioEvents.OnPlayMusic -= PlayMusic;
 
     public void PlayMusic(string trackName, float fadeDuration = 0.5f)
     {
         StartCoroutine(AnimateMusicCrossfade(musicLibrary.GetClipFromName(trackName), fadeDuration));
     }
 
-    IEnumerator AnimateMusicCrossfade(AudioClip nextTrack, float fadeDuration = 0.5f)
+    private IEnumerator AnimateMusicCrossfade(AudioClip nextTrack, float fadeDuration)
     {
         float percent = 0;
         while (percent < 1)
         {
-            percent += Time.deltaTime * 1 / fadeDuration;
+            percent += Time.deltaTime / fadeDuration;
             musicSource.volume = Mathf.Lerp(1f, 0, percent);
             yield return null;
         }
@@ -44,7 +38,7 @@ public class MusicManager : MonoBehaviour
         percent = 0;
         while (percent < 1)
         {
-            percent += Time.deltaTime * 1 / fadeDuration;
+            percent += Time.deltaTime / fadeDuration;
             musicSource.volume = Mathf.Lerp(0, 1f, percent);
             yield return null;
         }

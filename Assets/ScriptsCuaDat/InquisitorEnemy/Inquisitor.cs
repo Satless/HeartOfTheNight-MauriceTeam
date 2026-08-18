@@ -213,8 +213,6 @@ namespace HeartOfTheNight.Enemy
 
                 if (!buffedAllies.Contains(mod))
                     buffedAllies.Add(mod);
-
-                SoundManager.Instance.PlaySound3D("Enemy", "BuffGeneral", transform.position);
             }
 
             for (int i = buffedAllies.Count - 1; i >= 0; i--)
@@ -301,7 +299,6 @@ namespace HeartOfTheNight.Enemy
             bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
                           stats.homingStopDistance, stats.bulletDamage, stats.bulletLifetime);
 
-            SoundManager.Instance.PlaySound3D("Enemy", "ShootGeneral", transform.position);
         }
 
         public void TakeDamage(int amount)
@@ -309,8 +306,6 @@ namespace HeartOfTheNight.Enemy
             if (isDead) return;
 
             health -= amount;
-
-            SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
 
             if (health <= 0)
             {
@@ -321,8 +316,6 @@ namespace HeartOfTheNight.Enemy
                 rb.simulated = false;
                 GetComponent<Collider2D>().enabled = false;
                 this.enabled = false;
-
-                SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
                 Destroy(gameObject, 1.5f);
             }

@@ -50,7 +50,6 @@ namespace HeartOfTheNight.Player
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
-            SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
 
 
             // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
@@ -66,7 +65,6 @@ namespace HeartOfTheNight.Player
             if (_currentHealth <= 0)
             {
                 Die();
-                SoundManager.Instance.PlaySound3D("Player", "Death", transform.position);
             }
         }
 

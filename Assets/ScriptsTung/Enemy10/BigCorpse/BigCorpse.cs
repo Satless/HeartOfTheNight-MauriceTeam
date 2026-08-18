@@ -164,8 +164,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         if (isDead) return;
         currentHealth -= damage;
 
-        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
-
         if (currentHealth <= 0) Die();
     }
 
@@ -183,7 +181,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
-        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
         Destroy(gameObject, 1.5f);
     }
@@ -198,7 +195,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         _moveTimer -= Time.fixedDeltaTime;
         if (_moveTimer <= 0f)
         {
-            SoundManager.Instance.PlaySound3D("Enemy", "MoveGeneral", transform.position);
             _moveTimer = 0.3f; // Phát lại sau mỗi 0.2s
         }
     }

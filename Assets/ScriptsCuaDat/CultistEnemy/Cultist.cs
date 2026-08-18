@@ -261,7 +261,6 @@ private void Fire()
         var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
         bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
 
-            SoundManager.Instance.PlaySound3D("Enemy", "ShootGeneral", transform.position);
     }
 
         private float EffectiveMoveSpeed =>
@@ -277,13 +276,9 @@ private void Fire()
 
     health -= amount;
 
-            SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
-
     if (health <= 0) 
     {
         if (anim != null) anim.SetTrigger("Die");
-
-                SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
         // Vô hiệu hóa vật lý và logic để quái không di chuyển/bắn nữa
         rb.linearVelocity = Vector2.zero;
