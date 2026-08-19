@@ -15,8 +15,16 @@ public class SoundManager_New : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); }
-        else { Instance = this; DontDestroyOnLoad(gameObject); }
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject.transform.root.gameObject);
+        }
+        else if (Instance != this)
+        {
+            // Xóa bản sao trùng lặp ở Scene mới khi Load Scene
+            Destroy(gameObject.transform.root.gameObject);
+        }
     }
 
     private void OnEnable()
@@ -66,6 +74,29 @@ public class SoundManager_New : MonoBehaviour
         if (clip != null)
         {
             sfxSource.PlayOneShot(clip);
+        }
+    }
+
+    
+    //ui sfx
+    public void PlaySound2DFromPath(string fullPath)
+    {
+        // Tách chuỗi theo dấu '/' (Ví dụ input: "UI/Button/Click")
+        string[] parts = fullPath.Split('/');
+
+        if (parts.Length == 3)
+        {
+            // Gọi lại hàm phát âm thanh 3 Tầng
+            PlaySound2D(parts[0], parts[1], parts[2]);
+        }
+        else if (parts.Length == 2)
+        {
+            // Nếu chỉ nhập 2 tầng (Ví dụ: "UI/Click")
+            PlaySound2D(parts[0], "Default", parts[1]);
+        }
+        else
+        {
+            Debug.LogWarning($"[SoundManager] Sai định dạng chuỗi! Hãy nhập dạng 'Tầng1/Tầng2/Tầng3' (Ví dụ: UI/Button/Click)");
         }
     }
 }

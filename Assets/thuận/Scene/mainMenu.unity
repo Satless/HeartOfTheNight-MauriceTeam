@@ -956,32 +956,32 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Hover
+            m_StringArgument: UI/Buttons/Hover
             m_BoolArgument: 0
           m_CallState: 2
   - eventID: 4
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Click
+            m_StringArgument: UI/Buttons/Click
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &321026697
@@ -1169,7 +1169,7 @@ GameObject:
   - component: {fileID: 392275735}
   - component: {fileID: 392275734}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: master slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1552,7 +1552,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc0a5c4e36e8f3c4b88e0801a65f2fda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioMixer: {fileID: 24100000, guid: af76496c3dc71b04caa3b0668c573b69, type: 2}
+  audioMixer: {fileID: 24100000, guid: 2c6235ab0ab416a4b855b3c7c0222d7c, type: 2}
   masterSlider: {fileID: 1761965556}
   musicSlider: {fileID: 1001016483}
   sfxSlider: {fileID: 2083191624}
@@ -2090,8 +2090,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 392275733}
-  - {fileID: 1281310608}
   - {fileID: 906210119}
+  - {fileID: 1281310608}
   m_Father: {fileID: 269704496}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2586,6 +2586,8 @@ GameObject:
   m_Component:
   - component: {fileID: 639411941}
   - component: {fileID: 639411942}
+  - component: {fileID: 639411943}
+  - component: {fileID: 639411944}
   m_Layer: 5
   m_Name: Toggle
   m_TagString: Untagged
@@ -2661,6 +2663,68 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &639411943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639411940}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &639411944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 639411940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8680d392aa62a42418a6aad731523deb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  categoryID: UI
+  subCategoryID: Buttons
+  onAction: ToggleOn
+  offAction: ToggleOff
+  hoverAction: Hover
 --- !u!1 &648517813
 GameObject:
   m_ObjectHideFlags: 0
@@ -3019,16 +3083,16 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/StopDrag
+            m_StringArgument: UI/Slider/StopDrag
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &681486063
@@ -3194,6 +3258,7 @@ GameObject:
   - component: {fileID: 702196498}
   - component: {fileID: 702196497}
   - component: {fileID: 702196496}
+  - component: {fileID: 702196500}
   m_Layer: 5
   m_Name: QuitButton (1)
   m_TagString: Untagged
@@ -3328,6 +3393,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 702196494}
   m_CullTransparentMesh: 1
+--- !u!114 &702196500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 702196494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &707550341
 GameObject:
   m_ObjectHideFlags: 0
@@ -4264,6 +4374,8 @@ GameObject:
   m_Component:
   - component: {fileID: 840345632}
   - component: {fileID: 840345633}
+  - component: {fileID: 840345634}
+  - component: {fileID: 840345635}
   m_Layer: 5
   m_Name: Toggle
   m_TagString: Untagged
@@ -4339,6 +4451,68 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_IsOn: 1
+--- !u!114 &840345634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840345631}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &840345635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 840345631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8680d392aa62a42418a6aad731523deb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  categoryID: UI
+  subCategoryID: Buttons
+  onAction: ToggleOn
+  offAction: ToggleOff
+  hoverAction: Hover
 --- !u!1 &859300684
 GameObject:
   m_ObjectHideFlags: 0
@@ -4577,7 +4751,7 @@ GameObject:
   - component: {fileID: 906210121}
   - component: {fileID: 906210120}
   m_Layer: 5
-  m_Name: Text (TMP) (3)
+  m_Name: sfx slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5554,16 +5728,16 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/StopDrag
+            m_StringArgument: UI/Slider/StopDrag
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &1004637655
@@ -5906,7 +6080,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &1053373465
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6534,32 +6708,32 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Hover
+            m_StringArgument: UI/Buttons/Hover
             m_BoolArgument: 0
           m_CallState: 2
   - eventID: 4
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Click
+            m_StringArgument: UI/Buttons/Cancel
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &1194385264
@@ -7323,7 +7497,7 @@ GameObject:
   - component: {fileID: 1281310610}
   - component: {fileID: 1281310609}
   m_Layer: 5
-  m_Name: Text (TMP) (2)
+  m_Name: music slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8034,32 +8208,32 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Hover
+            m_StringArgument: UI/Buttons/Hover
             m_BoolArgument: 0
           m_CallState: 2
   - eventID: 4
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Click
+            m_StringArgument: UI/Buttons/Click
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &1337743725
@@ -9257,32 +9431,32 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Hover
+            m_StringArgument: UI/Buttons/Hover
             m_BoolArgument: 0
           m_CallState: 2
   - eventID: 4
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/Click
+            m_StringArgument: UI/Buttons/Click
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &1530026324
@@ -10567,7 +10741,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 439986844}
         m_TargetAssemblyTypeName: MainMenuHuy, Assembly-CSharp
-        m_MethodName: UpdateMasterVolume
+        m_MethodName: UpdateMaster
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10594,16 +10768,16 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/StopDrag
+            m_StringArgument: UI/Slider/StopDrag
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &1769192551
@@ -11697,7 +11871,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -80, y: -30.9747}
+  m_AnchoredPosition: {x: -80, y: -30.97467}
   m_SizeDelta: {x: 160, y: 61.9493}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1912354791
@@ -11939,6 +12113,7 @@ GameObject:
   - component: {fileID: 1920597481}
   - component: {fileID: 1920597480}
   - component: {fileID: 1920597479}
+  - component: {fileID: 1920597482}
   m_Layer: 5
   m_Name: CloseButton
   m_TagString: Untagged
@@ -12022,6 +12197,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 439986844}
+        m_TargetAssemblyTypeName: MainMenuHuy, Assembly-CSharp
+        m_MethodName: SaveVolume
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1920597480
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12060,6 +12247,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1920597477}
   m_CullTransparentMesh: 1
+--- !u!114 &1920597482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920597477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1961156306
 GameObject:
   m_ObjectHideFlags: 0
@@ -12818,16 +13050,16 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
-          m_MethodName: PlaySound2DButton
+        - m_Target: {fileID: 6840051566872980268}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
           m_Mode: 5
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: Buttons/StopDrag
+            m_StringArgument: UI/Slider/StopDrag
             m_BoolArgument: 0
           m_CallState: 2
 --- !u!1 &2083823611
@@ -13039,7 +13271,7 @@ RectTransform:
   m_AnchoredPosition: {x: -4.999977, y: 0}
   m_SizeDelta: {x: -10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1001 &2760053952717648784
+--- !u!1001 &4443724253076983023
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -13047,55 +13279,86 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 2220351270098776532, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+      propertyPath: m_Name
+      value: AudioManager(New)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 495.5513
+      value: 4.174825
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 91.95464
+      value: -0.7656609
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 8.61192
+      value: -9.923964
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2534236379222189065, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+    - target: {fileID: 4441318010882149916, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3332443770000930776, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
-      propertyPath: m_Name
-      value: AudioManager
+    - target: {fileID: 5067380971107506713, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+      propertyPath: categories.Array.data[3].subCategories.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067380971107506713, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+      propertyPath: categories.Array.data[3].subCategories.Array.data[5].subCategoryID
+      value: Overheat
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067380971107506713, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+      propertyPath: categories.Array.data[3].subCategories.Array.data[5].actions.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067380971107506713, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+      propertyPath: categories.Array.data[3].subCategories.Array.data[5].actions.Array.data[0].actionID
+      value: On
+      objectReference: {fileID: 0}
+    - target: {fileID: 5067380971107506713, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+      propertyPath: categories.Array.data[3].subCategories.Array.data[5].actions.Array.data[1].actionID
+      value: Off
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: d6a619f3d36f14b4a8a95d69f322bb35, type: 3}
+  m_SourcePrefab: {fileID: 100100000, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+--- !u!114 &6840051566872980268 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8397391069004391439, guid: 4002039da21a4ab4d96d21843ec71ed2, type: 3}
+  m_PrefabInstance: {fileID: 4443724253076983023}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77176b3035cd5e147af8a91076d90aa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -13105,4 +13368,4 @@ SceneRoots:
   - {fileID: 506802834}
   - {fileID: 794740993}
   - {fileID: 1053373466}
-  - {fileID: 2760053952717648784}
+  - {fileID: 4443724253076983023}

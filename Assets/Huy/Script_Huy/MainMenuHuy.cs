@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
@@ -13,19 +13,22 @@ public class MainMenuHuy : MonoBehaviour
 
     private void Start()
     {
+        // 1. Load giá trị từ PlayerPrefs lên Slider trước
         LoadVolume();
 
-        // automatically adjust and save value
+        // 2. Đăng ký listener SAU KHI đã Load giá trị để tránh gọi trùng lặp
         masterSlider.onValueChanged.AddListener(UpdateMaster);
         musicSlider.onValueChanged.AddListener(UpdateMusicVolume);
         sfxSlider.onValueChanged.AddListener(UpdateSoundVolume);
 
+        // 3. Bật nhạc nền bằng Observer Pattern mới
         PlayMenuMusic();
     }
 
     private void PlayMenuMusic()
     {
-        //MusicManager.Instance.PlayMusic("MainMenu");
+        // Phát nhạc nền "MainMenu" thông qua Event System
+        AudioEvents.TriggerMusic("MainMenu", 0.5f);
     }
 
     public void Quit()
@@ -61,14 +64,11 @@ public class MainMenuHuy : MonoBehaviour
 
     public void LoadVolume()
     {
-        //take saved value, 1f as default if there is none
         masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
         musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
-        sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        musicSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
 
-
-
-        //update SFX into audiomixer right when loading
+        // Áp dụng ngay giá trị âm lượng vào AudioMixer
         UpdateMaster(masterSlider.value);
         UpdateMusicVolume(musicSlider.value);
         UpdateSoundVolume(sfxSlider.value);
