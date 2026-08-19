@@ -19,6 +19,12 @@ public class RoomTransition : MonoBehaviour
     public string nextSceneName;
     public string spawnIDInNextScene;
 
+    [Header("Checkpoint")]
+    [Tooltip("Bật = đi qua cửa này lưu điểm hồi sinh. Chết sẽ về phía bên kia cửa.")]
+    [SerializeField] private bool saveAsCheckpoint;
+    [Tooltip("Same Scene: ID LevelEntrance bên kia cửa (nếu có). Để trống = hồi sinh đúng nextRoomSpawnPoint.")]
+    [SerializeField] private string checkpointSpawnID;
+
     [Header("Hiệu ứng màn hình")]
     [Tooltip("Legacy — ScreenFader dùng chung, không cần gán nữa.")]
     public Image blackScreen;
@@ -73,6 +79,12 @@ public class RoomTransition : MonoBehaviour
 
             if (targetDoor != null) targetDoor.Open(instant: true);
 
+            TrySaveCheckpoint(
+                playerObj,
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                checkpointSpawnID,
+                nextRoomSpawnPoint.position);
+
             yield return new WaitForSeconds(0.2f);
             yield return ScreenFader.Instance.FadeIn(fadeDuration);
 
@@ -99,7 +111,10 @@ public class RoomTransition : MonoBehaviour
             }
 
             var hp = playerObj.GetComponent<HeartOfTheNight.Player.PlayerHealth>();
-            if (hp != null) hp.HealToFull();
+            if (hp != null && !saveAsCheckpoint)
+                hp.HealToFull();
+
+            TrySaveCheckpoint(playerObj, nextSceneName, spawnIDInNextScene, Vector3.zero);
 
             // Static pending không bị Firebase LoadGame ghi đè targetSpawnID trên RAM.
             LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
@@ -118,5 +133,15 @@ public class RoomTransition : MonoBehaviour
             // Continuation on ScreenFader — dùng timing prefab nếu muốn: truyền -1f.
             ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);
         }
+    }
+
+    private void TrySaveCheckpoint(GameObject playerObj, string sceneName, string spawnId, Vector3 worldPosition)
+    {
+        if (!saveAsCheckpoint) return;
+        if (HeartOfTheNight.Hung.DataManager.Instance == null) return;
+
+        var hp = playerObj != null ? playerObj.GetComponent<HeartOfTheNight.Player.PlayerHealth>() : null;
+        int health = hp != null ? hp.GetCurrentHealth() : -1;
+        HeartOfTheNight.Hung.DataManager.Instance.SaveCheckpoint(sceneName, spawnId, worldPosition, health);
     }
 }

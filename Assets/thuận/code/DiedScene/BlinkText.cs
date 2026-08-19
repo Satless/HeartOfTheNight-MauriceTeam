@@ -14,7 +14,9 @@ public class BlinkText : MonoBehaviour
 
     private void Update()
     {
-        float alpha = (Mathf.Sin(Time.time * blinkSpeed) + 1f) / 2f;
+        if (text == null) return;
+
+        float alpha = (Mathf.Sin(Time.unscaledTime * blinkSpeed) + 1f) / 2f;
 
         Color color = text.color;
         color.a = Mathf.Lerp(0.2f, 1f, alpha);
