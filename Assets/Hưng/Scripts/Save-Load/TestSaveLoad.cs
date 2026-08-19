@@ -6,7 +6,8 @@ namespace HeartOfTheNight.Hung
     {
         private void Update()
         {
-            // Nhấn F5 để Lưu vị trí
+#if UNITY_EDITOR
+            // Debug cũ — không dùng cho Continue / checkpoint. Chỉ Editor nếu gắn lại script.
             if (Input.GetKeyDown(KeyCode.F5))
             {
                 if (DataManager.Instance == null)
@@ -69,6 +70,7 @@ namespace HeartOfTheNight.Hung
                     }
                 });
             }
+#endif
         }
     }
 }
