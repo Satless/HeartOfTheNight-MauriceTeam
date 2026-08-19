@@ -66,14 +66,18 @@ namespace HeartOfTheNight.ThuNghiem
                 _roomCamera.Priority = 20;
 
                 // --- LOGIC MỚI CHO MINIMAP ---
-                // Chỉ gọi cập nhật UI 1 lần khi player vừa bước vào hoặc respawn tại phòng này
-                if (!_isPlayerInRoom)
+                if (MinimapManager.Instance != null && roomIndex >= 0)
                 {
-                    _isPlayerInRoom = true;
-                    if (MinimapManager.Instance != null && roomIndex >= 0)
+                    // Chỉ gọi SetCurrentRoom 1 lần khi player vừa bước vào hoặc respawn tại phòng này
+                    if (!_isPlayerInRoom)
                     {
-                        MinimapManager.Instance.SetCurrentRoom(roomIndex);
+                        _isPlayerInRoom = true;
+                        // Gửi thêm tọa độ tâm phòng ngoài thế giới (world space) cho Minimap
+                        MinimapManager.Instance.SetCurrentRoom(roomIndex, _roomCollider.bounds.center);
                     }
+                    
+                    // Cập nhật vị trí liên tục theo thời gian thực (Zero-GC)
+                    MinimapManager.Instance.UpdatePlayerPosition(_playerTransform.position);
                 }
                 // -----------------------------
             }

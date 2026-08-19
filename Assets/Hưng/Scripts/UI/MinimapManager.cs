@@ -66,16 +66,40 @@ public class MinimapManager : MonoBehaviour
         }
     }
 
+    [Header("Cài đặt Tracking Tọa Độ")]
+    [Tooltip("Tỷ lệ thu nhỏ từ Thế giới vào Minimap. Ví dụ: 1 unit ngoài đời = 5 pixel trên UI thì điền 5")]
+    public float mapScale = 5f;
+
+    private int _currentRoomIndex;
+    private Vector2 _currentRoomWorldCenter;
+
     /// <summary>
-    /// Di chuyển chấm player đến phòng tương ứng (vẫn chạy ngầm ngay cả khi Map đang tắt)
+    /// Lưu lại thông tin phòng hiện tại
     /// </summary>
-    public void SetCurrentRoom(int roomIndex)
+    public void SetCurrentRoom(int roomIndex, Vector2 roomWorldCenter)
     {
         if (roomIndex < 0 || roomIndex >= roomAnchors.Length) return;
 
-        if (playerDot != null && roomAnchors[roomIndex] != null)
-        {
-            playerDot.position = roomAnchors[roomIndex].position;
-        }
+        _currentRoomIndex = roomIndex;
+        _currentRoomWorldCenter = roomWorldCenter;
+    }
+
+    /// <summary>
+    /// Cập nhật vị trí dấu chấm liên tục theo thời gian thực (Zero-GC)
+    /// </summary>
+    public void UpdatePlayerPosition(Vector2 playerWorldPos)
+    {
+        if (_currentRoomIndex < 0 || _currentRoomIndex >= roomAnchors.Length) return;
+        if (playerDot == null || roomAnchors[_currentRoomIndex] == null) return;
+
+        // Tính khoảng cách từ tâm phòng tới player ở ngoài thế giới
+        Vector2 offset = playerWorldPos - _currentRoomWorldCenter;
+
+        // Bắt đầu từ tọa độ của điểm neo (giữa phòng)
+        playerDot.position = roomAnchors[_currentRoomIndex].position;
+        
+        // Cộng thêm độ lệch đã nhân với tỷ lệ thu nhỏ
+        // Dùng localPosition để tịnh tiến chấm đỏ trên mặt phẳng UI
+        playerDot.localPosition += new Vector3(offset.x * mapScale, offset.y * mapScale, 0);
     }
 }
