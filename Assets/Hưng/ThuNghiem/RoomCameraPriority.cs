@@ -8,6 +8,10 @@ namespace HeartOfTheNight.ThuNghiem
         [Tooltip("Kéo Camera của phòng này vào đây")]
         [SerializeField] private CinemachineCamera _roomCamera;
 
+        [Tooltip("Index của phòng này trên Minimap (để -1 nếu phòng không có trên map)")]
+        [SerializeField] private int roomIndex = -1;
+        private bool _isPlayerInRoom = false;
+
         private Collider2D _roomCollider;
         private Transform _playerTransform;
 
@@ -60,11 +64,26 @@ namespace HeartOfTheNight.ThuNghiem
             {
                 // Nếu có, đưa Camera này lên làm Vua (Priority 20)
                 _roomCamera.Priority = 20;
+
+                // --- LOGIC MỚI CHO MINIMAP ---
+                // Chỉ gọi cập nhật UI 1 lần khi player vừa bước vào hoặc respawn tại phòng này
+                if (!_isPlayerInRoom)
+                {
+                    _isPlayerInRoom = true;
+                    if (MinimapManager.Instance != null && roomIndex >= 0)
+                    {
+                        MinimapManager.Instance.SetCurrentRoom(roomIndex);
+                    }
+                }
+                // -----------------------------
             }
             else
             {
                 // Nếu Player đi khỏi, giáng cấp Camera này xuống (Priority 10)
                 _roomCamera.Priority = 10;
+                
+                // --- RESET TRẠNG THÁI MINIMAP ---
+                _isPlayerInRoom = false;
             }
         }
     }
