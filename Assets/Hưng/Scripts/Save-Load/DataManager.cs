@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
@@ -18,6 +19,12 @@ namespace HeartOfTheNight.Hung
         public string targetSpawnID; 
         public Vector3 playerPosition; // Thêm vị trí Player
         public List<string> clearedRooms = new List<string>();
+
+        // Checkpoint gắn cửa: chết / Continue về cửa đã kích hoạt gần nhất
+        public bool hasCheckpoint;
+        public string checkpointScene;
+        public string checkpointSpawnID;
+        public Vector3 checkpointPosition;
 
         public int maxUnlockedLevel = 1; // Mặc định luôn mở Level 1\
 
@@ -43,6 +50,13 @@ namespace HeartOfTheNight.Hung
         [Header("Debug / Test")]
         [Tooltip("Chi Editor: bat = giu chìa từ save khi Play. Tat (mac dinh) = moi lan Play chìa ve 0.")]
         [SerializeField] private bool keepSavedKeysWhenPlayInEditor = false;
+
+        [Header("Checkpoint")]
+        [Tooltip("Cho anim chết chạy trước khi fade + load lại scene.")]
+        [SerializeField] private float respawnDelay = 1.2f;
+
+        private bool _pendingRespawnApply;
+        private bool _isRespawning;
 
         private string SavePath => Application.persistentDataPath + "/save_data.json";
         private string BackupPath => Application.persistentDataPath + "/save_data.bak";
@@ -140,6 +154,107 @@ namespace HeartOfTheNight.Hung
                         Debug.Log("[Firebase] Đã đồng bộ Save lên Cloud thành công!");
                 });
             }
+        }
+
+        /// <summary>
+        /// Lưu cửa vừa đi qua làm điểm hồi sinh. Ghi local + cloud.
+        /// </summary>
+        public void SaveCheckpoint(string sceneName, string spawnId, Vector3 worldPosition, int health = -1)
+        {
+            if (Data == null) Data = new GameData();
+
+            Data.hasCheckpoint = true;
+            Data.checkpointScene = sceneName ?? "";
+            Data.checkpointSpawnID = spawnId ?? "";
+            Data.checkpointPosition = worldPosition;
+            Data.currentScene = Data.checkpointScene;
+            Data.targetSpawnID = Data.checkpointSpawnID;
+            Data.playerPosition = worldPosition;
+            if (health > 0)
+                Data.playerHealth = health;
+
+            SaveGame();
+            Debug.Log($"[Checkpoint] Đã lưu cửa: scene={Data.checkpointScene}, spawnId={Data.checkpointSpawnID}, pos={worldPosition}");
+        }
+
+        /// <summary>
+        /// Chết → chờ anim → reload scene tại checkpoint (hoặc điểm spawn mặc định nếu chưa qua cửa checkpoint).
+        /// </summary>
+        public void RespawnAtCheckpoint()
+        {
+            if (_isRespawning) return;
+            _isRespawning = true;
+            StartCoroutine(RespawnAtCheckpointRoutine());
+        }
+
+        private System.Collections.IEnumerator RespawnAtCheckpointRoutine()
+        {
+            Time.timeScale = 1f;
+
+            if (ScreenFader.Instance != null)
+                yield return ScreenFader.Instance.FadeOut();
+
+            string sceneToLoad = SceneManager.GetActiveScene().name;
+            if (Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointScene))
+                sceneToLoad = Data.checkpointScene;
+
+            _pendingRespawnApply = true;
+
+            if (Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointSpawnID))
+                LevelEntrance.SetPendingSpawn(Data.checkpointSpawnID);
+            else
+                LevelEntrance.ClearPendingSpawn();
+
+            if (ScreenFader.Instance != null)
+                ScreenFader.Instance.LoadSceneWithLoading(sceneToLoad);
+            else
+                SceneManager.LoadScene(sceneToLoad);
+
+            _isRespawning = false;
+        }
+
+        /// <summary>
+        /// Gọi sau khi scene load (từ ScreenFader). Chỉ khi đang hồi sinh / Continue.
+        /// </summary>
+        public void TryApplyPendingRespawn()
+        {
+            if (!_pendingRespawnApply) return;
+            _pendingRespawnApply = false;
+
+            GameObject player = LevelEntrance.FindPlayerRoot();
+            if (player == null) return;
+
+            bool alreadySpawnedByEntrance = Data != null
+                && !string.IsNullOrEmpty(Data.checkpointSpawnID)
+                && string.IsNullOrEmpty(LevelEntrance.PendingSpawnID);
+
+            if (!alreadySpawnedByEntrance
+                && Data != null
+                && Data.hasCheckpoint
+                && Data.checkpointPosition != Vector3.zero)
+            {
+                var rb = player.GetComponent<Rigidbody2D>();
+                if (rb != null)
+                {
+                    rb.linearVelocity = Vector2.zero;
+                    rb.simulated = false;
+                }
+
+                player.transform.position = Data.checkpointPosition;
+                if (Camera.main != null)
+                {
+                    Vector3 cam = Camera.main.transform.position;
+                    Camera.main.transform.position = new Vector3(
+                        Data.checkpointPosition.x,
+                        Data.checkpointPosition.y,
+                        cam.z);
+                }
+
+                if (rb != null) rb.simulated = true;
+            }
+
+            var hp = player.GetComponent<HeartOfTheNight.Player.PlayerHealth>();
+            if (hp != null) hp.HealToFull();
         }
 
         /// <summary>

@@ -193,6 +193,8 @@ public class ScreenFader : MonoBehaviour
 
         yield return null;
         LevelEntrance.TryApplyAllPending();
+        if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            HeartOfTheNight.Hung.DataManager.Instance.TryApplyPendingRespawn();
 
         SetLoadingVisible(false);
 

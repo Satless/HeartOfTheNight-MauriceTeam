@@ -11,8 +11,9 @@ namespace HeartOfTheNight.UI
         [SerializeField] private Image _o1Shoot;
         [SerializeField] private Image _o2Jump;
         [SerializeField] private Image _o3Dash;
-        [SerializeField] private Image _o4Toggle;
-        [SerializeField] private Image _o5SwitchWeapon; // Thêm O5
+        [SerializeField] private Image _o4Map;
+        [SerializeField] private Image _o5Toggle;
+        [SerializeField] private Image _o6SwitchWeapon;
 
         [Header("Màu của O1..O5")]
         [SerializeField] private Color _normalColor = new Color(1f, 1f, 1f, 0.5f);
@@ -40,13 +41,14 @@ namespace HeartOfTheNight.UI
         {
             _inputActions.Enable();
 
-            // Đăng ký đổi MÀU cho O1..O4
+            // Đăng ký đổi MÀU
             RegisterColorAction(_inputActions.Player.Attack, _o1Shoot);
             RegisterColorAction(_inputActions.Player.Jump, _o2Jump);
             RegisterColorAction(_inputActions.Player.Dash, _o3Dash);
-            RegisterColorAction(_inputActions.Player.ToggleVariant, _o4Toggle);
+            RegisterColorAction(_inputActions.UI.ToggleMap, _o4Map);
+            RegisterColorAction(_inputActions.Player.ToggleVariant, _o5Toggle);
             
-            // Đăng ký đổi MÀU cho O5 VÀ đổi ALPHA cho súng tương ứng
+            // Đăng ký đổi MÀU cho O6 VÀ đổi ALPHA cho súng tương ứng
             RegisterWeaponAction(_inputActions.Player.Weapon1, _gun1);
             RegisterWeaponAction(_inputActions.Player.Weapon2, _gun2);
             RegisterWeaponAction(_inputActions.Player.Weapon3, _gun3);
@@ -71,7 +73,7 @@ namespace HeartOfTheNight.UI
             action.canceled += ctx => img.color = _normalColor;
         }
 
-        // --- HÀM XỬ LÝ ĐỔI ALPHA SÚNG + NHÁY O5 ---
+        // --- HÀM XỬ LÝ ĐỔI ALPHA SÚNG + NHÁY O6 ---
         private void RegisterWeaponAction(InputAction action, TMP_Text gunText)
         {
             if (action == null) return;
@@ -81,13 +83,13 @@ namespace HeartOfTheNight.UI
 
             action.started += ctx => 
             {
-                if (_o5SwitchWeapon != null) _o5SwitchWeapon.color = _pressedColor;
+                if (_o6SwitchWeapon != null) _o6SwitchWeapon.color = _pressedColor;
                 if (gunText != null) SetTextAlpha(gunText, _pressedAlpha);
             };
 
             action.canceled += ctx => 
             {
-                if (_o5SwitchWeapon != null) _o5SwitchWeapon.color = _normalColor;
+                if (_o6SwitchWeapon != null) _o6SwitchWeapon.color = _normalColor;
                 if (gunText != null) SetTextAlpha(gunText, _normalAlpha);
             };
         }
@@ -106,12 +108,12 @@ namespace HeartOfTheNight.UI
             {
                 if (Keyboard.current.digit4Key.wasPressedThisFrame)
                 {
-                    if (_o5SwitchWeapon != null) _o5SwitchWeapon.color = _pressedColor;
+                    if (_o6SwitchWeapon != null) _o6SwitchWeapon.color = _pressedColor;
                     if (_gun4 != null) SetTextAlpha(_gun4, _pressedAlpha);
                 }
                 else if (Keyboard.current.digit4Key.wasReleasedThisFrame)
                 {
-                    if (_o5SwitchWeapon != null) _o5SwitchWeapon.color = _normalColor;
+                    if (_o6SwitchWeapon != null) _o6SwitchWeapon.color = _normalColor;
                     if (_gun4 != null) SetTextAlpha(_gun4, _normalAlpha);
                 }
             }
