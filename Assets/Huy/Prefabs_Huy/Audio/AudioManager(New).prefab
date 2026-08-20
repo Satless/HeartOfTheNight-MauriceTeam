@@ -112,24 +112,55 @@ MonoBehaviour:
     subCategories:
     - subCategoryID: Move
       actions:
-      - actionID: Random
-        clips: []
-    - subCategoryID: Wall climb
-      actions:
-      - actionID: Random
-        clips: []
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: 5034f5c8583f4574c8d71cdcbdddfc63, type: 3}
+        - {fileID: 8300000, guid: aa0f74e9f4286c0448c4bc2944dd95e4, type: 3}
+        - {fileID: 8300000, guid: b49eebe962e7c97408c0b722458cd432, type: 3}
+        - {fileID: 8300000, guid: ae79dcfd1dfff284cb320e462e313db4, type: 3}
     - subCategoryID: Jump
       actions:
-      - actionID: Random
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: 590341818be55674b81baad4192df565, type: 3}
+    - subCategoryID: Dash
+      actions:
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: b872fd576d4cdec4ebc3597748c7f403, type: 3}
+    - subCategoryID: StopDash
+      actions:
+      - actionID: n
         clips: []
+    - subCategoryID: WallClimb
+      actions:
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: 9c8db61554a034949b22d832e5bc0a89, type: 3}
+        - {fileID: 8300000, guid: d360266dc6e6f9f4ca6adbe0fb5755ed, type: 3}
+        - {fileID: 8300000, guid: 63f08ef27139bb647bcbcee050eaed9a, type: 3}
+        - {fileID: 8300000, guid: b9370cb087c36bc448ad83efe221b114, type: 3}
+    - subCategoryID: WallJump
+      actions:
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: e7784806bc4655947a32eaca08f0abfe, type: 3}
     - subCategoryID: Hurt
       actions:
-      - actionID: Random
-        clips: []
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: dcbbbaf987ae0864eab25049a5dd2f42, type: 3}
+        - {fileID: 8300000, guid: e7784806bc4655947a32eaca08f0abfe, type: 3}
+        - {fileID: 8300000, guid: 50451367dbf055d44ae98650f28fca16, type: 3}
+        - {fileID: 8300000, guid: 6dd51ec657c2e5e4197cb981ecb82a71, type: 3}
     - subCategoryID: Die
       actions:
-      - actionID: Random
-        clips: []
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: 5797f81964625c647bf6468f6de2d409, type: 3}
+        - {fileID: 8300000, guid: c06f7822f262b474f85f994b74f6491b, type: 3}
+        - {fileID: 8300000, guid: 744e23c4d2d76884c8610f7b56202f82, type: 3}
+        - {fileID: 8300000, guid: 8a3d19f61b03e1144855e7077c26cbf8, type: 3}
   - categoryID: Enemy
     subCategories: []
   - categoryID: Weapons
@@ -144,6 +175,14 @@ MonoBehaviour:
       actions: []
     - subCategoryID: Bullets
       actions: []
+    - subCategoryID: Cooldown
+      actions:
+      - actionID: On
+        clips: []
+      - actionID: Off
+        clips:
+        - {fileID: 8300000, guid: 333b92624d6a6cf40af81720df608e0a, type: 3}
+        - {fileID: 8300000, guid: c08b657129b672f45a9cbe3718b69c9b, type: 3}
   - categoryID: Other
     subCategories: []
 --- !u!114 &8397391069004391439

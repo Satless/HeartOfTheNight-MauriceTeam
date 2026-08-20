@@ -107,7 +107,7 @@ namespace HeartOfTheNight.Player
             if (_currentHealth <= 0)
             {
                 Die();
-                SoundManager.Instance.PlaySound3D("Player", "Death", transform.position);
+                //SoundManager.Instance.PlaySound3D("Player", "Death", transform.position);
             }
         }
 

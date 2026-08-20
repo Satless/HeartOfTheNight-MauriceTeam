@@ -2,49 +2,73 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class UIToggleSFX : MonoBehaviour
+// THÊM: IPointerEnterHandler để Unity nhận diện sự kiện Hover chuột
+public class UIToggleSFX : MonoBehaviour, IPointerEnterHandler
 {
     [Header("Category / SubCategory")]
     [SerializeField] private string categoryID = "UI";
-    [SerializeField] private string subCategoryID = "Toggle";
+    [SerializeField] private string subCategoryID = "Buttons";
 
     [Header("Action Names")]
-    [SerializeField] private string onAction = "TurnOn";   // Tên action khi BẬT
-    [SerializeField] private string offAction = "TurnOff"; // Tên action khi TẮT
-    [SerializeField] private string hoverAction = "Hover"; // Tên action khi Hover
+    [SerializeField] private string onAction = "ToggleOn";
+    [SerializeField] private string offAction = "ToggleOff";
+    [SerializeField] private string hoverAction = "Hover";
 
     private Toggle toggle;
+    private bool isInitialized = false; // Biến chặn phát âm thanh khi mới load UI
 
     private void Awake()
     {
         toggle = GetComponent<Toggle>();
-        // Lắng nghe sự kiện thay đổi trạng thái On/Off của Toggle
-        toggle.onValueChanged.AddListener(OnToggleChanged);
     }
 
-    private void OnDestroy()
+    private void OnEnable()
+    {
+        // Đánh dấu chưa khởi tạo để tránh phát tiếng khi OnEnable set trạng thái On/Off
+        isInitialized = false;
+
+        if (toggle != null)
+        {
+            toggle.onValueChanged.AddListener(OnToggleChanged);
+        }
+
+        // Cho phép phát âm thanh ở các khung hình tiếp theo (sau khi UI ổn định)
+        Invoke(nameof(EnableSFX), 0.05f);
+    }
+
+    private void OnDisable()
     {
         if (toggle != null)
+        {
             toggle.onValueChanged.RemoveListener(OnToggleChanged);
+        }
+    }
+
+    private void EnableSFX()
+    {
+        isInitialized = true;
     }
 
     private void OnToggleChanged(bool isOn)
     {
+        // Nếu UI vừa mở lên, không phát tiếng ngay
+        if (!isInitialized) return;
+
         if (isOn)
         {
-            // Phát tiếng Bật
             AudioEvents.TriggerSound2D(categoryID, subCategoryID, onAction);
         }
         else
         {
-            // Phát tiếng Tắt
             AudioEvents.TriggerSound2D(categoryID, subCategoryID, offAction);
         }
     }
 
+    // Bắt sự kiện Hover chuột
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!string.IsNullOrEmpty(hoverAction))
+        // Kiểm tra Toggle có bấm được không (Interactable) và tên Action không rỗng
+        if (toggle != null && toggle.interactable && !string.IsNullOrEmpty(hoverAction))
         {
             AudioEvents.TriggerSound2D(categoryID, subCategoryID, hoverAction);
         }

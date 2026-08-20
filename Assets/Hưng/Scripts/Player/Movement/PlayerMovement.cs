@@ -201,9 +201,7 @@ namespace HeartOfTheNight.Player
 	[Tooltip("Khoang cach day len tren khi ledge climb (Unity unit)")]
 	[SerializeField] private float _ledgeClimbVerticalPush = 0.8f;
 
-    private float _footstepTimer;
-    private float _slideSoundTimer; // thời gian để chạy sfx
-	private float _wallClimbTimer;
+    
 
     #endregion
 
@@ -224,11 +222,18 @@ namespace HeartOfTheNight.Player
 	private Collider2D _ignoredPlatform;
 	private Collider2D[] _overlapResults = new Collider2D[10];
 	private ContactFilter2D _groundFilter;
-	#endregion
+		#endregion
+			
+	#region SFX - Huy
+	private float _footstepTimer;
+    private float _slideSoundTimer; // thời gian để chạy sfx
+	private float _wallClimbTimer;
+    #endregion
 
-	// -------------------------------------------------------------------------
 
-    private void Awake()
+        // -------------------------------------------------------------------------
+
+        private void Awake()
 	{
 		RB = GetComponent<Rigidbody2D>();
 		_animation = GetComponent<PlayerAnimation>();
@@ -669,15 +674,17 @@ namespace HeartOfTheNight.Player
 		float movement = speedDif * accelRate; // Lực cần áp dụng = chênh lệch × tỷ lệ gia tốc
 		RB.AddForce(movement * Vector2.right, ForceMode2D.Force); // Áp dụng lực ngang lên Rigidbody
 
-        //if (LastOnGroundTime > 0 && Mathf.Abs(RB.linearVelocity.x) > 0.5f)
-        //{
-        //    _footstepTimer -= Time.deltaTime;
-        //    if (_footstepTimer <= 0f)
-        //    {
-        //        SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
-        //        _footstepTimer = 0.35f; 
-        //    }
-        //}
+		if (LastOnGroundTime > 0 && Mathf.Abs(RB.linearVelocity.x) > 0.5f)
+		{
+		    _footstepTimer -= Time.deltaTime;
+		    if (_footstepTimer <= 0f)
+		    {
+				//SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+
+				AudioEvents.TriggerSound3D("Player", "Move", "n", transform.position);
+                _footstepTimer = 0.35f; 
+            }
+        }
     }
 
 	private void Turn()
@@ -709,6 +716,7 @@ namespace HeartOfTheNight.Player
 		LastOnGroundTime = 0;
 
 		//SoundManager.Instance.PlaySound3D("Player", "Jump", transform.position);
+		AudioEvents.TriggerSound3D("Player", "Jump", "n", transform.position);
 
 		// Reset đà rơi về 0 → nhảy luôn đạt đúng jumpHeight dù đang rơi nhanh cỡ nào
 		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
@@ -722,7 +730,9 @@ namespace HeartOfTheNight.Player
 		LastOnWallRightTime = 0;
 		LastOnWallLeftTime = 0;
 
-        SoundManager.Instance.PlaySound3D("Player", "WallJump", transform.position);
+        //SoundManager.Instance.PlaySound3D("Player", "WallJump", transform.position);
+        AudioEvents.TriggerSound3D("Player", "WallJump", "n", transform.position);
+
 
         Vector2 force = new Vector2(Data.wallJumpForce.x, Data.wallJumpForce.y);
 		force.x *= dir; //Lực ngược chiều tường
@@ -756,7 +766,8 @@ namespace HeartOfTheNight.Player
 		LastOnGroundTime = 0;
 		LastPressedDashTime = 0;
 
-		SoundManager.Instance.PlaySound3D("Player","Dash", transform.position);
+		//SoundManager.Instance.PlaySound3D("Player","Dash", transform.position);
+		AudioEvents.TriggerSound3D("Player", "Dash", "n", transform.position);
 
 		// Nếu bật lockFacingToDashDirection, ép quay mặt đúng theo hướng lướt ngang
 		if (Data.lockFacingToDashDirection && Mathf.Abs(dir.x) > 0.1f)
@@ -783,7 +794,8 @@ namespace HeartOfTheNight.Player
 		SetGravityScale(Data.gravityScale);
 		RB.linearVelocity = Data.dashEndSpeed * dir.normalized;
 
-        SoundManager.Instance.PlaySound3D("Player", "StopDash", transform.position);
+        //SoundManager.Instance.PlaySound3D("Player", "StopDash", transform.position);
+		AudioEvents.TriggerSound3D("Player", "StopDash", "n", transform.position);
 
         // Phase 2: chờ hết dashEndTime, nhưng thoát sớm nếu chạm tường đúng hướng bám
         while (Time.time - startTime <= Data.dashEndTime)
@@ -823,12 +835,12 @@ namespace HeartOfTheNight.Player
 		movement = Mathf.Clamp(movement, -Mathf.Abs(speedDif)  * (1 / Time.fixedDeltaTime), Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime));
 		RB.AddForce(movement * Vector2.up);
 
-        _slideSoundTimer -= Time.fixedDeltaTime;
-        if (_slideSoundTimer <= 0f)
-        {
-            SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
-            _slideSoundTimer = 0.2f; // Phát lại sau mỗi 0.2s
-        }
+        //_slideSoundTimer -= Time.fixedDeltaTime;
+        //if (_slideSoundTimer <= 0f)
+        //{
+        //    SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+        //    _slideSoundTimer = 0.2f; // Phát lại sau mỗi 0.2s
+        //}
     }
 
 	private void WallClimb()
@@ -842,7 +854,8 @@ namespace HeartOfTheNight.Player
 		_wallClimbTimer -= Time.fixedDeltaTime;
          if (_wallClimbTimer <= 0f)
          {
-                SoundManager.Instance.PlaySound3D("Player", "WallClimb", transform.position);
+				//SoundManager.Instance.PlaySound3D("Player", "WallClimb", transform.position);
+				AudioEvents.TriggerSound3D("Player", "WallClimb", "n", transform.position);
                 _wallClimbTimer = 0.3f; // Phát lại sau mỗi 0.2s
          }
         }
