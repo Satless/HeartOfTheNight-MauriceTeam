@@ -19,17 +19,22 @@ public class HitEffectVFX : MonoBehaviour
     private int previousHealth;
     private PlayerHealth playerHealthScript;
 
-    private void Start()
+    private void Awake()
     {
-        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null) originalColor = spriteRenderer.color;
-
+        ResolveSprite();
         playerHealthScript = GetComponent<PlayerHealth>();
-
         if (playerHealthScript != null)
-        {
             previousHealth = playerHealthScript.GetCurrentHealth();
-        }
+    }
+
+    private void ResolveSprite()
+    {
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -70,15 +75,13 @@ public class HitEffectVFX : MonoBehaviour
         // 2. Nội soi xem nó chết chưa
         if (KiemTraQuaiChetChua())
         {
-            // NẾU ĐÃ CHẾT: Hủy chớp đỏ, đổ màu trắng trả lại màu gốc cho Animation Dead
-            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
-            if (spriteRenderer != null) spriteRenderer.color = originalColor;
+            // Đã chết: không start flash mới.
+            // Không StopCoroutine flash đang chạy — TakeDamage có thể vừa gọi PlayFlash
+            // (đạn Linecast), hủy sẽ làm "bắn chết một phát chẳng thấy gì".
+            yield break;
         }
-        else
-        {
-            // NẾU CÒN SỐNG: Chớp đỏ!
-            TriggerFlash();
-        }
+
+        TriggerFlash();
     }
 
     private bool KiemTraQuaiChetChua()
@@ -124,17 +127,40 @@ public class HitEffectVFX : MonoBehaviour
         previousHealth = currentHp;
     }
 
+    /// <summary>Gọi từ TakeDamage khi sát thương không đi qua tag/collider (vd. đạn Linecast).</summary>
+    public void PlayFlash()
+    {
+        TriggerFlash();
+    }
+
     private void TriggerFlash()
     {
-        if (spriteRenderer == null) return;
+        ResolveSprite();
+        if (spriteRenderer == null)
+        {
+            Debug.LogWarning($"[{name}] HitEffectVFX: không tìm thấy SpriteRenderer để flash.", this);
+            return;
+        }
+
+        // Component này phải còn enabled khi quái Disable script máu lúc chết
+        if (!isActiveAndEnabled)
+        {
+            Debug.LogWarning($"[{name}] HitEffectVFX đang tắt — không flash được.", this);
+            return;
+        }
+
         if (flashCoroutine != null) StopCoroutine(flashCoroutine);
         flashCoroutine = StartCoroutine(FlashRoutine());
     }
 
     private IEnumerator FlashRoutine()
     {
+        // Flash trắng rồi đỏ — dễ thấy hơn chỉ nhuộm đỏ trên sprite tối
+        Color from = spriteRenderer.color;
+        spriteRenderer.color = Color.white;
+        yield return new WaitForSeconds(flashDuration * 0.35f);
         spriteRenderer.color = flashColor;
         yield return new WaitForSeconds(flashDuration);
-        spriteRenderer.color = originalColor;
+        spriteRenderer.color = originalColor.a > 0.01f ? originalColor : from;
     }
 }

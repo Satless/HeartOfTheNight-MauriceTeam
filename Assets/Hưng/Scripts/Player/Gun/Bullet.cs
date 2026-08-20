@@ -176,26 +176,30 @@ public class Bullet : MonoBehaviour
         {
             if (_hitColliders.Contains(other)) return false; // Đã xuyên qua con này rồi, bỏ qua
 
-            if (HasEnemyTag(other))
-            {
-                IDamageable damageable = other.GetComponent<IDamageable>();
-                if (damageable != null)
-                {
-                    damageable.TakeDamage(_data.damage);
-                }
+            // Hitbox đánh / child Untagged trên layer Enemy: không chặn đạn, không trừ pierce
+            // (BurningCorpse.buAtk, BigCorpse.batk... hay đứng trước thân → đạn "trúng" mà không trừ máu)
+            if (!HasEnemyTag(other))
+                return false;
 
-                // Đẩy lùi theo hướng bay của đạn
-                if (_data.knockbackForce > 0)
+            IDamageable damageable = other.GetComponent<IDamageable>();
+            if (damageable == null)
+                damageable = other.GetComponentInParent<IDamageable>();
+            if (damageable != null)
+            {
+                damageable.TakeDamage(_data.damage);
+            }
+
+            // Đẩy lùi theo hướng bay của đạn
+            if (_data.knockbackForce > 0)
+            {
+                INhanKnockback knockback = other.GetComponent<INhanKnockback>();
+                if (knockback != null)
                 {
-                    INhanKnockback knockback = other.GetComponent<INhanKnockback>();
-                    if (knockback != null)
-                    {
-                        Vector2 knockDir = RB.linearVelocity.normalized;
-                        knockback.ApplyKnockback(knockDir, _data.knockbackForce);
-                    }
+                    Vector2 knockDir = RB.linearVelocity.normalized;
+                    knockback.ApplyKnockback(knockDir, _data.knockbackForce);
                 }
             }
-            
+
             _hitColliders.Add(other); // Đánh dấu đã đâm qua
 
             if (_data.isExplosive)
@@ -205,19 +209,17 @@ public class Bullet : MonoBehaviour
 
                 SoundManager.Instance.PlaySound3D("Weapons", "Explosive", transform.position);
 
-                return true; 
+                return true;
             }
-            else
+
+            SpawnHitVfx(hitPoint);
+
+            _pierceLeft--;
+            if (_pierceLeft < 0)
             {
-                SpawnHitVfx(hitPoint);
-                
-                _pierceLeft--;
-                if (_pierceLeft < 0) 
-                {
-                    return true; // Hết lượt xuyên -> Báo hiệu nổ đạn
-                }
-                return false; // Còn lượt xuyên -> Cho bay xuyên qua
+                return true; // Hết lượt xuyên -> Báo hiệu nổ đạn
             }
+            return false; // Còn lượt xuyên -> Cho bay xuyên qua
         }
 
         return false;
