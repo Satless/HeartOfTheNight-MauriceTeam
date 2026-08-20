@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using HeartOfTheNight.Common; // 1. THÊM THƯ VIỆN BỘ LUẬT CHUNG
+using HeartOfTheNight.Common;
 
 public class BurnHB : MonoBehaviour
 {
@@ -10,24 +10,26 @@ public class BurnHB : MonoBehaviour
         // 1. In ra để test xem Hitbox đã chạm được Player chưa
         Debug.Log("Hitbox chém trúng: " + collision.gameObject.name);
 
-        if (collision.CompareTag("Player"))
+        if (collision.CompareTag("Player") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            // 2. TÌM INTERFACE IDamageable THAY VÌ PlayerHealth
+            // LỌC: Đảm bảo chỉ đánh trúng Hurtbox, không đánh vào Collider đất
+            if (!collision.isTrigger) return;
+
+            // 2. TÌM INTERFACE IDamageable TỪ HURTBOX HOẶC TỪ OBJECT CHA
             IDamageable target = collision.GetComponent<IDamageable>();
+            if (target == null) target = collision.GetComponentInParent<IDamageable>();
 
             if (target != null)
             {
-                // Tên sếp vẫn là BurningCorpseImg
                 BurningCorpseImg burnScript = GetComponentInParent<BurningCorpseImg>();
 
                 if (burnScript != null)
                 {
-                    // 3. Truyền thẳng Collider2D (collision) vào hàm như đã sửa ở file sếp
+                    // 3. Truyền thẳng Hurtbox vào hàm để BurnScript xử lý
                     burnScript.DealDamageAndBurn(collision);
                 }
                 else
                 {
-                    // Nếu không có sếp thì tự hitbox trừ máu luôn
                     target.TakeDamage(attackDamage);
                 }
 

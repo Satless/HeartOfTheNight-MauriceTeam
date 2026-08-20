@@ -3,6 +3,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewPlayerData", menuName = "Data/Player Data")] //Tạo một đối tượng playerData mới bằng cách nhấp chuột phải vào Menu Project rồi chọn Create/Player/Player Data và kéo vào người chơi
 public class PlayerData : ScriptableObject
 {
+	[Header("Stats")]
+	[Tooltip("Lượng máu tối đa cơ bản của nhân vật khi mới bắt đầu màn chơi.")]
+	public int baseMaxHealth;
+
 	[Header("Gravity")]
 	[Tooltip("Được tự động tính toán từ jumpHeight và jumpTimeToApex.\nCông thức: -(2 * jumpHeight) / (jumpTimeToApex^2)")]
 	[ReadOnly] public float gravityStrength;
@@ -69,6 +73,8 @@ public class PlayerData : ScriptableObject
 	[Header("Wall Jump")]
 	[Tooltip("Lực bật nhảy khỏi tường (Trục X = bật ra xa, Trục Y = bật lên cao)")]
 	public Vector2 wallJumpForce;
+	[Tooltip("Trần tốc độ ngang NGAY SAU wall jump.\nĐặt gần bằng runMaxSpeed để doConserveMomentum không còn 'phần dư' để giữ mãi khi người chơi nhấn phím cùng hướng bật tường.\n≈ runMaxSpeed: triệt tiêu hoàn toàn. Cao hơn: vẫn còn chút thưởng tốc độ khi có đà.")]
+	public float wallJumpMaxSpeedX;
 	[Space(5)]
 	[Tooltip("Độ bẻ lái sau khi nhảy tường.\nCàng gần 0 thì người chơi càng khó đổi hướng ngay lập tức.\nCàng gần 1, kiểm soát tốc độ ngang gần như hoàn toàn theo input, giới hạn bởi runMaxSpeed")]
 	[Range(0f, 1f)] public float wallJumpRunLerp; //Giảm bớt ảnh hưởng của sự di chuyển của người chơi khi đang nhảy tường.

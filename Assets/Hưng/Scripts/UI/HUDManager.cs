@@ -14,10 +14,14 @@ namespace HeartOfTheNight.UI
 
         [Header("Heat Bar")]
         [SerializeField] private Image heatBarFill;
+        [Tooltip("Dải màu của thanh nhiệt (ví dụ: Trắng/Xanh -> Vàng -> Đỏ)")]
+        [SerializeField] private Gradient heatGradient;
 
         [Header("Health Bar")]
         [Tooltip("Kéo GameObject 'Mau' vào đây")]
         [SerializeField] private GameObject healthContainer;
+        [Tooltip("Kéo Prefab 'MauTrong' vào đây (1 ô đại diện cho 10 máu)")]
+        [SerializeField] private GameObject healthBlockPrefab;
 
         private HeartOfTheNight.Player.PlayerHealth _playerHealth;
         private HeartOfTheNight.Player.PlayerAttack _playerAttack;
@@ -37,7 +41,7 @@ namespace HeartOfTheNight.UI
             {
                 _playerHealth.OnHealthChanged += UpdateHealth;
                 // Cập nhật UI lần đầu với lượng máu hiện tại
-                UpdateHealth(_playerHealth.GetCurrentHealth(), _playerHealth.GetCurrentHealth()); 
+                UpdateHealth(_playerHealth.GetCurrentHealth(), _playerHealth.MaxHealth); 
             }
             else
             {
@@ -145,7 +149,14 @@ namespace HeartOfTheNight.UI
         {
             if (heatBarFill != null)
             {
-                heatBarFill.fillAmount = maxHeat > 0 ? currentHeat / maxHeat : 0;
+                float percent = maxHeat > 0 ? currentHeat / maxHeat : 0;
+                heatBarFill.fillAmount = percent;
+                
+                // Đổi màu thanh nhiệt (Xanh -> Đỏ)
+                if (heatGradient != null)
+                {
+                    heatBarFill.color = heatGradient.Evaluate(percent);
+                }
             }
         }
 
@@ -153,24 +164,74 @@ namespace HeartOfTheNight.UI
         {
             if (healthContainer == null) return;
 
-            int totalBlocks = healthContainer.transform.childCount;
-            if (totalBlocks == 0) return;
+            int expectedBlocks = Mathf.Max(1, maxHealth / 10); // Đảm bảo luôn có ít nhất 1 ô (nếu maxHealth < 10)
 
-            // Tính số ô máu CẦN BẬT dựa trên tỷ lệ % máu hiện tại
-            // Dùng Mathf.CeilToInt để lẻ 1 xíu máu (VD: 1/100) thì vẫn còn sáng 1 ô, chỉ tắt hết khi máu thật sự = 0
-            float healthPercent = (float)currentHealth / maxHealth;
-            int activeBlocks = Mathf.CeilToInt(healthPercent * totalBlocks);
-
-            // Dựa vào cấu trúc: Mau (healthContainer) -> CotmauDen -> CotmauDo
-            for (int i = 0; i < totalBlocks; i++)
+            // Tự động sinh/ẩn block nếu có Prefab (Inline Pool — Zero-GC)
+            if (healthBlockPrefab != null)
             {
-                Transform cotMauDen = healthContainer.transform.GetChild(i);
-                
-                if (cotMauDen.childCount > 0)
+                // Đếm số ô đang active
+                int activeCount = 0;
+                for (int i = 0; i < healthContainer.transform.childCount; i++)
                 {
-                    Transform cotMauDo = cotMauDen.GetChild(0);
+                    if (healthContainer.transform.GetChild(i).gameObject.activeSelf)
+                        activeCount++;
+                }
+                
+                // Tạo thêm nếu thiếu: ưu tiên tái sử dụng child inactive trước khi Instantiate
+                if (activeCount < expectedBlocks)
+                {
+                    // Bước 1: Bật lại các child đang inactive (tái sử dụng)
+                    for (int i = 0; i < healthContainer.transform.childCount && activeCount < expectedBlocks; i++)
+                    {
+                        GameObject child = healthContainer.transform.GetChild(i).gameObject;
+                        if (!child.activeSelf)
+                        {
+                            child.SetActive(true);
+                            activeCount++;
+                        }
+                    }
+                    
+                    // Bước 2: Nếu vẫn thiếu (chưa từng tạo bao giờ) → Instantiate bổ sung
+                    while (activeCount < expectedBlocks)
+                    {
+                        Instantiate(healthBlockPrefab, healthContainer.transform);
+                        activeCount++;
+                    }
+                }
+                
+                // Ẩn đi nếu dư (trường hợp maxHealth bị giảm) — KHÔNG Destroy, giữ lại để tái sử dụng
+                if (activeCount > expectedBlocks)
+                {
+                    int toHide = activeCount - expectedBlocks;
+                    // Duyệt ngược để ẩn từ cuối lên
+                    for (int i = healthContainer.transform.childCount - 1; i >= 0 && toHide > 0; i--)
+                    {
+                        GameObject child = healthContainer.transform.GetChild(i).gameObject;
+                        if (child.activeSelf)
+                        {
+                            child.SetActive(false);
+                            toHide--;
+                        }
+                    }
+                }
+            }
+
+            // Tính số ô máu CẦN BẬT dựa trên 10 máu = 1 ô
+            // Dùng Mathf.CeilToInt để 1-10 máu -> bật 1 ô, 11-20 máu -> bật 2 ô...
+            int activeBlocks = Mathf.CeilToInt((float)currentHealth / 10f);
+
+            // Dựa vào cấu trúc: Mau (healthContainer) -> MauTrong -> Mauday
+            for (int i = 0; i < expectedBlocks; i++)
+            {
+                if (i >= healthContainer.transform.childCount) break; // An toàn nếu Instantiate chưa xong trong frame
+                
+                Transform mauTrong = healthContainer.transform.GetChild(i);
+                
+                if (mauTrong.childCount > 0)
+                {
+                    Transform mauDay = mauTrong.GetChild(0);
                     // Bật các cục đỏ nếu index < activeBlocks
-                    cotMauDo.gameObject.SetActive(i < activeBlocks);
+                    mauDay.gameObject.SetActive(i < activeBlocks);
                 }
             }
         }

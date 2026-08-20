@@ -35,6 +35,7 @@ namespace HeartOfTheNight.Enemy
 
         private Rigidbody2D rb;
         private SpriteRenderer sprite;
+        private Collider2D playerCol;
         private EnemyStrengthModifier strengthMod;
         private State current = State.Idle;
         private float fireTimer;
@@ -55,6 +56,7 @@ namespace HeartOfTheNight.Enemy
                 var found = GameObject.FindGameObjectWithTag("Player");
                 if (found != null) player = found.transform;
             }
+            CachePlayerCollider();
 
             ValidateSetup();
             if (anim == null) anim = GetComponentInChildren<Animator>();
@@ -143,9 +145,10 @@ namespace HeartOfTheNight.Enemy
        private void DecideState(float distance)
 
 {
-    if (distance <= stats.minSafeDistance)
+    // Chỉ lùi khi bắn được (cùng tầng / không bị Ground chắn).
+    // Player ở tầng dưới: không retreat, Chase ra mép platform.
+    if (distance <= stats.minSafeDistance && HasClearShot())
     {
-        // Xử lý delay lùi
         closeRangeTimer += Time.deltaTime;
         if (closeRangeTimer >= stats.retreatReactionDelay) 
             current = State.Retreat;
@@ -154,16 +157,22 @@ namespace HeartOfTheNight.Enemy
     {
         closeRangeTimer = 0f;
         
-        if (distance <= stats.detectRange) 
-            current = State.Attack; // Trong vòng vàng -> Đứng lại ngắm bắn
-        else if (distance <= stats.detectRange + chaseRangeOffset) 
-            current = State.Chase; // Ngoài vòng vàng nhưng trong tầm nhìn -> Đuổi theo
-        else 
+        if (distance <= stats.detectRange && HasClearShot())
+            current = State.Attack; // Trong tầm và không bị Ground chắn -> ngắm bắn
+        else if (distance <= stats.detectRange + chaseRangeOffset)
+            current = State.Chase; // Ngoài tầm bắn, hoặc bị tường/nền chắn đạn -> đuổi / đứng mép
+        else
             current = State.Idle; // Quá xa -> Đứng chơi
     }
 }
 private void TickAttack(float distance)
 {
+    if (!HasClearShot())
+    {
+        if (anim != null) anim.ResetTrigger("Attack");
+        return;
+    }
+
     fireTimer -= Time.deltaTime;
     if (fireTimer <= 0f)
     {
@@ -256,8 +265,9 @@ private void Fire()
             public void ExecuteFire()
     {
         if (bulletPrefab == null || firePoint == null || player == null) return;
+        if (!HasClearShot()) return;
 
-        Vector2 dir = ((Vector2)player.position - (Vector2)firePoint.position).normalized;
+        Vector2 dir = (GetAimPoint() - (Vector2)firePoint.position).normalized;
         var bullet  = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
         bullet.Launch(dir, stats.bulletSpeed, EffectiveBulletDamage, stats.bulletLifetime);
 
@@ -290,6 +300,44 @@ private void Fire()
         Destroy(gameObject, 1f); 
     }
 }
+        private void CachePlayerCollider()
+        {
+            if (player == null) return;
+            playerCol = player.GetComponent<Collider2D>();
+            if (playerCol == null)
+                playerCol = player.GetComponentInChildren<Collider2D>();
+        }
+
+        private Vector2 GetAimPoint()
+        {
+            if (playerCol == null) CachePlayerCollider();
+            if (playerCol != null) return playerCol.bounds.center;
+            return player != null ? (Vector2)player.position : Vector2.zero;
+        }
+
+        private bool HasClearShot()
+        {
+            if (firePoint == null || player == null || groundLayer.value == 0)
+                return false;
+
+            Vector2 origin = firePoint.position;
+            Vector2 target = GetAimPoint();
+            Vector2 delta  = target - origin;
+            float distance = delta.magnitude;
+            if (distance < 0.05f) return false;
+
+            // Bắt đầu hơi trước FirePoint để tránh dính collider ngay miệng súng.
+            Vector2 dir   = delta / distance;
+            Vector2 start = origin + dir * 0.05f;
+
+            RaycastHit2D hit = Physics2D.Linecast(start, target, groundLayer);
+            if (debugLogs)
+                Debug.DrawLine(start, hit.collider != null ? hit.point : target,
+                               hit.collider != null ? Color.red : Color.green);
+
+            return hit.collider == null;
+        }
+
         private void OnDrawGizmosSelected()
         {
             if (stats == null) return;
@@ -299,6 +347,15 @@ private void Fire()
             Gizmos.DrawWireSphere(transform.position, stats.detectRange);
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, stats.minSafeDistance);
+
+            if (firePoint != null && player != null)
+            {
+                Vector3 origin = firePoint.position;
+                Vector3 target = Application.isPlaying ? (Vector3)GetAimPoint() : player.position;
+                bool blocked = Application.isPlaying && !HasClearShot();
+                Gizmos.color = blocked ? Color.red : Color.green;
+                Gizmos.DrawLine(origin, target);
+            }
         }
 
         private void OnDrawGizmos()

@@ -36,7 +36,8 @@ namespace HeartOfTheNight.Player
 		Falling,
 		Dashing,
 		Sliding,
-		DroppingThrough
+		DroppingThrough,
+		LedgeClimbing
 	}
 
 	public PlayerState CurrentState { get; private set; }
@@ -90,6 +91,12 @@ namespace HeartOfTheNight.Player
 				LastOnGroundTime = 0;
 				StartCoroutine(nameof(DropThroughRoutine), _ignoredPlatform);
 				break;
+
+			case PlayerState.LedgeClimbing:
+				_isJumpCut = false;
+				_isJumpFalling = false;
+				StartCoroutine(nameof(LedgeClimbRoutine));
+				break;
 		}
 	}
 	#endregion
@@ -102,9 +109,18 @@ namespace HeartOfTheNight.Player
 	public bool IsWallJumpLocked => IsWallJumping && Time.time - _wallJumpStartTime < Data.wallJumpTime;
 	public bool IsDashing => CurrentState == PlayerState.Dashing;
 	public bool IsSliding => CurrentState == PlayerState.Sliding;
+	public bool IsLedgeClimbing => CurrentState == PlayerState.LedgeClimbing;
 
-	// Timers coyote time & input buffer
-	public float LastOnGroundTime { get; private set; }
+        #region BUFF MULTIPLIERS
+        [Header("Buff Multipliers (Item Hệ Thống)")]
+        [Tooltip("Hệ số nhân tốc độ chạy (Ăn giày tăng tốc)")]
+        public float moveSpeedMultiplier = 1f;
+        [Tooltip("Hệ số nhân lực nhảy (Ăn lò xo)")]
+        public float jumpForceMultiplier = 1f;
+        #endregion
+
+        // Timers coyote time & input buffer
+        public float LastOnGroundTime { get; private set; }
 	public float LastOnWallTime { get; private set; }
 	public float LastOnWallRightTime { get; private set; }
 	public float LastOnWallLeftTime { get; private set; }
@@ -119,6 +135,7 @@ namespace HeartOfTheNight.Player
 	// Nhảy tường
 	[Tooltip("Thời điểm bắt đầu Wall Jump (dùng để tính thời gian khóa bẻ lái ngang)")]
 	[SerializeField, ReadOnly] private float _wallJumpStartTime;
+	public float WallJumpStartTime => _wallJumpStartTime;
 	[Tooltip("Hướng bật tường (-1 hoặc 1)")]
 	[SerializeField, ReadOnly] private int _lastWallJumpDir;
 
@@ -172,6 +189,21 @@ namespace HeartOfTheNight.Player
 	[Tooltip("Kích thước hộp kiểm tra tường, dùng physic thay vì collider để tránh lỗi)")]
 	[SerializeField] private Vector2 _wallCheckSize = new Vector2(0.5f, 1f);
 
+	[Header("Ledge Climb (Input-driven)")]
+	[Tooltip("Chieu dai tia raycast ngang de do tuong (phai dai hon khoang cach tu wallCheckPoint den mep tuong)")]
+	[SerializeField] private float _ledgeRayLength = 0.6f;
+	[Tooltip("Offset Y tu wallCheckPoint len phia dau de ban tia dau (tia nay phai KHONG cham tuong de xac nhan da qua mep)")]
+	[SerializeField] private float _ledgeHeadRayOffsetY = 0.7f;
+	[Tooltip("Thoi gian dich chuyen muot len tren mep tuong (giay)")]
+	[SerializeField] private float _ledgeClimbDuration = 0.15f;
+	[Tooltip("Khoang cach day ngang qua mep tuong khi ledge climb (Unity unit)")]
+	[SerializeField] private float _ledgeClimbHorizontalPush = 0.5f;
+	[Tooltip("Khoang cach day len tren khi ledge climb (Unity unit)")]
+	[SerializeField] private float _ledgeClimbVerticalPush = 0.8f;
+
+    private float _footstepTimer;
+    private float _slideSoundTimer; // thời gian để chạy sfx
+	private float _wallClimbTimer;
 
     #endregion
 
@@ -259,6 +291,7 @@ namespace HeartOfTheNight.Player
 		HandleTimers();
 		HandleInput();
 		HandleCollisionChecks();
+		HandleLedgeChecks();
 		HandleJumpChecks();
 		HandleDashChecks();
 		HandleSlideChecks();
@@ -304,7 +337,7 @@ namespace HeartOfTheNight.Player
 	/// <summary>Kiểm tra va chạm ground/wall, cập nhật timer coyote.</summary>
 	private void HandleCollisionChecks()
 	{
-		if (IsJumping) return;
+		if (IsJumping || IsLedgeClimbing) return;
 
 		// Ground check — skip toàn bộ khi đang dash để tránh HandleJumpChecks()
 		// ép state về Grounded giữa chừng trong khi coroutine StartDash vẫn chạy.
@@ -330,9 +363,28 @@ namespace HeartOfTheNight.Player
 		}
 	}
 
+	/// <summary>
+	/// Leo mep chu dong: giu huong vao tuong (A/D) + giu len (W) + raycast xac nhan co mep phia tren.
+	/// Input-driven — khong phu thuoc IsLowerHalfTouchingWall() hay dau cua velocity, tranh giat trang thai o goc mep.
+	/// </summary>
+	private void HandleLedgeChecks()
+	{
+		if (IsLedgeClimbing || IsDashing || IsWallJumping) return;
+		if (LastOnGroundTime > 0) return; // Dang dung dat thi khong can leo mep
+
+		bool pressingUp = _moveInput.y > 0.1f;
+		bool pressingIntoRightWall = LastOnWallRightTime > 0 && _moveInput.x > 0.1f;
+		bool pressingIntoLeftWall  = LastOnWallLeftTime  > 0 && _moveInput.x < -0.1f;
+
+		if (pressingUp && (pressingIntoRightWall || pressingIntoLeftWall) && DetectLedge())
+			TransitionToState(PlayerState.LedgeClimbing);
+	}
+
 	/// <summary>Quản lý các điều kiện chuyển trạng thái liên quan đến nhảy.</summary>
 	private void HandleJumpChecks()
 	{
+		if (IsLedgeClimbing) return;
+
 		// Jumping → Falling khi bắt đầu rơi
 		if (IsJumping && RB.linearVelocity.y < 0)
 			TransitionToState(PlayerState.Falling);
@@ -378,6 +430,8 @@ namespace HeartOfTheNight.Player
 	/// <summary>Kiểm tra và kích hoạt dash.</summary>
 	private void HandleDashChecks() 
 	{
+		if (IsLedgeClimbing) return;
+
 		if (!CanDash() || LastPressedDashTime <= 0) return;
 
 		//Đóng băng game một khoảnh khắc để đọc input hướng chính xác
@@ -423,18 +477,20 @@ namespace HeartOfTheNight.Player
 			{
 				if ((LastOnWallRightTime > 0 && _lastDashDir.x > 0) || (LastOnWallLeftTime > 0 && _lastDashDir.x < 0))
 				{
-				LastPressedDashTime = 0; // Xóa buffer phím lướt
-				return; // Thoát hàm luôn, không tốn lượt dash
-			}
-		}
-	}
+				    LastPressedDashTime = 0; // Xóa buffer phím lướt
+				    return; // Thoát hàm luôn, không tốn lượt dash
+			    }
+		    }
+	    }
 
-	TransitionToState(PlayerState.Dashing);
-}
+	    TransitionToState(PlayerState.Dashing);
+    }
 
 	/// <summary>Kiểm tra điều kiện slide wall.</summary>
 	private void HandleSlideChecks()
 	{
+		if (IsLedgeClimbing) return;
+
 		bool shouldSlide = CanSlide() && ((LastOnWallLeftTime > 0 && _moveInput.x < 0) || (LastOnWallRightTime > 0 && _moveInput.x > 0)); //Dễ hiểu thì biến bool ở đây sẽ là true hoặc false nếu sau dấu = đúng hoặc sai, đây là if lồng trong bool.
 
 		if (shouldSlide && CurrentState != PlayerState.Sliding)
@@ -464,6 +520,8 @@ namespace HeartOfTheNight.Player
 	/// </summary>
 	private void HandleGravity()
 	{
+		if (IsLedgeClimbing) return; // Gravity duoc quan ly boi LedgeClimbRoutine
+
 		if (_isDashAttacking)
 		{
 			SetGravityScale(0);
@@ -511,6 +569,8 @@ namespace HeartOfTheNight.Player
 	/// <summary>Xử lý di chuyển ngang, gọi từ FixedUpdate.</summary>
 	private void HandleRun()
 	{
+		if (IsLedgeClimbing) return; // MovePosition trong coroutine xu ly, khong can thiep
+
 		if (IsDashing)
 		{
 			if (!_isDashAttacking) // Chỉ trả lại một chút quyền bẻ lái ở Phase 2. Ở Phase 1 Coroutine đã ép chết vận tốc.
@@ -572,13 +632,13 @@ namespace HeartOfTheNight.Player
     #region RUN METHODS
     private void Run(float lerpAmount)
 	{
-        // Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
-        float targetSpeed = _moveInput.x * Data.runMaxSpeed;
-		// Nội suy giữa vận tốc hiện tại và tốc độ mục tiêu.
-		// lerpAmount = 1 → nhảy thẳng sang targetSpeed (full quyền điều khiển).
-		// lerpAmount = 0 → giữ nguyên vận tốc hiện tại (không cho bẻ lái).
-		// lerpAmount ở giữa (vd: 0.13, 0.4) → chỉ trả một phần quyền bẻ lái (dùng cho dash end, wall jump).
-		targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
+            // Tốc độ mục tiêu = hướng input × tốc độ chạy tối đa (vd: 1 × 15 = 15, -1 × 15 = -15, 0 × 15 = 0)
+            float targetSpeed = _moveInput.x * (Data.runMaxSpeed * moveSpeedMultiplier);
+            // Nội suy giữa vận tốc hiện tại và tốc độ mục tiêu.
+            // lerpAmount = 1 → nhảy thẳng sang targetSpeed (full quyền điều khiển).
+            // lerpAmount = 0 → giữ nguyên vận tốc hiện tại (không cho bẻ lái).
+            // lerpAmount ở giữa (vd: 0.13, 0.4) → chỉ trả một phần quyền bẻ lái (dùng cho dash end, wall jump).
+            targetSpeed = Mathf.Lerp(RB.linearVelocity.x, targetSpeed, lerpAmount);
 
 		// Chọn tỷ lệ gia tốc: đang giữ phím → dùng Accel (tăng tốc), buông phím → dùng Deccel (phanh).
 		// Trên không thì nhân thêm hệ số accelInAir/deccelInAir để giảm kiểm soát trên không trung.
@@ -609,6 +669,15 @@ namespace HeartOfTheNight.Player
 		float movement = speedDif * accelRate; // Lực cần áp dụng = chênh lệch × tỷ lệ gia tốc
 		RB.AddForce(movement * Vector2.right, ForceMode2D.Force); // Áp dụng lực ngang lên Rigidbody
 
+        //if (LastOnGroundTime > 0 && Mathf.Abs(RB.linearVelocity.x) > 0.5f)
+        //{
+        //    _footstepTimer -= Time.deltaTime;
+        //    if (_footstepTimer <= 0f)
+        //    {
+        //        SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+        //        _footstepTimer = 0.35f; 
+        //    }
+        //}
     }
 
 	private void Turn()
@@ -639,13 +708,12 @@ namespace HeartOfTheNight.Player
 		LastPressedJumpTime = 0;
 		LastOnGroundTime = 0;
 
-		// Bù vận tốc âm trước khi apply lực — đảm bảo luôn nhảy đúng độ cao
-		float force = Data.jumpForce;
-		if (RB.linearVelocity.y < 0)
-			force -= RB.linearVelocity.y;
+		//SoundManager.Instance.PlaySound3D("Player", "Jump", transform.position);
 
-		RB.AddForce(Vector2.up * force, ForceMode2D.Impulse);
-	}
+		// Reset đà rơi về 0 → nhảy luôn đạt đúng jumpHeight dù đang rơi nhanh cỡ nào
+		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
+            RB.AddForce(Vector2.up * (Data.jumpForce * jumpForceMultiplier), ForceMode2D.Impulse);
+        }
 
 	private void WallJump(int dir)
 	{
@@ -654,14 +722,23 @@ namespace HeartOfTheNight.Player
 		LastOnWallRightTime = 0;
 		LastOnWallLeftTime = 0;
 
+        SoundManager.Instance.PlaySound3D("Player", "WallJump", transform.position);
+
         Vector2 force = new Vector2(Data.wallJumpForce.x, Data.wallJumpForce.y);
 		force.x *= dir; //Lực ngược chiều tường
 
-		// Bù vận tốc ngang và dọc để đảm bảo wall jump đạt đúng độ lớn
+		// Giữ nguyên bù vận tốc ngang (chaining tech)
 		if (Mathf.Sign(RB.linearVelocity.x) != Mathf.Sign(force.x))
 			force.x -= RB.linearVelocity.x;
-		if (RB.linearVelocity.y < 0)
-			force.y -= RB.linearVelocity.y;
+
+		// Giới hạn trần vận tốc ngang sau wall jump.
+		// Ngăn doConserveMomentum "đóng băng" tốc độ cao mãi khi player nhấn cùng hướng bật tường.
+		float targetVelX = RB.linearVelocity.x + force.x;
+		targetVelX = Mathf.Clamp(targetVelX, -Data.wallJumpMaxSpeedX, Data.wallJumpMaxSpeedX);
+		force.x = targetVelX - RB.linearVelocity.x;
+
+		// Reset đà rơi dọc về 0 để tránh "bắn đại bác"
+		RB.linearVelocity = new Vector2(RB.linearVelocity.x, 0f);
 
 		RB.AddForce(force, ForceMode2D.Impulse);
 
@@ -679,6 +756,7 @@ namespace HeartOfTheNight.Player
 		LastOnGroundTime = 0;
 		LastPressedDashTime = 0;
 
+		SoundManager.Instance.PlaySound3D("Player","Dash", transform.position);
 
 		// Nếu bật lockFacingToDashDirection, ép quay mặt đúng theo hướng lướt ngang
 		if (Data.lockFacingToDashDirection && Mathf.Abs(dir.x) > 0.1f)
@@ -704,6 +782,8 @@ namespace HeartOfTheNight.Player
 		// Phase 2 — dash end: Hãm phanh
 		SetGravityScale(Data.gravityScale);
 		RB.linearVelocity = Data.dashEndSpeed * dir.normalized;
+
+        SoundManager.Instance.PlaySound3D("Player", "StopDash", transform.position);
 
         // Phase 2: chờ hết dashEndTime, nhưng thoát sớm nếu chạm tường đúng hướng bám
         while (Time.time - startTime <= Data.dashEndTime)
@@ -743,6 +823,12 @@ namespace HeartOfTheNight.Player
 		movement = Mathf.Clamp(movement, -Mathf.Abs(speedDif)  * (1 / Time.fixedDeltaTime), Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime));
 		RB.AddForce(movement * Vector2.up);
 
+        _slideSoundTimer -= Time.fixedDeltaTime;
+        if (_slideSoundTimer <= 0f)
+        {
+            SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+            _slideSoundTimer = 0.2f; // Phát lại sau mỗi 0.2s
+        }
     }
 
 	private void WallClimb()
@@ -753,8 +839,82 @@ namespace HeartOfTheNight.Player
 		movement = Mathf.Clamp(movement, -Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime), Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime));
 		RB.AddForce(movement * Vector2.up);
 
+		_wallClimbTimer -= Time.fixedDeltaTime;
+         if (_wallClimbTimer <= 0f)
+         {
+                SoundManager.Instance.PlaySound3D("Player", "WallClimb", transform.position);
+                _wallClimbTimer = 0.3f; // Phát lại sau mỗi 0.2s
+         }
         }
     #endregion
+
+	// -------------------------------------------------------------------------
+
+	#region LEDGE CLIMB METHODS
+	/// <summary>
+	/// Phat hien mep tuong bang 2 tia raycast ngang.
+	/// Tia vai: ban tu wallCheckPoint -> phai cham tuong (than con bam).
+	/// Tia dau: ban tu wallCheckPoint + offsetY -> phai KHONG cham tuong (dau da nho len khoi mep).
+	/// </summary>
+	private bool DetectLedge()
+	{
+		bool wasOnRightWall = LastOnWallRightTime > LastOnWallLeftTime;
+		Vector2 rayDir = wasOnRightWall ? Vector2.right : Vector2.left;
+		Transform wallCheckPoint = wasOnRightWall ? _rightWallCheckPoint : _leftWallCheckPoint;
+
+		Vector2 shoulderOrigin = (Vector2)wallCheckPoint.position + Vector2.down * (_wallCheckSize.y / 2f);
+		RaycastHit2D shoulderHit = Physics2D.Raycast(shoulderOrigin, rayDir, _ledgeRayLength, _groundLayer);
+
+		Vector2 headOrigin = (Vector2)wallCheckPoint.position + Vector2.up * _ledgeHeadRayOffsetY;
+		RaycastHit2D headHit = Physics2D.Raycast(headOrigin, rayDir, _ledgeRayLength, _groundLayer);
+
+		return shoulderHit.collider != null && headHit.collider == null;
+	}
+
+	/// <summary>
+	/// Coroutine dich chuyen nhan vat muot len tren + ngang qua mep tuong.
+	/// Trong suot qua trinh: gravity = 0, velocity = 0, cac Handle*Checks khac bi khoa qua guard IsLedgeClimbing.
+	/// </summary>
+	private IEnumerator LedgeClimbRoutine()
+	{
+		bool wasOnRightWall = LastOnWallRightTime > LastOnWallLeftTime;
+		float pushDirX = wasOnRightWall ? 1f : -1f;
+
+		SetGravityScale(0);
+		RB.linearVelocity = Vector2.zero;
+
+		Vector2 startPos = RB.position;
+		Vector2 highPos = startPos + new Vector2(pushDirX * _ledgeClimbHorizontalPush, _ledgeClimbVerticalPush);
+
+		// Dò tìm chính xác độ cao của mép tường để không bị lơ lửng
+		RaycastHit2D hit = Physics2D.Raycast(highPos, Vector2.down, _ledgeClimbVerticalPush, _groundLayer);
+		Vector2 targetPos = highPos;
+
+		if (hit.collider != null)
+		{
+			// Tính khoảng cách từ tâm nhân vật đến dưới bàn chân
+			float footOffset = _groundCheckPoint.position.y - transform.position.y;
+			// Đặt nhân vật sao cho bàn chân vừa khít với mặt đất (cộng thêm 0.02f để bù sai số BoxCast của GroundCheck)
+			targetPos = new Vector2(highPos.x, hit.point.y - footOffset + 0.02f);
+		}
+
+		float elapsed = 0f;
+		while (elapsed < _ledgeClimbDuration)
+		{
+			elapsed += Time.fixedDeltaTime;
+			float t = Mathf.Clamp01(elapsed / _ledgeClimbDuration);
+			float easedT = 1f - (1f - t) * (1f - t); // Ease-out
+			RB.MovePosition(Vector2.Lerp(startPos, targetPos, easedT));
+			yield return new WaitForFixedUpdate();
+		}
+
+		RB.MovePosition(targetPos);
+		RB.linearVelocity = Vector2.zero;
+
+		SetGravityScale(Data.gravityScale);
+		TransitionToState(PlayerState.Grounded);
+	}
+	#endregion
 
 	// -------------------------------------------------------------------------
 
@@ -944,6 +1104,24 @@ namespace HeartOfTheNight.Player
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireCube(_rightWallCheckPoint.position, _wallCheckSize);
 		Gizmos.DrawWireCube(_leftWallCheckPoint.position, _wallCheckSize);
+
+		// Ledge Climb Raycasts (Gizmos)
+		if (_rightWallCheckPoint != null)
+		{
+			// Tia vai (Vang) - phai cham tuong (ban tu day hop)
+			Gizmos.color = Color.yellow;
+			Vector2 shoulderR = (Vector2)_rightWallCheckPoint.position + Vector2.down * (_wallCheckSize.y / 2f);
+			Vector2 shoulderL = (Vector2)_leftWallCheckPoint.position + Vector2.down * (_wallCheckSize.y / 2f);
+			Gizmos.DrawLine(shoulderR, shoulderR + Vector2.right * _ledgeRayLength);
+			Gizmos.DrawLine(shoulderL, shoulderL + Vector2.left * _ledgeRayLength);
+
+			// Tia dau (Do) - phai KHONG cham tuong
+			Gizmos.color = Color.red;
+			Vector2 headR = (Vector2)_rightWallCheckPoint.position + Vector2.up * _ledgeHeadRayOffsetY;
+			Vector2 headL = (Vector2)_leftWallCheckPoint.position + Vector2.up * _ledgeHeadRayOffsetY;
+			Gizmos.DrawLine(headR, headR + Vector2.right * _ledgeRayLength);
+			Gizmos.DrawLine(headL, headL + Vector2.left * _ledgeRayLength);
+		}
 	}
     #endregion
     }

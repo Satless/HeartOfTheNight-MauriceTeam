@@ -125,7 +125,7 @@ public class KamikazeEnemy : MonoBehaviour
 
             if (distance <= explodeRange)
             {
-                PlayerHealth hp = player.GetComponent<PlayerHealth>();
+                PlayerHealth1 hp = player.GetComponent<PlayerHealth1>();
 
                 if (hp != null)
                 {

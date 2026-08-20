@@ -1,154 +1,229 @@
-﻿/*using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
+using HeartOfTheNight.Common;
 
-public class Wrath : MonoBehaviour
+public class Wrath : MonoBehaviour, IDamageable
 {
-    [Header("Tầm nhìn (Quét Ngang & Dọc)")]
-    public float moveSpeed = 7f;
+    [Header("Chỉ số Sinh tồn")]
+    public int maxHealth = 150;
+    public int currentHealth;
+    public bool isDead = false;
+
+    [Header("Hoạt ảnh")]
+    public Animator anim;
+
+    [Header("Tầm nhìn & Tầm Húc")]
+    public float moveSpeed = 5f;
+    public float patrolSpeed = 2f;
+    public float patrolDistance = 5f;
+    private float startX;
+
     public float detectionRangeX = 12f;
     public float detectionRangeY = 2.5f;
+    public float attackRange = 4.5f;
+    public float attackRangeY = 1.5f; // Chống lỗi gầm không khí
 
-    [Tooltip("HÃY SET TỪ 1.5 ĐẾN 2.0 ĐỂ NÓ DỪNG LẠI CHÉM TRƯỚC KHI ĐỤNG BỤNG VÀO BẠN")]
-    public float attackRange = 1.8f;
+    [Header("Kiểm tra Mặt đất & Mép vực")]
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.2f;
+    public LayerMask groundLayer;
+    public bool isGrounded;
 
-    [Header("Dịch chuyển an toàn")]
-    public float platformHeightDiff = 1.5f;
-    public float teleportDelay = 0.5f;
-    public float postTeleportDelay = 0.5f;
+    [Space]
+    public Transform edgeCheck;
+    public Transform wallCheck;
+    public float edgeCheckDistance = 1.5f;
+    public float wallCheckDistance = 0.5f;
 
-    [Header("Sát thương & Combo")]
+    [Header("Sát thương & Cú Húc (Charge)")]
     public int attackDamage = 15;
     public float attackCooldown = 2f;
-    public float timeBetweenHits = 0.3f;
     public float antiHealDuration = 6f;
+
+    [Space]
+    public float chargeWindupTime = 0.6f;
+    public float chargeSpeed = 18f;
+    public float chargeDuration = 0.35f;
+    public float hitRadius = 1.5f;
+    public float recoveryTime = 1.5f;
 
     private Transform player;
     private Rigidbody2D rb;
+    private Collider2D myCol;
     private float nextAttackTime = 0f;
-    private float teleportTimer = 0f;
     private bool isBusy = false;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        myCol = GetComponent<Collider2D>();
+        if (anim == null) anim = GetComponentInChildren<Animator>();
+
+        currentHealth = maxHealth;
+        startX = transform.position.x;
     }
 
     void Update()
     {
-        if (player == null || isBusy) return;
+        if (isBusy || isDead) return;
 
-        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(player.position.y - transform.position.y);
+        CheckGroundStatus();
 
-        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
+        if (player != null)
         {
-            if (distanceY > platformHeightDiff)
-            {
-                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-                teleportTimer += Time.deltaTime;
-                if (teleportTimer >= teleportDelay)
-                {
-                    StartCoroutine(ThucHienTeleportAnToan());
-                    teleportTimer = 0f;
-                }
-            }
-            else
-            {
-                teleportTimer = 0f;
+            float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+            float distanceY = Mathf.Abs(player.position.y - transform.position.y);
 
-                // Nếu lọt vào tầm đánh (khoảng cách 1.8m) -> PHANH GẤP VÀ CHÉM
-                if (distanceX <= attackRange)
+            if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
+            {
+                // Thêm check Y
+                if (distanceX <= attackRange && distanceY <= attackRangeY)
                 {
-                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Khóa vận tốc lập tức
+                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+                    if (anim != null) anim.SetFloat("Speed", 0f);
 
-                    if (Time.time >= nextAttackTime)
-                    {
-                        StartCoroutine(AttackCombo());
-                    }
+                    if (Time.time >= nextAttackTime) StartCoroutine(ThucHienHucRoutine());
                 }
                 else
                 {
-                    // Vẫn ở xa thì rượt đuổi
-                    Move();
+                    ChasePlayer();
                 }
+                return;
             }
+        }
+
+        Patrol();
+    }
+
+    void CheckGroundStatus()
+    {
+        if (groundCheck == null) return;
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+
+    bool IsNearEdge()
+    {
+        if (edgeCheck == null) return false;
+        RaycastHit2D hit = Physics2D.Raycast(edgeCheck.position, Vector2.down, edgeCheckDistance, groundLayer);
+        return hit.collider == null;
+    }
+
+    bool IsHittingWall()
+    {
+        if (wallCheck == null) return false;
+        float dir = Mathf.Sign(transform.localScale.x);
+        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, Vector2.right * dir, wallCheckDistance, groundLayer);
+        return hit.collider != null && !hit.collider.isTrigger;
+    }
+
+    void Patrol()
+    {
+        float distanceFromStart = Mathf.Abs(transform.position.x - startX);
+        float currentDir = Mathf.Sign(transform.localScale.x);
+        float dirToStart = Mathf.Sign(startX - transform.position.x);
+
+        if (IsNearEdge() || IsHittingWall() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
+        {
+            Vector3 scale = transform.localScale;
+            scale.x *= -1;
+            transform.localScale = scale;
+        }
+
+        float dir = Mathf.Sign(transform.localScale.x);
+        rb.linearVelocity = new Vector2(dir * patrolSpeed, rb.linearVelocity.y);
+        if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+    }
+
+    void ChasePlayer()
+    {
+        LookAtPlayer();
+
+        if (IsNearEdge() || IsHittingWall())
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", 0);
         }
         else
         {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            float dir = (player.position.x > transform.position.x) ? 1 : -1;
+            rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+            if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
         }
     }
 
-    void Move()
+    IEnumerator ThucHienHucRoutine()
     {
-        LookAtPlayer();
-        float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
-    }
-
-    IEnumerator AttackCombo()
-    {
-        isBusy = true; // Khóa di chuyển hoàn toàn
+        isBusy = true;
         rb.linearVelocity = Vector2.zero;
+        if (anim != null) anim.SetFloat("Speed", 0f);
         LookAtPlayer();
 
-        yield return new WaitForSeconds(0.1f); // Khựng lại một nhịp nhỏ như Dead Cells
+        if (anim != null) anim.SetTrigger("Roar");
+        yield return new WaitForSeconds(chargeWindupTime);
 
-        for (int i = 0; i < 3; i++)
+        if (isDead) yield break;
+
+        if (anim != null) anim.SetTrigger("Rush");
+
+        float huongHuc = Mathf.Sign(transform.localScale.x);
+        float thoiGianDaHuc = 0f;
+        bool daTrungDon = false;
+
+        rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
+
+        while (thoiGianDaHuc < chargeDuration)
         {
-            rb.linearVelocity = Vector2.zero; // Ép dừng mọi frame khi chém
-            AttackHit();
-            yield return new WaitForSeconds(timeBetweenHits);
+            if (isDead || IsNearEdge() || IsHittingWall()) break;
+
+            rb.linearVelocity = new Vector2(huongHuc * chargeSpeed, 0f);
+
+            if (!daTrungDon)
+            {
+                Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(transform.position, hitRadius);
+                foreach (Collider2D p in hitPlayers)
+                {
+                    if (p.CompareTag("Enemy") || !p.isTrigger) continue;
+                    if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
+                    {
+                        daTrungDon = true;
+                        IDamageable target = p.GetComponent<IDamageable>();
+                        if (target == null) target = p.GetComponentInParent<IDamageable>();
+
+                        if (target != null)
+                        {
+                            target.TakeDamage(attackDamage);
+                            ApplyAntiHeal();
+                        }
+                    }
+                }
+            }
+
+            thoiGianDaHuc += Time.deltaTime;
+            yield return null;
         }
+
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.linearVelocity = Vector2.zero;
+
+        if (anim != null)
+        {
+            anim.SetFloat("Speed", 0f);
+            anim.Play("Idle");
+        }
+
+        yield return new WaitForSeconds(recoveryTime);
 
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
 
-    void AttackHit()
+    void ApplyAntiHeal()
     {
-        // Cộng thêm 0.5m để lưỡi kiếm dài hơn tầm dừng lại một chút
-        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        if (distanceX <= attackRange + 0.5f)
-        {
-            PlayerHealth hp = player.GetComponent<PlayerHealth>();
-            if (hp != null) hp.TakeDamage(attackDamage);
-
-            AntiHeal anti = player.GetComponent<AntiHeal>();
-            if (anti == null) anti = player.gameObject.AddComponent<AntiHeal>();
-            anti.thoiGianConLai = antiHealDuration;
-        }
-    }
-
-    // --- HỆ THỐNG TELEPORT CHỐNG RỚT VỰC ---
-    IEnumerator ThucHienTeleportAnToan()
-    {
-        isBusy = true;
-        rb.linearVelocity = Vector2.zero;
-
-        // Tính vị trí đằng sau lưng 1.2 mét
-        float dirSauLung = (player.localScale.x > 0) ? -1f : 1f;
-        Vector2 viTriSauLung = new Vector2(player.position.x + (dirSauLung * 1.2f), player.position.y + 1f);
-
-        // Bắn tia raycast xuống kiểm tra xem sau lưng có ĐẤT không
-        RaycastHit2D hit = Physics2D.Raycast(viTriSauLung, Vector2.down, 3f);
-
-        // Nếu có chạm trúng bề mặt và không trúng người chơi
-        if (hit.collider != null && !hit.collider.CompareTag("Player") && !hit.collider.isTrigger)
-        {
-            // Có đất an toàn -> Teleport ra sau lưng
-            transform.position = new Vector2(viTriSauLung.x, player.position.y);
-        }
-        else
-        {
-            // Đằng sau lưng là vực thẳm -> Teleport chèn vào vị trí người chơi luôn cho chắc chắn
-            transform.position = player.position;
-        }
-
-        LookAtPlayer();
-        yield return new WaitForSeconds(postTeleportDelay);
-        isBusy = false;
+        if (player == null) return;
+        AntiHeal anti = player.GetComponent<AntiHeal>();
+        if (anti == null) anti = player.gameObject.AddComponent<AntiHeal>();
+        anti.thoiGianConLai = antiHealDuration;
     }
 
     void LookAtPlayer()
@@ -159,13 +234,27 @@ public class Wrath : MonoBehaviour
         transform.localScale = scale;
     }
 
-    void OnDrawGizmosSelected()
+    public void TakeDamage(int damage)
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position, new Vector3(detectionRangeX * 2, detectionRangeY * 2, 0));
-
-        // Vẽ Vòng Xanh bọc quanh quái để bạn dễ căn chỉnh attackRange
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        if (isDead) return;
+        currentHealth -= damage;
+        if (currentHealth <= 0) Die();
     }
-}*/
+
+    void Die()
+    {
+        isDead = true;
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false;
+        gameObject.tag = "Untagged";
+
+        if (myCol != null) myCol.enabled = false;
+        if (anim != null)
+        {
+            anim.enabled = true;
+            anim.SetTrigger("Dead");
+        }
+
+        Destroy(gameObject, 0.5f);
+    }
+}
