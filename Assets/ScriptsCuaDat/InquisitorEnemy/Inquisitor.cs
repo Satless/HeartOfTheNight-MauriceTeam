@@ -227,8 +227,6 @@ namespace HeartOfTheNight.Enemy
 
                 if (!buffedAllies.Contains(mod))
                     buffedAllies.Add(mod);
-
-                SoundManager.Instance.PlaySound3D("Enemy", "BuffGeneral", transform.position);
             }
 
             for (int i = buffedAllies.Count - 1; i >= 0; i--)
@@ -317,7 +315,6 @@ namespace HeartOfTheNight.Enemy
                           stats.homingStopDistance, stats.homingLockPlayerSpeed,
                           stats.bulletDamage, stats.bulletLifetime, groundLayer);
 
-            SoundManager.Instance.PlaySound3D("Enemy", "ShootGeneral", transform.position);
         }
 
         public void TakeDamage(int amount)

@@ -161,7 +161,6 @@ public class Bullet : MonoBehaviour
             {
                 Explode(hitPoint, hitNormal, null);
 
-                SoundManager.Instance.PlaySound3D("Weapons", "BulletHitWall", transform.position);
 
             }
             else
@@ -207,9 +206,7 @@ public class Bullet : MonoBehaviour
                 // Đạn nổ AOE: không xuyên, nổ ngay
                 Explode(hitPoint, hitNormal, other);
 
-                SoundManager.Instance.PlaySound3D("Weapons", "Explosive", transform.position);
-
-                return true;
+                return true; 
             }
 
             SpawnHitVfx(hitPoint);

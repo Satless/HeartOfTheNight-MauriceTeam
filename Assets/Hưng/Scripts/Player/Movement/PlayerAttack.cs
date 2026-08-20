@@ -623,7 +623,7 @@ public class PlayerAttack : MonoBehaviour
             OnOverheatStateChanged?.Invoke(true);
             Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Đóng băng {slot.overheatFreezeDuration}s. Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
 
-            SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
+            //SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
 
             // ═══ ÉP ANIMATOR HỦY DÁNG BẮN TỨC THÌ ═══
             // ResetTrigger xóa mọi trigger "Fire" đang chờ trong hàng đợi Animator.
@@ -683,7 +683,7 @@ public class PlayerAttack : MonoBehaviour
                 OnOverheatStateChanged?.Invoke(false);
                 Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {slot.currentHeat:F1}/{slot.maxHeat}. Mở khóa bắn.");
 
-                SoundManager.Instance.PlaySound3D("Weapons", "OverheatOff", transform.position);
+                //SoundManager.Instance.PlaySound3D("Weapons", "OverheatOff", transform.position);
             }
         }
     }
