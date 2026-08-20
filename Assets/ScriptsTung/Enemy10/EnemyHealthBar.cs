@@ -1,4 +1,5 @@
-﻿using System.Reflection; // 🔥 THƯ VIỆN NỘI SOI CODE CỰC MẠNH
+﻿using System;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using HeartOfTheNight.Common;
@@ -11,71 +12,112 @@ public class EnemyHealthBar : MonoBehaviour
     private Quaternion startRotation;
 
     private Component enemyScript;
+    private object currentHealthSource;
+    private object maxHealthSource;
     private FieldInfo currentHealthField;
     private FieldInfo maxHealthField;
+
+    private static readonly BindingFlags FieldFlags =
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+    private static readonly string[] CurrentHealthNames =
+    {
+        "currentHealth", "health", "_currentHealth", "hp", "currentHP", "_health"
+    };
+
+    private static readonly string[] MaxHealthNames =
+    {
+        "maxHealth", "_maxHealth", "maxHP", "MaxHealth"
+    };
+
+    private static readonly string[] NestedStatsNames =
+    {
+        "stats", "_data", "data", "_stats"
+    };
 
     void Start()
     {
         if (canvas != null) startRotation = canvas.transform.rotation;
 
-        // 1. Tự động quét lên trên để tìm xem con quái xài file code tên gì
         enemyScript = GetComponentInParent<IDamageable>() as Component;
-
-        if (enemyScript != null)
+        if (enemyScript == null)
         {
-            // 2. DÙNG NỘI SOI: Xuyên thủng private để tìm biến máu
-            System.Type type = enemyScript.GetType();
-
-            // TÌM ĐÚNG 2 BIẾN TÊN LÀ "currentHealth" VÀ "maxHealth"
-            currentHealthField = type.GetField("currentHealth", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            maxHealthField = type.GetField("maxHealth", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-            if (currentHealthField == null) Debug.LogWarning("Không tìm thấy biến currentHealth trong " + enemyScript.name);
+            Debug.LogWarning($"[{name}] EnemyHealthBar: không tìm thấy IDamageable trên parent.", this);
+            return;
         }
+
+        Type type = enemyScript.GetType();
+        currentHealthField = FindField(type, CurrentHealthNames);
+        currentHealthSource = enemyScript;
+
+        maxHealthField = FindField(type, MaxHealthNames);
+        maxHealthSource = enemyScript;
+
+        // Boss / MauTest: maxHealth nằm trong stats / _data
+        if (maxHealthField == null)
+        {
+            foreach (string nestedName in NestedStatsNames)
+            {
+                FieldInfo nestedField = type.GetField(nestedName, FieldFlags);
+                if (nestedField == null) continue;
+
+                object nestedObj = nestedField.GetValue(enemyScript);
+                if (nestedObj == null) continue;
+
+                FieldInfo nestedMax = FindField(nestedObj.GetType(), MaxHealthNames);
+                if (nestedMax == null) continue;
+
+                maxHealthField = nestedMax;
+                maxHealthSource = nestedObj;
+                break;
+            }
+        }
+
+        if (currentHealthField == null)
+            Debug.LogWarning($"[{name}] Không tìm thấy biến máu trên {enemyScript.GetType().Name}", this);
+        if (maxHealthField == null)
+            Debug.LogWarning($"[{name}] Không tìm thấy maxHealth trên {enemyScript.GetType().Name}", this);
     }
 
     void Update()
     {
-        // 3. Liên tục đọc trộm số máu hiện tại của quái để cập nhật lên UI
-        if (enemyScript != null && currentHealthField != null && maxHealthField != null)
-        {
-            // Móc số máu thực tế ra
-            int curHp = (int)currentHealthField.GetValue(enemyScript);
-            int maxHp = (int)maxHealthField.GetValue(enemyScript);
+        if (enemyScript == null || currentHealthField == null || maxHealthField == null)
+            return;
+        if (fillImage == null)
+            return;
 
-            // Cập nhật thanh đỏ
-            fillImage.fillAmount = (float)curHp / maxHp;
+        int curHp = Convert.ToInt32(currentHealthField.GetValue(currentHealthSource));
+        int maxHp = Convert.ToInt32(maxHealthField.GetValue(maxHealthSource));
+        if (maxHp <= 0) return;
 
-            // Nếu máu bằng 0 thì tự giấu cái thanh máu đi cho đỡ vướng
-            if (canvas != null) canvas.gameObject.SetActive(curHp > 0);
-        }
+        fillImage.fillAmount = (float)curHp / maxHp;
+
+        if (canvas != null)
+            canvas.gameObject.SetActive(curHp > 0);
     }
 
     void LateUpdate()
     {
-        if (canvas != null)
+        if (canvas == null) return;
+
+        canvas.transform.rotation = startRotation;
+
+        Vector3 fixScale = canvas.transform.localScale;
+        if (transform.parent != null && transform.parent.localScale.x < 0)
+            fixScale.x = -Mathf.Abs(fixScale.x);
+        else
+            fixScale.x = Mathf.Abs(fixScale.x);
+
+        canvas.transform.localScale = fixScale;
+    }
+
+    private static FieldInfo FindField(Type type, string[] names)
+    {
+        foreach (string name in names)
         {
-            // 1. Giữ cho thanh máu không bị xoay nghiêng ngả
-            canvas.transform.rotation = startRotation;
-
-            // 2. ÉP THANH MÁU KHÔNG BỊ "SOI GƯƠNG"
-            // Lấy kích thước hiện tại của thanh máu
-            Vector3 fixScale = canvas.transform.localScale;
-
-            // Kiểm tra xem thằng cha (con quái) có đang bị lật mặt (Scale X âm) không?
-            if (transform.parent != null && transform.parent.localScale.x < 0)
-            {
-                // Thằng cha âm, thì ép thằng con cũng âm để trừ với trừ thành cộng (chuẩn chiều)
-                fixScale.x = -Mathf.Abs(fixScale.x);
-            }
-            else
-            {
-                // Thằng cha dương (bình thường), thì ép thằng con dương
-                fixScale.x = Mathf.Abs(fixScale.x);
-            }
-
-            // Áp dụng lại kích thước đã sửa vào Canvas
-            canvas.transform.localScale = fixScale;
+            FieldInfo field = type.GetField(name, FieldFlags);
+            if (field != null) return field;
         }
+        return null;
     }
 }
