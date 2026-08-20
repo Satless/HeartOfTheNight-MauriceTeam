@@ -20,8 +20,7 @@ namespace HeartOfTheNight.Player
         [SerializeField, ReadOnly] private int _maxHealth;
         [SerializeField, ReadOnly] private int _currentHealth;
 
-        public bool hasShield = false;
-
+        public bool hasShield = false;/////
         public event Action<int, int> OnHealthChanged;
 
         public int MaxHealth => _maxHealth;
@@ -92,7 +91,6 @@ namespace HeartOfTheNight.Player
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
             //SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
-
 
             // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
