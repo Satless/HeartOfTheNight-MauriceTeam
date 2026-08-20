@@ -111,7 +111,7 @@ public class LevelEntrance : MonoBehaviour
     /// <summary>
     /// Prefab player có Hurtbox cũng tag Player — phải lấy object có Rigidbody2D (root).
     /// </summary>
-    private static GameObject FindPlayerRoot()
+    public static GameObject FindPlayerRoot()
     {
         GameObject[] tagged = GameObject.FindGameObjectsWithTag("Player");
         for (int i = 0; i < tagged.Length; i++)
