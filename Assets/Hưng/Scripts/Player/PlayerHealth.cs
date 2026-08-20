@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 using HeartOfTheNight.Common;
 using HeartOfTheNight.Hung;
 
@@ -12,20 +13,37 @@ namespace HeartOfTheNight.Player
     {
         [Header("Settings")]
         [SerializeField] private PlayerData _playerData;
+        [Tooltip("Chờ nhân vật nằm xuống xong mới hiện YOU DIED.")]
+        [SerializeField] private float _deathScreenDelay = 2f;
 
         [Header("Debug Tracking")]
         [SerializeField, ReadOnly] private int _maxHealth;
         [SerializeField, ReadOnly] private int _currentHealth;
+
+        public bool hasShield = false;
 
         public event Action<int, int> OnHealthChanged;
 
         public int MaxHealth => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
 
+        private bool _isDead;
+       
         private void Start()
         {
             InitHealth();
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F4))
+            {
+                hasShield = false;
+                TakeDamage(Mathf.Max(_currentHealth, 1) + 9999);
+            }
+        }
+#endif
 
         private void InitHealth()
         {
@@ -67,6 +85,8 @@ namespace HeartOfTheNight.Player
 
         public void TakeDamage(int amount)
         {
+            if (hasShield) return;
+
             if (_currentHealth <= 0) return;
 
             _currentHealth -= amount;
@@ -93,45 +113,41 @@ namespace HeartOfTheNight.Player
 
         private void Die()
         {
+            if (_isDead) return;
+            _isDead = true;
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
-            
-            // 1. Kích hoạt Animation chết và tách cái xác ra ngoài Scene
-            var anim = GetComponent<PlayerAnimation>();
-            // if (anim != null) anim.TriggerDeath();
+            StartCoroutine(DieRoutine());
+        }
 
-            // // 2. Tắt vật lý (đứng hình) và toàn bộ va chạm (để đạn bay xuyên qua)
-            // var rb = GetComponent<Rigidbody2D>();
-            // if (rb != null)
-            // {
-            //     rb.linearVelocity = Vector2.zero;
-            //     rb.simulated = false; 
-            // }
-
-            // var colliders = GetComponentsInChildren<Collider2D>();
-            // foreach (var col in colliders)
-            // {
-            //     col.enabled = false;
-            // }
-
-            // // 3. Khóa điều khiển
-            // var move = GetComponent<PlayerMovement>();
-            // if (move != null) move.enabled = false;
-
-            // var attack = GetComponent<PlayerAttack>();
-            // if (attack != null) attack.enabled = false;
-
-            if (anim != null) 
+        private IEnumerator DieRoutine()
+        {
+            var rb = GetComponent<Rigidbody2D>();
+            if (rb != null)
             {
-                anim.TriggerDeath();
-                anim.DetachVisualsForDeath();
+                rb.linearVelocity = Vector2.zero;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
             }
 
-            // 2. Xóa sổ hoàn toàn nhân vật gốc (Xóa máu, xóa logic, xóa collider)
-            // Lệnh này sẽ khiến biến `player` trong code của quái vật trở thành NULL.
-            // Nhờ đó, quái vật sẽ lập tức ngừng bắn và đứng im.
+            var move = GetComponent<PlayerMovement>();
+            if (move != null) move.enabled = false;
+
+            var attack = GetComponent<PlayerAttack>();
+            if (attack != null) attack.enabled = false;
+
+            var anim = GetComponent<PlayerAnimation>();
+            if (anim != null)
+                anim.TriggerDeath();
+
+            float delay = _deathScreenDelay > 0f ? _deathScreenDelay : 2f;
+            yield return new WaitForSeconds(delay);
+
+            var deadScreen = UnityEngine.Object.FindFirstObjectByType<DeadScreenUI>(FindObjectsInactive.Include);
+            if (deadScreen != null)
+                deadScreen.Show();
+            else if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                HeartOfTheNight.Hung.DataManager.Instance.RespawnAtCheckpoint();
+
             Destroy(gameObject);
-            
-            // TODO: Bắn Event Game Over ra UI (nếu có)
         }
         // ─── HỒI MÁU ────────────────────────────────────────────────────────────
 
@@ -141,6 +157,14 @@ namespace HeartOfTheNight.Player
         public void Heal(int amount)
         {
             if (_currentHealth <= 0 || amount <= 0) return; // Đã chết thì không hồi
+
+            // THÊM ĐOẠN CHẶN ANTI-HEAL VÀO ĐÂY
+            AntiHeal anti = GetComponent<AntiHeal>();
+            if (anti != null && anti.thoiGianConLai > 0)
+            {
+                Debug.Log("[PlayerHealth] Bơm máu thất bại! Đang dính hiệu ứng Anti-Heal của quái.");
+                return; // Đá văng ra ngoài, không cho cộng máu
+            }
 
             _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
             SyncDataAndNotify();
