@@ -335,8 +335,8 @@ namespace HeartOfTheNight.Enemy
             if (debugLogs)
                 Debug.Log($"[{name}] TakeDamage {amount} → HP {currentHealth}/{maxHealth}", this);
 
-            if (SoundManager.Instance != null)
-                SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+            // if (SoundManager.Instance != null)
+            //     SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
 
             if (currentHealth <= 0)
             {
@@ -348,8 +348,8 @@ namespace HeartOfTheNight.Enemy
                 GetComponent<Collider2D>().enabled = false;
                 this.enabled = false;
 
-                if (SoundManager.Instance != null)
-                    SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+                // if (SoundManager.Instance != null)
+                //     SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
                 Destroy(gameObject, 1.5f);
             }
