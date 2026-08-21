@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1235969527
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 2134375280205324526, guid: 71fbd9f4adb593948bae04f392ab65c8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -193,8 +193,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9caec243f3a403745a0236bd131dc69c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerData: {fileID: 0}
+  _deathScreenDelay: 2
   _maxHealth: 100
   _currentHealth: 0
+  hasShield: 0
 --- !u!114 &5118176850447827018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,6 +211,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Data: {fileID: 11400000, guid: abff10382b9435b44baed4f1b0930de6, type: 2}
+  moveSpeedMultiplier: 1
+  jumpForceMultiplier: 1
   _isJumpCut: 0
   _isJumpFalling: 0
   _wallJumpStartTime: 0
@@ -223,6 +228,11 @@ MonoBehaviour:
   _rightWallCheckPoint: {fileID: 505883896618523437}
   _leftWallCheckPoint: {fileID: 1996823155601675452}
   _wallCheckSize: {x: 0.15, y: 0.4}
+  _ledgeRayLength: 0.6
+  _ledgeHeadRayOffsetY: 0.7
+  _ledgeClimbDuration: 0.15
+  _ledgeClimbHorizontalPush: 0.5
+  _ledgeClimbVerticalPush: 0.8
   _groundLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -244,8 +254,10 @@ MonoBehaviour:
     maxHeat: 20
     cooldownRate: 7
     unlockThreshold: 0.3
+    overheatFreezeDuration: 0
     currentHeat: 0
     isOverheated: 0
+    overheatFreezeEndTime: 0
     variant1Capacity: "11 vi\xEAn"
     variant2Capacity: "3 vi\xEAn"
   Weapon2:
@@ -254,8 +266,10 @@ MonoBehaviour:
     maxHeat: 60
     cooldownRate: 10
     unlockThreshold: 0.3
+    overheatFreezeDuration: 0
     currentHeat: 0
     isOverheated: 0
+    overheatFreezeEndTime: 0
     variant1Capacity: "5 vi\xEAn"
     variant2Capacity: "5 vi\xEAn"
   Weapon3:
@@ -264,8 +278,10 @@ MonoBehaviour:
     maxHeat: 100
     cooldownRate: 20
     unlockThreshold: 0.3
+    overheatFreezeDuration: 0
     currentHeat: 0
     isOverheated: 0
+    overheatFreezeEndTime: 0
     variant1Capacity: "45 vi\xEAn"
     variant2Capacity: "8,3 gi\xE2y"
   Data: {fileID: 11400000, guid: c659baa5169f64c45b4a6be8fbba063b, type: 2}
@@ -601,10 +617,10 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1235969527
+  m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: -91802411505120699, guid: 377831538f642c346b49fcc2a748c4cc, type: 3}
+  m_Sprite: {fileID: -8305960000177378784, guid: 377831538f642c346b49fcc2a748c4cc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
