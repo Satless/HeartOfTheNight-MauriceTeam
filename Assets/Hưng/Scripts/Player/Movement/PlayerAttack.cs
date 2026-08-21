@@ -633,7 +633,7 @@ public class PlayerAttack : MonoBehaviour
             {
                 _weaponAnimator.ResetTrigger("Fire");
                 _weaponAnimator.SetBool("Fire", false);
-                _weaponAnimator.Play("Idle", 0, 0f);
+                _weaponAnimator.Play("Ide", 0, 0f);
                 _weaponAnimator.Update(0f); // Ép xử lý tức thì, triệt tiêu hoàn toàn trigger còn sót
             }
 

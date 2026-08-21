@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using HeartOfTheNight.Common;
+using HeartOfTheNight.Enemy;
 
 public class Automaton : MonoBehaviour, IDamageable
 {
@@ -52,23 +53,68 @@ public class Automaton : MonoBehaviour, IDamageable
     private Transform player;
     private Rigidbody2D rb;
     private Collider2D myCol;
+    private Collider2D playerBodyCol;
+    private IDamageable playerDamageable;
 
     private bool dangBanRaDon = false;
     private float nextDashTime = 0f;
     private float nextMeleeTime = 0f;
     private float teleportTimer = 0f;
 
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        myCol = GetComponent<Collider2D>();
+        if (anim == null) anim = GetComponent<Animator>();
+        if (sr == null) sr = GetComponent<SpriteRenderer>();
+        currentHealth = maxHealth;
+    }
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        rb = GetComponent<Rigidbody2D>();
-        myCol = GetComponent<Collider2D>();
 
-        if (anim == null) anim = GetComponent<Animator>();
-        if (sr == null) sr = GetComponent<SpriteRenderer>();
+        // Phòng trường hợp maxHealth đổi trên Inspector sau Awake
+        if (currentHealth <= 0 || currentHealth > maxHealth)
+            currentHealth = maxHealth;
 
-        currentHealth = maxHealth;
+        CachePlayerRefs();
         SetupXuyenThau();
+    }
+
+    void CachePlayerRefs()
+    {
+        if (player == null) return;
+
+        // Player Hưng: PlayerHealth ở root; capsule đứng / Hurtbox ở child
+        playerDamageable = player.GetComponent<IDamageable>();
+        if (playerDamageable == null)
+            playerDamageable = player.GetComponentInChildren<IDamageable>();
+
+        playerBodyCol = ResolvePlayerBodyCollider(player);
+    }
+
+    /// <summary>
+    /// Ưu tiên collider cứng (EnvironmentCollider) để tính chân / tầng.
+    /// Không lấy Hurtbox trigger làm reference khoảng cách.
+    /// </summary>
+    static Collider2D ResolvePlayerBodyCollider(Transform playerRoot)
+    {
+        Collider2D onRoot = playerRoot.GetComponent<Collider2D>();
+        if (onRoot != null && !onRoot.isTrigger)
+            return onRoot;
+
+        Collider2D[] cols = playerRoot.GetComponentsInChildren<Collider2D>();
+        Collider2D fallbackTrigger = null;
+        for (int i = 0; i < cols.Length; i++)
+        {
+            Collider2D col = cols[i];
+            if (col == null) continue;
+            if (!col.isTrigger) return col;
+            if (fallbackTrigger == null) fallbackTrigger = col;
+        }
+
+        return onRoot != null ? onRoot : fallbackTrigger;
     }
 
     void SetupXuyenThau()
@@ -77,8 +123,12 @@ public class Automaton : MonoBehaviour, IDamageable
 
         if (player != null)
         {
-            Collider2D pCol = player.GetComponent<Collider2D>();
-            if (pCol != null) Physics2D.IgnoreCollision(myCol, pCol, true);
+            Collider2D[] playerCols = player.GetComponentsInChildren<Collider2D>();
+            for (int i = 0; i < playerCols.Length; i++)
+            {
+                if (playerCols[i] != null)
+                    Physics2D.IgnoreCollision(myCol, playerCols[i], true);
+            }
         }
 
         GameObject[] allEnemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -113,11 +163,12 @@ public class Automaton : MonoBehaviour, IDamageable
             return;
         }
 
-        Collider2D playerCol = player.GetComponent<Collider2D>();
-        if (playerCol == null) return;
+        if (playerBodyCol == null)
+            CachePlayerRefs();
+        if (playerBodyCol == null) return;
 
         float myFeetY = myCol.bounds.min.y;
-        float playerFeetY = playerCol.bounds.min.y;
+        float playerFeetY = playerBodyCol.bounds.min.y;
 
         float distanceX = Mathf.Abs(player.position.x - transform.position.x);
         float distanceY = Mathf.Abs(playerFeetY - myFeetY);
@@ -202,8 +253,14 @@ public class Automaton : MonoBehaviour, IDamageable
         isDead = true;
         dangBanRaDon = true;
 
-        rb.linearVelocity = Vector2.zero;
-        rb.simulated = false;
+        if (rb == null) rb = GetComponent<Rigidbody2D>();
+        if (myCol == null) myCol = GetComponent<Collider2D>();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
 
         gameObject.tag = "Untagged";
         if (myCol != null) myCol.enabled = false;
@@ -331,13 +388,12 @@ public class Automaton : MonoBehaviour, IDamageable
             {
                 daTrungDon = true;
 
-                // TÌM IDAMAGEABLE ĐỂ TRỪ MÁU PLAYER KHI LƯỚT
-                IDamageable target = player.GetComponent<IDamageable>();
-                if (target == null) target = player.GetComponentInChildren<IDamageable>();
+                if (playerDamageable == null)
+                    CachePlayerRefs();
 
-                if (target != null)
+                if (playerDamageable != null)
                 {
-                    target.TakeDamage(dashDamage);
+                    playerDamageable.TakeDamage(dashDamage);
                     Debug.Log("Automaton lướt trúng Player!");
                 }
 
@@ -373,26 +429,22 @@ public class Automaton : MonoBehaviour, IDamageable
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
         Vector2 finalAttackPos = (Vector2)transform.position + adjustedOffset;
-        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, attackRange);
+        // Bán kính hit riêng — không dùng attackRange (tầm bắt đầu AI), tránh vòng quét quá to/nhỏ
+        float hitRadius = Mathf.Max(0.6f, attackOffset.magnitude + 0.35f);
+        Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, hitRadius);
 
         foreach (Collider2D p in hitPlayers)
         {
             if (p.CompareTag("Enemy")) continue;
 
-            // LỌC: Bỏ qua va chạm cứng, chỉ chém trúng cái Hurtbox (isTrigger = true)
+            // Chỉ chém Hurtbox (trigger) của Player Hưng
             if (!p.isTrigger) continue;
 
-            if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
+            if (EnemyCombatRules.TryGetPlayerDamageable(p, out IDamageable target))
             {
-                // Dò tìm lên thằng Cha để kiếm cho ra IDamageable
-                IDamageable target = p.GetComponent<IDamageable>();
-                if (target == null) target = p.GetComponentInParent<IDamageable>();
-
-                if (target != null)
-                {
-                    target.TakeDamage(meleeDamage);
-                    Debug.Log("Automaton chém trúng HURTBOX của Player!");
-                }
+                target.TakeDamage(meleeDamage);
+                Debug.Log("Automaton chém trúng HURTBOX của Player!");
+                break; // một hitbox / một nhát là đủ
             }
         }
     }
@@ -407,7 +459,8 @@ public class Automaton : MonoBehaviour, IDamageable
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
 
         Vector2 finalAttackPos = (Vector2)transform.position + adjustedOffset;
-        Gizmos.DrawWireSphere(finalAttackPos, attackRange);
+        float hitRadius = Mathf.Max(0.6f, attackOffset.magnitude + 0.35f);
+        Gizmos.DrawWireSphere(finalAttackPos, hitRadius);
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, dashRange);
