@@ -84,6 +84,11 @@ public class SelectLevelManager : MonoBehaviour
 
     public void Back()
     {
+        if (SoundManager_New.Instance != null)
+        {
+            SoundManager_New.Instance.PlaySound2DFromPath("UI/Buttons/Cancel");
+        }
+
         SceneManager.LoadScene("mainMenu");
     }
 

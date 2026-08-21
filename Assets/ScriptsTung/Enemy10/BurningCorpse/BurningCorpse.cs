@@ -173,6 +173,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     public void EnableHitbox()
     {
         if (isDead || attackHitbox == null) return;
+        attackHitbox.SetActive(true);
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 finalAttackPos = (Vector2)attackHitbox.transform.position + new Vector2(attackOffset.x * facingDirection, attackOffset.y);
         Collider2D[] hitPlayers = Physics2D.OverlapCircleAll(finalAttackPos, attackRadius);
@@ -219,7 +220,11 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         }
     }
 
-    public void DisableHitbox() { }
+    public void DisableHitbox()
+    {
+        if (attackHitbox != null)
+            attackHitbox.SetActive(false);
+    }
 
     public void TakeDamage(int damage)
     {

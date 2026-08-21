@@ -89,7 +89,6 @@ public class CollectibleItem : MonoBehaviour
         // Ẩn object đi. (Khuyến nghị dùng Object Pool khi game thực tế sinh ra nhiều tiền).
         gameObject.SetActive(false);
 
-        SoundManager.Instance.PlaySound3D("Player", "CollectItems", transform.position); 
     }
 
     private void OnEnable()

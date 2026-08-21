@@ -491,7 +491,6 @@ namespace HeartOfTheNight.Enemy
             }
             yield return new WaitForSeconds(0.2f);
 
-            SoundManager.Instance.PlaySound3D("Enemy", "SpawnPeonsGeneral", transform.position);
         }
 
         private void SpawnSummonVfx(GameObject enemy, Vector3 fallbackPos)
