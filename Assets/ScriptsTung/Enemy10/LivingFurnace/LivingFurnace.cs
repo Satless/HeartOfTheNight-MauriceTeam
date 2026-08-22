@@ -70,8 +70,6 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
     {
         isSpawning = true;
 
-        SoundManager.Instance.PlaySound3D("Enemy", "SpawnPeonsGeneral", transform.position);
-
         yield return new WaitForSeconds(delayBetweenWaves);
 
 
@@ -134,8 +132,6 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
         currentHealth -= damage;
         Debug.Log("Lò ấp bị chém! Máu: " + currentHealth + "/" + maxHealth);
 
-        SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
-
         if (currentHealth <= 0)
         {
             Die();
@@ -163,8 +159,6 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
-
-        SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
         Destroy(gameObject, 1.5f);
     }

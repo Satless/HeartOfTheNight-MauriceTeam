@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections;
 using HeartOfTheNight.Common;
 using HeartOfTheNight.Hung;
 
@@ -11,48 +12,85 @@ namespace HeartOfTheNight.Player
     public class PlayerHealth : MonoBehaviour, IDamageable
     {
         [Header("Settings")]
-        [SerializeField] private int _maxHealth;
+        [SerializeField] private PlayerData _playerData;
+        [Tooltip("Chờ nhân vật nằm xuống xong mới hiện YOU DIED.")]
+        [SerializeField] private float _deathScreenDelay = 2f;
 
         [Header("Debug Tracking")]
+        [SerializeField, ReadOnly] private int _maxHealth;
         [SerializeField, ReadOnly] private int _currentHealth;
 
+        public bool hasShield = false;/////
         public event Action<int, int> OnHealthChanged;
 
         public int MaxHealth => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
 
+        private bool _isDead;
+       
         private void Start()
         {
-            SyncHealthFromSave();
+            InitHealth();
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F4))
+            {
+                hasShield = false;
+                TakeDamage(Mathf.Max(_currentHealth, 1) + 9999);
+            }
+        }
+#endif
+
+        private void InitHealth()
+        {
+            if (_playerData != null)
+            {
+                _maxHealth = _playerData.baseMaxHealth;
+                _currentHealth = _maxHealth;
+            }
+            else
+            {
+                Debug.LogWarning("[PlayerHealth] Chưa gán PlayerData! Tạm dùng máu mặc định = 100.");
+                _maxHealth = 100;
+                _currentHealth = 100;
+            }
+
+            // Đồng bộ vào DataManager để UI hoặc Save/Load khác đọc
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            {
+                HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
+            }
+
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
+        /// <summary>
+        /// Khôi phục máu từ Save Data (dùng cho luồng "Continue / Tiếp tục chơi dở").
+        /// Gọi bởi LevelEntrance hoặc TestSaveLoad khi người chơi chọn tiếp tục màn đang dở.
+        /// </summary>
         public void SyncHealthFromSave()
         {
-            // Lấy máu từ Save Data, nếu Data bằng 0 (lần đầu chơi) thì lấy maxHealth
             if (HeartOfTheNight.Hung.DataManager.Instance != null && HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth > 0)
             {
                 _currentHealth = HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth;
             }
-            else
-            {
-                _currentHealth = _maxHealth;
-                
-                // Đồng bộ ngược lại vào Data (trên RAM)
-                if (HeartOfTheNight.Hung.DataManager.Instance != null)
-                    HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
-            }
+            // Nếu save data = 0 (chưa từng lưu), giữ nguyên _currentHealth từ InitHealth()
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         public void TakeDamage(int amount)
         {
+            if (hasShield) return;
+
             if (_currentHealth <= 0) return;
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
-            SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
-
+            //SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
 
             // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
@@ -67,51 +105,47 @@ namespace HeartOfTheNight.Player
             if (_currentHealth <= 0)
             {
                 Die();
-                SoundManager.Instance.PlaySound3D("Player", "Death", transform.position);
+                //SoundManager.Instance.PlaySound3D("Player", "Death", transform.position);
             }
         }
 
         private void Die()
         {
+            if (_isDead) return;
+            _isDead = true;
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
-            
-            // 1. Kích hoạt Animation chết và tách cái xác ra ngoài Scene
-            var anim = GetComponent<PlayerAnimation>();
-            // if (anim != null) anim.TriggerDeath();
+            StartCoroutine(DieRoutine());
+        }
 
-            // // 2. Tắt vật lý (đứng hình) và toàn bộ va chạm (để đạn bay xuyên qua)
-            // var rb = GetComponent<Rigidbody2D>();
-            // if (rb != null)
-            // {
-            //     rb.linearVelocity = Vector2.zero;
-            //     rb.simulated = false; 
-            // }
-
-            // var colliders = GetComponentsInChildren<Collider2D>();
-            // foreach (var col in colliders)
-            // {
-            //     col.enabled = false;
-            // }
-
-            // // 3. Khóa điều khiển
-            // var move = GetComponent<PlayerMovement>();
-            // if (move != null) move.enabled = false;
-
-            // var attack = GetComponent<PlayerAttack>();
-            // if (attack != null) attack.enabled = false;
-
-            if (anim != null) 
+        private IEnumerator DieRoutine()
+        {
+            var rb = GetComponent<Rigidbody2D>();
+            if (rb != null)
             {
-                anim.TriggerDeath();
-                anim.DetachVisualsForDeath();
+                rb.linearVelocity = Vector2.zero;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
             }
 
-            // 2. Xóa sổ hoàn toàn nhân vật gốc (Xóa máu, xóa logic, xóa collider)
-            // Lệnh này sẽ khiến biến `player` trong code của quái vật trở thành NULL.
-            // Nhờ đó, quái vật sẽ lập tức ngừng bắn và đứng im.
+            var move = GetComponent<PlayerMovement>();
+            if (move != null) move.enabled = false;
+
+            var attack = GetComponent<PlayerAttack>();
+            if (attack != null) attack.enabled = false;
+
+            var anim = GetComponent<PlayerAnimation>();
+            if (anim != null)
+                anim.TriggerDeath();
+
+            float delay = _deathScreenDelay > 0f ? _deathScreenDelay : 2f;
+            yield return new WaitForSeconds(delay);
+
+            var deadScreen = UnityEngine.Object.FindFirstObjectByType<DeadScreenUI>(FindObjectsInactive.Include);
+            if (deadScreen != null)
+                deadScreen.Show();
+            else if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                HeartOfTheNight.Hung.DataManager.Instance.RespawnAtCheckpoint();
+
             Destroy(gameObject);
-            
-            // TODO: Bắn Event Game Over ra UI (nếu có)
         }
         // ─── HỒI MÁU ────────────────────────────────────────────────────────────
 
@@ -121,6 +155,14 @@ namespace HeartOfTheNight.Player
         public void Heal(int amount)
         {
             if (_currentHealth <= 0 || amount <= 0) return; // Đã chết thì không hồi
+
+            // THÊM ĐOẠN CHẶN ANTI-HEAL VÀO ĐÂY
+            AntiHeal anti = GetComponent<AntiHeal>();
+            if (anti != null && anti.thoiGianConLai > 0)
+            {
+                Debug.Log("[PlayerHealth] Bơm máu thất bại! Đang dính hiệu ứng Anti-Heal của quái.");
+                return; // Đá văng ra ngoài, không cho cộng máu
+            }
 
             _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
             SyncDataAndNotify();

@@ -39,16 +39,19 @@ namespace HeartOfTheNight.Enemy
         private State current = State.Chase;
         private float fireTimer;
         private float panicTimer;
-        private int health;
+        // Tên currentHealth để tương thích EnemyHealthBar (reflection của Tùng)
+        private int currentHealth;
         private int facing = 1;
         private bool isDead = false;
+        private HitEffectVFX hitEffect;
         private readonly List<EnemyStrengthModifier> buffedAllies = new();
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             sprite = GetComponentInChildren<SpriteRenderer>();
-            health = maxHealth;
+            hitEffect = GetComponent<HitEffectVFX>();
+            currentHealth = maxHealth;
             //EnemySeparation.Ensure(gameObject);
 
             if (player == null)
@@ -224,8 +227,6 @@ namespace HeartOfTheNight.Enemy
 
                 if (!buffedAllies.Contains(mod))
                     buffedAllies.Add(mod);
-
-                SoundManager.Instance.PlaySound3D("Enemy", "BuffGeneral", transform.position);
             }
 
             for (int i = buffedAllies.Count - 1; i >= 0; i--)
@@ -314,18 +315,30 @@ namespace HeartOfTheNight.Enemy
                           stats.homingStopDistance, stats.homingLockPlayerSpeed,
                           stats.bulletDamage, stats.bulletLifetime, groundLayer);
 
-            SoundManager.Instance.PlaySound3D("Enemy", "ShootGeneral", transform.position);
         }
 
         public void TakeDamage(int amount)
         {
             if (isDead) return;
 
-            health -= amount;
+            currentHealth -= amount;
 
-            SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+            // Flash TRƯỚC khi xử lý chết. Đừng check currentHealth > 0 —
+            // súng thường one-shot (dmg >= 35) sẽ bỏ qua flash.
+            // Gọi trên HitEffectVFX (component riêng) vì this.enabled=false sẽ hủy coroutine của Inquisitor.
+            if (hitEffect == null) hitEffect = GetComponent<HitEffectVFX>();
+            if (hitEffect != null)
+                hitEffect.PlayFlash();
+            else if (debugLogs)
+                Debug.LogWarning($"[{name}] TakeDamage nhưng không có HitEffectVFX trên prefab.", this);
 
-            if (health <= 0)
+            if (debugLogs)
+                Debug.Log($"[{name}] TakeDamage {amount} → HP {currentHealth}/{maxHealth}", this);
+
+            // if (SoundManager.Instance != null)
+            //     SoundManager.Instance.PlaySound3D("Enemy", "HurtGeneral", transform.position);
+
+            if (currentHealth <= 0)
             {
                 isDead = true;
                 if (anim != null) anim.SetTrigger("Die");
@@ -335,7 +348,8 @@ namespace HeartOfTheNight.Enemy
                 GetComponent<Collider2D>().enabled = false;
                 this.enabled = false;
 
-                SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+                // if (SoundManager.Instance != null)
+                //     SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
 
                 Destroy(gameObject, 1.5f);
             }

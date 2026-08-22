@@ -40,6 +40,8 @@ namespace HeartOfTheNight.Player
     [SerializeField, ReadOnly] private bool _isHoldingGun;
     // Cờ đặc biệt: Vừa chuyển súng thì bắt buộc show súng một lúc
     private float _lastWeaponSwitchTime = -999f;
+    // Track trạng thái trước đó để phát Landing VFX khi đáp đất từ trên không
+    private PlayerMovement.PlayerState _previousState = PlayerMovement.PlayerState.Grounded;
 
     private void Awake()
     {
@@ -380,6 +382,18 @@ namespace HeartOfTheNight.Player
         // Chỉ xử lý các state One-shot (chỉ kích hoạt 1 lần khi vào state)
         switch (newState)
         {
+            case PlayerMovement.PlayerState.Grounded:
+                // Landing VFX: Chỉ nổ khói khi đáp đất từ trạng thái trên không
+                bool wasAirborne = _previousState == PlayerMovement.PlayerState.Falling
+                                || _previousState == PlayerMovement.PlayerState.Jumping
+                                || _previousState == PlayerMovement.PlayerState.WallJumping
+                                || _previousState == PlayerMovement.PlayerState.DroppingThrough;
+                if (wasAirborne && _jumpVfxData != null && _jumpVfxData.effectVfxPrefab != null && _movement.GroundCheckPoint != null)
+                {
+                    _jumpVfxData.effectVfxPrefab.Spawn(_movement.GroundCheckPoint.position, Quaternion.Euler(-90, 0, 0));
+                }
+                break;
+
             case PlayerMovement.PlayerState.Jumping:
                 // Khói bụi Nhảy (Burst) - Gọi Pooling Spawn tại dưới chân
                 if (_jumpVfxData != null && _jumpVfxData.effectVfxPrefab != null && _movement.GroundCheckPoint != null)
@@ -414,6 +428,8 @@ namespace HeartOfTheNight.Player
                 PlayAnim("Duoi-Dash");
                 break;
         }
+
+        _previousState = newState;
     }
 
     [Header("State Tracking")]
