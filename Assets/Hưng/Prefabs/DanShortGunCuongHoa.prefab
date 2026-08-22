@@ -188,7 +188,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74021565d2290364abda44bb36d35a04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
   _enemyLayer:
     serializedVersion: 2
     m_Bits: 1024
@@ -202,3 +201,8 @@ MonoBehaviour:
   - EnemyXa
   - Boss
   - EnemyBom
+  - Shield
+  _data: {fileID: 0}
+  _spawnTime: 0
+  _pierceLeft: 0
+  _hasHit: 0

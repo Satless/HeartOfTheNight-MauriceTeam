@@ -52,6 +52,7 @@ namespace HeartOfTheNight.UI
             RegisterWeaponAction(_inputActions.Player.Weapon1, _gun1);
             RegisterWeaponAction(_inputActions.Player.Weapon2, _gun2);
             RegisterWeaponAction(_inputActions.Player.Weapon3, _gun3);
+            RegisterWeaponAction(_inputActions.Player.Weapon4, _gun4);
         }
 
         private void OnDisable()
