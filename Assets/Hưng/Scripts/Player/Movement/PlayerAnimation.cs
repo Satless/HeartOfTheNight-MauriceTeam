@@ -32,12 +32,15 @@ namespace HeartOfTheNight.Player
     [Tooltip("Kéo object Cape (chứa Animator áo choàng) vào đây")]
     [SerializeField] private GameObject _capeObject;
     [Tooltip("Thời gian đứng im tối thiểu (giây) để bật áo choàng")]
-    [SerializeField] private float _idleTimeToShowCape = 1.5f;
+    [SerializeField] private float _idleTimeToShowCape;
+    [Tooltip("Giữ áo choàng khi nhân vật chết (Tạo hiệu ứng giơ cờ đầu hàng)")]
+    [SerializeField] private bool _keepCapeWhenDead = true;
     
     private float _idleTimer;
 
     private PlayerMovement _movement;
     private PlayerAttack _attack;
+    private PlayerHealth _health;
 
     // Cache lại các parameter hash để tối ưu hiệu năng (Zero GC)
     private static readonly int VelocityYKey = Animator.StringToHash("VelocityY");
@@ -58,6 +61,7 @@ namespace HeartOfTheNight.Player
     {
         _movement = GetComponent<PlayerMovement>();
         _attack = GetComponent<PlayerAttack>();
+        _health = GetComponent<PlayerHealth>();
     }
 
     private void OnEnable()
@@ -487,6 +491,12 @@ namespace HeartOfTheNight.Player
     {
         // Ẩn thân trên (súng)
         if (_upperBodyObject != null) _upperBodyObject.SetActive(false);
+        
+        // Ẩn áo choàng nếu không bật tính năng "Giơ cờ"
+        if (!_keepCapeWhenDead && _capeObject != null) 
+        {
+            _capeObject.SetActive(false);
+        }
         
         // Chạy anim chết
         PlayAnim("Duoi-chet");
