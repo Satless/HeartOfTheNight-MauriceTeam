@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
+  m_Name: SuperShortGun
+  m_EditorClassIdentifier: 
+  fireRate: 0
+  bulletSpeed: 0
+  damage: 0
+  bulletLifetime: 0
+  bulletsPerShot: 1
+  spreadAngle: 0
+  isVerticalSpread: 0
+  verticalSpacing: 0.1
+  weaponIcon: {fileID: 0}
+  animationSpeedMultiplier: 1
+  bulletPrefab: {fileID: 0}
+  weaponAnimator: {fileID: 0}
+  fireAnimationClip: {fileID: 0}
+  isExplosive: 0
+  explosionRadius: 0
+  explosionDamage: 0
+  statusEffect: {fileID: 0}
+  pierceCount: 0
+  isContinuousFire: 0
+  continuousVfxPrefab: {fileID: 0}
+  knockbackForce: 0
+  explosionKnockbackForce: 0
+  bulletPrewarmCount: 0
+  hitVfxPrewarmCount: 0
+  canOverheat: 0
+  heatPerShot: 0
+  fireSoundName: 
+  explosionSoundName: 
