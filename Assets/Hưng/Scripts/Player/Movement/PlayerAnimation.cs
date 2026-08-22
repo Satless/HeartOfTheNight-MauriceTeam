@@ -424,6 +424,11 @@ namespace HeartOfTheNight.Player
                 if (_leftWallVfx != null)  { var em = _leftWallVfx.emission;  em.enabled = false; }
                 break;
                 
+            case PlayerMovement.PlayerState.KnockedBack:
+                // Nhảy và Rơi đang dùng chung clip "Nhay" trong Animator
+                PlayAnim("Nhay");
+                break;
+                
             case PlayerMovement.PlayerState.Dashing:
                 PlayAnim("Duoi-Dash");
                 break;

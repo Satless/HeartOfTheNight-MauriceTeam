@@ -13,7 +13,7 @@ using UnityEngine.InputSystem;
 
 namespace HeartOfTheNight.Player
 {
-    public class PlayerMovement : MonoBehaviour
+    public class PlayerMovement : MonoBehaviour, INhanKnockback
     {
 	//Scriptable object chứa tất cả các thông số di chuyển — không hardcode
 	[Tooltip("Kéo thẳng ScriptableObject PlayerData vào đây")]
@@ -37,7 +37,8 @@ namespace HeartOfTheNight.Player
 		Dashing,
 		Sliding,
 		DroppingThrough,
-		LedgeClimbing
+		LedgeClimbing,
+		KnockedBack
 	}
 
 	public PlayerState CurrentState { get; private set; }
@@ -294,6 +295,15 @@ namespace HeartOfTheNight.Player
 	private void Update()
 	{
 		HandleTimers();
+		
+		if (CurrentState == PlayerState.KnockedBack)
+		{
+			// Vẫn kiểm tra va chạm tường và cho phép bám tường để hủy Knockback sớm
+			HandleCollisionChecks();
+			HandleSlideChecks();
+			return; 
+		}
+		
 		HandleInput();
 		HandleCollisionChecks();
 		HandleLedgeChecks();
@@ -305,6 +315,8 @@ namespace HeartOfTheNight.Player
 
     private void FixedUpdate()
 	{
+		if (CurrentState == PlayerState.KnockedBack) return;
+		
 		HandleRun();
 
 		if (IsSliding)
@@ -1136,6 +1148,32 @@ namespace HeartOfTheNight.Player
 			Gizmos.DrawLine(headL, headL + Vector2.left * _ledgeRayLength);
 		}
 	}
+
+	#region KNOCKBACK (INhanKnockback)
+	public void ApplyKnockback(Vector2 direction, float force)
+	{
+		// Có thể bỏ qua knockback nếu đang Dash (khung hình bất tử)
+		if (CurrentState == PlayerState.Dashing) return;
+
+		TransitionToState(PlayerState.KnockedBack);
+		RB.linearVelocity = direction.normalized * force;
+		
+		// Châm chước: Tặng lại lượt nhảy đôi để người chơi có cơ hội cứu mạng giữa không trung
+		_bonusJumpsLeft = Data.bonusJumpAmount;
+		
+		StartCoroutine(KnockbackRoutine());
+	}
+
+	private IEnumerator KnockbackRoutine()
+	{
+		yield return new WaitForSeconds(0.25f);
+		if (CurrentState == PlayerState.KnockedBack)
+		{
+			TransitionToState(PlayerState.Falling);
+		}
+	}
+	#endregion
+
     #endregion
     }
 }

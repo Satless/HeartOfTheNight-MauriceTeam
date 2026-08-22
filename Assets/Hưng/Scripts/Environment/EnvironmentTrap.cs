@@ -17,6 +17,9 @@ namespace HeartOfTheNight.Environment
         [Tooltip("Số máu trừ nếu không phải InstaKill.")]
         [SerializeField] private int _damage;
 
+        [Tooltip("Lực nảy khi dính bẫy (Chỉ dùng nếu không phải InstaKill)")]
+        [SerializeField] private float _knockbackForce;
+
         private void OnTriggerEnter2D(Collider2D collision)
         {
             HandleCollision(collision.gameObject);
@@ -40,7 +43,27 @@ namespace HeartOfTheNight.Environment
                 }
                 else
                 {
-                    playerHealth.TakeDamage(_damage);
+                    // 1. Trừ máu (nếu có sát thương)
+                    if (_damage > 0)
+                    {
+                        playerHealth.TakeDamage(_damage);
+                    }
+
+                    // 2. Knockback (áp dụng kể cả khi damage = 0, vd: Nấm nảy, bẫy đẩy)
+                    INhanKnockback knockbackObj = target.GetComponentInParent<INhanKnockback>();
+                    if (knockbackObj != null)
+                    {
+                        Vector2 bounceDir = Vector2.up; // Hướng nảy mặc định văng lên trên
+                        
+                        PlayerMovement move = target.GetComponentInParent<PlayerMovement>();
+                        if (move != null)
+                        {
+                            // Văng dội ngược lại hướng nhân vật đang đứng
+                            bounceDir.x = move.IsFacingRight ? -1f : 1f;
+                        }
+                        
+                        knockbackObj.ApplyKnockback(bounceDir.normalized, _knockbackForce);
+                    }
                 }
             }
         }
