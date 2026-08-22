@@ -82,6 +82,15 @@ namespace HeartOfTheNight.Player
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
+        public void InstaKill()
+        {
+            if (_currentHealth <= 0) return;
+            
+            Debug.Log("[PlayerHealth] Dính bẫy tử thần! Ép phá khiên và chết ngay lập tức.");
+            hasShield = false; // Xuyên qua mọi loại khiên bảo vệ
+            TakeDamage(_currentHealth); // Ép trừ đúng bằng lượng máu hiện tại để về 0
+        }
+
         public void TakeDamage(int amount)
         {
             if (hasShield) return;
