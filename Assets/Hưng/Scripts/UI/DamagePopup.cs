@@ -7,6 +7,19 @@ namespace HeartOfTheNight.UI
     /// DamagePopup - Hiển thị số sát thương kiểu Zero-GC.
     /// Tích hợp hệ thống Universal Object Pooling (không dùng Instantiate/Destroy).
     /// </summary>
+    public enum DamageColorMode
+    {
+        Single,
+        Random,
+        GradientOverTime
+    }
+
+    public enum DamageRotationMode
+    {
+        Fixed,
+        Random
+    }
+
     [RequireComponent(typeof(TextMeshPro))]
     public class DamagePopup : MonoBehaviour
     {
@@ -49,12 +62,31 @@ namespace HeartOfTheNight.UI
         [Tooltip("Thời điểm bắt đầu mờ dần (0.6 = giữ rõ nét 60% thời gian đầu, 40% cuối mờ dần đi)")]
         [SerializeField] private float fadeStartPercent;
 
-        [Header("Màu & Cỡ chữ")]
-        [Tooltip("Màu chữ mặc định (Sát thương bình thường)")]
-        [SerializeField] private Color normalColor = Color.white;
+        [Header("Màu sắc & Cỡ chữ")]
+        [Tooltip("Chế độ màu sắc: Đơn, Ngẫu nhiên, hay Đổi màu theo thời gian (Gradient)")]
+        [SerializeField] private DamageColorMode colorMode = DamageColorMode.Single;
         
-        [Tooltip("Cỡ chữ hiển thị mặc định")]
-        [SerializeField] private float normalFontSize;
+        [Tooltip("Màu đơn cố định (Nếu chọn Single)")]
+        [SerializeField] private Color singleColor = Color.white;
+        
+        [Tooltip("Danh sách các màu để chọn ngẫu nhiên (Nếu chọn Random)")]
+        [SerializeField] private Color[] randomColors;
+        
+        [Tooltip("Dải màu thay đổi theo tuổi thọ của số (Nếu chọn GradientOverTime)")]
+        [SerializeField] private Gradient gradientColor;
+        
+        [Tooltip("Cỡ chữ hiển thị")]
+        [SerializeField] private float fontSize = 4f;
+
+        [Header("Xoay (Rotation)")]
+        [Tooltip("Chế độ xoay: Cố định góc Z hay Xoay nghiêng ngẫu nhiên")]
+        [SerializeField] private DamageRotationMode rotationMode = DamageRotationMode.Fixed;
+        
+        [Tooltip("Góc xoay Z cố định (Nếu chọn Fixed)")]
+        [SerializeField] private float fixedRotationZ = 0f;
+        
+        [Tooltip("Góc xoay nghiêng ngẫu nhiên từ [-Random, +Random] (Nếu chọn Random)")]
+        [SerializeField] private float randomRotationRange = 15f;
 
         private TextMeshPro _tmp;
         private Transform _cachedTransform;
@@ -62,6 +94,7 @@ namespace HeartOfTheNight.UI
         private float _age;
         private Vector3 _velocity;
         private bool _isActive;
+        private float _currentZRotation;
 
         private static Camera _mainCamera;
         private static Quaternion _cachedBillboardRotation;
@@ -117,10 +150,36 @@ namespace HeartOfTheNight.UI
             Vector3 targetStartScale = _cachedTransform.localScale;
             _cachedTransform.localScale = Vector3.one;
             _tmp.text = FormatDamageText(damageAmount);
-            _tmp.fontSize = normalFontSize;
+            _tmp.fontSize = fontSize;
             _cachedTransform.localScale = targetStartScale;
 
-            _tmp.color = normalColor;
+            // Thiết lập Rotation
+            if (rotationMode == DamageRotationMode.Fixed)
+            {
+                _currentZRotation = fixedRotationZ;
+            }
+            else
+            {
+                _currentZRotation = Random.Range(-randomRotationRange, randomRotationRange);
+            }
+
+            // Thiết lập Màu ban đầu
+            switch (colorMode)
+            {
+                case DamageColorMode.Single:
+                    _tmp.color = singleColor;
+                    break;
+                case DamageColorMode.Random:
+                    if (randomColors != null && randomColors.Length > 0)
+                        _tmp.color = randomColors[Random.Range(0, randomColors.Length)];
+                    else
+                        _tmp.color = Color.white;
+                    break;
+                case DamageColorMode.GradientOverTime:
+                    if (gradientColor != null)
+                        _tmp.color = gradientColor.Evaluate(0f);
+                    break;
+            }
             _tmp.alpha = 1f;
 
             float sideways = Random.Range(-moveSidewaysRandom, moveSidewaysRandom);
@@ -146,6 +205,16 @@ namespace HeartOfTheNight.UI
             }
 
             UpdateScale(t);
+
+            // Cập nhật Gradient theo thời gian
+            if (colorMode == DamageColorMode.GradientOverTime && gradientColor != null)
+            {
+                // Lưu lại alpha hiện tại do UpdateFade quản lý
+                float currentAlpha = _tmp.alpha;
+                Color newColor = gradientColor.Evaluate(t);
+                newColor.a = currentAlpha;
+                _tmp.color = newColor;
+            }
 
             _cachedTransform.position += _velocity * dt;
             _velocity *= velocityDamping;
@@ -197,7 +266,8 @@ namespace HeartOfTheNight.UI
                     _cachedFrame = frame;
                 }
             }
-            _cachedTransform.rotation = _cachedBillboardRotation;
+            // Áp dụng Billboard gốc Camera và cộng thêm góc xoay nghiêng cục bộ (Z Rotation)
+            _cachedTransform.rotation = _cachedBillboardRotation * Quaternion.Euler(0f, 0f, _currentZRotation);
         }
 
         private void Despawn()
