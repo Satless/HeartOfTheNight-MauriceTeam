@@ -99,7 +99,7 @@ namespace HeartOfTheNight.UI.Editor
             {
                 EditorGUILayout.PropertyField(randomColorsProp);
             }
-            else if (colorMode == DamageColorMode.GradientOverTime)
+            else if (colorMode == DamageColorMode.GradientOverTime || colorMode == DamageColorMode.RandomFromGradient)
             {
                 EditorGUILayout.PropertyField(gradientColorProp);
             }

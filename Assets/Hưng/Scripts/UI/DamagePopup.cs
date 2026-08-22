@@ -12,7 +12,8 @@ namespace HeartOfTheNight.UI
         Single,
         Random,
         GradientOverTime,
-        RandomGradientOverTime
+        RandomGradientOverTime,
+        RandomFromGradient
     }
 
     public enum DamageRotationMode
@@ -79,7 +80,7 @@ namespace HeartOfTheNight.UI
         [Tooltip("Danh sách các màu để chọn ngẫu nhiên (Nếu chọn Random)")]
         [SerializeField] private Color[] randomColors;
         
-        [Tooltip("Dải màu thay đổi theo tuổi thọ của số (Nếu chọn GradientOverTime)")]
+        [Tooltip("Dải màu thay đổi theo thời gian (hoặc dùng để trích xuất màu ngẫu nhiên)")]
         [SerializeField] private Gradient gradientColor;
         
         [Tooltip("Danh sách các dải màu ngẫu nhiên (Nếu chọn RandomGradientOverTime)")]
@@ -113,6 +114,7 @@ namespace HeartOfTheNight.UI
         private bool _isActive;
         private float _currentZRotation;
         private Gradient _currentGradient; // Lưu trữ gradient đang chạy của từng số
+        private Color _baseColor; // Lưu lại màu tĩnh ban đầu để tính toán fade
 
         private static Camera _mainCamera;
         private static Quaternion _cachedBillboardRotation;
@@ -223,8 +225,16 @@ namespace HeartOfTheNight.UI
                     if (_currentGradient != null)
                         _tmp.color = _currentGradient.Evaluate(0f);
                     break;
+                case DamageColorMode.RandomFromGradient:
+                    if (gradientColor != null)
+                        _tmp.color = gradientColor.Evaluate(Random.value);
+                    else
+                        _tmp.color = Color.white;
+                    break;
             }
-            _tmp.alpha = 1f;
+            
+            // Lưu lại màu gốc ban đầu (Bao gồm cả Alpha thiết lập trong Inspector)
+            _baseColor = _tmp.color;
 
             float sideways = Random.Range(-moveSidewaysRandom, moveSidewaysRandom);
             _velocity = new Vector3(sideways, moveUpSpeed, 0f);
@@ -249,14 +259,25 @@ namespace HeartOfTheNight.UI
             }
 
             UpdateScale(t);
-            UpdateFade(t); // Tính toán alpha của hệ thống trước (dựa trên Fade Start)
+            
+            // Lấy hệ số mờ dần cuối đời
+            float fadeMultiplier = GetFadeMultiplier(t);
 
-            // Cập nhật Gradient theo thời gian
-            if ((colorMode == DamageColorMode.GradientOverTime || colorMode == DamageColorMode.RandomGradientOverTime) && _currentGradient != null)
+            // Cập nhật màu sắc mỗi frame
+            if (colorMode == DamageColorMode.GradientOverTime || colorMode == DamageColorMode.RandomGradientOverTime)
             {
-                // Nhân alpha của Gradient với alpha của hệ thống Fade để kết hợp cả 2
-                Color newColor = _currentGradient.Evaluate(t);
-                newColor.a *= _tmp.alpha; 
+                if (_currentGradient != null)
+                {
+                    Color newColor = _currentGradient.Evaluate(t);
+                    newColor.a *= fadeMultiplier; 
+                    _tmp.color = newColor;
+                }
+            }
+            else
+            {
+                // Đối với các màu tĩnh (Single, Random, RandomFromGradient)
+                Color newColor = _baseColor;
+                newColor.a *= fadeMultiplier;
                 _tmp.color = newColor;
             }
 
@@ -285,16 +306,10 @@ namespace HeartOfTheNight.UI
             _cachedTransform.localScale = Vector3.one * scale;
         }
 
-        private void UpdateFade(float t)
+        private float GetFadeMultiplier(float t)
         {
-            if (t < fadeStartPercent)
-            {
-                if (_tmp.alpha != 1f) _tmp.alpha = 1f;
-                return;
-            }
-
-            float fadeT = Mathf.InverseLerp(fadeStartPercent, 1f, t);
-            _tmp.alpha = 1f - fadeT;
+            if (t < fadeStartPercent) return 1f;
+            return 1f - Mathf.InverseLerp(fadeStartPercent, 1f, t);
         }
 
         private void UpdateBillboard()

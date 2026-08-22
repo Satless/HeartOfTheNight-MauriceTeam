@@ -62,7 +62,7 @@ MonoBehaviour:
   punchDurationPercent: 0.2
   settleDurationPercent: 0.3
   fadeStartPercent: 0.7
-  colorMode: 2
+  colorMode: 3
   singleColor: {r: 0.8509804, g: 0.3751135, b: 0.15686272, a: 1}
   randomColors:
   - {r: 1, g: 0.042452812, b: 0.042452812, a: 0}
@@ -75,10 +75,10 @@ MonoBehaviour:
   gradientColor:
     serializedVersion: 2
     key0: {r: 0.9150943, g: 0.3237362, b: 0.3237362, a: 1}
-    key1: {r: 0.74373573, g: 0.2206746, b: 0.8207547, a: 0.44705883}
+    key1: {r: 0.74373573, g: 0.2206746, b: 0.8207547, a: 0}
     key2: {r: 0.4075352, g: 0.735849, b: 0.07289071, a: 1}
     key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 1}
     key5: {r: 0, g: 0, b: 0, a: 0}
     key6: {r: 0, g: 0, b: 0, a: 0}
     key7: {r: 0, g: 0, b: 0, a: 0}
@@ -92,26 +92,26 @@ MonoBehaviour:
     ctime7: 0
     atime0: 0
     atime1: 22166
-    atime2: 43947
-    atime3: 0
-    atime4: 0
+    atime2: 31804
+    atime3: 43947
+    atime4: 58982
     atime5: 0
     atime6: 0
     atime7: 0
     m_Mode: 0
     m_ColorSpace: 0
     m_NumColorKeys: 3
-    m_NumAlphaKeys: 3
+    m_NumAlphaKeys: 5
   randomGradients:
   - serializedVersion: 2
-    key0: {r: 1, g: 0.85647213, b: 0.24056602, a: 1}
-    key1: {r: 0.2774439, g: 1, b: 0, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
+    key0: {r: 1, g: 0.85647213, b: 0.24056602, a: 0}
+    key1: {r: 0.2774439, g: 1, b: 0, a: 0.53333336}
+    key2: {r: 0, g: 0, b: 0, a: 0.5137255}
+    key3: {r: 0, g: 0, b: 0, a: 0.4}
+    key4: {r: 0, g: 0, b: 0, a: 1}
+    key5: {r: 0, g: 0, b: 0, a: 1}
+    key6: {r: 0, g: 0, b: 0, a: 1}
+    key7: {r: 0, g: 0, b: 0, a: 1}
     ctime0: 0
     ctime1: 65535
     ctime2: 0
@@ -120,64 +120,35 @@ MonoBehaviour:
     ctime5: 0
     ctime6: 0
     ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
+    atime0: 32960
+    atime1: 43947
+    atime2: 48573
+    atime3: 55512
+    atime4: 65535
+    atime5: 65535
+    atime6: 65535
+    atime7: 65535
     m_Mode: 0
     m_ColorSpace: 0
     m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
-  - serializedVersion: 2
-    key0: {r: 0.23921567, g: 1, b: 0.50412357, a: 1}
-    key1: {r: 1, g: 0, b: 0.7253394, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: 0
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
+    m_NumAlphaKeys: 5
   - serializedVersion: 2
     key0: {r: 0.11053756, g: 0.24888447, b: 0.8679245, a: 1}
-    key1: {r: 1, g: 0, b: 0.9848051, a: 1}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
+    key1: {r: 0.20392157, g: 0.8901961, b: 0.22893393, a: 1}
+    key2: {r: 0.7294118, g: 0.479562, b: 0.34901962, a: 0}
+    key3: {r: 0.6591635, g: 0.37254903, b: 0.7882353, a: 0}
+    key4: {r: 0.5310609, g: 0.9622642, b: 0.8172233, a: 0}
+    key5: {r: 0.9019608, g: 0.81121725, b: 0.4862745, a: 0}
+    key6: {r: 0.45124254, g: 0.43454072, b: 0.990566, a: 0}
+    key7: {r: 0.9339623, g: 0.6740388, b: 0.9298851, a: 0}
     ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
+    ctime1: 11565
+    ctime2: 21395
+    ctime3: 31804
+    ctime4: 39899
+    ctime5: 52621
+    ctime6: 60138
+    ctime7: 65535
     atime0: 0
     atime1: 65535
     atime2: 0
@@ -188,95 +159,8 @@ MonoBehaviour:
     atime7: 0
     m_Mode: 0
     m_ColorSpace: 0
-    m_NumColorKeys: 2
+    m_NumColorKeys: 8
     m_NumAlphaKeys: 2
-  - serializedVersion: 2
-    key0: {r: 0.45919317, g: 0.10426309, b: 0.6698113, a: 1}
-    key1: {r: 0.19333586, g: 0.6698113, b: 0.009478444, a: 0.48235294}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 65535
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: 0
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
-  - serializedVersion: 2
-    key0: {r: 0.754717, g: 0.28835887, b: 0.28835887, a: 1}
-    key1: {r: 1, g: 0, b: 0.93442965, a: 0.78431374}
-    key2: {r: 0, g: 0, b: 0, a: 0}
-    key3: {r: 0, g: 0, b: 0, a: 0}
-    key4: {r: 0, g: 0, b: 0, a: 0}
-    key5: {r: 0, g: 0, b: 0, a: 0}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 771
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
-    ctime4: 0
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 0
-    atime1: 51079
-    atime2: 0
-    atime3: 0
-    atime4: 0
-    atime5: 0
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: 0
-    m_NumColorKeys: 2
-    m_NumAlphaKeys: 2
-  - serializedVersion: 2
-    key0: {r: 0.10426309, g: 0.6698113, b: 0.20918922, a: 0.7921569}
-    key1: {r: 0.05540227, g: 0.2502199, b: 0.7830189, a: 1}
-    key2: {r: 0.7115509, g: 0.17221434, b: 0.8113208, a: 0.6392157}
-    key3: {r: 0.8679245, g: 0.3593219, b: 0.012281928, a: 1}
-    key4: {r: 0.2774439, g: 1, b: 0, a: 0.7411765}
-    key5: {r: 0, g: 0, b: 0, a: 1}
-    key6: {r: 0, g: 0, b: 0, a: 0}
-    key7: {r: 0, g: 0, b: 0, a: 0}
-    ctime0: 0
-    ctime1: 18119
-    ctime2: 34888
-    ctime3: 48188
-    ctime4: 65535
-    ctime5: 0
-    ctime6: 0
-    ctime7: 0
-    atime0: 10601
-    atime1: 23323
-    atime2: 32575
-    atime3: 42405
-    atime4: 51079
-    atime5: 65535
-    atime6: 0
-    atime7: 0
-    m_Mode: 0
-    m_ColorSpace: 0
-    m_NumColorKeys: 5
-    m_NumAlphaKeys: 6
   fontSizeMode: 1
   fixedFontSize: 4
   randomFontSizeRange: {x: 3, y: 8}
