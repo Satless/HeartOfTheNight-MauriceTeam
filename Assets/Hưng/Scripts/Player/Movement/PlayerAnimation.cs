@@ -28,6 +28,14 @@ namespace HeartOfTheNight.Player
     [Tooltip("Data chứa hiệu ứng bốc khói/lửa khi quá nhiệt (Kéo file QuaNhiet.asset vào đây)")]
     [SerializeField] private StatusEffectData _overheatVfxData;
 
+    [Header("Cape Visuals")]
+    [Tooltip("Kéo object Cape (chứa Animator áo choàng) vào đây")]
+    [SerializeField] private GameObject _capeObject;
+    [Tooltip("Thời gian đứng im tối thiểu (giây) để bật áo choàng")]
+    [SerializeField] private float _idleTimeToShowCape = 1.5f;
+    
+    private float _idleTimer;
+
     private PlayerMovement _movement;
     private PlayerAttack _attack;
 
@@ -116,7 +124,29 @@ namespace HeartOfTheNight.Player
             _upperBodyObject.SetActive(shouldShowUpperBody);
         }
 
+        // -------------------------------------------------------------
+        // XỬ LÝ ÁO CHOÀNG (Chỉ bật khi đứng im hoàn toàn và không cầm súng)
+        // -------------------------------------------------------------
+        if (state == PlayerMovement.PlayerState.Grounded 
+            && Mathf.Abs(_movement.MoveInput.x) < 0.1f 
+            && Mathf.Abs(_movement.RB.linearVelocity.x) < 0.1f 
+            && !_isHoldingGun)
+        {
+            _idleTimer += Time.deltaTime;
+        }
+        else
+        {
+            _idleTimer = 0f;
+        }
 
+        if (_capeObject != null)
+        {
+            _capeObject.SetActive(_idleTimer >= _idleTimeToShowCape);
+        }
+
+        // -------------------------------------------------------------
+        // XỬ LÝ ANIMATION THEO STATE
+        // -------------------------------------------------------------
         if (state == PlayerMovement.PlayerState.Grounded)
         {
             // VISUAL-ONLY COYOTE FALL: FSM vẫn giữ Grounded (để CanJump() hoạt động),

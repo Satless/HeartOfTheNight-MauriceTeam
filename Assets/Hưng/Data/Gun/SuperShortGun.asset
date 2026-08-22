@@ -12,31 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
   m_Name: SuperShortGun
   m_EditorClassIdentifier: 
-  fireRate: 0
-  bulletSpeed: 0
-  damage: 0
-  bulletLifetime: 0
+  fireRate: 1
+  bulletSpeed: 30
+  damage: 100
+  bulletLifetime: 3
   bulletsPerShot: 1
   spreadAngle: 0
   isVerticalSpread: 0
   verticalSpacing: 0.1
-  weaponIcon: {fileID: 0}
+  weaponIcon: {fileID: 4520534605117103963, guid: 66fe0a11f5f391e49955300e6cd8543e, type: 3}
   animationSpeedMultiplier: 1
-  bulletPrefab: {fileID: 0}
-  weaponAnimator: {fileID: 0}
-  fireAnimationClip: {fileID: 0}
-  isExplosive: 0
-  explosionRadius: 0
-  explosionDamage: 0
+  bulletPrefab: {fileID: 6752507138775695956, guid: 428f2adafec4cb8428a319a29b22cfb5, type: 3}
+  weaponAnimator: {fileID: 9100000, guid: 24753ce35aeb5c848906cf9cbba73edc, type: 2}
+  fireAnimationClip: {fileID: 7400000, guid: f5fc55ddd3b31c645bc9088ac1216515, type: 2}
+  isExplosive: 1
+  explosionRadius: 2.5
+  explosionDamage: 25
   statusEffect: {fileID: 0}
   pierceCount: 0
   isContinuousFire: 0
   continuousVfxPrefab: {fileID: 0}
   knockbackForce: 0
   explosionKnockbackForce: 0
-  bulletPrewarmCount: 0
-  hitVfxPrewarmCount: 0
-  canOverheat: 0
-  heatPerShot: 0
-  fireSoundName: 
+  bulletPrewarmCount: 2
+  hitVfxPrewarmCount: 2
+  canOverheat: 1
+  heatPerShot: 50
+  fireSoundName: Shotgun
   explosionSoundName: 
