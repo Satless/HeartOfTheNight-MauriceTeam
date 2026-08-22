@@ -13,7 +13,10 @@ namespace HeartOfTheNight.Player
     
     [Header("Settings")]
     [Tooltip("Thời gian giữ súng trên tay sau khi nhả chuột (giây)")]
-    [SerializeField] private float _keepGunOutDuration = 1.5f;
+    [SerializeField] private float _keepGunOutDuration;
+    [Tooltip("Tỷ lệ thời lượng hiển thị dáng đạp tường so với tổng thời gian WallJumpTime. \n(VD: 0.6 = hiện dáng đạp trong 60% thời gian đầu tiên, sau đó chuyển sang dáng Bay)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float _wallPushPoseRatio;
 
     [Header("VFX References")]
     [Tooltip("Kéo cục khói bám tường ở TuongPhai vào đây")]
@@ -100,10 +103,12 @@ namespace HeartOfTheNight.Player
         // -------------------------------------------------------------
         var state = _movement.CurrentState;
         
-        // Các hành động full-body BẮT BUỘC cất súng (không cho bắn)
-        bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
-                                     (state == PlayerMovement.PlayerState.Sliding) ||
-                                     (state == PlayerMovement.PlayerState.WallJumping);
+        // Các state khóa cứng toàn thân (không bị ghi đè bởi dáng đi/đứng khi cầm súng hay rơi lơ lửng)
+        bool isDoingFullBodyAction = state == PlayerMovement.PlayerState.Dashing 
+                                  || state == PlayerMovement.PlayerState.WallJumping 
+                                  || state == PlayerMovement.PlayerState.KnockedBack
+                                  || state == PlayerMovement.PlayerState.Sliding
+                                  || state == PlayerMovement.PlayerState.LedgeClimbing;
         
         bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
@@ -183,10 +188,11 @@ namespace HeartOfTheNight.Player
         }
         else if (state == PlayerMovement.PlayerState.WallJumping)
         {
-            // Trong 0.15s đầu tiên của cú nhảy tường: giữ dáng đạp tường (Duoi-TruotTuong).
+            // Trong một khoảng thời gian đầu (tỷ lệ với wallJumpTime): giữ dáng đạp tường (Duoi-TruotTuong).
             // Mẹo ở LateUpdate sẽ lật mặt nhân vật úp vào tường để tạo cảm giác dùng chân đạp ra.
-            // Sau 0.15s: chuyển sang dáng bay (Nhay).
-            if (Time.time - _movement.WallJumpStartTime < 0.15f)
+            // Sau đó: chuyển sang dáng bay lơ lửng (Nhay).
+            float pushDuration = _movement.Data.wallJumpTime * _wallPushPoseRatio;
+            if (Time.time - _movement.WallJumpStartTime < pushDuration)
                 PlayAnim("Duoi-TruotTuong");
             else
                 PlayAnim("Nhay");
@@ -427,6 +433,10 @@ namespace HeartOfTheNight.Player
             case PlayerMovement.PlayerState.KnockedBack:
                 // Nhảy và Rơi đang dùng chung clip "Nhay" trong Animator
                 PlayAnim("Nhay");
+                break;
+                
+            case PlayerMovement.PlayerState.LedgeClimbing:
+                PlayAnim("Duoi-leotuong");
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
