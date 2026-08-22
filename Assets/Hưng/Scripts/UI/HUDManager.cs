@@ -23,11 +23,20 @@ namespace HeartOfTheNight.UI
         [Tooltip("Kéo Prefab 'MauTrong' vào đây (1 ô đại diện cho 10 máu)")]
         [SerializeField] private GameObject healthBlockPrefab;
 
+        [Header("Damage Popup")]
+        [Tooltip("Kéo Prefab 'HienThiSatThuong' vào đây để hệ thống hiển thị số khi bắn trúng")]
+        [SerializeField] private GameObject damagePopupPrefab;
+
         private HeartOfTheNight.Player.PlayerHealth _playerHealth;
         private HeartOfTheNight.Player.PlayerAttack _playerAttack;
 
         private void Start()
         {
+            if (damagePopupPrefab != null)
+            {
+                HeartOfTheNight.UI.DamagePopup.SetupPrefab(damagePopupPrefab);
+            }
+
             // Tự động tìm Player trong Scene
             FindPlayerAndSubscribe();
         }

@@ -99,6 +99,10 @@ namespace HeartOfTheNight.Player
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
+            
+            // Hiển thị số sát thương nhảy lên đầu Player (Màu thường)
+            HeartOfTheNight.UI.DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount);
+            
             //SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
 
             // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
