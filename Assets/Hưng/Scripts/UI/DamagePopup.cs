@@ -11,10 +11,17 @@ namespace HeartOfTheNight.UI
     {
         Single,
         Random,
-        GradientOverTime
+        GradientOverTime,
+        RandomGradientOverTime
     }
 
     public enum DamageRotationMode
+    {
+        Fixed,
+        Random
+    }
+
+    public enum DamageFontSizeMode
     {
         Fixed,
         Random
@@ -62,7 +69,7 @@ namespace HeartOfTheNight.UI
         [Tooltip("Thời điểm bắt đầu mờ dần (0.6 = giữ rõ nét 60% thời gian đầu, 40% cuối mờ dần đi)")]
         [SerializeField] private float fadeStartPercent;
 
-        [Header("Màu sắc & Cỡ chữ")]
+        [Header("Màu sắc")]
         [Tooltip("Chế độ màu sắc: Đơn, Ngẫu nhiên, hay Đổi màu theo thời gian (Gradient)")]
         [SerializeField] private DamageColorMode colorMode = DamageColorMode.Single;
         
@@ -75,8 +82,18 @@ namespace HeartOfTheNight.UI
         [Tooltip("Dải màu thay đổi theo tuổi thọ của số (Nếu chọn GradientOverTime)")]
         [SerializeField] private Gradient gradientColor;
         
-        [Tooltip("Cỡ chữ hiển thị")]
-        [SerializeField] private float fontSize = 4f;
+        [Tooltip("Danh sách các dải màu ngẫu nhiên (Nếu chọn RandomGradientOverTime)")]
+        [SerializeField] private Gradient[] randomGradients;
+        
+        [Header("Cỡ chữ (Font)")]
+        [Tooltip("Chế độ cỡ chữ: Cố định hay Ngẫu nhiên")]
+        [SerializeField] private DamageFontSizeMode fontSizeMode = DamageFontSizeMode.Fixed;
+        
+        [Tooltip("Cỡ chữ hiển thị (Nếu chọn Fixed)")]
+        [SerializeField] private float fixedFontSize = 4f;
+        
+        [Tooltip("Cỡ chữ ngẫu nhiên trong khoảng [Min(X), Max(Y)] (Nếu chọn Random)")]
+        [SerializeField] private Vector2 randomFontSizeRange = new Vector2(3f, 5f);
 
         [Header("Xoay (Rotation)")]
         [Tooltip("Chế độ xoay: Cố định góc Z hay Xoay nghiêng ngẫu nhiên")]
@@ -85,8 +102,8 @@ namespace HeartOfTheNight.UI
         [Tooltip("Góc xoay Z cố định (Nếu chọn Fixed)")]
         [SerializeField] private float fixedRotationZ = 0f;
         
-        [Tooltip("Góc xoay nghiêng ngẫu nhiên từ [-Random, +Random] (Nếu chọn Random)")]
-        [SerializeField] private float randomRotationRange = 15f;
+        [Tooltip("Góc xoay nghiêng ngẫu nhiên trong khoảng [Min(X), Max(Y)] (Nếu chọn Random)")]
+        [SerializeField] private Vector2 randomRotationRange = new Vector2(-15f, 15f);
 
         private TextMeshPro _tmp;
         private Transform _cachedTransform;
@@ -95,10 +112,12 @@ namespace HeartOfTheNight.UI
         private Vector3 _velocity;
         private bool _isActive;
         private float _currentZRotation;
+        private Gradient _currentGradient; // Lưu trữ gradient đang chạy của từng số
 
         private static Camera _mainCamera;
         private static Quaternion _cachedBillboardRotation;
         private static int _cachedFrame = -1;
+        private static int _lastRotationSign = 1; // Biến nhớ dấu để đảo chiều qua lại
 
         // --- Liên kết Universal Pooling ---
         private static GameObject _prefab;
@@ -150,7 +169,15 @@ namespace HeartOfTheNight.UI
             Vector3 targetStartScale = _cachedTransform.localScale;
             _cachedTransform.localScale = Vector3.one;
             _tmp.text = FormatDamageText(damageAmount);
-            _tmp.fontSize = fontSize;
+            
+            if (fontSizeMode == DamageFontSizeMode.Fixed)
+            {
+                _tmp.fontSize = fixedFontSize;
+            }
+            else
+            {
+                _tmp.fontSize = Random.Range(randomFontSizeRange.x, randomFontSizeRange.y);
+            }
             _cachedTransform.localScale = targetStartScale;
 
             // Thiết lập Rotation
@@ -160,7 +187,14 @@ namespace HeartOfTheNight.UI
             }
             else
             {
-                _currentZRotation = Random.Range(-randomRotationRange, randomRotationRange);
+                // Ép lấy giá trị dương từ khoảng Min-Max
+                float min = Mathf.Abs(randomRotationRange.x);
+                float max = Mathf.Abs(randomRotationRange.y);
+                float randomMag = Random.Range(Mathf.Min(min, max), Mathf.Max(min, max));
+                
+                // Đảo dấu luân phiên: Lần trước nghiêng trái thì lần này nghiêng phải
+                _lastRotationSign = -_lastRotationSign; 
+                _currentZRotation = randomMag * _lastRotationSign;
             }
 
             // Thiết lập Màu ban đầu
@@ -176,8 +210,18 @@ namespace HeartOfTheNight.UI
                         _tmp.color = Color.white;
                     break;
                 case DamageColorMode.GradientOverTime:
-                    if (gradientColor != null)
-                        _tmp.color = gradientColor.Evaluate(0f);
+                    _currentGradient = gradientColor;
+                    if (_currentGradient != null)
+                        _tmp.color = _currentGradient.Evaluate(0f);
+                    break;
+                case DamageColorMode.RandomGradientOverTime:
+                    if (randomGradients != null && randomGradients.Length > 0)
+                        _currentGradient = randomGradients[Random.Range(0, randomGradients.Length)];
+                    else
+                        _currentGradient = gradientColor; // Fallback
+                        
+                    if (_currentGradient != null)
+                        _tmp.color = _currentGradient.Evaluate(0f);
                     break;
             }
             _tmp.alpha = 1f;
@@ -205,21 +249,20 @@ namespace HeartOfTheNight.UI
             }
 
             UpdateScale(t);
+            UpdateFade(t); // Tính toán alpha của hệ thống trước (dựa trên Fade Start)
 
             // Cập nhật Gradient theo thời gian
-            if (colorMode == DamageColorMode.GradientOverTime && gradientColor != null)
+            if ((colorMode == DamageColorMode.GradientOverTime || colorMode == DamageColorMode.RandomGradientOverTime) && _currentGradient != null)
             {
-                // Lưu lại alpha hiện tại do UpdateFade quản lý
-                float currentAlpha = _tmp.alpha;
-                Color newColor = gradientColor.Evaluate(t);
-                newColor.a = currentAlpha;
+                // Nhân alpha của Gradient với alpha của hệ thống Fade để kết hợp cả 2
+                Color newColor = _currentGradient.Evaluate(t);
+                newColor.a *= _tmp.alpha; 
                 _tmp.color = newColor;
             }
 
             _cachedTransform.position += _velocity * dt;
             _velocity *= velocityDamping;
 
-            UpdateFade(t);
             UpdateBillboard();
         }
 

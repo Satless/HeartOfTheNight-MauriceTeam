@@ -32,7 +32,7 @@ namespace HeartOfTheNight.Player
     [Tooltip("Kéo object Cape (chứa Animator áo choàng) vào đây")]
     [SerializeField] private GameObject _capeObject;
     [Tooltip("Thời gian đứng im tối thiểu (giây) để bật áo choàng")]
-    [SerializeField] private float _idleTimeToShowCape = 1.5f;
+    [SerializeField] private float _idleTimeToShowCape;
     
     private float _idleTimer;
 
