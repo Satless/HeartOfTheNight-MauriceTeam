@@ -195,7 +195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9caec243f3a403745a0236bd131dc69c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerData: {fileID: 0}
+  _playerData: {fileID: 11400000, guid: abff10382b9435b44baed4f1b0930de6, type: 2}
   _deathScreenDelay: 2
   _maxHealth: 100
   _currentHealth: 0
@@ -324,6 +324,8 @@ MonoBehaviour:
   _leftWallVfx: {fileID: 1345990703972714801}
   _jumpVfxData: {fileID: 11400000, guid: d97c5cc6c98f80e42a0d53a8ce5281f0, type: 2}
   _overheatVfxData: {fileID: 11400000, guid: 8290956df228a2042a2d764b4b9c25b7, type: 2}
+  _capeObject: {fileID: 5372828652153049846}
+  _idleTimeToShowCape: 1.5
   _lastShootInputTime: -999
   _isHoldingGun: 0
   _currentAnim: 
