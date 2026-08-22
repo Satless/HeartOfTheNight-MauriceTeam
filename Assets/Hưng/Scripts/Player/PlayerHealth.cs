@@ -22,11 +22,13 @@ namespace HeartOfTheNight.Player
 
         public bool hasShield = false;/////
         public event Action<int, int> OnHealthChanged;
+        public event Action OnDeath;
 
         public int MaxHealth => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
 
         private bool _isDead;
+        public bool IsDead => _isDead;
        
         private void Start()
         {
@@ -127,6 +129,7 @@ namespace HeartOfTheNight.Player
             if (_isDead) return;
             _isDead = true;
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
+            OnDeath?.Invoke();
             StartCoroutine(DieRoutine());
         }
 

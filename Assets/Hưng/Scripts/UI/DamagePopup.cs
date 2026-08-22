@@ -91,20 +91,20 @@ namespace HeartOfTheNight.UI
         [SerializeField] private DamageFontSizeMode fontSizeMode = DamageFontSizeMode.Fixed;
         
         [Tooltip("Cỡ chữ hiển thị (Nếu chọn Fixed)")]
-        [SerializeField] private float fixedFontSize = 4f;
+        [SerializeField] private float fixedFontSize;
         
         [Tooltip("Cỡ chữ ngẫu nhiên trong khoảng [Min(X), Max(Y)] (Nếu chọn Random)")]
-        [SerializeField] private Vector2 randomFontSizeRange = new Vector2(3f, 5f);
+        [SerializeField] private Vector2 randomFontSizeRange;
 
         [Header("Xoay (Rotation)")]
         [Tooltip("Chế độ xoay: Cố định góc Z hay Xoay nghiêng ngẫu nhiên")]
         [SerializeField] private DamageRotationMode rotationMode = DamageRotationMode.Fixed;
         
         [Tooltip("Góc xoay Z cố định (Nếu chọn Fixed)")]
-        [SerializeField] private float fixedRotationZ = 0f;
+        [SerializeField] private float fixedRotationZ;
         
         [Tooltip("Góc xoay nghiêng ngẫu nhiên trong khoảng [Min(X), Max(Y)] (Nếu chọn Random)")]
-        [SerializeField] private Vector2 randomRotationRange = new Vector2(-15f, 15f);
+        [SerializeField] private Vector2 randomRotationRange;
 
         private TextMeshPro _tmp;
         private Transform _cachedTransform;
