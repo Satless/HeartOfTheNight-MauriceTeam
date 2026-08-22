@@ -100,10 +100,12 @@ namespace HeartOfTheNight.Player
         // -------------------------------------------------------------
         var state = _movement.CurrentState;
         
-        // Các hành động full-body BẮT BUỘC cất súng (không cho bắn)
-        bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
-                                     (state == PlayerMovement.PlayerState.Sliding) ||
-                                     (state == PlayerMovement.PlayerState.WallJumping);
+        // Các state khóa cứng toàn thân (không bị ghi đè bởi dáng đi/đứng khi cầm súng hay rơi lơ lửng)
+        bool isDoingFullBodyAction = state == PlayerMovement.PlayerState.Dashing 
+                                  || state == PlayerMovement.PlayerState.WallJumping 
+                                  || state == PlayerMovement.PlayerState.KnockedBack
+                                  || state == PlayerMovement.PlayerState.Sliding
+                                  || state == PlayerMovement.PlayerState.LedgeClimbing;
         
         bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
@@ -427,6 +429,10 @@ namespace HeartOfTheNight.Player
             case PlayerMovement.PlayerState.KnockedBack:
                 // Nhảy và Rơi đang dùng chung clip "Nhay" trong Animator
                 PlayAnim("Nhay");
+                break;
+                
+            case PlayerMovement.PlayerState.LedgeClimbing:
+                PlayAnim("Duoi-leotuong");
                 break;
                 
             case PlayerMovement.PlayerState.Dashing:
