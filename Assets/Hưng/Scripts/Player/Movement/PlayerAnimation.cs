@@ -13,7 +13,10 @@ namespace HeartOfTheNight.Player
     
     [Header("Settings")]
     [Tooltip("Thời gian giữ súng trên tay sau khi nhả chuột (giây)")]
-    [SerializeField] private float _keepGunOutDuration = 1.5f;
+    [SerializeField] private float _keepGunOutDuration;
+    [Tooltip("Tỷ lệ thời lượng hiển thị dáng đạp tường so với tổng thời gian WallJumpTime. \n(VD: 0.6 = hiện dáng đạp trong 60% thời gian đầu tiên, sau đó chuyển sang dáng Bay)")]
+    [Range(0f, 1f)]
+    [SerializeField] private float _wallPushPoseRatio;
 
     [Header("VFX References")]
     [Tooltip("Kéo cục khói bám tường ở TuongPhai vào đây")]
@@ -25,8 +28,19 @@ namespace HeartOfTheNight.Player
     [Tooltip("Data chứa hiệu ứng bốc khói/lửa khi quá nhiệt (Kéo file QuaNhiet.asset vào đây)")]
     [SerializeField] private StatusEffectData _overheatVfxData;
 
+    [Header("Cape Visuals")]
+    [Tooltip("Kéo object Cape (chứa Animator áo choàng) vào đây")]
+    [SerializeField] private GameObject _capeObject;
+    [Tooltip("Thời gian đứng im tối thiểu (giây) để bật áo choàng")]
+    [SerializeField] private float _idleTimeToShowCape;
+    [Tooltip("Giữ áo choàng khi nhân vật chết (Tạo hiệu ứng giơ cờ đầu hàng)")]
+    [SerializeField] private bool _keepCapeWhenDead = true;
+    
+    private float _idleTimer;
+
     private PlayerMovement _movement;
     private PlayerAttack _attack;
+    private PlayerHealth _health;
 
     // Cache lại các parameter hash để tối ưu hiệu năng (Zero GC)
     private static readonly int VelocityYKey = Animator.StringToHash("VelocityY");
@@ -47,6 +61,7 @@ namespace HeartOfTheNight.Player
     {
         _movement = GetComponent<PlayerMovement>();
         _attack = GetComponent<PlayerAttack>();
+        _health = GetComponent<PlayerHealth>();
     }
 
     private void OnEnable()
@@ -100,10 +115,12 @@ namespace HeartOfTheNight.Player
         // -------------------------------------------------------------
         var state = _movement.CurrentState;
         
-        // Các hành động full-body BẮT BUỘC cất súng (không cho bắn)
-        bool isDoingFullBodyAction = (state == PlayerMovement.PlayerState.Dashing) || 
-                                     (state == PlayerMovement.PlayerState.Sliding) ||
-                                     (state == PlayerMovement.PlayerState.WallJumping);
+        // Các state khóa cứng toàn thân (không bị ghi đè bởi dáng đi/đứng khi cầm súng hay rơi lơ lửng)
+        bool isDoingFullBodyAction = state == PlayerMovement.PlayerState.Dashing 
+                                  || state == PlayerMovement.PlayerState.WallJumping 
+                                  || state == PlayerMovement.PlayerState.KnockedBack
+                                  || state == PlayerMovement.PlayerState.Sliding
+                                  || state == PlayerMovement.PlayerState.LedgeClimbing;
         
         bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
@@ -111,7 +128,29 @@ namespace HeartOfTheNight.Player
             _upperBodyObject.SetActive(shouldShowUpperBody);
         }
 
+        // -------------------------------------------------------------
+        // XỬ LÝ ÁO CHOÀNG (Chỉ bật khi đứng im hoàn toàn và không cầm súng)
+        // -------------------------------------------------------------
+        if (state == PlayerMovement.PlayerState.Grounded 
+            && Mathf.Abs(_movement.MoveInput.x) < 0.1f 
+            && Mathf.Abs(_movement.RB.linearVelocity.x) < 0.1f 
+            && !_isHoldingGun)
+        {
+            _idleTimer += Time.deltaTime;
+        }
+        else
+        {
+            _idleTimer = 0f;
+        }
 
+        if (_capeObject != null)
+        {
+            _capeObject.SetActive(_idleTimer >= _idleTimeToShowCape);
+        }
+
+        // -------------------------------------------------------------
+        // XỬ LÝ ANIMATION THEO STATE
+        // -------------------------------------------------------------
         if (state == PlayerMovement.PlayerState.Grounded)
         {
             // VISUAL-ONLY COYOTE FALL: FSM vẫn giữ Grounded (để CanJump() hoạt động),
@@ -183,10 +222,11 @@ namespace HeartOfTheNight.Player
         }
         else if (state == PlayerMovement.PlayerState.WallJumping)
         {
-            // Trong 0.15s đầu tiên của cú nhảy tường: giữ dáng đạp tường (Duoi-TruotTuong).
+            // Trong một khoảng thời gian đầu (tỷ lệ với wallJumpTime): giữ dáng đạp tường (Duoi-TruotTuong).
             // Mẹo ở LateUpdate sẽ lật mặt nhân vật úp vào tường để tạo cảm giác dùng chân đạp ra.
-            // Sau 0.15s: chuyển sang dáng bay (Nhay).
-            if (Time.time - _movement.WallJumpStartTime < 0.15f)
+            // Sau đó: chuyển sang dáng bay lơ lửng (Nhay).
+            float pushDuration = _movement.Data.wallJumpTime * _wallPushPoseRatio;
+            if (Time.time - _movement.WallJumpStartTime < pushDuration)
                 PlayAnim("Duoi-TruotTuong");
             else
                 PlayAnim("Nhay");
@@ -424,6 +464,15 @@ namespace HeartOfTheNight.Player
                 if (_leftWallVfx != null)  { var em = _leftWallVfx.emission;  em.enabled = false; }
                 break;
                 
+            case PlayerMovement.PlayerState.KnockedBack:
+                // Nhảy và Rơi đang dùng chung clip "Nhay" trong Animator
+                PlayAnim("Nhay");
+                break;
+                
+            case PlayerMovement.PlayerState.LedgeClimbing:
+                PlayAnim("Duoi-leotuong");
+                break;
+                
             case PlayerMovement.PlayerState.Dashing:
                 PlayAnim("Duoi-Dash");
                 break;
@@ -442,6 +491,12 @@ namespace HeartOfTheNight.Player
     {
         // Ẩn thân trên (súng)
         if (_upperBodyObject != null) _upperBodyObject.SetActive(false);
+        
+        // Ẩn áo choàng nếu không bật tính năng "Giơ cờ"
+        if (!_keepCapeWhenDead && _capeObject != null) 
+        {
+            _capeObject.SetActive(false);
+        }
         
         // Chạy anim chết
         PlayAnim("Duoi-chet");
