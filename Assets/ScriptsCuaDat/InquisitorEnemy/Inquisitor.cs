@@ -100,17 +100,12 @@ namespace HeartOfTheNight.Enemy
             {
                 case State.Retreat:
                     TickRetreat();
-                    if (anim != null) anim.ResetTrigger("Attack");
-                    break;
-                case State.Chase:
-                    if (anim != null) anim.ResetTrigger("Attack");
                     break;
             }
 
-            if (PlayerEngaged(distance) && current != State.Chase)
-            {
+            // Bắn khi đã engage + có LOS — kể cả đang Chase/Retreat (tránh đứng đuổi/lùi mà không bắn).
+            if (PlayerEngaged(distance))
                 TickCombat();
-            }
 
             if (anim != null)
             {
@@ -164,7 +159,12 @@ namespace HeartOfTheNight.Enemy
                 panicTimer += Time.deltaTime;
                 if (panicTimer >= stats.panicReactionDelay)
                 {
-                    current = State.Retreat;
+                    int retreatDir = -facing;
+                    // Kẹt mép: chuyển Aim đứng bắn thay vì Retreat đứng im.
+                    if (!HasGroundAhead(retreatDir) || IsWallAhead(retreatDir))
+                        current = State.Aim;
+                    else
+                        current = State.Retreat;
                     panicTimer = 0f;
                 }
                 else
@@ -207,7 +207,8 @@ namespace HeartOfTheNight.Enemy
 
         private void TickRetreat()
         {
-            fireTimer = Mathf.Max(fireTimer, stats.fireCooldown * 0.5f);
+            // Không khóa súng lúc lùi — chỉ giữ cooldown tối thiểu nhẹ để tránh spam ngay frame đầu.
+            fireTimer = Mathf.Max(fireTimer, 0f);
         }
 
         private void ApplyRoomBuffToAllies()

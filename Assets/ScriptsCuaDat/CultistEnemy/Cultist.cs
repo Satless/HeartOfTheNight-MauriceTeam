@@ -113,12 +113,11 @@ namespace HeartOfTheNight.Enemy
             {
                 case State.Idle:
                 case State.Chase:
-                case State.Retreat:
-                    fireTimer = stats.fireCooldown; // Khóa súng khi đang đi/đứng chơi
-                    if (anim != null) anim.ResetTrigger("Attack"); // Xóa lệnh đánh bị kẹt
+                    if (anim != null) anim.ResetTrigger("Attack");
                     break;
                 case State.Attack:
-                    TickAttack(distance);
+                case State.Retreat:
+                    TickFireIfAllowed();
                     break;
             }
 
@@ -147,17 +146,29 @@ namespace HeartOfTheNight.Enemy
 {
     // Chỉ lùi khi bắn được (cùng tầng / không bị Ground chắn).
     // Player ở tầng dưới: không retreat, Chase ra mép platform.
-    if (distance <= stats.minSafeDistance && HasClearShot())
+    bool canShoot = HasClearShot();
+    bool wantRetreat = distance <= stats.minSafeDistance && canShoot;
+
+    if (wantRetreat)
     {
         closeRangeTimer += Time.deltaTime;
-        if (closeRangeTimer >= stats.retreatReactionDelay) 
-            current = State.Retreat;
+        if (closeRangeTimer >= stats.retreatReactionDelay)
+        {
+            // Kẹt mép / tường: không lùi được → đứng bắn (tránh đứng im ngáo).
+            int retreatDir = -facing;
+            if (!HasGroundAhead(retreatDir) || IsWallAhead(retreatDir))
+                current = State.Attack;
+            else
+                current = State.Retreat;
+        }
+        else
+            current = State.Attack; // Windup: vẫn bắn trong lúc chưa kịp lùi
     }
     else
     {
         closeRangeTimer = 0f;
         
-        if (distance <= stats.detectRange && HasClearShot())
+        if (distance <= stats.detectRange && canShoot)
             current = State.Attack; // Trong tầm và không bị Ground chắn -> ngắm bắn
         else if (distance <= stats.detectRange + chaseRangeOffset)
             current = State.Chase; // Ngoài tầm bắn, hoặc bị tường/nền chắn đạn -> đuổi / đứng mép
@@ -179,6 +190,14 @@ private void TickAttack(float distance)
         Fire();
         fireTimer = stats.fireCooldown;
     }
+}
+
+/// <summary>Bắn khi Attack hoặc Retreat (kite) — không khóa súng lúc lùi.</summary>
+private void TickFireIfAllowed()
+{
+    if (current != State.Attack && current != State.Retreat)
+        return;
+    TickAttack(0f);
 }
 private void ApplyVelocity(int dir)
 {
