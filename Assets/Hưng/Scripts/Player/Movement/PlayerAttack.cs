@@ -351,7 +351,7 @@ public class PlayerAttack : MonoBehaviour
             
             // TỰ ĐỘNG HÓA TỐC ĐỘ ANIMATION (Auto-Sync)
             _currentFireSpeedMul = Data.animationSpeedMultiplier; // Mặc định dự phòng
-            if (Data.fireRate > 0 && !Data.isContinuousFire && Data.fireAnimationClip != null)
+            if (Data.autoSyncAnimSpeed && Data.fireRate > 0 && !Data.isContinuousFire && Data.fireAnimationClip != null)
             {
                 _currentFireSpeedMul = Data.fireAnimationClip.length / Data.fireRate;
                 Debug.Log($"<color=cyan>[Auto-Sync]</color> {Data.name}: Đã lưu tốc độ Animator (FireSpeedMul) = {_currentFireSpeedMul:F2}x (Độ dài Clip: {Data.fireAnimationClip.length:F2}s / FireRate: {Data.fireRate}s)");
@@ -634,22 +634,17 @@ public class PlayerAttack : MonoBehaviour
 
             //SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
 
-            // ═══ ÉP ANIMATOR HỦY DÁNG BẮN TỨC THÌ ═══
-            // ResetTrigger xóa mọi trigger "Fire" đang chờ trong hàng đợi Animator.
-            // Play("Idle", 0, 0f) ép nhảy thẳng về frame đầu tiên của Idle, bỏ qua mọi Transition.
-            // Update(0) ép Animator xử lý ngay lập tức trong frame này (không chờ sang frame sau).
+            // Ngắt cờ bắn để không bắn tiếp khi đang quá nhiệt
             if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
             {
                 _weaponAnimator.ResetTrigger("Fire");
                 _weaponAnimator.SetBool("Fire", false);
-                _weaponAnimator.Play("Ide", 0, 0f);
-                _weaponAnimator.Update(0f); // Ép xử lý tức thì, triệt tiêu hoàn toàn trigger còn sót
             }
 
             // Yêu cầu bên Animation sinh khói tại nòng súng
             if (_animation != null)
             {
-                _animation.PlayOverheatVfx(_firePoint.position);
+                _animation.PlayOverheatVfx(_firePoint.position, slot.overheatFreezeDuration);
             }
         }
     }

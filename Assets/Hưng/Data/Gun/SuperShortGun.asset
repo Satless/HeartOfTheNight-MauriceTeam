@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
   m_Name: SuperShortGun
   m_EditorClassIdentifier: 
-  fireRate: 5
+  fireRate: 1
   bulletSpeed: 30
   damage: 100
   bulletLifetime: 3
@@ -25,6 +25,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 6752507138775695956, guid: 428f2adafec4cb8428a319a29b22cfb5, type: 3}
   weaponAnimator: {fileID: 9100000, guid: 24753ce35aeb5c848906cf9cbba73edc, type: 2}
   fireAnimationClip: {fileID: 7400000, guid: f5fc55ddd3b31c645bc9088ac1216515, type: 2}
+  autoSyncAnimSpeed: 0
   isExplosive: 1
   explosionRadius: 2.5
   explosionDamage: 25
