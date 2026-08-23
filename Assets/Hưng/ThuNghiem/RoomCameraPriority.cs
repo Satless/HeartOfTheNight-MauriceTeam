@@ -9,7 +9,7 @@ namespace HeartOfTheNight.ThuNghiem
         [SerializeField] private CinemachineCamera _roomCamera;
 
         [Tooltip("Index của phòng này trên Minimap (để -1 nếu phòng không có trên map)")]
-        [SerializeField] private int roomIndex = -1;
+        [SerializeField] private int roomIndex;
         private bool _isPlayerInRoom = false;
 
         private Collider2D _roomCollider;

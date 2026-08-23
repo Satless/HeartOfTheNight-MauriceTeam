@@ -23,11 +23,24 @@ namespace HeartOfTheNight.UI
         [Tooltip("Kéo Prefab 'MauTrong' vào đây (1 ô đại diện cho 10 máu)")]
         [SerializeField] private GameObject healthBlockPrefab;
 
+        [Header("Damage Popup")]
+        [Tooltip("Kéo Prefab 'HienThiSatThuong' vào đây để hệ thống hiển thị số khi bắn trúng")]
+        [SerializeField] private GameObject damagePopupPrefab;
+
+        [Header("Death Settings")]
+        [Tooltip("Kéo các GameObject muốn ẩn khi chết vào đây (HUD_HeartAGun, HUD_Keyboard, KeyHUD, HUDKeyboardController...)")]
+        [SerializeField] private GameObject[] elementsToHideOnDeath;
+
         private HeartOfTheNight.Player.PlayerHealth _playerHealth;
         private HeartOfTheNight.Player.PlayerAttack _playerAttack;
 
         private void Start()
         {
+            if (damagePopupPrefab != null)
+            {
+                HeartOfTheNight.UI.DamagePopup.SetupPrefab(damagePopupPrefab);
+            }
+
             // Tự động tìm Player trong Scene
             FindPlayerAndSubscribe();
         }
@@ -40,6 +53,7 @@ namespace HeartOfTheNight.UI
             if (_playerHealth != null)
             {
                 _playerHealth.OnHealthChanged += UpdateHealth;
+                _playerHealth.OnDeath += HandlePlayerDeath;
                 // Cập nhật UI lần đầu với lượng máu hiện tại
                 UpdateHealth(_playerHealth.GetCurrentHealth(), _playerHealth.MaxHealth); 
             }
@@ -120,6 +134,7 @@ namespace HeartOfTheNight.UI
             if (_playerHealth != null)
             {
                 _playerHealth.OnHealthChanged -= UpdateHealth;
+                _playerHealth.OnDeath -= HandlePlayerDeath;
             }
 
             if (_playerAttack != null)
@@ -127,6 +142,30 @@ namespace HeartOfTheNight.UI
                 _playerAttack.OnHeatChanged -= UpdateHeat;
                 _playerAttack.OnWeaponChanged -= UpdateWeapon;
             }
+        }
+
+        private void HandlePlayerDeath()
+        {
+            Debug.Log($"[HUDManager] Nhận sự kiện OnDeath! Bắt đầu tắt giao diện...");
+
+            if (elementsToHideOnDeath == null || elementsToHideOnDeath.Length == 0)
+            {
+                Debug.LogWarning("[HUDManager] Chưa gán các UI cần tắt vào mảng 'elementsToHideOnDeath' trong Inspector!");
+                return;
+            }
+
+            int disabledCount = 0;
+            foreach (var element in elementsToHideOnDeath)
+            {
+                if (element != null)
+                {
+                    element.SetActive(false);
+                    disabledCount++;
+                    Debug.Log($"[HUDManager] Đã ẩn UI: {element.name}");
+                }
+            }
+            
+            Debug.Log($"[HUDManager] Quét xong. Đã ẩn {disabledCount}/{elementsToHideOnDeath.Length} đối tượng được gán.");
         }
 
         private void UpdateWeapon(GunWeaponData data)
