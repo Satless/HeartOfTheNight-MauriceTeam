@@ -78,6 +78,7 @@ namespace HeartOfTheNight.Hung
         [SerializeField] private float respawnDelay = 1.2f;
 
         private bool _pendingRespawnApply;
+        private bool _pendingContinueRestoreHealth;
         private bool _isRespawning;
 
         private string SavePath => GetSlotSavePath(ActiveSlotIndex);
@@ -112,15 +113,20 @@ namespace HeartOfTheNight.Hung
             if (Instance == null)
             {
                 Instance = this;
-                DontDestroyOnLoad(gameObject);
+                if (Application.isPlaying)
+                    DontDestroyOnLoad(gameObject);
                 ActiveSlotIndex = Mathf.Clamp(PlayerPrefs.GetInt("Save.ActiveSlot", 1), 1, SlotCount);
                 
                 // Khởi tạo Firebase thay vì LoadGame Local ngay lập tức
-                InitializeFirebase();
+                if (Application.isPlaying)
+                    InitializeFirebase();
             }
             else
             {
-                Destroy(gameObject);
+                if (Application.isPlaying)
+                    Destroy(gameObject);
+                else
+                    DestroyImmediate(gameObject);
             }
         }
 
@@ -235,6 +241,44 @@ namespace HeartOfTheNight.Hung
             Data.checkpointPosition = Vector3.zero;
             Data.targetSpawnID = "";
             SaveGame();
+        }
+
+        /// <summary>Sơ đồ: người chơi chọn Continue → load checkpoint (giống chết hồi sinh, nhưng giữ máu save).</summary>
+        public void ContinueFromCheckpoint()
+        {
+            if (!HasInProgress())
+            {
+                Debug.LogWarning("[Save System] Không có màn đang chơi dở để Continue.");
+                return;
+            }
+
+            if (_isRespawning) return;
+            _isRespawning = true;
+            StartCoroutine(ContinueFromCheckpointRoutine());
+        }
+
+        private System.Collections.IEnumerator ContinueFromCheckpointRoutine()
+        {
+            Time.timeScale = 1f;
+
+            if (ScreenFader.Instance != null)
+                yield return ScreenFader.Instance.FadeOut();
+
+            string sceneToLoad = Data.checkpointScene;
+            _pendingRespawnApply = true;
+            _pendingContinueRestoreHealth = true;
+
+            if (!string.IsNullOrEmpty(Data.checkpointSpawnID))
+                LevelEntrance.SetPendingSpawn(Data.checkpointSpawnID);
+            else
+                LevelEntrance.ClearPendingSpawn();
+
+            if (ScreenFader.Instance != null)
+                ScreenFader.Instance.LoadSceneWithLoading(sceneToLoad);
+            else
+                SceneManager.LoadScene(sceneToLoad);
+
+            _isRespawning = false;
         }
 
         private void TouchLastPlayed()
@@ -436,7 +480,18 @@ namespace HeartOfTheNight.Hung
             }
 
             var hp = player.GetComponent<HeartOfTheNight.Player.PlayerHealth>();
-            if (hp != null) hp.HealToFull();
+            if (hp != null)
+            {
+                if (_pendingContinueRestoreHealth)
+                {
+                    _pendingContinueRestoreHealth = false;
+                    hp.SyncHealthFromSave();
+                }
+                else
+                {
+                    hp.HealToFull();
+                }
+            }
         }
 
         /// <summary>
