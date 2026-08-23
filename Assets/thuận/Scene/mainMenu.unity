@@ -11953,6 +11953,7 @@ GameObject:
   - component: {fileID: 1372255798}
   - component: {fileID: 1372255800}
   - component: {fileID: 1372255799}
+  - component: {fileID: 1372255801}
   m_Layer: 5
   m_Name: LoadSavePanel
   m_TagString: Untagged
@@ -12020,6 +12021,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372255797}
   m_CullTransparentMesh: 1
+--- !u!114 &1372255801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372255797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c3e1f04b7d4e6a9f2c5d8e1b4a7c90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotsRoot: {fileID: 791826726}
+  slotButtons: []
+  slotLabels: []
 --- !u!1 &1386793329
 GameObject:
   m_ObjectHideFlags: 0

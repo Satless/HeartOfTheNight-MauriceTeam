@@ -11,8 +11,21 @@ using Firebase.Extensions;
 namespace HeartOfTheNight.Hung
 {
     [System.Serializable]
+    public class ScenePlayTimeEntry
+    {
+        public string sceneName;
+        /// <summary>Tổng giây đã chơi trong scene này (sẽ dùng ở bước sau).</summary>
+        public float playSeconds;
+    }
+
+    [System.Serializable]
     public class GameData
     {
+        public int slotIndex = 1;
+        public bool hasSave;
+        public string createdAtUtc;
+        public string lastPlayedAtUtc;
+
         public int playerHealth;
         public int playerCoin;
         public string currentScene;
@@ -21,12 +34,13 @@ namespace HeartOfTheNight.Hung
         public List<string> clearedRooms = new List<string>();
 
         // Checkpoint gắn cửa: chết / Continue về cửa đã kích hoạt gần nhất
+        // hasCheckpoint ≈ "đang chơi dở màn" trong sơ đồ Continue
         public bool hasCheckpoint;
         public string checkpointScene;
         public string checkpointSpawnID;
         public Vector3 checkpointPosition;
 
-        public int maxUnlockedLevel = 1; // Mặc định luôn mở Level 1\
+        public int maxUnlockedLevel = 1; // Mặc định luôn mở Level 1
 
         // Chìa khóa cửa (Blue/Red) + cửa đã mở khóa vĩnh viễn
         public int blueKeys;
@@ -37,15 +51,23 @@ namespace HeartOfTheNight.Hung
         /// <summary>Id từng KeyPickup đã nhặt trên map (nhiều key cùng màu / cùng scene).</summary>
         public List<string> collectedKeyPickupIds = new List<string>();
 
-        //sau này thêm các dữ liệu tiếp theo...
+        /// <summary>Tổng thời gian chơi cả slot (giây) — UI sẽ hiện ở bước sau.</summary>
+        public float totalPlayTimeSeconds;
+        /// <summary>Thời gian từng scene đã chinh phục — UI sẽ hiện ở bước sau.</summary>
+        public List<ScenePlayTimeEntry> scenePlayTimes = new List<ScenePlayTimeEntry>();
     }
 
     // Class quản lý sống xuyên Scene
     public class DataManager : MonoBehaviour
     {
+        public const int SlotCount = 4;
+        public const string SelectLevelScene = "SelectLevel";
+        public const string NewGameTutorialScene = "Khanh_Level0-1";
+
         public static DataManager Instance { get; private set; }
 
         public GameData Data = new GameData();
+        public int ActiveSlotIndex { get; private set; } = 1;
 
         [Header("Debug / Test")]
         [Tooltip("Chi Editor: bat = giu chìa từ save khi Play. Tat (mac dinh) = moi lan Play chìa ve 0.")]
@@ -58,9 +80,9 @@ namespace HeartOfTheNight.Hung
         private bool _pendingRespawnApply;
         private bool _isRespawning;
 
-        private string SavePath => Application.persistentDataPath + "/save_data.json";
-        private string BackupPath => Application.persistentDataPath + "/save_data.bak";
-        private string TempPath => Application.persistentDataPath + "/save_data.tmp";
+        private string SavePath => GetSlotSavePath(ActiveSlotIndex);
+        private string BackupPath => GetSlotBackupPath(ActiveSlotIndex);
+        private string TempPath => GetSlotTempPath(ActiveSlotIndex);
 
         private FirebaseAuth _auth;
         private FirebaseUser _user;
@@ -68,12 +90,30 @@ namespace HeartOfTheNight.Hung
         private bool _isFirebaseReady = false;
         private bool _isFirebaseInitializing = false; // Thêm cờ để biết đang khởi tạo
 
+        public static DataManager EnsureExists()
+        {
+            if (Instance != null)
+                return Instance;
+
+            var prefab = Resources.Load<GameObject>("Data/DataManager");
+            if (prefab != null)
+            {
+                var spawned = Instantiate(prefab);
+                spawned.name = "DataManager";
+                return Instance;
+            }
+
+            var go = new GameObject("DataManager");
+            return go.AddComponent<DataManager>();
+        }
+
         private void Awake()
         {
             if (Instance == null)
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+                ActiveSlotIndex = Mathf.Clamp(PlayerPrefs.GetInt("Save.ActiveSlot", 1), 1, SlotCount);
                 
                 // Khởi tạo Firebase thay vì LoadGame Local ngay lập tức
                 InitializeFirebase();
@@ -82,6 +122,137 @@ namespace HeartOfTheNight.Hung
             {
                 Destroy(gameObject);
             }
+        }
+
+        public static string GetSlotSavePath(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            return Path.Combine(Application.persistentDataPath, $"save_slot_{slotIndex}.json");
+        }
+
+        public static string GetSlotBackupPath(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            return Path.Combine(Application.persistentDataPath, $"save_slot_{slotIndex}.bak");
+        }
+
+        private static string GetSlotTempPath(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            return Path.Combine(Application.persistentDataPath, $"save_slot_{slotIndex}.tmp");
+        }
+
+        /// <summary>Slot đã có file save local (hoặc legacy save_data.json với slot 1).</summary>
+        public static bool HasSave(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            if (File.Exists(GetSlotSavePath(slotIndex)))
+                return true;
+
+            // Migrate: save cũ 1 file → coi như Slot 1
+            if (slotIndex == 1 && File.Exists(Path.Combine(Application.persistentDataPath, "save_data.json")))
+                return true;
+
+            return false;
+        }
+
+        public bool HasInProgress()
+        {
+            return Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointScene);
+        }
+
+        /// <summary>
+        /// Sơ đồ bước 1: chọn slot → trống = new game (Level 0-1), có save = Select Level.
+        /// Popup Continue/Bỏ làm ở bước sau.
+        /// </summary>
+        public void SelectSlotAndEnter(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            ActiveSlotIndex = slotIndex;
+            PlayerPrefs.SetInt("Save.ActiveSlot", slotIndex);
+            PlayerPrefs.Save();
+
+            if (!HasSave(slotIndex))
+            {
+                CreateNewSave(slotIndex);
+                LoadSceneSafe(NewGameTutorialScene);
+                return;
+            }
+
+            LoadSlot(slotIndex, () =>
+            {
+                TouchLastPlayed();
+                SaveGame();
+                LoadSceneSafe(SelectLevelScene);
+            });
+        }
+
+        public void CreateNewSave(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            ActiveSlotIndex = slotIndex;
+            PlayerPrefs.SetInt("Save.ActiveSlot", slotIndex);
+            PlayerPrefs.Save();
+
+            string now = DateTime.UtcNow.ToString("o");
+            Data = new GameData
+            {
+                slotIndex = slotIndex,
+                hasSave = true,
+                createdAtUtc = now,
+                lastPlayedAtUtc = now,
+                playerHealth = 100,
+                maxUnlockedLevel = 1,
+                currentScene = NewGameTutorialScene,
+                hasCheckpoint = false,
+                totalPlayTimeSeconds = 0f,
+                scenePlayTimes = new List<ScenePlayTimeEntry>(),
+                clearedRooms = new List<string>(),
+                unlockedDoors = new List<string>(),
+                collectedKeyPickupIds = new List<string>(),
+            };
+
+            ChapterProgress.ResetForNewSave();
+            SaveGame();
+            Debug.Log($"[Save System] Tạo save mới Slot {slotIndex} → {NewGameTutorialScene}");
+        }
+
+        public void LoadSlot(int slotIndex, Action onLoaded = null)
+        {
+            ActiveSlotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            PlayerPrefs.SetInt("Save.ActiveSlot", ActiveSlotIndex);
+            PlayerPrefs.Save();
+            LoadGame(onLoaded);
+        }
+
+        /// <summary>Bỏ màn đang chơi dở — giữ unlock / tiến độ slot. Dùng ở bước Continue popup.</summary>
+        public void AbandonInProgress()
+        {
+            if (Data == null) return;
+            Data.hasCheckpoint = false;
+            Data.checkpointScene = "";
+            Data.checkpointSpawnID = "";
+            Data.checkpointPosition = Vector3.zero;
+            Data.targetSpawnID = "";
+            SaveGame();
+        }
+
+        private void TouchLastPlayed()
+        {
+            if (Data == null) return;
+            Data.hasSave = true;
+            Data.slotIndex = ActiveSlotIndex;
+            Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
+            if (string.IsNullOrEmpty(Data.createdAtUtc))
+                Data.createdAtUtc = Data.lastPlayedAtUtc;
+        }
+
+        private static void LoadSceneSafe(string sceneName)
+        {
+            if (ScreenFader.Instance != null)
+                ScreenFader.Instance.LoadSceneWithLoading(sceneName);
+            else
+                SceneManager.LoadScene(sceneName);
         }
 
         private void InitializeFirebase()
@@ -139,6 +310,12 @@ namespace HeartOfTheNight.Hung
         // Gọi hàm này khi bấm F5
         public void SaveGame()
         {
+            if (Data == null) Data = new GameData();
+            Data.hasSave = true;
+            Data.slotIndex = ActiveSlotIndex;
+            if (string.IsNullOrEmpty(Data.lastPlayedAtUtc))
+                Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
+
             // Luôn lưu local làm lốp dự phòng
             SaveGameLocal();
 
@@ -146,14 +323,19 @@ namespace HeartOfTheNight.Hung
             if (_isFirebaseReady && _user != null && _dbRef != null)
             {
                 string json = JsonUtility.ToJson(Data, true);
-                _dbRef.Child("users").Child(_user.UserId).Child("GameData").SetRawJsonValueAsync(json).ContinueWithOnMainThread(task =>
+                GetSlotDbRef().SetRawJsonValueAsync(json).ContinueWithOnMainThread(task =>
                 {
                     if (task.IsFaulted || task.IsCanceled)
                         Debug.LogError("[Firebase] Lỗi khi lưu lên Cloud.");
                     else
-                        Debug.Log("[Firebase] Đã đồng bộ Save lên Cloud thành công!");
+                        Debug.Log($"[Firebase] Đã đồng bộ Slot {ActiveSlotIndex} lên Cloud thành công!");
                 });
             }
+        }
+
+        private DatabaseReference GetSlotDbRef()
+        {
+            return _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(ActiveSlotIndex.ToString()).Child("GameData");
         }
 
         /// <summary>
@@ -299,8 +481,8 @@ namespace HeartOfTheNight.Hung
 
         private void LoadGameCloud(Action onLoaded = null)
         {
-            Debug.Log("[Firebase] Đang tải dữ liệu từ Cloud...");
-            _dbRef.Child("users").Child(_user.UserId).Child("GameData").GetValueAsync().ContinueWithOnMainThread(task =>
+            Debug.Log($"[Firebase] Đang tải Slot {ActiveSlotIndex} từ Cloud...");
+            GetSlotDbRef().GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (task.IsFaulted || task.IsCanceled)
                 {
@@ -324,14 +506,44 @@ namespace HeartOfTheNight.Hung
                         ApplyEditorKeyResetIfNeeded();
                         HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     }
+                    else if (ActiveSlotIndex == 1)
+                    {
+                        // Migrate: cloud cũ users/{uid}/GameData → slot 1
+                        TryLoadLegacyCloudThenLocal(onLoaded);
+                        return;
+                    }
                     else
                     {
-                        Debug.Log("[Firebase] Người chơi mới! Chưa có dữ liệu trên Cloud. Đang khởi tạo data mặc định...");
-                        LoadGameLocal(); // Lỡ họ có data local nhưng chưa từng lên cloud
+                        Debug.Log($"[Firebase] Slot {ActiveSlotIndex} chưa có trên Cloud. Đang tải Local...");
+                        LoadGameLocal();
                     }
                 }
                 
                 // Báo cho TestSaveLoad biết là đã load xong (có thể dịch chuyển nhân vật)
+                onLoaded?.Invoke();
+                ApplyEditorKeyResetIfNeeded();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+            });
+        }
+
+        private void TryLoadLegacyCloudThenLocal(Action onLoaded)
+        {
+            _dbRef.Child("users").Child(_user.UserId).Child("GameData").GetValueAsync().ContinueWithOnMainThread(task =>
+            {
+                if (task.IsCompleted && !task.IsFaulted && task.Result != null && task.Result.Exists)
+                {
+                    if (Data == null) Data = new GameData();
+                    JsonUtility.FromJsonOverwrite(task.Result.GetRawJsonValue(), Data);
+                    Data.slotIndex = 1;
+                    Data.hasSave = true;
+                    SaveGameLocal();
+                    Debug.Log("[Firebase] Đã migrate GameData cũ → Slot 1.");
+                }
+                else
+                {
+                    LoadGameLocal();
+                }
+
                 onLoaded?.Invoke();
                 ApplyEditorKeyResetIfNeeded();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
@@ -368,7 +580,9 @@ namespace HeartOfTheNight.Hung
                     string json = File.ReadAllText(SavePath);
                     if (Data == null) Data = new GameData();
                     JsonUtility.FromJsonOverwrite(json, Data);
-                    Debug.Log($"[Save System] Tải local thành công. RAM: playerHealth={Data.playerHealth}");
+                    Data.hasSave = true;
+                    Data.slotIndex = ActiveSlotIndex;
+                    Debug.Log($"[Save System] Tải local Slot {ActiveSlotIndex} thành công. RAM: playerHealth={Data.playerHealth}");
                     ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     return; 
@@ -378,6 +592,33 @@ namespace HeartOfTheNight.Hung
                     Debug.LogWarning($"[Save System] File chính bị hỏng, tải từ Backup. Lỗi: {e.Message}");
                     LoadFromBackupLocal();
                 }
+            }
+            else if (ActiveSlotIndex == 1)
+            {
+                // Migrate save_data.json cũ → Slot 1
+                string legacy = Path.Combine(Application.persistentDataPath, "save_data.json");
+                if (File.Exists(legacy))
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(legacy);
+                        if (Data == null) Data = new GameData();
+                        JsonUtility.FromJsonOverwrite(json, Data);
+                        Data.hasSave = true;
+                        Data.slotIndex = 1;
+                        SaveGameLocal();
+                        Debug.Log("[Save System] Đã migrate save_data.json → save_slot_1.json");
+                        ApplyEditorKeyResetIfNeeded();
+                        HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                        return;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning($"[Save System] Migrate legacy thất bại: {e.Message}");
+                    }
+                }
+
+                LoadFromBackupLocal();
             }
             else
             {

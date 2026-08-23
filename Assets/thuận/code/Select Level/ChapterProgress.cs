@@ -78,6 +78,13 @@ public static class ChapterProgress
             UnlockScene(sceneName);
     }
 
+    /// <summary>Reset unlock khi tạo save mới (tránh dính PlayerPrefs slot cũ).</summary>
+    public static void ResetForNewSave()
+    {
+        PlayerPrefs.DeleteKey(PrefsKey);
+        PlayerPrefs.Save();
+    }
+
     private static HashSet<string> GetUnlocked()
     {
         var set = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase) { Chapter1Scenes[0] };
