@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using HeartOfTheNight.Hung;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -6,6 +7,9 @@ public class SelectLevelManager : MonoBehaviour
 {
     [Header("UI mới — Chapter 1 missions")]
     [SerializeField] private Transform chapter1MissionsRoot;
+
+    [Header("Continue / Bỏ màn đang chơi dở")]
+    [SerializeField] private ContinueInProgressUI continuePopup;
 
     [Header("Nút cũ (panel ẩn, giữ để không mất reference scene)")]
     public Button level1Button;
@@ -25,6 +29,20 @@ public class SelectLevelManager : MonoBehaviour
     {
         BindChapter1Missions();
         RefreshUnlocks();
+        EnsureContinuePopup().TryShowIfInProgress();
+    }
+
+    private ContinueInProgressUI EnsureContinuePopup()
+    {
+        if (continuePopup != null)
+            return continuePopup;
+
+        continuePopup = FindFirstObjectByType<ContinueInProgressUI>();
+        if (continuePopup != null)
+            return continuePopup;
+
+        continuePopup = gameObject.AddComponent<ContinueInProgressUI>();
+        return continuePopup;
     }
 
     private void BindChapter1Missions()
@@ -82,6 +100,9 @@ public class SelectLevelManager : MonoBehaviour
     public void LoadLevel4() => Load(level4Scene);
     public void LoadLevel5() => Load(level5Scene);
 
+    /// <summary>MissionHover / nút level gọi qua đây để tôn trọng popup Continue/Bỏ.</summary>
+    public void RequestEnterLevel(string sceneName) => Load(sceneName);
+
     public void Back()
     {
         if (SoundManager_New.Instance != null)
@@ -92,7 +113,7 @@ public class SelectLevelManager : MonoBehaviour
         SceneManager.LoadScene("mainMenu");
     }
 
-    private static void Load(string sceneName)
+    private void Load(string sceneName)
     {
         if (string.IsNullOrEmpty(sceneName))
         {
@@ -100,6 +121,26 @@ public class SelectLevelManager : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene(sceneName);
+        var dm = HeartOfTheNight.Hung.DataManager.EnsureExists();
+        if (dm != null && dm.HasInProgress())
+        {
+            // Theo sơ đồ: phải trả lời Continue / Bỏ trước khi chọn level mới
+            EnsureContinuePopup().TryShowIfInProgress();
+            Debug.Log("[SelectLevel] Còn màn đang chơi dở — hiện popup Continue/Bỏ trước.");
+            return;
+        }
+
+        // Chọn level mới từ Select Level = không mang checkpoint cũ
+        if (dm != null)
+        {
+            dm.AbandonInProgress();
+            dm.PrepareForNewScene();
+            LevelEntrance.ClearPendingSpawn();
+        }
+
+        if (ScreenFader.Instance != null)
+            ScreenFader.Instance.LoadSceneWithLoading(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
     }
 }
