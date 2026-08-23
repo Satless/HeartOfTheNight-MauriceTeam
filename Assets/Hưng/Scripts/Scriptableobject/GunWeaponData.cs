@@ -40,6 +40,8 @@ public class GunWeaponData : ScriptableObject
     public RuntimeAnimatorController weaponAnimator;
     [Tooltip("Kéo ĐÚNG Clip Fire/Shoot của súng này vào đây để hệ thống tự động đồng bộ tốc độ bắn (Auto-Sync)")]
     public AnimationClip fireAnimationClip;
+    [Tooltip("Tự động chỉnh tốc độ Animation khớp với Fire Rate (Nên tắt cho súng bắn chậm như Shotgun, Sniper)")]
+    public bool autoSyncAnimSpeed = true;
 
     [Header("Explosive / AOE")]
     [Tooltip("Đạn có phát nổ AOE khi chạm mục tiêu/tường không?")]
