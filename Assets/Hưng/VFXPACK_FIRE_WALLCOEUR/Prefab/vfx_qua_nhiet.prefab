@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3853705248520243377}
   - component: {fileID: 4872383719332000811}
   - component: {fileID: 7880366669018299553}
-  - component: {fileID: 104917167880745914}
   m_Layer: 0
   m_Name: vfx_qua_nhiet
   m_TagString: Untagged
@@ -51,7 +50,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 1
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -4834,15 +4833,3 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &104917167880745914
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2716269153575225365}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3723acb8074f71d46a8f65419b40673b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

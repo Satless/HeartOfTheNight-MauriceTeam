@@ -186,6 +186,10 @@ public class Bullet : MonoBehaviour
             if (damageable != null)
             {
                 damageable.TakeDamage(_data.damage);
+                
+                // Hiển thị số sát thương (Zero-GC Popup)
+                // Truyền false để sát thương đạn luôn hiển thị bằng màu thường (Normal Color)
+                HeartOfTheNight.UI.DamagePopup.Create(hitPoint, _data.damage);
             }
 
             // Đẩy lùi theo hướng bay của đạn
@@ -260,6 +264,8 @@ public class Bullet : MonoBehaviour
                 if (damageable != null)
                 {
                     damageable.TakeDamage(_data.explosionDamage);
+                    
+                    HeartOfTheNight.UI.DamagePopup.Create(targetPos, _data.explosionDamage);
                 }
 
                 // Đẩy lùi từ tâm nổ ra ngoài

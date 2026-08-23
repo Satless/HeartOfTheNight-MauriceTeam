@@ -22,11 +22,13 @@ namespace HeartOfTheNight.Player
 
         public bool hasShield = false;/////
         public event Action<int, int> OnHealthChanged;
+        public event Action OnDeath;
 
         public int MaxHealth => _maxHealth;
         public int GetCurrentHealth() => _currentHealth;
 
         private bool _isDead;
+        public bool IsDead => _isDead;
        
         private void Start()
         {
@@ -82,6 +84,15 @@ namespace HeartOfTheNight.Player
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
+        public void InstaKill()
+        {
+            if (_currentHealth <= 0) return;
+            
+            Debug.Log("[PlayerHealth] Dính bẫy tử thần! Ép phá khiên và chết ngay lập tức.");
+            hasShield = false; // Xuyên qua mọi loại khiên bảo vệ
+            TakeDamage(_currentHealth); // Ép trừ đúng bằng lượng máu hiện tại để về 0
+        }
+
         public void TakeDamage(int amount)
         {
             if (hasShield) return;
@@ -90,6 +101,10 @@ namespace HeartOfTheNight.Player
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
+            
+            // Hiển thị số sát thương nhảy lên đầu Player (Màu thường)
+            HeartOfTheNight.UI.DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount);
+            
             //SoundManager.Instance.PlaySound3D("Player", "Hurt", transform.position);
 
             // Đồng bộ máu mới vào DataManager (chỉ lưu trên RAM, chưa ghi ra file để tránh giật lag)
@@ -114,6 +129,7 @@ namespace HeartOfTheNight.Player
             if (_isDead) return;
             _isDead = true;
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
+            OnDeath?.Invoke();
             StartCoroutine(DieRoutine());
         }
 

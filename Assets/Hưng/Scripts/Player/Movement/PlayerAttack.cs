@@ -45,6 +45,8 @@ public class PlayerAttack : MonoBehaviour
     public WeaponSlot Weapon2;
     [Tooltip("Vũ khí 3 (Phím 3)")]
     public WeaponSlot Weapon3;
+    [Tooltip("Vũ khí 4 (Phím 4)")]
+    public WeaponSlot Weapon4;
 
     [Header("Debug Tracking")]
     [Tooltip("Dữ liệu ScriptableObject của khẩu súng đang được cầm trên tay (thay đổi khi bấm phím số hoặc Q).")]
@@ -116,7 +118,8 @@ public class PlayerAttack : MonoBehaviour
     {
         if (slotIndex == 1) return Weapon1;
         if (slotIndex == 2) return Weapon2;
-        return Weapon3;
+        if (slotIndex == 3) return Weapon3;
+        return Weapon4;
     }
 
     // ─── PROPERTIES & EVENTS CHO ANIMATION ────────────────────────────────────
@@ -162,6 +165,7 @@ public class PlayerAttack : MonoBehaviour
         _input.Player.Weapon1.started += (InputAction.CallbackContext context) => EquipSlot(1);
         _input.Player.Weapon2.started += (InputAction.CallbackContext context) => EquipSlot(2);
         _input.Player.Weapon3.started += (InputAction.CallbackContext context) => EquipSlot(3);
+        _input.Player.Weapon4.started += (InputAction.CallbackContext context) => EquipSlot(4);
         
         _input.Player.ToggleVariant.started += (InputAction.CallbackContext context) => 
         {
@@ -176,6 +180,7 @@ public class PlayerAttack : MonoBehaviour
         UpdateWeaponCapacity(Weapon1);
         UpdateWeaponCapacity(Weapon2);
         UpdateWeaponCapacity(Weapon3);
+        UpdateWeaponCapacity(Weapon4);
     }
 
     private void UpdateWeaponCapacity(WeaponSlot slot)
@@ -228,6 +233,7 @@ public class PlayerAttack : MonoBehaviour
         PrewarmWeapon(Weapon1);
         PrewarmWeapon(Weapon2);
         PrewarmWeapon(Weapon3);
+        PrewarmWeapon(Weapon4);
 
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
         _hasInitialized = true; // Đánh dấu đã khởi tạo xong
@@ -283,7 +289,7 @@ public class PlayerAttack : MonoBehaviour
         // Chặn người chơi ấn chuyển súng liên tục (chỉ chặn khi chuyển sang ô súng khác, bấm Q thì được qua)
         if (slotNumber != _currentSlotIndex && Time.time < _switchEndTime) return;
 
-        WeaponSlot slot = slotNumber == 1 ? Weapon1 : (slotNumber == 2 ? Weapon2 : Weapon3);
+        WeaponSlot slot = slotNumber == 1 ? Weapon1 : (slotNumber == 2 ? Weapon2 : (slotNumber == 3 ? Weapon3 : Weapon4));
         
         GunWeaponData weaponToEquip = _useVariant2 ? slot.variant2 : slot.variant1;
         
@@ -345,7 +351,7 @@ public class PlayerAttack : MonoBehaviour
             
             // TỰ ĐỘNG HÓA TỐC ĐỘ ANIMATION (Auto-Sync)
             _currentFireSpeedMul = Data.animationSpeedMultiplier; // Mặc định dự phòng
-            if (Data.fireRate > 0 && !Data.isContinuousFire && Data.fireAnimationClip != null)
+            if (Data.autoSyncAnimSpeed && Data.fireRate > 0 && !Data.isContinuousFire && Data.fireAnimationClip != null)
             {
                 _currentFireSpeedMul = Data.fireAnimationClip.length / Data.fireRate;
                 Debug.Log($"<color=cyan>[Auto-Sync]</color> {Data.name}: Đã lưu tốc độ Animator (FireSpeedMul) = {_currentFireSpeedMul:F2}x (Độ dài Clip: {Data.fireAnimationClip.length:F2}s / FireRate: {Data.fireRate}s)");
@@ -587,6 +593,9 @@ public class PlayerAttack : MonoBehaviour
             Bullet bullet = Data.bulletPrefab.Spawn(spawnPos);
             bullet.Activate(Data);
 
+            // Xoay hình ảnh đạn hướng theo quỹ đạo bay (áp dụng cho cả xoay trái/phải và nghiêng theo spread shotgun)
+            bullet.transform.right = finalDirection.normalized;
+
             // Truyền gia tốc cho đạn
             bullet.RB.linearVelocity = finalDirection.normalized * Data.bulletSpeed;
         }
@@ -625,22 +634,17 @@ public class PlayerAttack : MonoBehaviour
 
             //SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
 
-            // ═══ ÉP ANIMATOR HỦY DÁNG BẮN TỨC THÌ ═══
-            // ResetTrigger xóa mọi trigger "Fire" đang chờ trong hàng đợi Animator.
-            // Play("Idle", 0, 0f) ép nhảy thẳng về frame đầu tiên của Idle, bỏ qua mọi Transition.
-            // Update(0) ép Animator xử lý ngay lập tức trong frame này (không chờ sang frame sau).
+            // Ngắt cờ bắn để không bắn tiếp khi đang quá nhiệt
             if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
             {
                 _weaponAnimator.ResetTrigger("Fire");
                 _weaponAnimator.SetBool("Fire", false);
-                _weaponAnimator.Play("Ide", 0, 0f);
-                _weaponAnimator.Update(0f); // Ép xử lý tức thì, triệt tiêu hoàn toàn trigger còn sót
             }
 
             // Yêu cầu bên Animation sinh khói tại nòng súng
             if (_animation != null)
             {
-                _animation.PlayOverheatVfx(_firePoint.position);
+                _animation.PlayOverheatVfx(_firePoint.position, slot.overheatFreezeDuration);
             }
         }
     }
@@ -650,6 +654,7 @@ public class PlayerAttack : MonoBehaviour
         UpdateSlotCooldown(Weapon1, _currentSlotIndex == 1 && _isFiringThisFrame);
         UpdateSlotCooldown(Weapon2, _currentSlotIndex == 2 && _isFiringThisFrame);
         UpdateSlotCooldown(Weapon3, _currentSlotIndex == 3 && _isFiringThisFrame);
+        UpdateSlotCooldown(Weapon4, _currentSlotIndex == 4 && _isFiringThisFrame);
     }
 
     private void UpdateSlotCooldown(WeaponSlot slot, bool isFiringThisFrame)
