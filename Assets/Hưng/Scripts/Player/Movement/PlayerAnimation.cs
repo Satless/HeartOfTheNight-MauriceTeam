@@ -25,6 +25,8 @@ namespace HeartOfTheNight.Player
     [SerializeField] private ParticleSystem _leftWallVfx;
     [Tooltip("Data chứa hiệu ứng khói nhảy (Kéo file Jump.asset vào đây)")]
     [SerializeField] private StatusEffectData _jumpVfxData;
+    [Tooltip("Kéo cục vfx_qua_nhiet (nằm trong Diemban) vào đây để khói bám theo súng")]
+    [SerializeField] private ParticleSystem _overheatVfx;
     [Tooltip("Data chứa hiệu ứng bốc khói/lửa khi quá nhiệt (Kéo file QuaNhiet.asset vào đây)")]
     [SerializeField] private StatusEffectData _overheatVfxData;
 
@@ -105,6 +107,18 @@ namespace HeartOfTheNight.Player
 
     private void Update()
     {
+        // -------------------------------------------------------------
+        // XỬ LÝ HẸN GIỜ TẮT VFX QUÁ NHIỆT (ZERO-GC)
+        // -------------------------------------------------------------
+        if (_overheatVfxStopTime > 0 && Time.time >= _overheatVfxStopTime)
+        {
+            if (_overheatVfx != null)
+            {
+                _overheatVfx.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+            _overheatVfxStopTime = -1f;
+        }
+
         UpdateGunState();
         HandleBlendTreeParams();
         HandleMoonwalk();
@@ -352,12 +366,19 @@ namespace HeartOfTheNight.Player
         _lastWeaponSwitchTime = Time.time;
     }
 
+    private float _overheatVfxStopTime = -1f;
+
     /// <summary>
     /// Được gọi từ PlayerAttack khi súng bị quá nhiệt, sinh hiệu ứng khói/lửa.
     /// </summary>
-    public void PlayOverheatVfx(Vector3 spawnPosition)
+    public void PlayOverheatVfx(Vector3 spawnPosition, float duration)
     {
-        if (_overheatVfxData != null && _overheatVfxData.effectVfxPrefab != null)
+        if (_overheatVfx != null)
+        {
+            _overheatVfx.Play();
+            _overheatVfxStopTime = Time.time + duration;
+        }
+        else if (_overheatVfxData != null && _overheatVfxData.effectVfxPrefab != null)
         {
             _overheatVfxData.effectVfxPrefab.Spawn(spawnPosition, Quaternion.identity);
         }

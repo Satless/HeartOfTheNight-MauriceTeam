@@ -88,6 +88,13 @@ public class MissionHover : MonoBehaviour,
         if (!CanEnter)
             return;
 
+        var select = FindFirstObjectByType<SelectLevelManager>();
+        if (select != null)
+        {
+            select.RequestEnterLevel(sceneName);
+            return;
+        }
+
         SceneManager.LoadScene(sceneName);
     }
 
