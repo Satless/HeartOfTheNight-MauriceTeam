@@ -98,16 +98,19 @@ namespace HeartOfTheNight.Hung
             EnsureLabelArray();
             EnsureMetaLabels();
 
+            int activeSlot = DataManager.GetActiveSlotIndex();
+
             for (int i = 0; i < DataManager.SlotCount; i++)
             {
                 int slot = i + 1;
                 bool hasSave = DataManager.HasSave(slot);
+                bool isCurrent = hasSave && slot == activeSlot;
                 DataManager.TryPeekSlot(slot, out GameData peek);
 
                 if (slotLabels != null && i < slotLabels.Length && slotLabels[i] != null)
                 {
                     slotLabels[i].text = SlotTitle(slot);
-                    slotLabels[i].color = hasSave ? TextNormal : TextMuted;
+                    slotLabels[i].color = isCurrent ? TextSelected : (hasSave ? TextNormal : TextMuted);
                 }
 
                 if (_metaLabels != null && i < _metaLabels.Length && _metaLabels[i] != null)
@@ -118,8 +121,8 @@ namespace HeartOfTheNight.Hung
 
                 if (_selectLabels != null && i < _selectLabels.Length && _selectLabels[i] != null)
                 {
-                    _selectLabels[i].text = hasSave ? "selected" : "new";
-                    _selectLabels[i].color = TextNormal;
+                    _selectLabels[i].text = hasSave ? "select" : "new";
+                    _selectLabels[i].color = isCurrent ? TextSelected : TextNormal;
                 }
 
                 if (deleteButtons != null && i < deleteButtons.Length && deleteButtons[i] != null)
@@ -168,21 +171,24 @@ namespace HeartOfTheNight.Hung
         private static void ApplyTitleLayout(TMP_Text title)
         {
             var rt = title.rectTransform;
-            rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, 18f);
-            Vector2 size = rt.sizeDelta;
-            if (size.y > 40f)
-                rt.sizeDelta = new Vector2(size.x, 36f);
+            rt.anchorMin = new Vector2(0f, 0.5f);
+            rt.anchorMax = new Vector2(0f, 0.5f);
+            rt.pivot = new Vector2(0f, 0.5f);
+            rt.anchoredPosition = new Vector2(28f, 14f);
+            rt.sizeDelta = new Vector2(260f, 52f);
+            title.enableWordWrapping = false;
+            title.overflowMode = TextOverflowModes.Overflow;
+            title.alignment = TextAlignmentOptions.MidlineLeft;
         }
 
         private static void ApplyMetaLayout(TMP_Text meta, TMP_Text title)
         {
             var rt = meta.rectTransform;
-            float x = title != null ? title.rectTransform.anchoredPosition.x : 28f;
             rt.anchorMin = new Vector2(0f, 0.5f);
             rt.anchorMax = new Vector2(0f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(x, -28f);
-            rt.sizeDelta = new Vector2(270f, 28f);
+            rt.anchoredPosition = new Vector2(28f, -26f);
+            rt.sizeDelta = new Vector2(240f, 28f);
         }
 
         private static TMP_Text FindOrCreateMetaLabel(Transform slot, TMP_Text fontSource)
@@ -469,28 +475,33 @@ namespace HeartOfTheNight.Hung
                 if (selectButtons[i] == null)
                 {
                     selectButtons[i] = FindOrCreateActionButton(
-                        slot, "Selected", "selected",
-                        new Vector2(-148f, 0f), new Vector2(150f, 50f),
-                        fontSource);
+                        slot, "Selected", "select",
+                        new Vector2(-128f, 0f), new Vector2(110f, 50f),
+                        fontSource, TextAlignmentOptions.MidlineLeft);
                 }
 
                 if (deleteButtons[i] == null)
                 {
                     deleteButtons[i] = FindOrCreateActionButton(
                         slot, "Delete", "delete",
-                        new Vector2(-18f, 0f), new Vector2(120f, 50f),
-                        fontSource);
+                        new Vector2(-18f, 0f), new Vector2(100f, 50f),
+                        fontSource, TextAlignmentOptions.MidlineLeft);
                 }
 
-                ApplyActionButtonLayout(selectButtons[i], new Vector2(-148f, 0f), new Vector2(150f, 50f));
-                ApplyActionButtonLayout(deleteButtons[i], new Vector2(-18f, 0f), new Vector2(120f, 50f));
+                ApplyActionButtonLayout(
+                    selectButtons[i], new Vector2(-128f, 0f), new Vector2(110f, 50f),
+                    TextAlignmentOptions.MidlineLeft);
+                ApplyActionButtonLayout(
+                    deleteButtons[i], new Vector2(-18f, 0f), new Vector2(100f, 50f),
+                    TextAlignmentOptions.MidlineLeft);
 
                 _selectLabels[i] = selectButtons[i].GetComponent<TMP_Text>();
                 _deleteLabels[i] = deleteButtons[i].GetComponent<TMP_Text>();
             }
         }
 
-        private static void ApplyActionButtonLayout(Button button, Vector2 anchoredPos, Vector2 size)
+        private static void ApplyActionButtonLayout(
+            Button button, Vector2 anchoredPos, Vector2 size, TextAlignmentOptions align)
         {
             if (button == null)
                 return;
@@ -504,11 +515,19 @@ namespace HeartOfTheNight.Hung
             rt.pivot = new Vector2(1f, 0.5f);
             rt.anchoredPosition = anchoredPos;
             rt.sizeDelta = size;
+
+            var tmp = button.GetComponent<TMP_Text>();
+            if (tmp != null)
+            {
+                tmp.alignment = align;
+                tmp.enableWordWrapping = false;
+                tmp.overflowMode = TextOverflowModes.Truncate;
+            }
         }
 
         private static Button FindOrCreateActionButton(
             Transform slot, string objectName, string label,
-            Vector2 anchoredPos, Vector2 size, TMP_Text fontSource)
+            Vector2 anchoredPos, Vector2 size, TMP_Text fontSource, TextAlignmentOptions align)
         {
             Transform existing = slot.Find(objectName);
             if (existing != null)
@@ -516,7 +535,7 @@ namespace HeartOfTheNight.Hung
                 var existingButton = existing.GetComponent<Button>();
                 if (existingButton != null)
                 {
-                    ApplyActionButtonLayout(existingButton, anchoredPos, size);
+                    ApplyActionButtonLayout(existingButton, anchoredPos, size, align);
                     return existingButton;
                 }
             }
@@ -535,9 +554,10 @@ namespace HeartOfTheNight.Hung
             var tmp = go.AddComponent<TextMeshProUGUI>();
             tmp.text = label;
             tmp.fontSize = 22f;
-            tmp.alignment = TextAlignmentOptions.MidlineRight;
+            tmp.alignment = align;
             tmp.color = TextNormal;
             tmp.enableWordWrapping = false;
+            tmp.overflowMode = TextOverflowModes.Truncate;
             tmp.raycastTarget = true;
             CopyFont(fontSource, tmp);
 

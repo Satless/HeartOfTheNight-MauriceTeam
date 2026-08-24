@@ -117,7 +117,7 @@ namespace HeartOfTheNight.Hung
                 Instance = this;
                 if (Application.isPlaying)
                     DontDestroyOnLoad(gameObject);
-                ActiveSlotIndex = Mathf.Clamp(PlayerPrefs.GetInt("Save.ActiveSlot", 1), 1, SlotCount);
+                ActiveSlotIndex = GetActiveSlotIndex();
 
                 if (Application.isPlaying)
                 {
@@ -219,6 +219,12 @@ namespace HeartOfTheNight.Hung
                 return true;
 
             return false;
+        }
+
+        /// <summary>Slot đang chơi (PlayerPrefs, không cần Instance).</summary>
+        public static int GetActiveSlotIndex()
+        {
+            return Mathf.Clamp(PlayerPrefs.GetInt("Save.ActiveSlot", 1), 1, SlotCount);
         }
 
         /// <summary>
