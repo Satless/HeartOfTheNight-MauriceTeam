@@ -237226,7 +237226,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3150857075180696040, guid: 0b10c2b06c713b647ab85c03eb3550b4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.55
+      value: 3.59
       objectReference: {fileID: 0}
     - target: {fileID: 3150857075180696040, guid: 0b10c2b06c713b647ab85c03eb3550b4, type: 3}
       propertyPath: m_LocalPosition.z
@@ -416389,6 +416389,7 @@ GameObject:
   - component: {fileID: 4001550022178245034}
   - component: {fileID: 7062722278050209694}
   - component: {fileID: 7062722278050209693}
+  - component: {fileID: 7062722278050209695}
   m_Layer: 6
   m_Name: Tile
   m_TagString: Untagged
@@ -436705,6 +436706,59 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &7062722278050209695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5226322812727252099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_Priority: 1
+  m_ComponentVersion: 5
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_AlphaCutoff: 0.267
+  m_ApplyToSortingLayers: 00000000f765ab4911842ac2c1cfffbded09f640
+  m_ShapePath:
+  - {x: -21, y: -26, z: 0}
+  - {x: -21, y: 27, z: 0}
+  - {x: 77, y: 27, z: 0}
+  - {x: 77, y: -26, z: 0}
+  m_ShapePathHash: 0
+  m_InstanceId: 0
+  m_ShadowShape2DComponent: {fileID: 4001550022178245034}
+  m_ShadowShape2DProvider:
+    rid: 5633328580041113680
+  m_ShadowCastingSource: 2
+  m_ShadowMesh:
+    m_Mesh: {fileID: 0}
+    m_LocalBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0, y: 0, z: 0}
+    m_EdgeProcessing: 1
+    m_TrimEdge: 0
+    m_FlipX: 0
+    m_FlipY: 0
+    m_InitialTrim: 0
+  m_CastingOption: 1
+  m_PreviousTrimEdge: 0
+  m_PreviousEdgeProcessing: 1
+  m_PreviousShadowCastingSource: 2
+  m_PreviousShadowShape2DSource: {fileID: 4001550022178245034}
+  references:
+    version: 2
+    RefIds:
+    - rid: 5633328580041113680
+      type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data: 
 --- !u!1 &7066013013896812777
 GameObject:
   m_ObjectHideFlags: 0
