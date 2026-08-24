@@ -540,8 +540,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 189378855}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 4.1911, y: -0}
   m_SizeDelta: {x: 17.8147, y: 7.9528}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1022,7 +1022,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &269704496
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2704,7 +2704,7 @@ RectTransform:
   m_Father: {fileID: 396244}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.20879936}
   m_SizeDelta: {x: 0, y: 7.0982}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4102,8 +4102,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 321026698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 4.1911, y: -0}
   m_SizeDelta: {x: 17.8147, y: 7.9528}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4216,13 +4216,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuPanel: {fileID: 2023892784}
-  saveSlotPanel: {fileID: 0}
+  saveSlotPanel: {fileID: 1372255797}
   codexPanel: {fileID: 0}
   CreditPanel: {fileID: 1450850604}
   SettingPanel: {fileID: 269704495}
   ControlsPanel: {fileID: 1133831588}
   contentText: {fileID: 0}
-  AccountPanel: {fileID: 0}
+  AccountPanel: {fileID: 890020001}
 --- !u!4 &794740993
 Transform:
   m_ObjectHideFlags: 0
@@ -7964,8 +7964,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1004637656}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 4.1911, y: -0}
   m_SizeDelta: {x: 17.8147, y: 7.9528}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -10565,7 +10565,7 @@ RectTransform:
   m_Father: {fileID: 2103451718}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.20879936}
   m_SizeDelta: {x: 0, y: 7.0982}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -11092,7 +11092,7 @@ RectTransform:
   m_Father: {fileID: 1716018932}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.20879936}
   m_SizeDelta: {x: 0, y: 7.0982}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -11436,8 +11436,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2118015249}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 4.1911, y: -0}
   m_SizeDelta: {x: 17.8147, y: 7.9528}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -11953,8 +11953,9 @@ GameObject:
   - component: {fileID: 1372255798}
   - component: {fileID: 1372255800}
   - component: {fileID: 1372255799}
+  - component: {fileID: 1372255801}
   m_Layer: 5
-  m_Name: 'LoadSavePanel '
+  m_Name: LoadSavePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12020,6 +12021,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372255797}
   m_CullTransparentMesh: 1
+--- !u!114 &1372255801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372255797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c3e1f04b7d4e6a9f2c5d8e1b4a7c90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotsRoot: {fileID: 791826726}
+  slotButtons: []
+  slotLabels: []
 --- !u!1 &1386793329
 GameObject:
   m_ObjectHideFlags: 0
@@ -13197,7 +13213,7 @@ RectTransform:
   m_Father: {fileID: 178293377}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.20879936}
   m_SizeDelta: {x: 0, y: 7.0982}
   m_Pivot: {x: 0.5, y: 0.5}
