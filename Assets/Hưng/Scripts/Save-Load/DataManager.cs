@@ -10,6 +10,7 @@ namespace HeartOfTheNight.Hung
         public const int SlotCount = 4;
         public const string SelectLevelScene = "SelectLevel";
         public const string NewGameTutorialScene = "Khanh_Level0-1";
+        public const string ExistingGoogleAccountNotice = "EXISTING_GOOGLE_ACCOUNT";
 
         public static DataManager Instance { get; private set; }
 

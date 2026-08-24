@@ -19,6 +19,7 @@ namespace HeartOfTheNight.Hung
         private bool _googleAuthBusy;
         private int _googleFlowSerial;
         private readonly List<Action<bool, string>> _googleCallbacks = new List<Action<bool, string>>();
+        private Credential _pendingExistingGoogleCredential;
 
         public bool IsFirebaseInitializing => _isFirebaseInitializing;
         public bool IsFirebaseReady => _isFirebaseReady;
@@ -101,7 +102,31 @@ namespace HeartOfTheNight.Hung
             _googleFlowSerial++;
             _googleAuthBusy = false;
             _googleCallbacks.Clear();
+            _pendingExistingGoogleCredential = null;
             GoogleDesktopOAuth.Cancel();
+        }
+
+        public void ConfirmSwitchToExistingGoogle(Action<bool, string> onComplete)
+        {
+            var credential = _pendingExistingGoogleCredential;
+            _pendingExistingGoogleCredential = null;
+            if (credential == null || _auth == null)
+            {
+                onComplete?.Invoke(false, "No pending Google account switch.");
+                return;
+            }
+
+            if (onComplete != null)
+                _googleCallbacks.Add(onComplete);
+
+            _googleAuthBusy = true;
+            int serial = ++_googleFlowSerial;
+            SignInWithCredentialOnly(credential, serial);
+        }
+
+        public void CancelSwitchToExistingGoogle()
+        {
+            _pendingExistingGoogleCredential = null;
         }
 
         public void EnsureAnonymousAuth(Action<bool, string> onComplete)
@@ -254,8 +279,9 @@ namespace HeartOfTheNight.Hung
 
                     if (task.IsFaulted && IsGoogleCredentialInUse(task.Exception))
                     {
-                        Debug.Log("[Firebase] Google đã gắn tài khoản khác — chuyển sang SignIn.");
-                        SignInWithCredentialOnly(credential, serial);
+                        _pendingExistingGoogleCredential = credential;
+                        Debug.Log("[Firebase] Google account already has saves — chờ người chơi xác nhận.");
+                        CompleteGoogleAuth(serial, false, ExistingGoogleAccountNotice);
                         return;
                     }
 
