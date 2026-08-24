@@ -1,3 +1,5 @@
+using System.Collections;
+using HeartOfTheNight.Hung;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,7 +9,7 @@ namespace HeartOfTheNight.UI
 {
     /// <summary>
     /// AuthScene: splash → click hiện login.
-    /// Guest: popup xác nhận. Google: panel chọn tài khoản (mock, Firebase Google gắn sau).
+    /// Guest: popup xác nhận. Google: Firebase OAuth (mở trình duyệt chọn Gmail).
     /// </summary>
     public class AuthLoginUI : MonoBehaviour
     {
@@ -21,9 +23,7 @@ namespace HeartOfTheNight.UI
         [SerializeField] private GameObject networkPopup;
         [SerializeField] private GameObject googleAuthPopup;
 
-        [Header("Google mock")]
-        [SerializeField] private string mockGoogleEmail = "player@gmail.com";
-        [SerializeField] private TMP_InputField googleEmailInput;
+        [Header("Google")]
         [SerializeField] private TMP_Text googleAccountLabel;
 
         [Header("Flow")]
@@ -31,6 +31,11 @@ namespace HeartOfTheNight.UI
         [SerializeField] private string nextSceneName = "mainMenu";
 
         private bool waitingForClick = true;
+        private bool googleCancelled;
+        private Coroutine googleRoutine;
+        private Coroutine guestRoutine;
+        private Button googlePrimaryButton;
+        private Button googleSecondaryButton;
 
         private void Start()
         {
@@ -42,6 +47,12 @@ namespace HeartOfTheNight.UI
             EnsureGoogleAuthPopup();
             SetActiveSafe(googleAuthPopup, false);
             waitingForClick = true;
+        }
+
+        private void OnDestroy()
+        {
+            googleCancelled = true;
+            StopAuthRoutines();
         }
 
         private void Update()
@@ -72,19 +83,23 @@ namespace HeartOfTheNight.UI
                 return;
             }
 
-            ShowGoogleAuthPopup();
+            googleCancelled = false;
+            ShowGoogleWaitingPanel();
+            StopAuthRoutines();
+            googleRoutine = StartCoroutine(GoogleSignInRoutine());
         }
 
-        public void OnGoogleContinue()
+        public void OnGoogleRetry()
         {
-            string email = ReadGoogleEmail();
-            Debug.Log($"[AuthLoginUI] Google mock sign-in → {email}");
-            AuthSession.SignInWithGoogle(email);
-            GoNext();
+            OnSignInWithGoogle();
         }
 
         public void OnGoogleCancel()
         {
+            googleCancelled = true;
+            StopAuthRoutines();
+            if (DataManager.Instance != null)
+                DataManager.Instance.CancelGoogleSignIn();
             SetActiveSafe(googleAuthPopup, false);
         }
 
@@ -97,9 +112,8 @@ namespace HeartOfTheNight.UI
 
         public void OnGuestContinue()
         {
-            Debug.Log("[AuthLoginUI] Play as guest → mainMenu");
-            AuthSession.SignInAsGuest();
-            GoNext();
+            StopAuthRoutines();
+            guestRoutine = StartCoroutine(GuestContinueRoutine());
         }
 
         public void OnGuestSignInInstead()
@@ -128,45 +142,185 @@ namespace HeartOfTheNight.UI
 
         public void OnClosePopup()
         {
+            googleCancelled = true;
+            StopAuthRoutines();
+            if (DataManager.Instance != null)
+                DataManager.Instance.CancelGoogleSignIn();
             HideAllPopups();
         }
 
-        private void ShowGoogleAuthPopup()
+        private IEnumerator GoogleSignInRoutine()
+        {
+            var dataManager = DataManager.EnsureExists();
+            float timeout = 25f;
+            while (dataManager.IsFirebaseInitializing && timeout > 0f)
+            {
+                timeout -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (googleCancelled)
+                yield break;
+
+            if (!dataManager.IsFirebaseReady && !dataManager.IsFirebaseInitializing)
+            {
+                ShowGoogleError("Firebase is not ready. Check the Console, then retry.");
+                yield break;
+            }
+
+            bool done = false;
+            bool ok = false;
+            string message = "";
+            dataManager.SignInWithGoogle((success, result) =>
+            {
+                ok = success;
+                message = result ?? "";
+                done = true;
+            });
+
+            float wait = 180f;
+            while (!done)
+            {
+                if (googleCancelled)
+                    yield break;
+                wait -= Time.unscaledDeltaTime;
+                if (wait <= 0f)
+                {
+                    if (DataManager.Instance != null)
+                        DataManager.Instance.CancelGoogleSignIn();
+                    ShowGoogleError("Timed out waiting for Google.\nFinish sign-in in the browser, or retry.");
+                    yield break;
+                }
+                yield return null;
+            }
+
+            if (googleCancelled || this == null)
+                yield break;
+
+            if (!ok)
+            {
+                ShowGoogleError(FormatGoogleError(message));
+                yield break;
+            }
+
+            AuthSession.SignInWithGoogle(message);
+            GoNext();
+        }
+
+        private IEnumerator GuestContinueRoutine()
+        {
+            var dataManager = DataManager.EnsureExists();
+            float timeout = 25f;
+            while (dataManager.IsFirebaseInitializing && timeout > 0f)
+            {
+                timeout -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            bool done = false;
+            dataManager.EnsureAnonymousAuth((ok, error) =>
+            {
+                if (!ok)
+                    Debug.LogWarning("[AuthLoginUI] Guest Firebase failed, local save only. " + error);
+                done = true;
+            });
+
+            while (!done)
+                yield return null;
+
+            if (this == null)
+                yield break;
+
+            AuthSession.SignInAsGuest();
+            GoNext();
+        }
+
+        private void ShowGoogleWaitingPanel()
         {
             EnsureGoogleAuthPopup();
             SetActiveSafe(guestConfirmPopup, false);
             SetActiveSafe(networkPopup, false);
-
-            if (googleEmailInput != null)
-                googleEmailInput.text = mockGoogleEmail;
-
-            RefreshGoogleAccountLabel();
+            SetGoogleLabel(
+                "SIGN IN WITH GOOGLE\n\n" +
+                "A browser window will open.\n" +
+                "Choose your Google account, then return to Unity.\n\n" +
+                "Waiting for Google...");
+            SetGooglePrimary("WAITING...", false);
+            if (googleSecondaryButton != null)
+                googleSecondaryButton.interactable = true;
+            SetNamedText(googleAuthPopup.transform, "Btn_Secondary", "CANCEL");
             ShowPopup(googleAuthPopup);
         }
 
-        private void RefreshGoogleAccountLabel()
+        private void ShowGoogleError(string error)
         {
-            if (googleAccountLabel == null)
-                return;
-
-            googleAccountLabel.text =
-                "SIGN IN WITH GOOGLE\n\n" +
-                "Continue as\n" +
-                mockGoogleEmail +
-                "\n\nMock sign-in for testing. Real Google Auth will replace this panel.";
+            EnsureGoogleAuthPopup();
+            SetGoogleLabel("SIGN IN WITH GOOGLE\n\n" + error);
+            SetGooglePrimary("RETRY", true);
+            SetNamedText(googleAuthPopup.transform, "Btn_Secondary", "CANCEL");
+            ShowPopup(googleAuthPopup);
         }
 
-        private string ReadGoogleEmail()
+        private void SetGooglePrimary(string text, bool interactable)
         {
-            if (googleEmailInput != null && !string.IsNullOrWhiteSpace(googleEmailInput.text))
-                return googleEmailInput.text.Trim();
-            return string.IsNullOrWhiteSpace(mockGoogleEmail) ? "player@gmail.com" : mockGoogleEmail;
+            SetNamedText(googleAuthPopup.transform, "Btn_Primary", text);
+            if (googlePrimaryButton != null)
+                googlePrimaryButton.interactable = interactable;
+        }
+
+        private void SetGoogleLabel(string text)
+        {
+            if (googleAccountLabel != null)
+                googleAccountLabel.text = text;
+        }
+
+        private static string FormatGoogleError(string raw)
+        {
+            if (string.IsNullOrEmpty(raw))
+                return "Google sign-in failed. Retry?";
+
+            string lower = raw.ToLowerInvariant();
+            if (lower.Contains("operation_not_allowed") ||
+                lower.Contains("not enabled") ||
+                lower.Contains("disabled"))
+            {
+                return "Google provider is disabled.\n\n" +
+                       "Firebase Console → Authentication →\n" +
+                       "Sign-in method → Google → Enable.\n\n" +
+                       raw;
+            }
+
+            if (lower.Contains("missing google web client") ||
+                (lower.Contains("client id") && lower.Contains("secret")))
+            {
+                return raw;
+            }
+
+            if (lower.Contains("redirect_uri"))
+            {
+                return "Redirect URI mismatch.\n\n" +
+                       "Google Cloud Console → Credentials → Web client\n" +
+                       "Authorized redirect URIs must include:\n" +
+                       "http://localhost:53421/\n\n" +
+                       raw;
+            }
+
+            if (lower.Contains("not supported on non-mobile"))
+            {
+                return "Desktop Google sign-in is not using SignInWithProvider anymore.\nRetry after Unity recompiles.";
+            }
+
+            return raw + "\n\nRetry after finishing Google sign-in in the browser.";
         }
 
         private void EnsureGoogleAuthPopup()
         {
             if (googleAuthPopup != null)
+            {
+                CacheGoogleButtons();
                 return;
+            }
+
             if (guestConfirmPopup == null)
             {
                 Debug.LogWarning("[AuthLoginUI] Thiếu guestConfirmPopup nên không clone được panel Google.");
@@ -178,14 +332,38 @@ namespace HeartOfTheNight.UI
 
             SetNamedText(googleAuthPopup.transform, "Title", "google");
             googleAccountLabel = FindNamed<TMP_Text>(googleAuthPopup.transform, "Txt_Message");
-            RefreshGoogleAccountLabel();
 
-            SetNamedText(googleAuthPopup.transform, "Btn_Primary", "▶  CONTINUE");
+            SetNamedText(googleAuthPopup.transform, "Btn_Primary", "WAITING...");
             SetNamedText(googleAuthPopup.transform, "Btn_Secondary", "CANCEL");
 
-            BindButton(FindNamed<Button>(googleAuthPopup.transform, "Btn_Primary"), OnGoogleContinue);
-            BindButton(FindNamed<Button>(googleAuthPopup.transform, "Btn_Secondary"), OnGoogleCancel);
+            googlePrimaryButton = FindNamed<Button>(googleAuthPopup.transform, "Btn_Primary");
+            googleSecondaryButton = FindNamed<Button>(googleAuthPopup.transform, "Btn_Secondary");
+            BindButton(googlePrimaryButton, OnGoogleRetry);
+            BindButton(googleSecondaryButton, OnGoogleCancel);
             BindButton(FindNamed<Button>(googleAuthPopup.transform, "Btn_Close"), OnClosePopup);
+        }
+
+        private void CacheGoogleButtons()
+        {
+            if (googlePrimaryButton == null)
+                googlePrimaryButton = FindNamed<Button>(googleAuthPopup.transform, "Btn_Primary");
+            if (googleSecondaryButton == null)
+                googleSecondaryButton = FindNamed<Button>(googleAuthPopup.transform, "Btn_Secondary");
+        }
+
+        private void StopAuthRoutines()
+        {
+            if (googleRoutine != null)
+            {
+                StopCoroutine(googleRoutine);
+                googleRoutine = null;
+            }
+
+            if (guestRoutine != null)
+            {
+                StopCoroutine(guestRoutine);
+                guestRoutine = null;
+            }
         }
 
         private void ShowPopup(GameObject popup)
@@ -224,6 +402,9 @@ namespace HeartOfTheNight.UI
 
         private static void SetNamedText(Transform root, string objectName, string text)
         {
+            if (root == null)
+                return;
+
             var named = FindNamedTransform(root, objectName);
             if (named == null)
                 return;

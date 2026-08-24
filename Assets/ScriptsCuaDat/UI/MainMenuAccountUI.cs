@@ -1,3 +1,4 @@
+using HeartOfTheNight.Hung;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -40,6 +41,8 @@ namespace HeartOfTheNight.UI
         public void OnLogoutYes()
         {
             AuthSession.SignOut();
+            if (DataManager.Instance != null)
+                DataManager.Instance.SignOutFirebase();
             if (!string.IsNullOrEmpty(authSceneName))
                 SceneManager.LoadScene(authSceneName);
         }
@@ -52,8 +55,23 @@ namespace HeartOfTheNight.UI
 
         public void OnLinkGoogle()
         {
-            AuthSession.SignInWithGoogle();
-            RefreshAccountRow();
+            if (Application.internetReachability == NetworkReachability.NotReachable)
+            {
+                Debug.LogWarning("[MainMenuAccountUI] Cần mạng để liên kết Google.");
+                return;
+            }
+
+            DataManager.EnsureExists().LinkGoogleAccount((ok, emailOrError) =>
+            {
+                if (!ok)
+                {
+                    Debug.LogError("[MainMenuAccountUI] Link Google thất bại: " + emailOrError);
+                    return;
+                }
+
+                AuthSession.SignInWithGoogle(emailOrError);
+                RefreshAccountRow();
+            });
         }
 
         public void RefreshAccountRow()
