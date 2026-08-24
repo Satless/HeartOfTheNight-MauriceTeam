@@ -266,5 +266,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d37ad97fbfa06847b0828fade4049be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fillImage: {fileID: 8825146505488317366}
   canvas: {fileID: 4971279994384020570}
+  fillImage: {fileID: 8825146505488317366}
+  highHealthColor: {r: 0, g: 1, b: 0, a: 1}
+  mediumHealthColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lowHealthColor: {r: 1, g: 0, b: 0, a: 1}
+  hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  catchupSpeed: 10
+  timeToHide: 5
