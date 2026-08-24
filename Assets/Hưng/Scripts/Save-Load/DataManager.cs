@@ -231,6 +231,49 @@ namespace HeartOfTheNight.Hung
             LoadGame(onLoaded);
         }
 
+        /// <summary>Xóa toàn bộ save của slot (local + cloud nếu có).</summary>
+        public void DeleteSave(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+
+            TryDeleteFile(GetSlotSavePath(slotIndex));
+            TryDeleteFile(GetSlotBackupPath(slotIndex));
+            TryDeleteFile(GetSlotTempPath(slotIndex));
+
+            if (slotIndex == 1)
+            {
+                TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.json"));
+                TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.bak"));
+                TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.tmp"));
+            }
+
+            if (_isFirebaseReady && _user != null && _dbRef != null)
+            {
+                _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(slotIndex.ToString())
+                    .RemoveValueAsync();
+            }
+
+            if (ActiveSlotIndex == slotIndex)
+            {
+                Data = new GameData { slotIndex = slotIndex, hasSave = false };
+            }
+
+            Debug.Log($"[Save System] Đã xóa Slot {slotIndex}.");
+        }
+
+        private static void TryDeleteFile(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Save System] Không xóa được {path}: {e.Message}");
+            }
+        }
+
         /// <summary>Bỏ màn đang chơi dở — giữ unlock / tiến độ slot. Dùng ở bước Continue popup.</summary>
         public void AbandonInProgress()
         {
