@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HeartOfTheNight.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -37,6 +38,7 @@ namespace HeartOfTheNight.Hung
         private bool _isRespawning;
         private bool _playTimeDirty;
         private float _playTimeSaveTimer;
+        private bool _slotEnterBusy;
 
         internal Firebase.Auth.FirebaseUser FirebaseUser => _user;
 
@@ -140,12 +142,22 @@ namespace HeartOfTheNight.Hung
 
         public static string GetSlotBackupPath(int slotIndex) => SaveSlotStorage.GetSlotBackupPath(slotIndex);
 
-        public static bool HasSave(int slotIndex) => SaveSlotStorage.HasSave(slotIndex);
+        public static bool HasSave(int slotIndex)
+        {
+            if (SaveSlotStorage.HasSave(slotIndex))
+                return true;
+            return Instance != null && Instance.CloudSlotHasSave(slotIndex);
+        }
 
         public static int GetActiveSlotIndex() => SaveSlotStorage.GetActiveSlotIndex();
 
-        public static bool TryPeekSlot(int slotIndex, out GameData peek) =>
+        public static bool TryPeekSlot(int slotIndex, out GameData peek)
+        {
             SaveSlotStorage.TryPeekSlot(slotIndex, out peek);
+            if (Instance != null)
+                Instance.MergeCloudPeek(slotIndex, ref peek);
+            return peek != null;
+        }
 
         public bool HasInProgress()
         {
@@ -155,21 +167,44 @@ namespace HeartOfTheNight.Hung
         public void SelectSlotAndEnter(int slotIndex)
         {
             slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
-            ActiveSlotIndex = slotIndex;
-            SaveSlotStorage.SetActiveSlotIndex(slotIndex);
+            if (_slotEnterBusy)
+                return;
 
-            if (!HasSave(slotIndex))
+            _slotEnterBusy = true;
+            if (IsWaitingForCloudSlots)
             {
-                CreateNewSave(slotIndex);
-                LoadSceneSafe(NewGameTutorialScene);
+                int pendingSlot = slotIndex;
+                RefreshCloudSlotIndex(() =>
+                {
+                    _slotEnterBusy = false;
+                    SelectSlotAndEnter(pendingSlot);
+                });
                 return;
             }
 
+            ActiveSlotIndex = slotIndex;
+            SaveSlotStorage.SetActiveSlotIndex(slotIndex);
+
             LoadSlot(slotIndex, () =>
             {
-                TouchLastPlayed();
-                SaveGame();
-                LoadSceneSafe(SelectLevelScene);
+                _slotEnterBusy = false;
+                if (Data != null && Data.hasSave)
+                {
+                    ApplyChapterProgressFromLoadedData();
+                    TouchLastPlayed();
+                    SaveGame();
+                    LoadSceneSafe(SelectLevelScene);
+                    return;
+                }
+
+                if (!AuthSession.IsGuest && (!_isFirebaseReady || _lastCloudLoadFailed || CloudSlotHasSave(slotIndex)))
+                {
+                    Debug.LogWarning("[Save System] Cloud chưa chắc trống — không tạo save mới để tránh đè dữ liệu Google.");
+                    return;
+                }
+
+                CreateNewSave(slotIndex);
+                LoadSceneSafe(NewGameTutorialScene);
             });
         }
 
@@ -199,14 +234,25 @@ namespace HeartOfTheNight.Hung
 
             ChapterProgress.ResetForNewSave();
             SaveGame();
+            RememberCloudSlot(slotIndex, Data);
             Debug.Log($"[Save System] Tạo save mới Slot {slotIndex} → {NewGameTutorialScene}");
+        }
+
+        private void ApplyChapterProgressFromLoadedData()
+        {
+            if (Data != null && Data.hasSave)
+                ChapterProgress.ApplyFromSave(Data);
         }
 
         public void LoadSlot(int slotIndex, Action onLoaded = null)
         {
             ActiveSlotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
             SaveSlotStorage.SetActiveSlotIndex(ActiveSlotIndex);
-            LoadGame(onLoaded);
+            LoadGame(() =>
+            {
+                ApplyChapterProgressFromLoadedData();
+                onLoaded?.Invoke();
+            });
         }
 
         public void DeleteSave(int slotIndex)
@@ -214,9 +260,13 @@ namespace HeartOfTheNight.Hung
             slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
             SaveSlotStorage.DeleteLocalSlot(slotIndex);
             DeleteCloudSlot(slotIndex);
+            ClearCloudSlotCache(slotIndex);
 
             if (ActiveSlotIndex == slotIndex)
+            {
                 Data = new GameData { slotIndex = slotIndex, hasSave = false };
+                ChapterProgress.ResetForNewSave();
+            }
 
             Debug.Log($"[Save System] Đã xóa Slot {slotIndex}.");
         }

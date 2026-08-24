@@ -172,6 +172,8 @@ namespace HeartOfTheNight.Hung
             _auth.SignOut();
             _user = null;
             _isFirebaseReady = false;
+            InvalidateCloudSlotIndex();
+            CompleteCloudSlotIndex();
             Debug.Log("[Firebase] Signed out.");
         }
 
@@ -444,6 +446,9 @@ namespace HeartOfTheNight.Hung
             {
                 Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
                 _playTimeDirty = false;
+                InvalidateCloudSlotIndex();
+                if (user != null && !user.IsAnonymous)
+                    RefreshCloudSlotIndex(null);
             }
         }
 

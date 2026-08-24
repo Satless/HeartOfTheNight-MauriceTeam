@@ -85,6 +85,35 @@ public static class ChapterProgress
         PlayerPrefs.Save();
     }
 
+    /// <summary>Gắn unlock Select Level theo save đang load, không giữ prefs của slot/máy trước.</summary>
+    public static void ApplyFromSave(HeartOfTheNight.Hung.GameData data)
+    {
+        var set = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase) { Chapter1Scenes[0] };
+        if (data == null)
+        {
+            Save(set);
+            return;
+        }
+
+        int max = Mathf.Clamp(data.maxUnlockedLevel, 1, Chapter1Scenes.Length);
+        for (int i = 0; i < max && i < Chapter1Scenes.Length; i++)
+            set.Add(Chapter1Scenes[i]);
+
+        AddSceneAndPriors(set, data.currentScene);
+        AddSceneAndPriors(set, data.checkpointScene);
+        Save(set);
+    }
+
+    private static void AddSceneAndPriors(HashSet<string> set, string sceneName)
+    {
+        int index = IndexOf(sceneName);
+        if (index < 0)
+            return;
+
+        for (int i = 0; i <= index && i < Chapter1Scenes.Length; i++)
+            set.Add(Chapter1Scenes[i]);
+    }
+
     private static HashSet<string> GetUnlocked()
     {
         var set = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase) { Chapter1Scenes[0] };

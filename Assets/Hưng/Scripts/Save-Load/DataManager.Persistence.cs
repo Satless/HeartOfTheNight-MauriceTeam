@@ -3,12 +3,33 @@ using System.Collections.Generic;
 using System.IO;
 using Firebase.Database;
 using Firebase.Extensions;
+using HeartOfTheNight.UI;
 using UnityEngine;
 
 namespace HeartOfTheNight.Hung
 {
     public partial class DataManager
     {
+        private readonly bool[] _cloudSlotExists = new bool[SlotCount];
+        private readonly GameData[] _cloudSlotPeeks = new GameData[SlotCount];
+        private readonly List<Action> _cloudSlotIndexWaiters = new List<Action>();
+        private bool _cloudSlotIndexReady;
+        private bool _cloudSlotIndexLoading;
+        private int _cloudSlotIndexSerial;
+        private bool _lastCloudLoadFailed;
+
+        public bool IsWaitingForCloudSlots
+        {
+            get
+            {
+                if (_cloudSlotIndexLoading)
+                    return true;
+                if (_isFirebaseInitializing)
+                    return !AuthSession.IsGuest;
+                return UsesGoogleCloudSaves() && !_cloudSlotIndexReady;
+            }
+        }
+
         public void SaveGame()
         {
             if (Data == null) Data = new GameData();
@@ -35,6 +56,7 @@ namespace HeartOfTheNight.Hung
 
         public void LoadGame(Action onLoaded = null)
         {
+            _lastCloudLoadFailed = false;
             if (_isFirebaseReady && _user != null && _dbRef != null)
             {
                 LoadGameCloud(onLoaded);
@@ -92,11 +114,13 @@ namespace HeartOfTheNight.Hung
             {
                 if (task.IsFaulted || task.IsCanceled)
                 {
+                    _lastCloudLoadFailed = true;
                     Debug.LogError("[Firebase] Lỗi tải Cloud Data. Fallback sang Local Load.");
                     LoadGameLocal();
                 }
                 else if (task.IsCompleted)
                 {
+                    _lastCloudLoadFailed = false;
                     DataSnapshot snapshot = task.Result;
                     if (snapshot != null && snapshot.Exists)
                     {
@@ -104,11 +128,14 @@ namespace HeartOfTheNight.Hung
 
                         if (Data == null) Data = new GameData();
                         JsonUtility.FromJsonOverwrite(json, Data);
+                        Data.hasSave = true;
+                        Data.slotIndex = ActiveSlotIndex;
                         KeepBetterLocalPlayTime();
 
                         Debug.Log($"[Firebase] Tải Cloud thành công. Kiểm tra RAM: playerHealth={Data.playerHealth}");
 
                         SaveGameLocal();
+                        RememberCloudSlot(ActiveSlotIndex, Data);
                         ApplyEditorKeyResetIfNeeded();
                         HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     }
@@ -136,13 +163,20 @@ namespace HeartOfTheNight.Hung
             {
                 if (task.IsCompleted && !task.IsFaulted && task.Result != null && task.Result.Exists)
                 {
+                    _lastCloudLoadFailed = false;
                     if (Data == null) Data = new GameData();
                     JsonUtility.FromJsonOverwrite(task.Result.GetRawJsonValue(), Data);
                     Data.slotIndex = 1;
                     Data.hasSave = true;
                     KeepBetterLocalPlayTime();
                     SaveGameLocal();
+                    RememberCloudSlot(1, Data);
                     Debug.Log("[Firebase] Đã migrate GameData cũ → Slot 1.");
+                }
+                else if (task.IsFaulted || task.IsCanceled)
+                {
+                    _lastCloudLoadFailed = true;
+                    LoadGameLocal();
                 }
                 else
                 {
@@ -223,6 +257,8 @@ namespace HeartOfTheNight.Hung
             {
                 if (SaveSlotStorage.TryLoadBackupFile(ActiveSlotIndex, Data))
                 {
+                    Data.hasSave = true;
+                    Data.slotIndex = ActiveSlotIndex;
                     Debug.Log("[Save System] Đã khôi phục thành công từ file Backup.");
                     ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
@@ -255,6 +291,192 @@ namespace HeartOfTheNight.Hung
                 Data.collectedKeyPickupIds.Clear();
             Debug.Log("[DataManager] Editor: reset chìa về 0 cho session Play này.");
 #endif
+        }
+
+        internal bool UsesGoogleCloudSaves()
+        {
+            return _user != null && !_user.IsAnonymous && _dbRef != null;
+        }
+
+        internal bool CloudSlotHasSave(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            return _cloudSlotIndexReady && _cloudSlotExists[slotIndex - 1];
+        }
+
+        internal void MergeCloudPeek(int slotIndex, ref GameData peek)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            GameData cloud = _cloudSlotPeeks[slotIndex - 1];
+            if (cloud == null || !_cloudSlotExists[slotIndex - 1])
+                return;
+
+            if (peek == null)
+            {
+                peek = cloud;
+                return;
+            }
+
+            if (cloud.totalPlayTimeSeconds > peek.totalPlayTimeSeconds)
+                peek.totalPlayTimeSeconds = cloud.totalPlayTimeSeconds;
+            if (string.IsNullOrEmpty(peek.lastPlayedAtUtc) && !string.IsNullOrEmpty(cloud.lastPlayedAtUtc))
+                peek.lastPlayedAtUtc = cloud.lastPlayedAtUtc;
+        }
+
+        internal void RememberCloudSlot(int slotIndex, GameData data)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            _cloudSlotExists[slotIndex - 1] = data != null && data.hasSave;
+            _cloudSlotPeeks[slotIndex - 1] = data;
+        }
+
+        internal void ClearCloudSlotCache(int slotIndex)
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            _cloudSlotExists[slotIndex - 1] = false;
+            _cloudSlotPeeks[slotIndex - 1] = null;
+        }
+
+        internal void InvalidateCloudSlotIndex()
+        {
+            _cloudSlotIndexReady = false;
+            _cloudSlotIndexLoading = false;
+            _cloudSlotIndexSerial++;
+            for (int i = 0; i < SlotCount; i++)
+            {
+                _cloudSlotExists[i] = false;
+                _cloudSlotPeeks[i] = null;
+            }
+        }
+
+        public void RefreshCloudSlotIndex(Action onComplete)
+        {
+            if (onComplete != null)
+                _cloudSlotIndexWaiters.Add(onComplete);
+
+            if (_cloudSlotIndexLoading)
+                return;
+
+            if (AuthSession.IsGuest && (_user == null || _user.IsAnonymous))
+            {
+                _cloudSlotIndexReady = true;
+                CompleteCloudSlotIndex();
+                return;
+            }
+
+            if (_isFirebaseInitializing)
+            {
+                _cloudSlotIndexLoading = true;
+                StartCoroutine(WaitAndRefreshCloudSlotIndex());
+                return;
+            }
+
+            FetchCloudSlotIndex();
+        }
+
+        private System.Collections.IEnumerator WaitAndRefreshCloudSlotIndex()
+        {
+            while (_isFirebaseInitializing)
+                yield return null;
+
+            FetchCloudSlotIndex();
+        }
+
+        private void FetchCloudSlotIndex()
+        {
+            if (!UsesGoogleCloudSaves())
+            {
+                _cloudSlotIndexLoading = false;
+                _cloudSlotIndexReady = true;
+                CompleteCloudSlotIndex();
+                return;
+            }
+
+            _cloudSlotIndexLoading = true;
+            int serial = ++_cloudSlotIndexSerial;
+            _dbRef.Child("users").Child(_user.UserId).GetValueAsync().ContinueWithOnMainThread(task =>
+            {
+                if (serial != _cloudSlotIndexSerial)
+                    return;
+
+                _cloudSlotIndexLoading = false;
+                if (task.IsFaulted || task.IsCanceled || task.Result == null)
+                {
+                    Debug.LogWarning("[Firebase] Không đọc được danh sách slot cloud. Giữ bản local.");
+                    _cloudSlotIndexReady = true;
+                    CompleteCloudSlotIndex();
+                    return;
+                }
+
+                ApplyUserSnapshotToCloudIndex(task.Result);
+                _cloudSlotIndexReady = true;
+                Debug.Log("[Firebase] Đã đồng bộ trạng thái 4 slot từ cloud.");
+                CompleteCloudSlotIndex();
+            });
+        }
+
+        private void ApplyUserSnapshotToCloudIndex(DataSnapshot userSnap)
+        {
+            for (int i = 0; i < SlotCount; i++)
+            {
+                _cloudSlotExists[i] = false;
+                _cloudSlotPeeks[i] = null;
+            }
+
+            if (userSnap == null || !userSnap.Exists)
+                return;
+
+            DataSnapshot slotsSnap = userSnap.Child("slots");
+            if (slotsSnap != null && slotsSnap.Exists)
+            {
+                for (int slot = 1; slot <= SlotCount; slot++)
+                    TryReadCloudSlotSnapshot(slotsSnap.Child(slot.ToString()), slot);
+            }
+
+            if (!_cloudSlotExists[0])
+                TryReadCloudSlotSnapshot(userSnap.Child("GameData"), 1);
+        }
+
+        private void TryReadCloudSlotSnapshot(DataSnapshot slotSnap, int slotIndex)
+        {
+            if (slotSnap == null || !slotSnap.Exists)
+                return;
+
+            DataSnapshot source = slotSnap.Child("GameData");
+            if (source == null || !source.Exists)
+                source = slotSnap;
+
+            string json = source.GetRawJsonValue();
+            if (string.IsNullOrEmpty(json) || json == "null")
+                return;
+
+            try
+            {
+                GameData data = JsonUtility.FromJson<GameData>(json);
+                if (data == null)
+                {
+                    _cloudSlotExists[slotIndex - 1] = true;
+                    return;
+                }
+
+                data.hasSave = true;
+                data.slotIndex = slotIndex;
+                _cloudSlotExists[slotIndex - 1] = true;
+                _cloudSlotPeeks[slotIndex - 1] = data;
+            }
+            catch (Exception e)
+            {
+                _cloudSlotExists[slotIndex - 1] = true;
+                Debug.LogWarning($"[Firebase] Slot {slotIndex} cloud JSON lỗi: {e.Message}");
+            }
+        }
+
+        private void CompleteCloudSlotIndex()
+        {
+            var waiters = _cloudSlotIndexWaiters.ToArray();
+            _cloudSlotIndexWaiters.Clear();
+            for (int i = 0; i < waiters.Length; i++)
+                waiters[i]?.Invoke();
         }
     }
 }

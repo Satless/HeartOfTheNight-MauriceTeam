@@ -65,6 +65,16 @@ namespace HeartOfTheNight.Hung
         {
             HideDeleteConfirm();
             RefreshSlotLabels();
+            var dm = DataManager.EnsureExists();
+            if (dm == null)
+                return;
+
+            dm.RefreshCloudSlotIndex(() =>
+            {
+                if (this == null || !isActiveAndEnabled)
+                    return;
+                RefreshSlotLabels();
+            });
         }
 
         public void OnSlotClicked(int slotIndex)
@@ -76,12 +86,21 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
+            if (dm.IsWaitingForCloudSlots)
+            {
+                Debug.Log("[SaveSlotFlow] Đang đồng bộ slot cloud, đợi xong đã.");
+                return;
+            }
+
             Debug.Log($"[SaveSlotFlow] Selected Slot {slotIndex} | HasSave={DataManager.HasSave(slotIndex)}");
             dm.SelectSlotAndEnter(slotIndex);
         }
 
         public void OnDeleteClicked(int slotIndex)
         {
+            var dm = DataManager.Instance;
+            if (dm != null && dm.IsWaitingForCloudSlots)
+                return;
             if (!DataManager.HasSave(slotIndex))
                 return;
 
@@ -99,6 +118,8 @@ namespace HeartOfTheNight.Hung
             EnsureMetaLabels();
 
             int activeSlot = DataManager.GetActiveSlotIndex();
+            var dm = DataManager.Instance;
+            bool waitingCloud = dm != null && dm.IsWaitingForCloudSlots;
 
             for (int i = 0; i < DataManager.SlotCount; i++)
             {
@@ -115,21 +136,34 @@ namespace HeartOfTheNight.Hung
 
                 if (_metaLabels != null && i < _metaLabels.Length && _metaLabels[i] != null)
                 {
-                    _metaLabels[i].text = hasSave ? FormatOccupiedMeta(peek, slot) : "empty";
-                    _metaLabels[i].color = hasSave ? TextMeta : TextMuted;
+                    if (waitingCloud && !hasSave)
+                    {
+                        _metaLabels[i].text = "syncing...";
+                        _metaLabels[i].color = TextMuted;
+                    }
+                    else
+                    {
+                        _metaLabels[i].text = hasSave ? FormatOccupiedMeta(peek, slot) : "empty";
+                        _metaLabels[i].color = hasSave ? TextMeta : TextMuted;
+                    }
                 }
 
                 if (_selectLabels != null && i < _selectLabels.Length && _selectLabels[i] != null)
                 {
-                    if (isCurrent)
+                    if (waitingCloud)
+                        _selectLabels[i].text = "wait";
+                    else if (isCurrent)
                         _selectLabels[i].text = "selected";
                     else
                         _selectLabels[i].text = hasSave ? "select" : "new";
                     _selectLabels[i].color = isCurrent ? TextSelected : TextNormal;
                 }
 
+                if (selectButtons != null && i < selectButtons.Length && selectButtons[i] != null)
+                    selectButtons[i].interactable = !waitingCloud;
+
                 if (deleteButtons != null && i < deleteButtons.Length && deleteButtons[i] != null)
-                    deleteButtons[i].interactable = hasSave;
+                    deleteButtons[i].interactable = hasSave && !waitingCloud;
 
                 if (_deleteLabels != null && i < _deleteLabels.Length && _deleteLabels[i] != null)
                     _deleteLabels[i].color = hasSave ? TextNormal : TextMuted;
