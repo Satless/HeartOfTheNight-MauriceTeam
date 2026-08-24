@@ -121,7 +121,10 @@ namespace HeartOfTheNight.Hung
 
                 if (_selectLabels != null && i < _selectLabels.Length && _selectLabels[i] != null)
                 {
-                    _selectLabels[i].text = hasSave ? "select" : "new";
+                    if (isCurrent)
+                        _selectLabels[i].text = "selected";
+                    else
+                        _selectLabels[i].text = hasSave ? "select" : "new";
                     _selectLabels[i].color = isCurrent ? TextSelected : TextNormal;
                 }
 
@@ -476,7 +479,7 @@ namespace HeartOfTheNight.Hung
                 {
                     selectButtons[i] = FindOrCreateActionButton(
                         slot, "Selected", "select",
-                        new Vector2(-128f, 0f), new Vector2(110f, 50f),
+                        new Vector2(-128f, 0f), new Vector2(128f, 50f),
                         fontSource, TextAlignmentOptions.MidlineLeft);
                 }
 
@@ -489,7 +492,7 @@ namespace HeartOfTheNight.Hung
                 }
 
                 ApplyActionButtonLayout(
-                    selectButtons[i], new Vector2(-128f, 0f), new Vector2(110f, 50f),
+                    selectButtons[i], new Vector2(-128f, 0f), new Vector2(128f, 50f),
                     TextAlignmentOptions.MidlineLeft);
                 ApplyActionButtonLayout(
                     deleteButtons[i], new Vector2(-18f, 0f), new Vector2(100f, 50f),
