@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 
@@ -14,44 +13,41 @@ public class CodexUI : MonoBehaviour
     public TMP_Text contentText;
     public GameObject AccountPanel;
 
-
-    private void Start()
+    private void Awake()
     {
-        //MusicManager.Instance.PlayMusic("");
+        if (saveSlotPanel == null)
+            saveSlotPanel = FindChildByName("LoadSavePanel");
+        if (AccountPanel == null)
+            AccountPanel = FindChildByName("AccountPanel");
+        if (codexPanel == null)
+            codexPanel = FindChildByName("CodexPanel");
     }
 
     public void OpenMenu()
     {
-        menuPanel.SetActive(true);
+        SetActiveSafe(menuPanel, true);
     }
 
     public void OpenSaveSlot()
     {
-        saveSlotPanel.SetActive(true);
-        menuPanel.SetActive(false);
+        ShowPanel(saveSlotPanel);
     }
     public void OpenCodex()
     {
-        codexPanel.SetActive(true);
-        menuPanel.SetActive(false);
+        ShowPanel(codexPanel);
     }
     public void OpenCredit()
     {
-        CreditPanel.SetActive(true);
-        menuPanel.SetActive(false);
+        ShowPanel(CreditPanel);
     }
     public void OpenSetting()
     {
-        SettingPanel.SetActive(true);
-        menuPanel.SetActive(false);
-
+        ShowPanel(SettingPanel);
     }
 
     public void OpenAccount()
     {
-        if (AccountPanel != null)
-            AccountPanel.SetActive(true);
-        menuPanel.SetActive(false);
+        ShowPanel(AccountPanel);
     }
     /*public void OpenControls()
     {
@@ -71,35 +67,29 @@ public class CodexUI : MonoBehaviour
 
     public void CloseMenu()
     {
-        menuPanel.SetActive(false);
+        SetActiveSafe(menuPanel, false);
     }
     public void CloseCredit()
     {
-        CreditPanel.SetActive(false);
-        menuPanel.SetActive(true);
+        ReturnToMenu(CreditPanel);
     }
 
     public void CloseSaveSlot()
     {
-        saveSlotPanel.SetActive(false);
-        menuPanel.SetActive(true);
+        ReturnToMenu(saveSlotPanel);
     }
     public void CloseCodex()
     {
-        codexPanel.SetActive(false);
-        menuPanel.SetActive(true);
+        ReturnToMenu(codexPanel);
     }
     public void CloseSetting()
     {
-        SettingPanel.SetActive(false);
-        menuPanel.SetActive(true);
+        ReturnToMenu(SettingPanel);
     }
 
     public void CloseAccount()
     {
-        if (AccountPanel != null)
-            AccountPanel.SetActive(false);
-        menuPanel.SetActive(true);
+        ReturnToMenu(AccountPanel);
     }
    /* public void CloseControls()
     {
@@ -144,5 +134,42 @@ public class CodexUI : MonoBehaviour
             "Hospital\n" +
             "Basement\n" +
             "Church";
+    }
+
+    private void ShowPanel(GameObject panel)
+    {
+        if (panel == null)
+        {
+            Debug.LogWarning("[CodexUI] Panel chưa được gán trên UIManager.", this);
+            return;
+        }
+
+        SetActiveSafe(panel, true);
+        SetActiveSafe(menuPanel, false);
+    }
+
+    private void ReturnToMenu(GameObject panel)
+    {
+        SetActiveSafe(panel, false);
+        SetActiveSafe(menuPanel, true);
+    }
+
+    private static void SetActiveSafe(GameObject go, bool active)
+    {
+        if (go != null)
+            go.SetActive(active);
+    }
+
+    private GameObject FindChildByName(string objectName)
+    {
+        Transform root = menuPanel != null ? menuPanel.transform.root : transform;
+        Transform[] children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            if (children[i].name.Trim() == objectName)
+                return children[i].gameObject;
+        }
+
+        return null;
     }
 }
