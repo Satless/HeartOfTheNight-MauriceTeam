@@ -84,12 +84,14 @@ public class GunWeaponData : ScriptableObject
              "VD: Minigun = 3 (nóng nhanh), Pistol = 1 (nóng chậm), Shotgun = 5 (nóng vừa do bắn chậm)")]
     public float heatPerShot;
 
-    [Header("Audio / SFX")]
-    [Tooltip("Âm thanh phát ra khi bắn súng(Tên Event/Clip tiếng bắn trong SoundManager)")]
-    public string fireSoundName;
-    [Tooltip("Âm thanh khi đạn phát nổ - dùng cho súng IsExplosive(Tên Event/Clip tiếng đạn nổ trong SoundManager)")]
-    public string explosionSoundName;
 
+    [Header("Audio / SFX (Hệ thống 3 Tầng)")]
+    [Tooltip("Danh mục chính")]
+    public string audioCategoryID = "Weapons";
+    [Tooltip("Danh mục phụ (Tên loại súng, ví dụ: 'Pistol', 'Shotgun', 'Minigun')")]
+    public string audioSubCategoryID;
+    [Tooltip("Tên Action bắn (Ví dụ: 'Fire', 'Shoot')")]
+    public string fireActionName = "Shoot";
 
 
     private void OnValidate()

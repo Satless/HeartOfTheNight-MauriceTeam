@@ -161,7 +161,7 @@ public class Bullet : MonoBehaviour
             {
                 Explode(hitPoint, hitNormal, null);
 
-
+                AudioEvents.TriggerSound3D("Weapons", "Bullets", "Explosive", transform.position);
             }
             else
             {
@@ -209,6 +209,8 @@ public class Bullet : MonoBehaviour
             {
                 // Đạn nổ AOE: không xuyên, nổ ngay
                 Explode(hitPoint, hitNormal, other);
+
+                AudioEvents.TriggerSound3D("Weapons", "Bullets", "Explosive", transform.position);
 
                 return true; 
             }
