@@ -27,6 +27,10 @@ public class SelectLevelManager : MonoBehaviour
 
     private void Start()
     {
+        var dm = DataManager.EnsureExists();
+        if (dm != null && dm.Data != null && dm.Data.hasSave)
+            ChapterProgress.ApplyFromSave(dm.Data);
+
         BindChapter1Missions();
         RefreshUnlocks();
         EnsureContinuePopup().TryShowIfInProgress();
