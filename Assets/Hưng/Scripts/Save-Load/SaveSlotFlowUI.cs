@@ -1,3 +1,6 @@
+using System;
+using System.Globalization;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +18,9 @@ namespace HeartOfTheNight.Hung
         private static readonly Color TextNormal = new Color(1f, 1f, 1f, 0.95f);
         private static readonly Color TextSelected = new Color(1f, 0.62f, 0.22f, 1f);
         private static readonly Color TextMuted = new Color(1f, 1f, 1f, 0.32f);
+        private static readonly Color TextMeta = new Color(1f, 1f, 1f, 0.7f);
+        private static readonly Color RowOccupied = Color.white;
+        private static readonly Color RowEmpty = new Color(1f, 1f, 1f, 0.62f);
 
         [SerializeField] private Transform slotsRoot;
         [SerializeField] private Button[] slotButtons;
@@ -32,6 +38,7 @@ namespace HeartOfTheNight.Hung
         private Transform[] _slotRows;
         private TMP_Text[] _selectLabels;
         private TMP_Text[] _deleteLabels;
+        private TMP_Text[] _metaLabels;
 
         private string[] _confirmMessageTemplates;
         private TMP_Text[] _confirmMessageTargets;
@@ -45,6 +52,7 @@ namespace HeartOfTheNight.Hung
             AutoWireSlotsIfNeeded();
             DisableSlotRowButtons();
             EnsureActionButtons();
+            EnsureMetaLabels();
             BindButtons();
             ApplySlotLabelLayout();
             ResolveDeleteConfirmRefs();
@@ -88,23 +96,44 @@ namespace HeartOfTheNight.Hung
         public void RefreshSlotLabels()
         {
             EnsureLabelArray();
+            EnsureMetaLabels();
 
             for (int i = 0; i < DataManager.SlotCount; i++)
             {
                 int slot = i + 1;
                 bool hasSave = DataManager.HasSave(slot);
+                DataManager.TryPeekSlot(slot, out GameData peek);
 
                 if (slotLabels != null && i < slotLabels.Length && slotLabels[i] != null)
+                {
                     slotLabels[i].text = SlotTitle(slot);
+                    slotLabels[i].color = hasSave ? TextNormal : TextMuted;
+                }
+
+                if (_metaLabels != null && i < _metaLabels.Length && _metaLabels[i] != null)
+                {
+                    _metaLabels[i].text = hasSave ? FormatOccupiedMeta(peek, slot) : "empty";
+                    _metaLabels[i].color = hasSave ? TextMeta : TextMuted;
+                }
 
                 if (_selectLabels != null && i < _selectLabels.Length && _selectLabels[i] != null)
+                {
+                    _selectLabels[i].text = hasSave ? "selected" : "new";
                     _selectLabels[i].color = TextNormal;
+                }
 
                 if (deleteButtons != null && i < deleteButtons.Length && deleteButtons[i] != null)
                     deleteButtons[i].interactable = hasSave;
 
                 if (_deleteLabels != null && i < _deleteLabels.Length && _deleteLabels[i] != null)
                     _deleteLabels[i].color = hasSave ? TextNormal : TextMuted;
+
+                if (_slotRows != null && i < _slotRows.Length && _slotRows[i] != null)
+                {
+                    var rowImage = _slotRows[i].GetComponent<Image>();
+                    if (rowImage != null)
+                        rowImage.color = hasSave ? RowOccupied : RowEmpty;
+                }
             }
         }
 
@@ -112,6 +141,139 @@ namespace HeartOfTheNight.Hung
         {
             int i = Mathf.Clamp(slotIndex, 1, RomanNumerals.Length) - 1;
             return $"Slot {RomanNumerals[i]}";
+        }
+
+        private void EnsureMetaLabels()
+        {
+            if (_metaLabels == null || _metaLabels.Length < DataManager.SlotCount)
+                _metaLabels = new TMP_Text[DataManager.SlotCount];
+
+            for (int i = 0; i < DataManager.SlotCount; i++)
+            {
+                Transform slot = _slotRows != null && i < _slotRows.Length ? _slotRows[i] : null;
+                if (slot == null)
+                    continue;
+
+                TMP_Text title = (slotLabels != null && i < slotLabels.Length) ? slotLabels[i] : null;
+                if (title != null)
+                    ApplyTitleLayout(title);
+
+                if (_metaLabels[i] == null)
+                    _metaLabels[i] = FindOrCreateMetaLabel(slot, title);
+                else
+                    ApplyMetaLayout(_metaLabels[i], title);
+            }
+        }
+
+        private static void ApplyTitleLayout(TMP_Text title)
+        {
+            var rt = title.rectTransform;
+            rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, 18f);
+            Vector2 size = rt.sizeDelta;
+            if (size.y > 40f)
+                rt.sizeDelta = new Vector2(size.x, 36f);
+        }
+
+        private static void ApplyMetaLayout(TMP_Text meta, TMP_Text title)
+        {
+            var rt = meta.rectTransform;
+            float x = title != null ? title.rectTransform.anchoredPosition.x : 28f;
+            rt.anchorMin = new Vector2(0f, 0.5f);
+            rt.anchorMax = new Vector2(0f, 0.5f);
+            rt.pivot = new Vector2(0f, 0.5f);
+            rt.anchoredPosition = new Vector2(x, -28f);
+            rt.sizeDelta = new Vector2(270f, 28f);
+        }
+
+        private static TMP_Text FindOrCreateMetaLabel(Transform slot, TMP_Text fontSource)
+        {
+            Transform existing = slot.Find("Meta");
+            if (existing != null)
+            {
+                var existingTmp = existing.GetComponent<TMP_Text>();
+                if (existingTmp != null)
+                {
+                    ApplyMetaLayout(existingTmp, fontSource);
+                    return existingTmp;
+                }
+            }
+
+            var go = new GameObject("Meta", typeof(RectTransform));
+            go.transform.SetParent(slot, false);
+            go.layer = slot.gameObject.layer;
+
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            ApplyMetaLayout(tmp, fontSource);
+            tmp.text = "empty";
+            tmp.fontSize = 16f;
+            tmp.alignment = TextAlignmentOptions.MidlineLeft;
+            tmp.color = TextMuted;
+            tmp.enableWordWrapping = false;
+            tmp.raycastTarget = false;
+            CopyFont(fontSource, tmp);
+            return tmp;
+        }
+
+        private static string FormatOccupiedMeta(GameData data, int slotIndex)
+        {
+            string playTime = FormatPlayTime(data != null ? data.totalPlayTimeSeconds : 0f);
+            string date = FormatLastPlayed(data != null ? data.lastPlayedAtUtc : null)
+                ?? FormatFileWriteDate(slotIndex);
+
+            if (!string.IsNullOrEmpty(playTime) && !string.IsNullOrEmpty(date))
+                return $"{playTime}  ·  {date}";
+            if (!string.IsNullOrEmpty(playTime))
+                return playTime;
+            if (!string.IsNullOrEmpty(date))
+                return date;
+            return "saved";
+        }
+
+        private static string FormatFileWriteDate(int slotIndex)
+        {
+            string path = DataManager.GetSlotSavePath(slotIndex);
+            if (!File.Exists(path) && slotIndex == 1)
+                path = Path.Combine(Application.persistentDataPath, "save_data.json");
+            if (!File.Exists(path))
+                return null;
+
+            DateTime local = File.GetLastWriteTime(path);
+            return local.Year == DateTime.Now.Year
+                ? local.ToString("dd/MM")
+                : local.ToString("dd/MM/yy");
+        }
+
+        private static string FormatPlayTime(float seconds)
+        {
+            if (seconds < 60f)
+                return "<1m";
+
+            int totalMinutes = Mathf.FloorToInt(seconds / 60f);
+            int hours = totalMinutes / 60;
+            int minutes = totalMinutes % 60;
+            if (hours <= 0)
+                return $"{minutes}m";
+
+            int days = hours / 24;
+            hours %= 24;
+            if (days > 0)
+                return hours > 0 ? $"{days}d {hours}h" : $"{days}d";
+
+            return minutes > 0 ? $"{hours}h {minutes}m" : $"{hours}h";
+        }
+
+        private static string FormatLastPlayed(string utc)
+        {
+            if (string.IsNullOrEmpty(utc))
+                return null;
+
+            if (!DateTime.TryParse(utc, null, DateTimeStyles.RoundtripKind, out DateTime parsed))
+                return null;
+
+            DateTime local = parsed.Kind == DateTimeKind.Utc ? parsed.ToLocalTime() : parsed;
+            return local.Year == DateTime.Now.Year
+                ? local.ToString("dd/MM")
+                : local.ToString("dd/MM/yy");
         }
 
         private void BindButtons()
@@ -278,7 +440,7 @@ namespace HeartOfTheNight.Hung
             for (int i = 0; i < texts.Length; i++)
             {
                 string n = texts[i].gameObject.name;
-                if (n == "Selected" || n == "Delete")
+                if (n == "Selected" || n == "Delete" || n == "Meta")
                     continue;
                 return texts[i];
             }
@@ -308,7 +470,7 @@ namespace HeartOfTheNight.Hung
                 {
                     selectButtons[i] = FindOrCreateActionButton(
                         slot, "Selected", "selected",
-                        new Vector2(-148f, 3f), new Vector2(150f, 50f),
+                        new Vector2(-148f, 0f), new Vector2(150f, 50f),
                         fontSource);
                 }
 
@@ -316,13 +478,32 @@ namespace HeartOfTheNight.Hung
                 {
                     deleteButtons[i] = FindOrCreateActionButton(
                         slot, "Delete", "delete",
-                        new Vector2(-18f, 3f), new Vector2(120f, 50f),
+                        new Vector2(-18f, 0f), new Vector2(120f, 50f),
                         fontSource);
                 }
+
+                ApplyActionButtonLayout(selectButtons[i], new Vector2(-148f, 0f), new Vector2(150f, 50f));
+                ApplyActionButtonLayout(deleteButtons[i], new Vector2(-18f, 0f), new Vector2(120f, 50f));
 
                 _selectLabels[i] = selectButtons[i].GetComponent<TMP_Text>();
                 _deleteLabels[i] = deleteButtons[i].GetComponent<TMP_Text>();
             }
+        }
+
+        private static void ApplyActionButtonLayout(Button button, Vector2 anchoredPos, Vector2 size)
+        {
+            if (button == null)
+                return;
+
+            var rt = button.transform as RectTransform;
+            if (rt == null)
+                return;
+
+            rt.anchorMin = new Vector2(1f, 0.5f);
+            rt.anchorMax = new Vector2(1f, 0.5f);
+            rt.pivot = new Vector2(1f, 0.5f);
+            rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta = size;
         }
 
         private static Button FindOrCreateActionButton(
@@ -334,7 +515,10 @@ namespace HeartOfTheNight.Hung
             {
                 var existingButton = existing.GetComponent<Button>();
                 if (existingButton != null)
+                {
+                    ApplyActionButtonLayout(existingButton, anchoredPos, size);
                     return existingButton;
+                }
             }
 
             var go = new GameObject(objectName, typeof(RectTransform));

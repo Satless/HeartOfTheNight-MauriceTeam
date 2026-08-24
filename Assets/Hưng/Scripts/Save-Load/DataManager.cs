@@ -80,6 +80,8 @@ namespace HeartOfTheNight.Hung
         private bool _pendingRespawnApply;
         private bool _pendingContinueRestoreHealth;
         private bool _isRespawning;
+        private bool _playTimeDirty;
+        private float _playTimeSaveTimer;
 
         private string SavePath => GetSlotSavePath(ActiveSlotIndex);
         private string BackupPath => GetSlotBackupPath(ActiveSlotIndex);
@@ -116,10 +118,12 @@ namespace HeartOfTheNight.Hung
                 if (Application.isPlaying)
                     DontDestroyOnLoad(gameObject);
                 ActiveSlotIndex = Mathf.Clamp(PlayerPrefs.GetInt("Save.ActiveSlot", 1), 1, SlotCount);
-                
-                // Khởi tạo Firebase thay vì LoadGame Local ngay lập tức
+
                 if (Application.isPlaying)
+                {
+                    SceneManager.sceneLoaded += OnSceneLoaded;
                     InitializeFirebase();
+                }
             }
             else
             {
@@ -128,6 +132,61 @@ namespace HeartOfTheNight.Hung
                 else
                     DestroyImmediate(gameObject);
             }
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void Update()
+        {
+            if (!ShouldTrackPlayTime())
+                return;
+
+            Data.totalPlayTimeSeconds += Time.unscaledDeltaTime;
+            _playTimeDirty = true;
+            _playTimeSaveTimer += Time.unscaledDeltaTime;
+            if (_playTimeSaveTimer >= 60f)
+                FlushPlayTimeIfNeeded();
+        }
+
+        private void OnApplicationQuit()
+        {
+            FlushPlayTimeIfNeeded();
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            if (pause)
+                FlushPlayTimeIfNeeded();
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (scene.name == "mainMenu" || scene.name == SelectLevelScene)
+                FlushPlayTimeIfNeeded();
+        }
+
+        private bool ShouldTrackPlayTime()
+        {
+            if (!Application.isPlaying || Data == null || !Data.hasSave)
+                return false;
+
+            string scene = SceneManager.GetActiveScene().name;
+            return scene != "mainMenu" && scene != SelectLevelScene;
+        }
+
+        private void FlushPlayTimeIfNeeded()
+        {
+            if (!_playTimeDirty || Data == null || !Data.hasSave)
+                return;
+
+            Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
+            SaveGameLocal();
+            _playTimeDirty = false;
+            _playTimeSaveTimer = 0f;
         }
 
         public static string GetSlotSavePath(int slotIndex)
@@ -160,6 +219,88 @@ namespace HeartOfTheNight.Hung
                 return true;
 
             return false;
+        }
+
+        /// <summary>
+        /// Đọc JSON local của slot để hiện UI. Không đổi ActiveSlot / Data đang chơi.
+        /// Gộp play time lớn nhất giữa RAM, file chính và file .bak (tránh cloud đè mất giờ chơi Slot 1).
+        /// </summary>
+        public static bool TryPeekSlot(int slotIndex, out GameData peek)
+        {
+            peek = null;
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+
+            TryReadSlotFromDisk(slotIndex, out GameData disk);
+            float diskPlayTime = disk != null ? disk.totalPlayTimeSeconds : 0f;
+
+            if (Instance != null
+                && Instance.ActiveSlotIndex == slotIndex
+                && Instance.Data != null
+                && Instance.Data.hasSave)
+            {
+                if (diskPlayTime > Instance.Data.totalPlayTimeSeconds)
+                    Instance.Data.totalPlayTimeSeconds = diskPlayTime;
+                peek = Instance.Data;
+                return true;
+            }
+
+            peek = disk;
+            return peek != null;
+        }
+
+        private static bool TryReadSlotFromDisk(int slotIndex, out GameData peek)
+        {
+            peek = null;
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+
+            TryLoadGameDataFile(GetSlotSavePath(slotIndex), ref peek);
+            TryLoadGameDataFile(GetSlotBackupPath(slotIndex), ref peek);
+
+            if (slotIndex == 1)
+            {
+                string legacy = Path.Combine(Application.persistentDataPath, "save_data.json");
+                TryLoadGameDataFile(legacy, ref peek);
+            }
+
+            return peek != null;
+        }
+
+        private static void TryLoadGameDataFile(string path, ref GameData peek)
+        {
+            if (string.IsNullOrEmpty(path) || !File.Exists(path))
+                return;
+
+            try
+            {
+                GameData loaded = JsonUtility.FromJson<GameData>(File.ReadAllText(path));
+                if (loaded == null)
+                    return;
+
+                if (peek == null)
+                {
+                    peek = loaded;
+                    return;
+                }
+
+                if (loaded.totalPlayTimeSeconds > peek.totalPlayTimeSeconds)
+                    peek.totalPlayTimeSeconds = loaded.totalPlayTimeSeconds;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Save System] Không đọc được {path}: {e.Message}");
+            }
+        }
+
+        private void KeepBetterLocalPlayTime()
+        {
+            if (Data == null)
+                return;
+
+            if (!TryReadSlotFromDisk(ActiveSlotIndex, out GameData local) || local == null)
+                return;
+
+            if (local.totalPlayTimeSeconds > Data.totalPlayTimeSeconds)
+                Data.totalPlayTimeSeconds = local.totalPlayTimeSeconds;
         }
 
         public bool HasInProgress()
@@ -400,8 +541,9 @@ namespace HeartOfTheNight.Hung
             if (Data == null) Data = new GameData();
             Data.hasSave = true;
             Data.slotIndex = ActiveSlotIndex;
-            if (string.IsNullOrEmpty(Data.lastPlayedAtUtc))
-                Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
+            Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
+            _playTimeDirty = false;
+            _playTimeSaveTimer = 0f;
 
             // Luôn lưu local làm lốp dự phòng
             SaveGameLocal();
@@ -596,6 +738,7 @@ namespace HeartOfTheNight.Hung
                         
                         if (Data == null) Data = new GameData();
                         JsonUtility.FromJsonOverwrite(json, Data);
+                        KeepBetterLocalPlayTime();
                         
                         Debug.Log($"[Firebase] Tải Cloud thành công. Kiểm tra RAM: playerHealth={Data.playerHealth}");
                         
@@ -634,6 +777,7 @@ namespace HeartOfTheNight.Hung
                     JsonUtility.FromJsonOverwrite(task.Result.GetRawJsonValue(), Data);
                     Data.slotIndex = 1;
                     Data.hasSave = true;
+                    KeepBetterLocalPlayTime();
                     SaveGameLocal();
                     Debug.Log("[Firebase] Đã migrate GameData cũ → Slot 1.");
                 }
