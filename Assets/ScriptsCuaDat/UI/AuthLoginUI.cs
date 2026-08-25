@@ -30,6 +30,20 @@ namespace HeartOfTheNight.UI
         [Tooltip("Scene sau khi đăng nhập / chơi khách thành công")]
         [SerializeField] private string nextSceneName = "mainMenu";
 
+        private const string NetworkRequiredMessage =
+            "NO INTERNET.\n\n" +
+            "GOOGLE SAVES ARE TIED TO YOUR GMAIL (CLOUD).\n" +
+            "THIS PC CANNOT LOAD THEM WHILE OFFLINE.\n\n" +
+            "PLAY AS GUEST = A SEPARATE LOCAL SAVE ON THIS DEVICE.\n" +
+            "IT WILL NOT CONTINUE YOUR GOOGLE PROGRESS FROM ANOTHER PC.\n\n" +
+            "RETRY WHEN YOU HAVE NETWORK TO SIGN IN WITH GOOGLE.";
+
+        private const string GuestConfirmMessage =
+            "PLAY WITHOUT A GOOGLE ACCOUNT?\n\n" +
+            "PROGRESS STAYS ON THIS DEVICE ONLY.\n" +
+            "THIS IS NOT YOUR GOOGLE CLOUD SAVE.\n\n" +
+            "TO LOAD SAVES FROM ANOTHER PC, SIGN IN WITH GOOGLE (NEEDS NETWORK).";
+
         private bool waitingForClick = true;
         private bool googleCancelled;
         private Coroutine googleRoutine;
@@ -107,6 +121,7 @@ namespace HeartOfTheNight.UI
         {
             SetActiveSafe(googleAuthPopup, false);
             SetActiveSafe(networkPopup, false);
+            ApplyPopupCopy(guestConfirmPopup, "warning", GuestConfirmMessage);
             ShowPopup(guestConfirmPopup);
         }
 
@@ -125,6 +140,7 @@ namespace HeartOfTheNight.UI
         {
             SetActiveSafe(googleAuthPopup, false);
             SetActiveSafe(guestConfirmPopup, false);
+            ApplyPopupCopy(networkPopup, "network", NetworkRequiredMessage);
             ShowPopup(networkPopup);
         }
 
@@ -379,6 +395,15 @@ namespace HeartOfTheNight.UI
                 return;
             popup.transform.SetAsLastSibling();
             popup.SetActive(true);
+        }
+
+        private void ApplyPopupCopy(GameObject popup, string title, string message)
+        {
+            if (popup == null)
+                return;
+
+            SetNamedText(popup.transform, "Title", title);
+            SetNamedText(popup.transform, "Txt_Message", message);
         }
 
         private void HideAllPopups()
