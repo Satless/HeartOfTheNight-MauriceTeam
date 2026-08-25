@@ -225,8 +225,15 @@ namespace HeartOfTheNight.UI
                 done = true;
             });
 
-            while (!done)
+            float guestWait = 20f;
+            while (!done && guestWait > 0f)
+            {
+                guestWait -= Time.unscaledDeltaTime;
                 yield return null;
+            }
+
+            if (!done)
+                Debug.LogWarning("[AuthLoginUI] Guest Firebase timeout — vào game bằng save local.");
 
             if (this == null)
                 yield break;

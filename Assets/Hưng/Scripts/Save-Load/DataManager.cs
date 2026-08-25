@@ -58,6 +58,7 @@ namespace HeartOfTheNight.Hung
                 return Instance;
             }
 
+            Debug.LogWarning("[Save System] Không tìm thấy Resources/Data/DataManager. Tạo trống — Google OAuth trên Windows sẽ thiếu Client Secret nếu không đi từ AuthScene.");
             var go = new GameObject("DataManager");
             return go.AddComponent<DataManager>();
         }

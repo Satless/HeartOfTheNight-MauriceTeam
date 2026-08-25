@@ -157,7 +157,8 @@ namespace HeartOfTheNight.Player
                 anim.TriggerDeath();
 
             float delay = _deathScreenDelay > 0f ? _deathScreenDelay : 2f;
-            yield return new WaitForSeconds(delay);
+            Time.timeScale = 1f;
+            yield return new WaitForSecondsRealtime(delay);
 
             var deadScreen = UnityEngine.Object.FindFirstObjectByType<DeadScreenUI>(FindObjectsInactive.Include);
             if (deadScreen != null)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using Firebase.Database;
 using Firebase.Extensions;
@@ -99,6 +100,48 @@ namespace HeartOfTheNight.Hung
                 Data.totalPlayTimeSeconds = local.totalPlayTimeSeconds;
         }
 
+        /// <summary>
+        /// Cloud đè local sẽ mất tiến trình vừa chơi offline. Chọn bản lastPlayed mới hơn.
+        /// </summary>
+        private GameData PreferNewerSave(GameData cloud)
+        {
+            if (!SaveSlotStorage.TryReadSlotFromDisk(ActiveSlotIndex, out GameData local) || local == null || !local.hasSave)
+                return cloud ?? new GameData();
+
+            local.EnsureLists();
+            if (cloud == null || !cloud.hasSave)
+                return local;
+
+            if (IsSaveNewer(local, cloud))
+            {
+                Debug.Log("[Save System] Local mới hơn Cloud — giữ bản máy, không đè tiến trình.");
+                if (cloud.totalPlayTimeSeconds > local.totalPlayTimeSeconds)
+                    local.totalPlayTimeSeconds = cloud.totalPlayTimeSeconds;
+                return local;
+            }
+
+            return cloud;
+        }
+
+        private static bool IsSaveNewer(GameData a, GameData b)
+        {
+            if (a == null) return false;
+            if (b == null) return true;
+
+            if (TryParseUtc(a.lastPlayedAtUtc, out DateTime ta) && TryParseUtc(b.lastPlayedAtUtc, out DateTime tb))
+                return ta > tb.AddSeconds(1);
+
+            return a.totalPlayTimeSeconds > b.totalPlayTimeSeconds + 1f;
+        }
+
+        private static bool TryParseUtc(string iso, out DateTime utc)
+        {
+            utc = default;
+            if (string.IsNullOrWhiteSpace(iso))
+                return false;
+            return DateTime.TryParse(iso, null, DateTimeStyles.RoundtripKind, out utc);
+        }
+
         private System.Collections.IEnumerator WaitAndLoadCloud(Action onLoaded)
         {
             while (_isFirebaseInitializing)
@@ -126,8 +169,13 @@ namespace HeartOfTheNight.Hung
                     {
                         string json = snapshot.GetRawJsonValue();
 
-                        Data = new GameData();
-                        JsonUtility.FromJsonOverwrite(json, Data);
+                        var cloud = new GameData();
+                        JsonUtility.FromJsonOverwrite(json, cloud);
+                        cloud.hasSave = true;
+                        cloud.slotIndex = ActiveSlotIndex;
+                        cloud.EnsureLists();
+
+                        Data = PreferNewerSave(cloud);
                         Data.hasSave = true;
                         Data.slotIndex = ActiveSlotIndex;
                         Data.EnsureLists();
