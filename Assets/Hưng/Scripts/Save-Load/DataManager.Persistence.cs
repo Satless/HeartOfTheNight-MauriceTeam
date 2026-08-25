@@ -126,10 +126,11 @@ namespace HeartOfTheNight.Hung
                     {
                         string json = snapshot.GetRawJsonValue();
 
-                        if (Data == null) Data = new GameData();
+                        Data = new GameData();
                         JsonUtility.FromJsonOverwrite(json, Data);
                         Data.hasSave = true;
                         Data.slotIndex = ActiveSlotIndex;
+                        Data.EnsureLists();
                         KeepBetterLocalPlayTime();
 
                         Debug.Log($"[Firebase] Tải Cloud thành công. Kiểm tra RAM: playerHealth={Data.playerHealth}");
@@ -164,10 +165,11 @@ namespace HeartOfTheNight.Hung
                 if (task.IsCompleted && !task.IsFaulted && task.Result != null && task.Result.Exists)
                 {
                     _lastCloudLoadFailed = false;
-                    if (Data == null) Data = new GameData();
+                    Data = new GameData();
                     JsonUtility.FromJsonOverwrite(task.Result.GetRawJsonValue(), Data);
                     Data.slotIndex = 1;
                     Data.hasSave = true;
+                    Data.EnsureLists();
                     KeepBetterLocalPlayTime();
                     SaveGameLocal();
                     RememberCloudSlot(1, Data);
@@ -204,7 +206,7 @@ namespace HeartOfTheNight.Hung
 
         private void LoadGameLocal()
         {
-            if (Data == null) Data = new GameData();
+            Data = new GameData();
 
             try
             {
@@ -212,6 +214,7 @@ namespace HeartOfTheNight.Hung
                 {
                     Data.hasSave = true;
                     Data.slotIndex = ActiveSlotIndex;
+                    Data.EnsureLists();
                     Debug.Log($"[Save System] Tải local Slot {ActiveSlotIndex} thành công. RAM: playerHealth={Data.playerHealth}");
                     ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
@@ -233,6 +236,7 @@ namespace HeartOfTheNight.Hung
                     {
                         Data.hasSave = true;
                         Data.slotIndex = 1;
+                        Data.EnsureLists();
                         SaveGameLocal();
                         Debug.Log("[Save System] Đã migrate save_data.json → save_slot_1.json");
                         ApplyEditorKeyResetIfNeeded();
@@ -251,7 +255,7 @@ namespace HeartOfTheNight.Hung
 
         private void LoadFromBackupLocal()
         {
-            if (Data == null) Data = new GameData();
+            Data = new GameData();
 
             try
             {
@@ -259,6 +263,7 @@ namespace HeartOfTheNight.Hung
                 {
                     Data.hasSave = true;
                     Data.slotIndex = ActiveSlotIndex;
+                    Data.EnsureLists();
                     Debug.Log("[Save System] Đã khôi phục thành công từ file Backup.");
                     ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
@@ -272,6 +277,7 @@ namespace HeartOfTheNight.Hung
 
             Debug.Log("[Save System] Chưa có file save nào (Game mới). Bắt đầu với Data gốc.");
             Data = new GameData();
+            Data.EnsureLists();
             ApplyEditorKeyResetIfNeeded();
             HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
         }

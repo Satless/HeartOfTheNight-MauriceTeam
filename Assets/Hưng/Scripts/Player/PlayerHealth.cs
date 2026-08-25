@@ -60,13 +60,14 @@ namespace HeartOfTheNight.Player
                 _currentHealth = 100;
             }
 
-            // Đồng bộ vào DataManager để UI hoặc Save/Load khác đọc
-            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // Continue / respawn sẽ ghi máu từ save — đừng đè max lên RAM trước đó.
+            if (HeartOfTheNight.Hung.DataManager.Instance != null
+                && !HeartOfTheNight.Hung.DataManager.Instance.IsApplyingSpawnRestore)
             {
                 HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
             }
-
-            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         /// <summary>
