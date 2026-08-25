@@ -40,6 +40,9 @@ namespace HeartOfTheNight.Hung
         private float _playTimeSaveTimer;
         private bool _slotEnterBusy;
 
+        /// <summary>Scene mới đang hồi sinh / Continue — PlayerHealth không được ghi đè máu save bằng max.</summary>
+        public bool IsApplyingSpawnRestore => _pendingRespawnApply;
+
         internal Firebase.Auth.FirebaseUser FirebaseUser => _user;
 
         public static DataManager EnsureExists()
@@ -55,6 +58,7 @@ namespace HeartOfTheNight.Hung
                 return Instance;
             }
 
+            Debug.LogWarning("[Save System] Không tìm thấy Resources/Data/DataManager. Tạo trống — Google OAuth trên Windows sẽ thiếu Client Secret nếu không đi từ AuthScene.");
             var go = new GameObject("DataManager");
             return go.AddComponent<DataManager>();
         }
@@ -130,6 +134,8 @@ namespace HeartOfTheNight.Hung
         private void FlushPlayTimeIfNeeded()
         {
             if (!_playTimeDirty || Data == null || !Data.hasSave)
+                return;
+            if (_isRespawning || Data.playerHealth <= 0)
                 return;
 
             Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
@@ -225,11 +231,15 @@ namespace HeartOfTheNight.Hung
                 maxUnlockedLevel = 1,
                 currentScene = NewGameTutorialScene,
                 hasCheckpoint = false,
+                hasCheckpointWorldState = false,
                 totalPlayTimeSeconds = 0f,
                 scenePlayTimes = new List<ScenePlayTimeEntry>(),
                 clearedRooms = new List<string>(),
                 unlockedDoors = new List<string>(),
                 collectedKeyPickupIds = new List<string>(),
+                checkpointClearedRooms = new List<string>(),
+                checkpointUnlockedDoors = new List<string>(),
+                checkpointCollectedKeyPickupIds = new List<string>(),
             };
 
             ChapterProgress.ResetForNewSave();
@@ -274,11 +284,20 @@ namespace HeartOfTheNight.Hung
         public void AbandonInProgress()
         {
             if (Data == null) return;
-            Data.hasCheckpoint = false;
-            Data.checkpointScene = "";
-            Data.checkpointSpawnID = "";
-            Data.checkpointPosition = Vector3.zero;
+            Data.ClearInProgressWorldState();
             Data.targetSpawnID = "";
+            SaveGame();
+        }
+
+        public bool IsRoomCleared(string roomId)
+        {
+            return Data != null && Data.IsRoomCleared(roomId);
+        }
+
+        public void MarkRoomCleared(string roomId)
+        {
+            if (Data == null) Data = new GameData();
+            Data.MarkRoomCleared(roomId);
             SaveGame();
         }
 
@@ -305,6 +324,9 @@ namespace HeartOfTheNight.Hung
             string sceneToLoad = Data.checkpointScene;
             _pendingRespawnApply = true;
             _pendingContinueRestoreHealth = true;
+
+            if (Data.hasCheckpointWorldState && Data.checkpointPlayerHealth > 0)
+                Data.playerHealth = Data.checkpointPlayerHealth;
 
             if (!string.IsNullOrEmpty(Data.checkpointSpawnID))
                 LevelEntrance.SetPendingSpawn(Data.checkpointSpawnID);
@@ -351,6 +373,7 @@ namespace HeartOfTheNight.Hung
             if (health > 0)
                 Data.playerHealth = health;
 
+            Data.CaptureCheckpointWorldState();
             SaveGame();
             Debug.Log($"[Checkpoint] Đã lưu cửa: scene={Data.checkpointScene}, spawnId={Data.checkpointSpawnID}, pos={worldPosition}");
         }
@@ -372,6 +395,13 @@ namespace HeartOfTheNight.Hung
             string sceneToLoad = SceneManager.GetActiveScene().name;
             if (Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointScene))
                 sceneToLoad = Data.checkpointScene;
+
+            if (Data != null)
+            {
+                Data.RestoreCheckpointWorldState();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                SaveGame();
+            }
 
             _pendingRespawnApply = true;
 

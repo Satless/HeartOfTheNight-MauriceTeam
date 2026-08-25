@@ -114,8 +114,10 @@ public class RoomDoor : MonoBehaviour
     {
         // Cua khoa chua duoc mo bang chia: khong cho Open() (ke ca RoomSpawnController).
         if (requiredKey != KeyType.None && !keyRequirementMet)
+        {
             AudioEvents.TriggerSound3D("Other", "Doors", "Locked", transform.position);
             return;
+        }
 
         if (isOpen) return;
         isOpen = true;

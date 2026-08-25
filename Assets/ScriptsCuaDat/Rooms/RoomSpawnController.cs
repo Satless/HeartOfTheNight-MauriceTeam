@@ -29,6 +29,8 @@ namespace HeartOfTheNight.Rooms
         [Header("Trigger")]
         [SerializeField] private string playerTag = "Player";
         [SerializeField] private bool activateOnce = true;
+        [Tooltip("ID lưu phòng đã clear. Để trống = Scene + tên object.")]
+        [SerializeField] private string roomSaveId = "";
 
         [Header("VFX")]
         [SerializeField] private GameObject spawnVfxPrefab;
@@ -65,6 +67,47 @@ namespace HeartOfTheNight.Rooms
             var col = GetComponent<Collider2D>();
             if (col != null && !col.isTrigger)
                 Debug.LogWarning($"[{name}] Collider2D nen bat 'Is Trigger'", this);
+
+            TryApplyClearedFromSave();
+        }
+
+        private IEnumerator Start()
+        {
+            TryApplyClearedFromSave();
+            if (state != RoomState.Idle)
+                yield break;
+
+            var col = GetComponent<Collider2D>();
+            if (col == null)
+                yield break;
+
+            bool wasEnabled = col.enabled;
+            col.enabled = false;
+
+            float t = 0f;
+            const float timeout = 3f;
+            while (t < timeout && ShouldWaitForSpawnApply())
+            {
+                t += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            yield return null;
+            yield return new WaitForFixedUpdate();
+
+            TryApplyClearedFromSave();
+            if (this == null) yield break;
+            if (state == RoomState.Idle && wasEnabled)
+                col.enabled = true;
+        }
+
+        private static bool ShouldWaitForSpawnApply()
+        {
+            if (!string.IsNullOrEmpty(LevelEntrance.PendingSpawnID))
+                return true;
+
+            var dm = HeartOfTheNight.Hung.DataManager.Instance;
+            return dm != null && dm.IsApplyingSpawnRestore;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -73,6 +116,34 @@ namespace HeartOfTheNight.Rooms
             if (!IsPlayer(other)) return;
 
             StartRoom();
+        }
+
+        private string GetRoomId()
+        {
+            if (!string.IsNullOrEmpty(roomSaveId))
+                return roomSaveId;
+
+            return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
+        }
+
+        private bool IsClearedInSave()
+        {
+            var dm = HeartOfTheNight.Hung.DataManager.Instance;
+            return dm != null && dm.IsRoomCleared(GetRoomId());
+        }
+
+        private void TryApplyClearedFromSave()
+        {
+            if (state == RoomState.Cleared) return;
+            if (!IsClearedInSave()) return;
+            ApplyClearedFromSave();
+        }
+
+        private void ApplyClearedFromSave()
+        {
+            state = RoomState.Cleared;
+            SetDoorsClosed(false);
+            if (debugLogs) Debug.Log($"[{name}] Phong da clear trong save — khong spawn lai.", this);
         }
 
         private bool IsPlayer(Collider2D other)
@@ -225,17 +296,9 @@ namespace HeartOfTheNight.Rooms
 
             onRoomCleared?.Invoke();
 
-            // AUTO-SAVE KHI QUA PHÒNG
-            if (HeartOfTheNight.Hung.DataManager.Instance != null)
-            {
-                // Tạo ID độc nhất cho phòng này để không bị reset quái khi quay lại
-                string roomID = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
-                if (!HeartOfTheNight.Hung.DataManager.Instance.Data.clearedRooms.Contains(roomID))
-                {
-                    HeartOfTheNight.Hung.DataManager.Instance.Data.clearedRooms.Add(roomID);
-                }
-                HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
-            }
+            var dm = HeartOfTheNight.Hung.DataManager.Instance;
+            if (dm != null)
+                dm.MarkRoomCleared(GetRoomId());
 
             if (!activateOnce)
             {
