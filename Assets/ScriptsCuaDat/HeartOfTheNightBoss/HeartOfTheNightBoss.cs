@@ -371,6 +371,8 @@ namespace HeartOfTheNight.Enemy
             float spread = stats.barrageSpreadAngle;
             float interval = stats.barrageBetweenShots * SpeedMul;
 
+            AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Barrage", transform.position);
+
             for (int i = 0; i < count; i++)
             {
                 if (player == null) break;
@@ -384,7 +386,7 @@ namespace HeartOfTheNight.Enemy
                     bullet.Launch(dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
 
                 if (interval > 0f && i < count - 1) yield return new WaitForSeconds(interval);
-            }
+            }          
         }
 
         private IEnumerator DoEightDirLaser()
@@ -394,6 +396,8 @@ namespace HeartOfTheNight.Enemy
             float warn = stats.laserWarnTime * SpeedMul;
             float fire = stats.laserFireTime;
             float gap = 360f / dirs;
+
+            AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Laser", transform.position);
 
             for (int v = 0; v < volleys; v++)
             {
@@ -433,6 +437,8 @@ namespace HeartOfTheNight.Enemy
 
             var telegraphGo = Instantiate(stats.telegraphPrefab, GroundUnder(spot), Quaternion.identity);
 
+            AudioEvents.TriggerSound3D("Enemy", "Doombringer", "FirePillar", transform.position);
+
             if (telegraphGo.TryGetComponent<HeartOfTheNightTelegraph>(out var telegraph))
                 telegraph.Configure(stats.telegraphRadius, charge, stats.telegraphSpinStart, stats.telegraphSpinEnd);
 
@@ -464,12 +470,16 @@ namespace HeartOfTheNight.Enemy
             }
 
             yield return new WaitForSeconds(stats.pillarFireTime);
+
+
         }
 
         private IEnumerator DoSummon()
         {
             PruneSummons();
             if (stats.summons == null) yield break;
+
+            AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Summon", transform.position);
 
             int slots = stats.maxActiveSummons - activeSummons.Count;
             if (slots <= 0) yield break;
@@ -573,6 +583,8 @@ namespace HeartOfTheNight.Enemy
             {
                 enraged = true;
                 ApplyEnrageVisual();
+
+                AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Enrage", transform.position);
             }
         }
 
@@ -587,6 +599,8 @@ namespace HeartOfTheNight.Enemy
             if (dead) return;
 
             health -= amount;
+            AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Hurt", transform.position);
+
             CheckEnrage();
 
             if (health <= 0)
@@ -594,6 +608,8 @@ namespace HeartOfTheNight.Enemy
                 dead = true;
                 isAttacking = false;
                 loopGeneration++;
+
+                AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Die", transform.position);
                 if (attackLoopCo != null)
                 {
                     StopCoroutine(attackLoopCo);

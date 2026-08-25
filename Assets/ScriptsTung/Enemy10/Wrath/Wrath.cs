@@ -53,6 +53,10 @@ public class Wrath : MonoBehaviour, IDamageable
     private float nextAttackTime = 0f;
     private bool isBusy = false;
 
+
+    private float idleSoundTimer;
+    private float moveSoundTimer;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -133,6 +137,14 @@ public class Wrath : MonoBehaviour, IDamageable
         float dir = Mathf.Sign(transform.localScale.x);
         rb.linearVelocity = new Vector2(dir * patrolSpeed, rb.linearVelocity.y);
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+
+        idleSoundTimer -= Time.fixedDeltaTime;
+        if (idleSoundTimer <= 0f)
+        {
+            //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+            AudioEvents.TriggerSound3D("Enemy", "Wrath", "Idle", transform.position);
+            idleSoundTimer = 10f; // Phát lại sau mỗi 10s
+        }
     }
 
     void ChasePlayer()
@@ -149,12 +161,23 @@ public class Wrath : MonoBehaviour, IDamageable
             float dir = (player.position.x > transform.position.x) ? 1 : -1;
             rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+
+            moveSoundTimer -= Time.fixedDeltaTime;
+            if (moveSoundTimer <= 0f)
+            {
+                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+                AudioEvents.TriggerSound3D("Enemy", "Wrath", "Move", transform.position);
+                moveSoundTimer = 0.2f; // Phát lại sau mỗi 10s
+            }
         }
     }
 
     IEnumerator ThucHienHucRoutine()
     {
         isBusy = true;
+
+        AudioEvents.TriggerSound3D("Enemy", "Wrath", "Attack", transform.position);
+
         rb.linearVelocity = Vector2.zero;
         if (anim != null) anim.SetFloat("Speed", 0f);
         LookAtPlayer();
@@ -238,12 +261,17 @@ public class Wrath : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= damage;
+        AudioEvents.TriggerSound3D("Enemy", "Wrath", "Hurt", transform.position);
+
         if (currentHealth <= 0) Die();
     }
 
     void Die()
     {
         isDead = true;
+
+        AudioEvents.TriggerSound3D("Enemy", "Wrath", "Die", transform.position);
+
         rb.linearVelocity = Vector2.zero;
         rb.simulated = false;
         gameObject.tag = "Untagged";

@@ -279,6 +279,7 @@ private void ApplyVelocity(int dir)
 private void Fire()
     {
         if (anim != null) anim.SetTrigger("Attack");
+        AudioEvents.TriggerSound3D("Enemy", "Cultist", "Attack", transform.position);
     }
     // Thêm hàm public này để Animation Event gọi vào đúng frame vung gậy
             public void ExecuteFire()
@@ -305,9 +306,12 @@ private void Fire()
 
     health -= amount;
 
+    AudioEvents.TriggerSound3D("Enemy", "Cultist", "Hurt", transform.position);
+
     if (health <= 0) 
     {
         if (anim != null) anim.SetTrigger("Die");
+        AudioEvents.TriggerSound3D("Enemy", "Cultist", "Die", transform.position);
 
         // Vô hiệu hóa vật lý và logic để quái không di chuyển/bắn nữa
         rb.linearVelocity = Vector2.zero;

@@ -940,6 +940,7 @@ GameObject:
   - component: {fileID: 227563364}
   - component: {fileID: 227563366}
   - component: {fileID: 227563365}
+  - component: {fileID: 227563367}
   m_Layer: 5
   m_Name: SLOT 1 (3)
   m_TagString: Untagged
@@ -1005,6 +1006,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 227563363}
   m_CullTransparentMesh: 1
+--- !u!114 &227563367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 227563363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Click
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &269704495
 GameObject:
   m_ObjectHideFlags: 0
@@ -1427,6 +1473,7 @@ GameObject:
   - component: {fileID: 305508511}
   - component: {fileID: 305508513}
   - component: {fileID: 305508512}
+  - component: {fileID: 305508514}
   m_Layer: 5
   m_Name: SLOT 1 (1)
   m_TagString: Untagged
@@ -1492,6 +1539,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 305508510}
   m_CullTransparentMesh: 1
+--- !u!114 &305508514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 305508510}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Click
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &321026697
 GameObject:
   m_ObjectHideFlags: 0
@@ -5162,6 +5254,7 @@ MonoBehaviour:
   signOutButton: {fileID: 890010041}
   linkGoogleButton: {fileID: 890010051}
   logoutConfirmPopup: {fileID: 890010101}
+  switchGoogleConfirmPopup: {fileID: 0}
 --- !u!1 &890010011
 GameObject:
   m_ObjectHideFlags: 0
@@ -5855,6 +5948,7 @@ GameObject:
   - component: {fileID: 890010053}
   - component: {fileID: 890010054}
   - component: {fileID: 890010055}
+  - component: {fileID: 890010060}
   m_Layer: 5
   m_Name: Btn_LinkGoogle
   m_TagString: Untagged
@@ -6113,6 +6207,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890010056}
   m_CullTransparentMesh: 1
+--- !u!114 &890010060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890010051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Click
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &890010101
 GameObject:
   m_ObjectHideFlags: 0
@@ -6369,7 +6508,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4291944683
   m_fontColor: {r: 0.92, g: 0.88, b: 0.82, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6452,6 +6591,7 @@ GameObject:
   - component: {fileID: 890010143}
   - component: {fileID: 890010144}
   - component: {fileID: 890010145}
+  - component: {fileID: 890010150}
   m_Layer: 5
   m_Name: Btn_Yes
   m_TagString: Untagged
@@ -6639,7 +6779,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4291944683
   m_fontColor: {r: 0.92, g: 0.88, b: 0.82, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6710,6 +6850,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890010146}
   m_CullTransparentMesh: 1
+--- !u!114 &890010150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890010141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Click
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &890010151
 GameObject:
   m_ObjectHideFlags: 0
@@ -6722,6 +6907,7 @@ GameObject:
   - component: {fileID: 890010153}
   - component: {fileID: 890010154}
   - component: {fileID: 890010155}
+  - component: {fileID: 890010160}
   m_Layer: 5
   m_Name: Btn_No
   m_TagString: Untagged
@@ -6909,7 +7095,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4291944683
   m_fontColor: {r: 0.92, g: 0.88, b: 0.82, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6980,6 +7166,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890010156}
   m_CullTransparentMesh: 1
+--- !u!114 &890010160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890010151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &890020001
 GameObject:
   m_ObjectHideFlags: 0
@@ -6997,7 +7228,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &890020002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7207,6 +7438,7 @@ GameObject:
   - component: {fileID: 890020023}
   - component: {fileID: 890020024}
   - component: {fileID: 890020025}
+  - component: {fileID: 890020026}
   m_Layer: 5
   m_Name: CloseButton
   m_TagString: Untagged
@@ -7328,6 +7560,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 890020021}
   m_CullTransparentMesh: 1
+--- !u!114 &890020026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890020021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &890020031
 GameObject:
   m_ObjectHideFlags: 0
@@ -9049,6 +9326,7 @@ GameObject:
   - component: {fileID: 1015588964}
   - component: {fileID: 1015588966}
   - component: {fileID: 1015588965}
+  - component: {fileID: 1015588967}
   m_Layer: 5
   m_Name: SLOT 1
   m_TagString: Untagged
@@ -9114,6 +9392,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1015588963}
   m_CullTransparentMesh: 1
+--- !u!114 &1015588967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1015588963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Click
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1017070609
 GameObject:
   m_ObjectHideFlags: 0
@@ -9528,6 +9851,7 @@ GameObject:
   - component: {fileID: 1064478386}
   - component: {fileID: 1064478388}
   - component: {fileID: 1064478387}
+  - component: {fileID: 1064478389}
   m_Layer: 5
   m_Name: SLOT 1 (2)
   m_TagString: Untagged
@@ -9593,6 +9917,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1064478385}
   m_CullTransparentMesh: 1
+--- !u!114 &1064478389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1064478385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Click
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1064954253
 GameObject:
   m_ObjectHideFlags: 0
@@ -17313,6 +17682,7 @@ GameObject:
   - component: {fileID: 2036467839}
   - component: {fileID: 2036467838}
   - component: {fileID: 2036467837}
+  - component: {fileID: 2036467840}
   m_Layer: 5
   m_Name: CloseButton
   m_TagString: Untagged
@@ -17337,8 +17707,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -108.696686, y: -23.063965}
-  m_SizeDelta: {x: 217.3936, y: 46.1279}
+  m_AnchoredPosition: {x: -73.11026, y: -23.063965}
+  m_SizeDelta: {x: 146.2207, y: 46.1279}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2036467837
 MonoBehaviour:
@@ -17434,6 +17804,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2036467835}
   m_CullTransparentMesh: 1
+--- !u!114 &2036467840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036467835}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Hover
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 4
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 29843030}
+          m_TargetAssemblyTypeName: SoundManager_New, Assembly-CSharp
+          m_MethodName: PlaySound2DFromPath
+          m_Mode: 5
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: UI/Buttons/Cancel
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &2083191622
 GameObject:
   m_ObjectHideFlags: 0

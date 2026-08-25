@@ -355,6 +355,8 @@ public class PlayerAttack : MonoBehaviour
             {
                 _currentFireSpeedMul = Data.fireAnimationClip.length / Data.fireRate;
                 Debug.Log($"<color=cyan>[Auto-Sync]</color> {Data.name}: Đã lưu tốc độ Animator (FireSpeedMul) = {_currentFireSpeedMul:F2}x (Độ dài Clip: {Data.fireAnimationClip.length:F2}s / FireRate: {Data.fireRate}s)");
+                
+                AudioEvents.TriggerSound3D("Weapons", "Action", "Equip", transform.position);
             }
         }
 
@@ -427,6 +429,8 @@ public class PlayerAttack : MonoBehaviour
         {
             if (_input.Player.Attack.IsPressed())
             {
+                AudioEvents.TriggerSound3D("Weapons", "Flamethrower", "Shoot", transform.position);
+
                 // Đảm bảo thân trên được bật trước khi Animator chạy (tránh race condition thứ tự Update)
                 _animation?.ShowUpperBodyImmediately();
 
@@ -545,7 +549,19 @@ public class PlayerAttack : MonoBehaviour
         // if (!string.IsNullOrEmpty(Data.fireSoundName))
         // {
         //         SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
-        // }
+        //}
+
+        if (_input.Player.Attack.IsPressed())
+            {
+                AudioEvents.TriggerSound3D(
+                    Data.audioCategoryID, 
+                    Data.audioSubCategoryID, 
+                    Data.fireActionName, 
+                    _firePoint.position
+                                   );
+            }
+
+
 
 
             // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
@@ -633,6 +649,7 @@ public class PlayerAttack : MonoBehaviour
             Debug.Log($"<color=red>[Overheat] QUÁ NHIỆT!</color> Thanh nhiệt đầy ({slot.currentHeat}/{slot.maxHeat}). Đóng băng {slot.overheatFreezeDuration}s. Khóa bắn cho đến khi nguội xuống {slot.unlockThreshold * 100}%.");
 
             //SoundManager.Instance.PlaySound3D("Weapons","OverheatOn", transform.position);
+            AudioEvents.TriggerSound3D("Weapons", "Overheat", "On", transform.position);
 
             // Ngắt cờ bắn để không bắn tiếp khi đang quá nhiệt
             if (_weaponAnimator != null && _weaponAnimator.isActiveAndEnabled)
@@ -689,6 +706,7 @@ public class PlayerAttack : MonoBehaviour
                 Debug.Log($"<color=green>[Overheat] Đã nguội!</color> Thanh nhiệt: {slot.currentHeat:F1}/{slot.maxHeat}. Mở khóa bắn.");
 
                 //SoundManager.Instance.PlaySound3D("Weapons", "OverheatOff", transform.position);
+                AudioEvents.TriggerSound3D("Weapons", "Overheat", "Off", transform.position);
             }
         }
     }

@@ -49,6 +49,10 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     private float nextAttackTime = 0f;
     private bool isBusy = false;
 
+
+    private float idleSoundTimer;
+    private float moveSoundTimer;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -119,6 +123,16 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         float currentDir = Mathf.Sign(transform.localScale.x);
         float dirToStart = Mathf.Sign(startX - transform.position.x);
 
+
+        idleSoundTimer -= Time.fixedDeltaTime;
+        if (idleSoundTimer <= 0f)
+        {
+            //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+            AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Idle", transform.position);
+            idleSoundTimer = 10f; // Phát lại sau mỗi 10s
+        }
+        
+
         if (IsNearEdge() || IsHittingWall() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
         {
             Vector3 scale = transform.localScale;
@@ -145,6 +159,15 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
             float dir = (player.position.x > transform.position.x) ? 1 : -1;
             rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+
+
+            moveSoundTimer -= Time.fixedDeltaTime;
+            if (moveSoundTimer <= 0f)
+            {
+                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+                AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Move", transform.position);
+                moveSoundTimer = 0.3f; // Phát lại sau mỗi 0.3s
+            }
         }
     }
 
@@ -161,6 +184,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         LookAtPlayer();
 
         if (anim != null) anim.SetTrigger("Attack");
+        AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Attack", transform.position);
+
         yield return new WaitForSeconds(attackCooldown);
 
         nextAttackTime = Time.time + attackCooldown;
@@ -197,12 +222,17 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= damage;
+        AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Hurt", transform.position);
+
         if (currentHealth <= 0) Die();
     }
 
     void Die()
     {
         isDead = true;
+
+        AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Die", transform.position);
+
         rb.linearVelocity = Vector2.zero;
         rb.simulated = false;
         gameObject.tag = "Untagged";

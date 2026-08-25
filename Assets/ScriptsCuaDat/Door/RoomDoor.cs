@@ -82,12 +82,14 @@ public class RoomDoor : MonoBehaviour
         if (keyRequirementMet)
         {
             if (!isOpen) Open();
+            AudioEvents.TriggerSound3D("Other", "Doors", "Unlocked", transform.position);
             return true;
         }
 
         if (!PlayerKeyInventory.Has(requiredKey))
         {
             Debug.Log($"[{name}] Can chia {requiredKey} de mo cua.", this);
+            AudioEvents.TriggerSound3D("Other", "Doors", "Locked", transform.position);
 
             // TODO: bật lại khi scene có SoundManager
             // SoundManager.Instance.PlaySound3D("Others", "DoorKeyRequired", transform.position);
@@ -112,6 +114,7 @@ public class RoomDoor : MonoBehaviour
     {
         // Cua khoa chua duoc mo bang chia: khong cho Open() (ke ca RoomSpawnController).
         if (requiredKey != KeyType.None && !keyRequirementMet)
+            AudioEvents.TriggerSound3D("Other", "Doors", "Locked", transform.position);
             return;
 
         if (isOpen) return;
@@ -119,6 +122,7 @@ public class RoomDoor : MonoBehaviour
 
         // TODO: bật lại khi scene có SoundManager
         // SoundManager.Instance.PlaySound3D("Others", "DoorOpen", transform.position);
+        AudioEvents.TriggerSound3D("Other", "Doors", "Open", transform.position);
 
         if (openSequenceRoutine != null)
         {
@@ -184,6 +188,7 @@ public class RoomDoor : MonoBehaviour
         if (isOpen)
         {
             if (anim != null) anim.SetTrigger("Close");
+            AudioEvents.TriggerSound3D("Other", "Doors", "Close", transform.position);
         }
 
         isOpen = false;
