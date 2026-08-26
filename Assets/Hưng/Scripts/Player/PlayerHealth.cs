@@ -132,6 +132,10 @@ namespace HeartOfTheNight.Player
         {
             if (_isDead) return;
             _isDead = true;
+
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                HeartOfTheNight.Hung.DataManager.Instance.PauseLevelTimer();
+
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
             OnDeath?.Invoke();
             StartCoroutine(DieRoutine());           

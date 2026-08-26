@@ -7,7 +7,7 @@ namespace HeartOfTheNight.Hung
     public class ScenePlayTimeEntry
     {
         public string sceneName;
-        /// <summary>Tổng giây đã chơi trong scene này (sẽ dùng ở bước sau).</summary>
+        /// <summary>Số giây đã chơi trong màn này, không tính lúc nằm chết chờ hồi sinh.</summary>
         public float playSeconds;
     }
 
@@ -79,6 +79,34 @@ namespace HeartOfTheNight.Hung
             EnsureLists();
             if (!clearedRooms.Contains(roomId))
                 clearedRooms.Add(roomId);
+        }
+
+        /// <summary>
+        /// DataManager giữ luôn reference trả về để cộng giây mỗi frame mà không phải quét lại list.
+        /// </summary>
+        public ScenePlayTimeEntry GetOrCreateScenePlayTime(string sceneName)
+        {
+            if (string.IsNullOrEmpty(sceneName)) return null;
+
+            ScenePlayTimeEntry entry = FindScenePlayTime(sceneName);
+            if (entry != null) return entry;
+
+            entry = new ScenePlayTimeEntry { sceneName = sceneName, playSeconds = 0f };
+            scenePlayTimes.Add(entry);
+            return entry;
+        }
+
+        private ScenePlayTimeEntry FindScenePlayTime(string sceneName)
+        {
+            if (string.IsNullOrEmpty(sceneName)) return null;
+
+            EnsureLists();
+            for (int i = 0; i < scenePlayTimes.Count; i++)
+            {
+                if (scenePlayTimes[i] != null && scenePlayTimes[i].sceneName == sceneName)
+                    return scenePlayTimes[i];
+            }
+            return null;
         }
 
         public void CaptureCheckpointWorldState()
