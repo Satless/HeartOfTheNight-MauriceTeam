@@ -60,13 +60,14 @@ namespace HeartOfTheNight.Player
                 _currentHealth = 100;
             }
 
-            // Đồng bộ vào DataManager để UI hoặc Save/Load khác đọc
-            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // Continue / respawn sẽ ghi máu từ save — đừng đè max lên RAM trước đó.
+            if (HeartOfTheNight.Hung.DataManager.Instance != null
+                && !HeartOfTheNight.Hung.DataManager.Instance.IsApplyingSpawnRestore)
             {
                 HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
             }
-
-            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         /// <summary>
@@ -101,7 +102,9 @@ namespace HeartOfTheNight.Player
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
-            
+            AudioEvents.TriggerSound3D("Player", "Hurt", "n", transform.position);
+
+
             // Hiển thị số sát thương nhảy lên đầu Player (Màu thường)
             HeartOfTheNight.UI.DamagePopup.Create(transform.position + Vector3.up * 0.5f, amount);
             
@@ -121,6 +124,7 @@ namespace HeartOfTheNight.Player
             {
                 Die();
                 //SoundManager.Instance.PlaySound3D("Player", "Death", transform.position);
+                AudioEvents.TriggerSound3D("Player", "Die", "n", transform.position);
             }
         }
 
@@ -128,9 +132,13 @@ namespace HeartOfTheNight.Player
         {
             if (_isDead) return;
             _isDead = true;
+
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                HeartOfTheNight.Hung.DataManager.Instance.PauseLevelTimer();
+
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
             OnDeath?.Invoke();
-            StartCoroutine(DieRoutine());
+            StartCoroutine(DieRoutine());           
         }
 
         private IEnumerator DieRoutine()
@@ -153,7 +161,8 @@ namespace HeartOfTheNight.Player
                 anim.TriggerDeath();
 
             float delay = _deathScreenDelay > 0f ? _deathScreenDelay : 2f;
-            yield return new WaitForSeconds(delay);
+            Time.timeScale = 1f;
+            yield return new WaitForSecondsRealtime(delay);
 
             var deadScreen = UnityEngine.Object.FindFirstObjectByType<DeadScreenUI>(FindObjectsInactive.Include);
             if (deadScreen != null)
@@ -183,6 +192,8 @@ namespace HeartOfTheNight.Player
             _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
             SyncDataAndNotify();
             Debug.Log($"[PlayerHealth] Player được hồi <color=green>{amount}</color> máu. Máu hiện tại: <color=green>{_currentHealth}/{_maxHealth}</color>");
+
+            AudioEvents.TriggerSound3D("Effects", "Heal", "Normal", transform.position);
         }
 
         /// <summary>
@@ -193,6 +204,8 @@ namespace HeartOfTheNight.Player
             _currentHealth = _maxHealth;
             SyncDataAndNotify();
             Debug.Log($"[PlayerHealth] Player được hồi <color=green>ĐẦY MÁU</color>. Máu hiện tại: <color=green>{_currentHealth}/{_maxHealth}</color>");
+
+            AudioEvents.TriggerSound3D("Effects", "Heal", "Full", transform.position);
         }
 
         /// <summary>
@@ -208,6 +221,8 @@ namespace HeartOfTheNight.Player
             // Không cộng _currentHealth — chỉ nâng trần, để người chơi tự hồi máu
             SyncDataAndNotify();
             Debug.Log($"[PlayerHealth] Max máu tăng <color=cyan>+{amount}</color>. Máu hiện tại: <color=green>{_currentHealth}/{_maxHealth}</color>");
+
+            AudioEvents.TriggerSound3D("Effects", "Heal", "MaxHealthIncrease", transform.position);
         }
 
         /// <summary>
@@ -223,6 +238,8 @@ namespace HeartOfTheNight.Player
             _currentHealth = Mathf.Min(_currentHealth, _maxHealth); // Kéo máu hiện tại xuống nếu bị lố
             SyncDataAndNotify();
             Debug.Log($"[PlayerHealth] Max máu giảm <color=red>-{amount}</color>. Máu hiện tại: <color=green>{_currentHealth}/{_maxHealth}</color>");
+
+            AudioEvents.TriggerSound3D("Effects", "Heal", "MaxHealthDecrease", transform.position);
         }
 
 #if UNITY_EDITOR

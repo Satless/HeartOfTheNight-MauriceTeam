@@ -80,7 +80,9 @@ public class CollectibleItem : MonoBehaviour
         IsCollected = true;
         
         if (data == null) return;
-        
+
+        AudioEvents.TriggerSound3D("Player", "CollectItems", "n", transform.position);
+
         // TODO: Liên kết với hệ thống máu/tiền thực tế của người chơi.
         // Ví dụ:
         // player.GetComponent<PlayerStats>().AddCoin(data.value);

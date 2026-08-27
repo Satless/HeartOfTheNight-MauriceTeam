@@ -3,8 +3,7 @@ using UnityEngine;
 namespace HeartOfTheNight.UI
 {
     /// <summary>
-    /// Trạng thái đăng nhập tạm (PlayerPrefs) — Google thật gắn sau.
-    /// AuthScene ghi, Settings trên mainMenu đọc.
+    /// Trạng thái đăng nhập (PlayerPrefs). AuthScene / Firebase Google ghi, Settings trên mainMenu đọc.
     /// </summary>
     public static class AuthSession
     {

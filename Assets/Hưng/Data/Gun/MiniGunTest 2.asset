@@ -25,6 +25,7 @@ MonoBehaviour:
   bulletPrefab: {fileID: 0}
   weaponAnimator: {fileID: 9100000, guid: f786475421da09748b6dbb9b883c7a91, type: 2}
   fireAnimationClip: {fileID: 7400000, guid: 6582aefd7577f9f4999147fb9fec8838, type: 2}
+  autoSyncAnimSpeed: 1
   isExplosive: 0
   explosionRadius: 0
   explosionDamage: 0
@@ -38,5 +39,6 @@ MonoBehaviour:
   hitVfxPrewarmCount: 0
   canOverheat: 1
   heatPerShot: 12
-  fireSoundName: Machine gun
-  explosionSoundName: 
+  audioCategoryID: Weapons
+  audioSubCategoryID: MachineGun
+  fireActionName: Shoot

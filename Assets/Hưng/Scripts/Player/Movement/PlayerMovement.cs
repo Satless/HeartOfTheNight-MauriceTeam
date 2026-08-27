@@ -229,58 +229,59 @@ namespace HeartOfTheNight.Player
 	private float _footstepTimer;
     private float _slideSoundTimer; // thời gian để chạy sfx
 	private float _wallClimbTimer;
+	private bool _wasGroundedLastFrame;
     #endregion
 
 
         // -------------------------------------------------------------------------
 
-        private void Awake()
-	{
-		RB = GetComponent<Rigidbody2D>();
-		_animation = GetComponent<PlayerAnimation>();
-		_playerColliders = GetComponentsInChildren<Collider2D>();
-
-		// Cache coroutine wait — Zero GC Alloc
-		_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
-		_sleepWait = new WaitForSecondsRealtime(Data.dashSleepTime);  //Phải dùng Realtime vì timeScale = 0
-		
-		_groundFilter.useTriggers = false;
-		_groundFilter.SetLayerMask(_groundLayer);
-		_groundFilter.useLayerMask = true;
-		
-		_input = new InputSystem_Actions();
-
-		_input.Player.Jump.started += (InputAction.CallbackContext context) => 
+			private void Awake()
 		{
-			_isPressingJump = true;
-			if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
+			RB = GetComponent<Rigidbody2D>();
+			_animation = GetComponent<PlayerAnimation>();
+			_playerColliders = GetComponentsInChildren<Collider2D>();
+
+			// Cache coroutine wait — Zero GC Alloc
+			_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
+			_sleepWait = new WaitForSecondsRealtime(Data.dashSleepTime);  //Phải dùng Realtime vì timeScale = 0
+		
+			_groundFilter.useTriggers = false;
+			_groundFilter.SetLayerMask(_groundLayer);
+			_groundFilter.useLayerMask = true;
+		
+			_input = new InputSystem_Actions();
+
+			_input.Player.Jump.started += (InputAction.CallbackContext context) => 
 			{
-				LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
-				_ignoredPlatform = platform;
-				TransitionToState(PlayerState.DroppingThrough);
-			}
-			else
+				_isPressingJump = true;
+				if (_moveInput.y < -0.1f && TryGetOneWayPlatformBelow(out Collider2D platform))
+				{
+					LastPressedJumpTime = 0; // Xóa buffer nhảy, tránh kẹt nhảy đôi
+					_ignoredPlatform = platform;
+					TransitionToState(PlayerState.DroppingThrough);
+				}
+				else
+				{
+					OnJumpInput();
+				}
+			};
+			_input.Player.Jump.canceled += (InputAction.CallbackContext context) => 
 			{
-				OnJumpInput();
-			}
-		};
-		_input.Player.Jump.canceled += (InputAction.CallbackContext context) => 
-		{
-			_isPressingJump = false;
-			OnJumpUpInput();
-		};
+				_isPressingJump = false;
+				OnJumpUpInput();
+			};
 		
-		_input.Player.Dash.started += (InputAction.CallbackContext context) => 
-		{
-			_isPressingDash = true;
-			OnDashInput();
-		};
+			_input.Player.Dash.started += (InputAction.CallbackContext context) => 
+			{
+				_isPressingDash = true;
+				OnDashInput();
+			};
 
-		_input.Player.Dash.canceled += (InputAction.CallbackContext context) => 
-		{
-			_isPressingDash = false;
-		};
-	}
+			_input.Player.Dash.canceled += (InputAction.CallbackContext context) => 
+			{
+				_isPressingDash = false;
+			};
+		}
 
 	private void OnEnable() => _input.Enable();
 	private void OnDisable() => _input.Disable();
@@ -311,6 +312,19 @@ namespace HeartOfTheNight.Player
 		HandleDashChecks();
 		HandleSlideChecks();
 		HandleGravity();
+
+
+		bool isGrounded = LastOnGroundTime > 0;
+
+		// BẮT SỰ KIỆN ĐÁP ĐẤT: Frame trước đang ở trên không (false), frame này đã chạm đất (true)
+		if (isGrounded && !_wasGroundedLastFrame)
+			{
+				// Phát tiếng đáp đất 3D tại vị trí chân/người chơi
+				AudioEvents.TriggerSound3D("Player", "Land", "n", transform.position);
+			}
+
+		// Cập nhật lại trạng thái cho frame tiếp theo
+    	_wasGroundedLastFrame = isGrounded;
     }
 
     private void FixedUpdate()
@@ -640,7 +654,9 @@ namespace HeartOfTheNight.Player
     {
 		Time.timeScale = 0; // Dừng toàn bộ game (vật lý, animation, timer)
 		yield return _sleepWait; // Chờ dashSleepTime giây THỰC (dùng WaitForSecondsRealtime vì timeScale = 0)
-		Time.timeScale = 1; // Trả game về tốc độ bình thường
+		var hp = GetComponent<PlayerHealth>();
+		if (hp == null || !hp.IsDead)
+			Time.timeScale = 1;
 	}
     #endregion
 
@@ -847,12 +863,13 @@ namespace HeartOfTheNight.Player
 		movement = Mathf.Clamp(movement, -Mathf.Abs(speedDif)  * (1 / Time.fixedDeltaTime), Mathf.Abs(speedDif) * (1 / Time.fixedDeltaTime));
 		RB.AddForce(movement * Vector2.up);
 
-        //_slideSoundTimer -= Time.fixedDeltaTime;
-        //if (_slideSoundTimer <= 0f)
-        //{
-        //    SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
-        //    _slideSoundTimer = 0.2f; // Phát lại sau mỗi 0.2s
-        //}
+        _slideSoundTimer -= Time.fixedDeltaTime;
+        if (_slideSoundTimer <= 0f)
+        {
+            //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+			AudioEvents.TriggerSound3D("Player", "Slide", "n", transform.position);
+            _slideSoundTimer = 0.2f; // Phát lại sau mỗi 0.2s
+        }
     }
 
 	private void WallClimb()
@@ -1179,8 +1196,3 @@ namespace HeartOfTheNight.Player
 }
 
 // tạo bởi Dawnosaur :D
-
-// dùng SoundManager.Instance.PlaySound3D("Name","Feature", transform.position); để cho thêm sfx
-// Name thay bằng thể loại (Player, Weapons,...)
-// Feature thay bẳng thuộc tính của nó (slide, dash,...)
-//		-Huy

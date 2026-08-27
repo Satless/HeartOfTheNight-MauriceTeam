@@ -39,25 +39,25 @@ public class SoundManager_New : MonoBehaviour
         AudioEvents.OnPlaySound3D -= PlaySound3D;
     }
 
-    private bool IsCooldownFinished(string categoryID, string subCategoryID, string actionName)
-    {
-        string key = $"{categoryID}_{subCategoryID}_{actionName}";
+    //private bool IsCooldownFinished(string categoryID, string subCategoryID, string actionName)
+    //{
+    //    string key = $"{categoryID}_{subCategoryID}_{actionName}";
 
-        if (lastPlayTimes.TryGetValue(key, out float lastTime))
-        {
-            if (Time.time - lastTime < defaultCooldown)
-            {
-                return false;
-            }
-        }
+    //    if (lastPlayTimes.TryGetValue(key, out float lastTime))
+    //    {
+    //        if (Time.time - lastTime < defaultCooldown)
+    //        {
+    //            return false;
+    //        }
+    //    }
 
-        lastPlayTimes[key] = Time.time;
-        return true;
-    }
+    //    lastPlayTimes[key] = Time.time;
+    //    return true;
+    //}
 
     public void PlaySound3D(string categoryID, string subCategoryID, string actionName, Vector3 pos)
     {
-        if (!IsCooldownFinished(categoryID, subCategoryID, actionName)) return;
+        //if (!IsCooldownFinished(categoryID, subCategoryID, actionName)) return;
 
         AudioClip clip = sfxLibrary.GetClipFromName(categoryID, subCategoryID, actionName);
         if (clip != null)
@@ -68,7 +68,7 @@ public class SoundManager_New : MonoBehaviour
 
     public void PlaySound2D(string categoryID, string subCategoryID, string actionName)
     {
-        if (!IsCooldownFinished(categoryID, subCategoryID, actionName)) return;
+        //if (!IsCooldownFinished(categoryID, subCategoryID, actionName)) return;
 
         AudioClip clip = sfxLibrary.GetClipFromName(categoryID, subCategoryID, actionName);
         if (clip != null)
