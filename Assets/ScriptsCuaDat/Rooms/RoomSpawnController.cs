@@ -56,6 +56,30 @@ namespace HeartOfTheNight.Rooms
         private int currentWaveIndex = -1;
         private bool isSpawning;
 
+        public bool IsCleared => state == RoomState.Cleared;
+
+        public int CountPlannedEnemies()
+        {
+            int count = 0;
+            if (waves == null)
+                return 0;
+
+            for (int w = 0; w < waves.Count; w++)
+            {
+                var wave = waves[w];
+                if (wave?.enemies == null)
+                    continue;
+
+                for (int i = 0; i < wave.enemies.Count; i++)
+                {
+                    if (wave.enemies[i] != null && wave.enemies[i].enemyPrefab != null)
+                        count++;
+                }
+            }
+
+            return count;
+        }
+
         private void Reset()
         {
             var col = GetComponent<Collider2D>();
@@ -224,6 +248,7 @@ namespace HeartOfTheNight.Rooms
             GameObject enemy = Instantiate(entry.enemyPrefab, pos, rot);
             enemy.SetActive(true); // Thêm dòng này
             aliveEnemies.Add(enemy);
+            LevelStatsTracker.BindSpawnedEnemy(enemy);
 
             if (spawnVfxPrefab != null)
             {
@@ -245,6 +270,11 @@ namespace HeartOfTheNight.Rooms
         {
             if (enemy == null) yield break;
 
+            // Cho Awake/Start chạy xong (gán currentHealth = maxHealth) rồi mới freeze.
+            // Nếu disable ngay frame spawn, health bar đọc HP = 0 và tưởng quái đã chết.
+            yield return null;
+            if (enemy == null) yield break;
+
             // Boss: khong disable script (tranh restart AttackLoop). Chi bao delay dung yen.
             var boss = enemy.GetComponent<HeartOfTheNight.Enemy.HeartOfTheNightBoss>();
             if (boss != null)
@@ -261,6 +291,7 @@ namespace HeartOfTheNight.Rooms
             foreach (var s in scripts)
             {
                 if (s == null || !s.enabled) continue;
+                if (s is AutoUniversalHealthBar) continue;
                 if (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine"))
                 {
                     s.enabled = false;

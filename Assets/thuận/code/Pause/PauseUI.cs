@@ -266,6 +266,9 @@ public class PauseUI : MonoBehaviour
         if (dead != null && dead.gameObject.activeInHierarchy)
             return false;
 
+        if (LevelCompleteUI.IsShowing)
+            return false;
+
         var player = FindFirstObjectByType<PlayerHealth>();
         if (player != null && player.IsDead)
             return false;
