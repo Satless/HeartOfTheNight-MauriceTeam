@@ -156,8 +156,28 @@ public class PauseUI : MonoBehaviour
         ApplyResume(restoreGameplay: true);
     }
 
+    /// <summary>
+    /// Đóng Pause khi chết / DeadScreen — không Resume đồng hồ (DataManager đang treo vì chết).
+    /// </summary>
+    public void DismissForExternalFlow()
+    {
+        if (!IsPaused)
+        {
+            HideImmediate();
+            return;
+        }
+
+        IsPaused = false;
+        HideImmediate();
+        AudioListener.pause = false;
+        UnfreezeGameplay();
+    }
+
     public void GoHome()
     {
+        if (DataManager.Instance != null)
+            DataManager.Instance.SaveBeforeLeaveLevel();
+
         ApplyResume(restoreGameplay: false);
         string scene = string.IsNullOrEmpty(homeSceneName) ? HomeSceneFallback : homeSceneName;
 
@@ -169,6 +189,9 @@ public class PauseUI : MonoBehaviour
 
     public void ExitGame()
     {
+        if (DataManager.Instance != null)
+            DataManager.Instance.SaveBeforeLeaveLevel();
+
         ApplyResume(restoreGameplay: false);
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
