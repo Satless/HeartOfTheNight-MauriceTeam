@@ -1933,7 +1933,7 @@ PrefabInstance:
     - target: {fileID: 1553343613902458788, guid: dd1148839ccb6d841ae9a49448b66d0a, type: 3}
       propertyPath: waves.Array.data[0].enemies.Array.data[0].enemyPrefab
       value: 
-      objectReference: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
+      objectReference: {fileID: 6691004467952687102, guid: f2436589a0b1c2d3e4f5030102030405, type: 3}
     - target: {fileID: 1553343613902458788, guid: dd1148839ccb6d841ae9a49448b66d0a, type: 3}
       propertyPath: waves.Array.data[0].enemies.Array.data[1].enemyPrefab
       value: 
@@ -2628,7 +2628,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 712883751758240527, guid: a5dcdaebc1670be4ca69205b58333423, type: 3}
       propertyPath: requiredKey
-      value: 2
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 712883751758240527, guid: a5dcdaebc1670be4ca69205b58333423, type: 3}
+      propertyPath: consumeKeyOnUnlock
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1591988621925412917, guid: a5dcdaebc1670be4ca69205b58333423, type: 3}
       propertyPath: m_Name

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
+  m_Name: SuperShortGun
+  m_EditorClassIdentifier: 
+  fireRate: 1
+  bulletSpeed: 30
+  damage: 100
+  bulletLifetime: 3
+  bulletsPerShot: 1
+  spreadAngle: 0
+  isVerticalSpread: 0
+  verticalSpacing: 0.1
+  weaponIcon: {fileID: 4520534605117103963, guid: 66fe0a11f5f391e49955300e6cd8543e, type: 3}
+  animationSpeedMultiplier: 1
+  bulletPrefab: {fileID: 6752507138775695956, guid: 428f2adafec4cb8428a319a29b22cfb5, type: 3}
+  weaponAnimator: {fileID: 9100000, guid: 24753ce35aeb5c848906cf9cbba73edc, type: 2}
+  fireAnimationClip: {fileID: 7400000, guid: f5fc55ddd3b31c645bc9088ac1216515, type: 2}
+  autoSyncAnimSpeed: 0
+  isExplosive: 1
+  explosionRadius: 2.5
+  explosionDamage: 25
+  statusEffect: {fileID: 0}
+  pierceCount: 0
+  isContinuousFire: 0
+  continuousVfxPrefab: {fileID: 0}
+  knockbackForce: 0
+  explosionKnockbackForce: 0
+  bulletPrewarmCount: 2
+  hitVfxPrewarmCount: 2
+  canOverheat: 1
+  heatPerShot: 50
+  audioCategoryID: Weapons
+  audioSubCategoryID: SuperShotgun
+  fireActionName: Shoot

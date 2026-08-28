@@ -28,6 +28,7 @@ public class KamikazeEnemy : MonoBehaviour
     private bool exploding;
     private bool dead;
 
+    private float moveSoundTimer;
     private void Awake()
     {
         currentHP = maxHP;
@@ -68,6 +69,15 @@ public class KamikazeEnemy : MonoBehaviour
                 player.position,
                 moveSpeed * Time.deltaTime);
 
+
+            moveSoundTimer -= Time.fixedDeltaTime;
+            if (moveSoundTimer <= 0f)
+            {
+                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+                AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Move", transform.position);
+                moveSoundTimer = 0.5f; // Phát lại sau mỗi 0.3s
+            }
+
             // Lật hướng
             if (player.position.x > transform.position.x)
                 transform.localScale = new Vector3(1, 1, 1);
@@ -83,6 +93,8 @@ public class KamikazeEnemy : MonoBehaviour
     IEnumerator Explode()
     {
         exploding = true;
+
+        AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Attack", transform.position);
 
         // Dừng di chuyển và nhấp nháy trắng trong 1.5 giây
         float timer = 0f;
@@ -143,10 +155,13 @@ public class KamikazeEnemy : MonoBehaviour
             return;
 
         currentHP -= damageTaken;
+        AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Hurt", transform.position);
 
         if (currentHP <= 0)
         {
             dead = true;
+
+            AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Die", transform.position);
 
             StopAllCoroutines();
 

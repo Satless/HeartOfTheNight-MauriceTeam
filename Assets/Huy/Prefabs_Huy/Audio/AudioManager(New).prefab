@@ -16,7 +16,7 @@ GameObject:
   m_Layer: 0
   m_Name: AudioManager(New)
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -108,30 +108,52 @@ MonoBehaviour:
       - actionID: StopDrag
         clips:
         - {fileID: 8300000, guid: 7f2f29a65c39e4b4bad5cf5ad110c354, type: 3}
+    - subCategoryID: Map
+      actions:
+      - actionID: Open
+        clips:
+        - {fileID: 8300000, guid: a0825e5d2d739464c9ea8bd028c35010, type: 3}
+      - actionID: Close
+        clips:
+        - {fileID: 8300000, guid: b66dbb17c682d184a96e07606fe60c67, type: 3}
   - categoryID: Player
     subCategories:
     - subCategoryID: Move
       actions:
-      - actionID: n
+      - actionID: n1
         clips:
         - {fileID: 8300000, guid: 5034f5c8583f4574c8d71cdcbdddfc63, type: 3}
         - {fileID: 8300000, guid: aa0f74e9f4286c0448c4bc2944dd95e4, type: 3}
         - {fileID: 8300000, guid: b49eebe962e7c97408c0b722458cd432, type: 3}
         - {fileID: 8300000, guid: ae79dcfd1dfff284cb320e462e313db4, type: 3}
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: 5ccc0e84ed71cab4cb98576c738ac3bd, type: 3}
     - subCategoryID: Jump
       actions:
       - actionID: n
         clips:
         - {fileID: 8300000, guid: 590341818be55674b81baad4192df565, type: 3}
+    - subCategoryID: Land
+      actions:
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: b4d66fde372e6e741823074d80e6e110, type: 3}
     - subCategoryID: Dash
       actions:
       - actionID: n
         clips:
         - {fileID: 8300000, guid: b872fd576d4cdec4ebc3597748c7f403, type: 3}
+    - subCategoryID: Slide
+      actions:
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: 0b6d0a7de2fcee94ea2a7bea3af71674, type: 3}
     - subCategoryID: StopDash
       actions:
       - actionID: n
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 2c4e38cdefd05574fb25c37ee1ecd838, type: 3}
     - subCategoryID: WallClimb
       actions:
       - actionID: n
@@ -144,7 +166,14 @@ MonoBehaviour:
       actions:
       - actionID: n
         clips:
-        - {fileID: 8300000, guid: e7784806bc4655947a32eaca08f0abfe, type: 3}
+        - {fileID: 8300000, guid: 99336c9c9d10411489902734606a73e8, type: 3}
+    - subCategoryID: CollectItems
+      actions:
+      - actionID: n
+        clips:
+        - {fileID: 8300000, guid: a9e0678a0084b754ab6220373b1194e5, type: 3}
+        - {fileID: 8300000, guid: 76d8460bd7e4eb845bac2eb6e962cb45, type: 3}
+        - {fileID: 8300000, guid: 5d355b6fc68d6ff4a8a04c786f1719ac, type: 3}
     - subCategoryID: Hurt
       actions:
       - actionID: n
@@ -162,29 +191,293 @@ MonoBehaviour:
         - {fileID: 8300000, guid: 744e23c4d2d76884c8610f7b56202f82, type: 3}
         - {fileID: 8300000, guid: 8a3d19f61b03e1144855e7077c26cbf8, type: 3}
   - categoryID: Enemy
-    subCategories: []
+    subCategories:
+    - subCategoryID: General
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips: []
+      - actionID: Hurt
+        clips: []
+      - actionID: Die
+        clips: []
+    - subCategoryID: BigCorpse
+      actions:
+      - actionID: Idle
+        clips:
+        - {fileID: 8300000, guid: 38e4d7a4928bb064592c2f417bba238b, type: 3}
+        - {fileID: 8300000, guid: e68e89959dd3d4e4faaf16c8b46739bd, type: 3}
+      - actionID: Move
+        clips:
+        - {fileID: 8300000, guid: be66339f0dbcb534a8e844c02078bff7, type: 3}
+        - {fileID: 8300000, guid: 9c8db61554a034949b22d832e5bc0a89, type: 3}
+      - actionID: Attack
+        clips:
+        - {fileID: 8300000, guid: b9674cfa0bdede243b0b1c02216a05c7, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: d4e8a6d46580d9849b2b1a08a220a93e, type: 3}
+        - {fileID: 8300000, guid: 3e399c815e7cbdb4f9f35735927d2054, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: 3e399c815e7cbdb4f9f35735927d2054, type: 3}
+    - subCategoryID: BurningCorpse
+      actions:
+      - actionID: Idle
+        clips:
+        - {fileID: 8300000, guid: 1a7f22b0b070ccf4dbbf181ef5246cf2, type: 3}
+      - actionID: Move
+        clips:
+        - {fileID: 8300000, guid: d360266dc6e6f9f4ca6adbe0fb5755ed, type: 3}
+        - {fileID: 8300000, guid: 63f08ef27139bb647bcbcee050eaed9a, type: 3}
+      - actionID: Attack
+        clips:
+        - {fileID: 8300000, guid: ff3693c1bf20ec845ae49f40aef51814, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: 7b8eadb82bb8bf94e93b0a0a7d05c3fc, type: 3}
+        - {fileID: 8300000, guid: 7862b7a8f3a23df488346e1faf44aa90, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: 1aaaaaaf11551c649b2408d2bfae4ba6, type: 3}
+        - {fileID: 8300000, guid: e2c321d1dcc6a344d81d843f5e741505, type: 3}
+    - subCategoryID: Cultist
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips:
+        - {fileID: 8300000, guid: ae79dcfd1dfff284cb320e462e313db4, type: 3}
+      - actionID: Attack
+        clips:
+        - {fileID: 8300000, guid: 3efccf4b32d31f84692758bdc2834c56, type: 3}
+        - {fileID: 8300000, guid: 3f92b5ea892942d408cab56331b4b9f9, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: c5b583bb2f605cc43a3be285d2114965, type: 3}
+        - {fileID: 8300000, guid: 9f4cb28bb74b5a24c897319b6b1d954d, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: 93a8a68bbe0ef0245b6a38963ad7d378, type: 3}
+    - subCategoryID: Demon
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips: []
+      - actionID: Hurt
+        clips: []
+      - actionID: Die
+        clips: []
+    - subCategoryID: LivingFurnace
+      actions:
+      - actionID: Idle
+        clips:
+        - {fileID: 8300000, guid: f2a0ad7e078016046a391ed35533e624, type: 3}
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips:
+        - {fileID: 8300000, guid: 124880c9483582a46a276f43e57d424e, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: b9461086255918643bb83a7db15c4523, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: 11d9a9956f8bdee4f9153f25ccdcaae5, type: 3}
+    - subCategoryID: Husk
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips: []
+      - actionID: Hurt
+        clips: []
+      - actionID: Die
+        clips: []
+    - subCategoryID: Inquisitor
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips: []
+      - actionID: Hurt
+        clips: []
+      - actionID: Die
+        clips: []
+    - subCategoryID: Kamikaze
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips:
+        - {fileID: 8300000, guid: 53d955672b2050d45a1d8a03059edbd8, type: 3}
+      - actionID: Attack
+        clips:
+        - {fileID: 8300000, guid: 7335a94b25c2e5047b96eefcfffdbbf0, type: 3}
+        - {fileID: 8300000, guid: f91d0840c02e723428b67299a4796c93, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: 11ca4f7ceb9329840a543d53ada8faf2, type: 3}
+        - {fileID: 8300000, guid: 06d1dac884be9cb489ca5e6b3a9a8226, type: 3}
+        - {fileID: 8300000, guid: f19947e09befcad4b83b8722bd884946, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: c9c54dbf876f77c4d8a587e2faf7990e, type: 3}
+        - {fileID: 8300000, guid: 0b35e4feeb307a74babefce19c9e7ea6, type: 3}
+    - subCategoryID: Wrath
+      actions:
+      - actionID: Idle
+        clips:
+        - {fileID: 8300000, guid: 89dd0a51e0cee8445ae42559585150f0, type: 3}
+        - {fileID: 8300000, guid: 85d4450d13806be4782ea970f0ff43ae, type: 3}
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips:
+        - {fileID: 8300000, guid: 1900ae275c2d97f4eb696039c015e119, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: de80e67d88b12d247b23ed3179d368fc, type: 3}
+        - {fileID: 8300000, guid: 29f8995a1d4796d4c84b23666c0186f6, type: 3}
+        - {fileID: 8300000, guid: a9fe483105562ac49b22c71252328893, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: e9e6b63a47ecad54eb36061881f196c7, type: 3}
+    - subCategoryID: Automation
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips: []
+      - actionID: Attack
+        clips: []
+      - actionID: Hurt
+        clips: []
+      - actionID: Die
+        clips: []
+    - subCategoryID: Doombringer
+      actions:
+      - actionID: Idle
+        clips: []
+      - actionID: Move
+        clips: []
+      - actionID: Barrage
+        clips: []
+      - actionID: Laser
+        clips:
+        - {fileID: 8300000, guid: 635f4f4c1ced9dd4aa5ed56d5b076b73, type: 3}
+        - {fileID: 8300000, guid: 4886586825a45714691ffbb16a594c5f, type: 3}
+      - actionID: FirePillar
+        clips:
+        - {fileID: 8300000, guid: 9028bdd6a659ddc4da2128ef97cb8ba4, type: 3}
+      - actionID: Summon
+        clips:
+        - {fileID: 8300000, guid: d386c38dd1b014d4f850e2b7ce363f32, type: 3}
+      - actionID: Enrage
+        clips:
+        - {fileID: 8300000, guid: b27f5d5da5f30a3479f0a9f4caaac1c5, type: 3}
+      - actionID: Hurt
+        clips:
+        - {fileID: 8300000, guid: d3bc572ffc3e1764d8c5f3f12dfda07c, type: 3}
+        - {fileID: 8300000, guid: 604631912e6c5f14ebc2f204ea323ce8, type: 3}
+        - {fileID: 8300000, guid: d0f9b5b929b752c468d012508e6e64b5, type: 3}
+      - actionID: Die
+        clips:
+        - {fileID: 8300000, guid: 38bb36d2eed04f9499c8afa215c2db00, type: 3}
+  - categoryID: Effects
+    subCategories:
+    - subCategoryID: Heal
+      actions:
+      - actionID: Normal
+        clips:
+        - {fileID: 8300000, guid: 68daf2e961521ef4c8cf76f4a698ad19, type: 3}
+      - actionID: Full
+        clips:
+        - {fileID: 8300000, guid: 76976538ff4e6e14fbb55dedfc20ecab, type: 3}
+      - actionID: MaxHealthIncrease
+        clips:
+        - {fileID: 8300000, guid: b6e775ca91b06e54ab06d71dc1222441, type: 3}
+      - actionID: MaxHealthDecrease
+        clips:
+        - {fileID: 8300000, guid: fe0c1f9b97c0e674ba6fad361c1da365, type: 3}
   - categoryID: Weapons
     subCategories:
     - subCategoryID: Pistol
-      actions: []
+      actions:
+      - actionID: Shoot
+        clips:
+        - {fileID: 8300000, guid: 6ebf605377f1bf545a37503aa58ca720, type: 3}
     - subCategoryID: Shotgun
-      actions: []
-    - subCategoryID: FlameThrower
-      actions: []
-    - subCategoryID: Explosive
-      actions: []
+      actions:
+      - actionID: Shoot
+        clips:
+        - {fileID: 8300000, guid: 7f4cfec8338c38d479e0c3a926af9fbe, type: 3}
+    - subCategoryID: SuperShotgun
+      actions:
+      - actionID: Shoot
+        clips:
+        - {fileID: 8300000, guid: 7f4cfec8338c38d479e0c3a926af9fbe, type: 3}
+    - subCategoryID: MachineGun
+      actions:
+      - actionID: Shoot
+        clips:
+        - {fileID: 8300000, guid: 4ae18c6b41140c547be12b6e6cf27289, type: 3}
+    - subCategoryID: Flamethrower
+      actions:
+      - actionID: Shoot
+        clips:
+        - {fileID: 8300000, guid: 10da40ad655079f4eb8827c19f6fdbe8, type: 3}
     - subCategoryID: Bullets
-      actions: []
-    - subCategoryID: Cooldown
+      actions:
+      - actionID: Explosive
+        clips:
+        - {fileID: 8300000, guid: 971d33f9f5bb9a3479bfbca79e95b3b7, type: 3}
+        - {fileID: 8300000, guid: 3d5ccdd577fa4e9478e4edade63e2145, type: 3}
+      - actionID: Normal
+        clips: []
+    - subCategoryID: Overheat
       actions:
       - actionID: On
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: ca319ae43c3ba2a40adc2c5648db68d9, type: 3}
       - actionID: Off
         clips:
-        - {fileID: 8300000, guid: 333b92624d6a6cf40af81720df608e0a, type: 3}
-        - {fileID: 8300000, guid: c08b657129b672f45a9cbe3718b69c9b, type: 3}
+        - {fileID: 8300000, guid: bbd347bc48f21264c94a3f0c2cbaa44d, type: 3}
+        - {fileID: 8300000, guid: 5413db4f9e0d331418d3c50c4eb9c2b2, type: 3}
+    - subCategoryID: Action
+      actions:
+      - actionID: Equip
+        clips:
+        - {fileID: 8300000, guid: c5cc235b5ddbafd4ab3dcae09328046f, type: 3}
+      - actionID: Unequip
+        clips:
+        - {fileID: 8300000, guid: c99d5414df264b944b0bec74071a7287, type: 3}
   - categoryID: Other
-    subCategories: []
+    subCategories:
+    - subCategoryID: Doors
+      actions:
+      - actionID: Open
+        clips:
+        - {fileID: 8300000, guid: 5ea5f5bff85ef2b428f75f15a53fd42c, type: 3}
+      - actionID: Close
+        clips:
+        - {fileID: 8300000, guid: a6c80b339a65d70448c4b0799deae049, type: 3}
+      - actionID: Unlocked
+        clips:
+        - {fileID: 8300000, guid: 97683f56089925f408eb2e51b1a7522c, type: 3}
+      - actionID: Locked
+        clips:
+        - {fileID: 8300000, guid: f4eda0d16c9b6e34ebe4a4a15c40076a, type: 3}
 --- !u!114 &8397391069004391439
 MonoBehaviour:
   m_ObjectHideFlags: 0

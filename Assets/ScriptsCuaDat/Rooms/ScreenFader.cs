@@ -175,7 +175,24 @@ public class ScreenFader : MonoBehaviour
         SetLoadingVisible(true);
         float loadingShownAt = Time.realtimeSinceStartup;
 
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        AsyncOperation asyncLoad = null;
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogError($"[ScreenFader] Scene '{sceneName}' không có trong Build Settings.");
+            SetLoadingVisible(false);
+            yield return FadeIn(fadeDuration);
+            yield break;
+        }
+
+        try
+        {
+            asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[ScreenFader] LoadSceneAsync '{sceneName}' lỗi: {ex.Message}");
+        }
+
         if (asyncLoad == null)
         {
             Debug.LogError($"[ScreenFader] LoadSceneAsync failed for '{sceneName}'.");

@@ -52,7 +52,7 @@ public static class AuthLoginUICreator
             canvasGo.transform,
             "Popup_GuestConfirm",
             "warning",
-            "PLAY WITHOUT AN ACCOUNT? PROGRESS STAYS ON THIS DEVICE. SIGN IN LATER TO SYNC CLOUD SAVES.",
+            "PLAY WITHOUT A GOOGLE ACCOUNT? PROGRESS STAYS ON THIS DEVICE ONLY. THIS IS NOT YOUR GOOGLE CLOUD SAVE. TO LOAD SAVES FROM ANOTHER PC, SIGN IN WITH GOOGLE (NEEDS NETWORK).",
             "CONTINUE",
             "SIGN IN");
         guestPopup.SetActive(false);
@@ -61,7 +61,7 @@ public static class AuthLoginUICreator
             canvasGo.transform,
             "Popup_NetworkRequired",
             "network",
-            "NETWORK CONNECTION REQUIRED TO SIGN IN WITH GOOGLE. CHECK YOUR CONNECTION AND RETRY.",
+            "NO INTERNET. GOOGLE SAVES ARE TIED TO YOUR GMAIL (CLOUD). THIS PC CANNOT LOAD THEM WHILE OFFLINE. PLAY AS GUEST = A SEPARATE LOCAL SAVE ON THIS DEVICE. RETRY WHEN YOU HAVE NETWORK TO SIGN IN WITH GOOGLE.",
             "RETRY",
             "PLAY AS GUEST");
         networkPopup.SetActive(false);

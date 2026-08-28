@@ -31,6 +31,8 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
     // 1. FIX LỖI RỚT MAP: Khai báo thêm Rigidbody2D
     private Rigidbody2D rb;
 
+    private float idleSoundTimer;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -63,6 +65,17 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
                     StartCoroutine(SpawnWaveRoutine());
                 }
             }
+
+            else 
+            {
+                idleSoundTimer -= Time.fixedDeltaTime;
+                if (idleSoundTimer <= 0f)
+                {
+                    //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
+                    AudioEvents.TriggerSound3D("Player", "Slide", "n", transform.position);
+                    idleSoundTimer = 2f; // Phát lại sau mỗi 0.2s
+                }
+            }
         }
     }
 
@@ -72,6 +85,7 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
 
         yield return new WaitForSeconds(delayBetweenWaves);
 
+        AudioEvents.TriggerSound3D("Enemy", "LivingFurnace", "Attack", transform.position);
 
         if (isDead) yield break;
 
@@ -130,6 +144,9 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
         if (isDead) return;
 
         currentHealth -= damage;
+
+        AudioEvents.TriggerSound3D("Enemy", "LivingFurnace", "Hurt", transform.position);
+
         Debug.Log("Lò ấp bị chém! Máu: " + currentHealth + "/" + maxHealth);
 
         if (currentHealth <= 0)
@@ -141,6 +158,7 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
     void Die()
     {
         isDead = true;
+        AudioEvents.TriggerSound3D("Enemy", "LivingFurnace", "Die", transform.position);
         Debug.Log("Lò ấp đã bị phá hủy!");
 
         gameObject.tag = "Untagged";

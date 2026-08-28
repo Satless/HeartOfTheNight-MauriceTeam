@@ -114,11 +114,6 @@ public class RoomTransition : MonoBehaviour
             if (hp != null && !saveAsCheckpoint)
                 hp.HealToFull();
 
-            TrySaveCheckpoint(playerObj, nextSceneName, spawnIDInNextScene, Vector3.zero);
-
-            // Static pending không bị Firebase LoadGame ghi đè targetSpawnID trên RAM.
-            LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
-
             ChapterProgress.UnlockIfChapterScene(nextSceneName);
 
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
@@ -127,8 +122,14 @@ public class RoomTransition : MonoBehaviour
                     HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
 
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
+                // Zero chìa scene-cũ TRƯỚC snapshot checkpoint của scene mới.
                 HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
             }
+
+            TrySaveCheckpoint(playerObj, nextSceneName, spawnIDInNextScene, Vector3.zero);
+
+            // Static pending không bị Firebase LoadGame ghi đè targetSpawnID trên RAM.
+            LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
 
             // Continuation on ScreenFader — dùng timing prefab nếu muốn: truyền -1f.
             ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);
