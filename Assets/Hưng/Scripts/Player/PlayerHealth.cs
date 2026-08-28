@@ -136,6 +136,9 @@ namespace HeartOfTheNight.Player
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
                 HeartOfTheNight.Hung.DataManager.Instance.PauseLevelTimer();
 
+            if (PauseUI.Instance != null)
+                PauseUI.Instance.DismissForExternalFlow();
+
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
             OnDeath?.Invoke();
             StartCoroutine(DieRoutine());           

@@ -1,3 +1,4 @@
+using HeartOfTheNight.Hung;
 using TMPro;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ public class CodexUI : MonoBehaviour
     public void OpenSaveSlot()
     {
         ShowPanel(saveSlotPanel);
+        EnsureSaveSlotFlow();
     }
     public void OpenCodex()
     {
@@ -146,6 +148,17 @@ public class CodexUI : MonoBehaviour
 
         SetActiveSafe(panel, true);
         SetActiveSafe(menuPanel, false);
+    }
+
+    private void EnsureSaveSlotFlow()
+    {
+        if (saveSlotPanel == null)
+            return;
+
+        var flow = saveSlotPanel.GetComponent<SaveSlotFlowUI>();
+        if (flow == null)
+            flow = saveSlotPanel.AddComponent<SaveSlotFlowUI>();
+        flow.RefreshSlotLabels();
     }
 
     private void ReturnToMenu(GameObject panel)
