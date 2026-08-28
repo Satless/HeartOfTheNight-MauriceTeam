@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class SoundManager_New : MonoBehaviour
@@ -10,20 +11,30 @@ public class SoundManager_New : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
 
     // Cooldown quản lý thời gian chờ để chống nhiễu/stack tiếng
-    private Dictionary<string, float> lastPlayTimes = new Dictionary<string, float>();
-    [SerializeField] private float defaultCooldown = 0.15f;
+    //private Dictionary<string, float> lastPlayTimes = new Dictionary<string, float>();
+    //[SerializeField] private float defaultCooldown = 0.15f;
 
+
+    //[SerializeField] private AudioMixer audioMixer;
+    //private void Start()
+    //{
+    //    if (audioMixer != null)
+    //    {
+    //        audioMixer.SetFloat("Master", Mathf.Log10(Mathf.Max(0.0001f, PlayerPrefs.GetFloat("Master", 1f))) * 20);
+    //        audioMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Max(0.0001f, PlayerPrefs.GetFloat("MusicVolume", 1f))) * 20);
+    //        audioMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Max(0.0001f, PlayerPrefs.GetFloat("SFXVolume", 1f))) * 20);
+    //    }
+    //}
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject.transform.root.gameObject);
+            DontDestroyOnLoad(gameObject); // Chỉ giữ lại chính SoundManager, không lấy root
         }
         else if (Instance != this)
         {
-            // Xóa bản sao trùng lặp ở Scene mới khi Load Scene
-            Destroy(gameObject.transform.root.gameObject);
+            Destroy(gameObject); // Xóa bản sao trùng lặp
         }
     }
 
@@ -62,8 +73,24 @@ public class SoundManager_New : MonoBehaviour
         AudioClip clip = sfxLibrary.GetClipFromName(categoryID, subCategoryID, actionName);
         if (clip != null)
         {
-            AudioSource.PlayClipAtPoint(clip, pos);
+            // Nhân bản SfxSource đã gán sẵn Output Mixer SFX
+            AudioSource tempSource = Instantiate(sfxSource, pos, Quaternion.identity);
+            tempSource.clip = clip;
+            tempSource.Play();
+
+            // Tự động xóa GameObject tạm sau khi clip chạy xong
+            Destroy(tempSource.gameObject, clip.length);
         }
+
+        //AudioClip clip = sfxLibrary.GetClipFromName(categoryID, subCategoryID, actionName);
+        //if (clip != null)
+        //{
+        //    // Đặt vị trí SFXSource về vị trí phát âm thanh 3D
+        //    sfxSource.transform.position = pos;
+
+        //    // Phát âm thanh đè qua PlayOneShot (đã được định hướng sang Audio Mixer SFX)
+        //    sfxSource.PlayOneShot(clip);
+        //}
     }
 
     public void PlaySound2D(string categoryID, string subCategoryID, string actionName)
