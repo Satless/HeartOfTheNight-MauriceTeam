@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Reflection;
 using System.Collections;
 using HeartOfTheNight.Common;
@@ -20,10 +21,13 @@ public class AutoUniversalHealthBar : MonoBehaviour
     public float catchupSpeed = 10f;
     public float timeToHide = 3f;
 
+    private static readonly string[] CurrentHpNames = { "currentHealth", "health", "_currentHealth" };
+    private static readonly string[] MaxHpNames = { "maxHealth", "_maxHealth" };
+    private const BindingFlags HpFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
     private Quaternion startRotation;
     private Vector3 originalCanvasScale;
 
-    // Tự động soi ngầm 100%, sếp không cần khai báo bất cứ biến Health nào ra Inspector!
     private Component enemyScript;
     private FieldInfo currentHpField;
     private FieldInfo maxHpField;
@@ -34,7 +38,8 @@ public class AutoUniversalHealthBar : MonoBehaviour
 
     private bool isFlashing = false;
     private bool isDying = false;
-    private CanvasGroup canvasGroup; // Dùng cái này để ẩn hiện mượt mà, không làm chết script
+    private bool hasBaseline = false;
+    private CanvasGroup canvasGroup;
 
     void Start()
     {
@@ -42,43 +47,50 @@ public class AutoUniversalHealthBar : MonoBehaviour
         {
             startRotation = canvas.transform.rotation;
             originalCanvasScale = canvas.transform.localScale;
+            if (originalCanvasScale.x <= 0.0001f || originalCanvasScale.y <= 0.0001f)
+                originalCanvasScale = new Vector3(0.01f, 0.01f, 0.01f);
 
-            // Tự động thêm CanvasGroup để làm trong suốt UI (Script vẫn chạy ngầm)
+            canvas.sortingLayerName = "UI";
+            canvas.sortingOrder = 20;
+
             canvasGroup = canvas.GetComponent<CanvasGroup>();
             if (canvasGroup == null) canvasGroup = canvas.gameObject.AddComponent<CanvasGroup>();
             canvasGroup.alpha = 0f;
         }
 
-        // Tự động móc vào IDamageable để đọc kết quả
         enemyScript = GetComponentInParent<IDamageable>() as Component;
         if (enemyScript != null)
         {
             System.Type type = enemyScript.GetType();
-            currentHpField = type.GetField("currentHealth", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            maxHpField = type.GetField("maxHealth", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            currentHpField = FindField(type, CurrentHpNames);
+            maxHpField = FindField(type, MaxHpNames);
         }
     }
 
     void Update()
     {
-        // Nếu không soi được code quái hoặc quái chết rồi thì ngừng
-        if (isDying || enemyScript == null || currentHpField == null || maxHpField == null) return;
+        if (isDying || enemyScript == null || currentHpField == null) return;
 
-        int curHp = (int)currentHpField.GetValue(enemyScript);
-        int maxHp = (int)maxHpField.GetValue(enemyScript);
-        float newFill = (float)curHp / maxHp;
+        if (!TryReadHp(out int curHp, out int maxHp) || maxHp <= 0) return;
 
-        // 🔥 TỰ ĐỘNG PHÁT HIỆN SẾP VỪA GỌI TAKEDAMAGE BÊN QUÁI VÀ MÁU BỊ TỤT!
-        if (newFill < targetFill)
+        float newFill = Mathf.Clamp01((float)curHp / maxHp);
+
+        // Freeze spawn tắt script quái trước Start() → currentHealth còn 0.
+        // Đừng tưởng quái chết rồi co canvas về (0,0,z).
+        if (!hasBaseline)
         {
-            // Bật UI lên ngay lập tức
-            if (canvasGroup != null && canvasGroup.alpha == 0f)
-            {
-                canvas.transform.localScale = originalCanvasScale;
-                canvasGroup.alpha = 1f;
-            }
+            if (curHp <= 0) return;
 
-            hideTimer = 0f; // Reset đồng hồ đi ngủ
+            targetFill = newFill;
+            if (fillImage != null) fillImage.fillAmount = newFill;
+            hasBaseline = true;
+            return;
+        }
+
+        if (newFill < targetFill - 0.0001f)
+        {
+            ShowBar();
+            hideTimer = 0f;
 
             if (curHp <= 0)
             {
@@ -86,56 +98,101 @@ public class AutoUniversalHealthBar : MonoBehaviour
                 targetFill = newFill;
                 return;
             }
-            else
-            {
-                StartCoroutine(HitFlashRoutine());
-            }
+
+            StartCoroutine(HitFlashRoutine());
         }
 
         targetFill = newFill;
 
-        // Đổi 3 màu
         if (targetFill > 0.6f) currentBaseColor = highHealthColor;
         else if (targetFill > 0.3f) currentBaseColor = mediumHealthColor;
         else currentBaseColor = lowHealthColor;
 
-        // Tụt máu mượt mà
-        fillImage.fillAmount = Mathf.Lerp(fillImage.fillAmount, targetFill, Time.deltaTime * catchupSpeed);
-        if (!isFlashing) fillImage.color = currentBaseColor;
+        if (fillImage != null)
+        {
+            fillImage.fillAmount = Mathf.Lerp(fillImage.fillAmount, targetFill, Time.deltaTime * catchupSpeed);
+            if (!isFlashing) fillImage.color = currentBaseColor;
+        }
 
-        // Tự động đi ngủ sau 3 giây không nhận TakeDamage
         if (canvasGroup != null && canvasGroup.alpha > 0f)
         {
             hideTimer += Time.deltaTime;
             if (hideTimer >= timeToHide)
-            {
-                canvasGroup.alpha = 0f; // Tàng hình
-            }
+                canvasGroup.alpha = 0f;
         }
     }
 
     void LateUpdate()
     {
-        // Chống lật UI (Chỉ chạy khi UI đang hiện để tiết kiệm hiệu năng)
-        if (canvas != null && canvasGroup != null && canvasGroup.alpha > 0f)
+        if (canvas == null || canvasGroup == null || canvasGroup.alpha <= 0f) return;
+
+        canvas.transform.rotation = startRotation;
+        if (isDying) return;
+
+        Vector3 fixScale = canvas.transform.localScale;
+        Transform parent = transform.parent;
+        if (parent != null && parent.localScale.x < 0)
+            fixScale.x = -Mathf.Abs(fixScale.x);
+        else
+            fixScale.x = Mathf.Abs(fixScale.x);
+        canvas.transform.localScale = fixScale;
+    }
+
+    private void ShowBar()
+    {
+        if (canvas == null || canvasGroup == null) return;
+        if (canvasGroup.alpha > 0f) return;
+
+        canvas.transform.localScale = originalCanvasScale;
+        canvasGroup.alpha = 1f;
+    }
+
+    private bool TryReadHp(out int curHp, out int maxHp)
+    {
+        curHp = 0;
+        maxHp = 0;
+        if (!TryReadInt(currentHpField, out curHp)) return false;
+
+        if (maxHpField != null && TryReadInt(maxHpField, out maxHp) && maxHp > 0)
+            return true;
+
+        maxHp = Mathf.Max(curHp, 1);
+        return true;
+    }
+
+    private bool TryReadInt(FieldInfo field, out int value)
+    {
+        value = 0;
+        if (field == null || enemyScript == null) return false;
+
+        object raw = field.GetValue(enemyScript);
+        if (raw == null) return false;
+
+        try
         {
-            canvas.transform.rotation = startRotation;
-            if (!isDying)
-            {
-                Vector3 fixScale = canvas.transform.localScale;
-                if (transform.parent != null && transform.parent.localScale.x < 0)
-                    fixScale.x = -Mathf.Abs(fixScale.x);
-                else
-                    fixScale.x = Mathf.Abs(fixScale.x);
-                canvas.transform.localScale = fixScale;
-            }
+            value = Convert.ToInt32(raw);
+            return true;
         }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private static FieldInfo FindField(System.Type type, string[] names)
+    {
+        for (int i = 0; i < names.Length; i++)
+        {
+            FieldInfo field = type.GetField(names[i], HpFlags);
+            if (field != null) return field;
+        }
+        return null;
     }
 
     private IEnumerator HitFlashRoutine()
     {
         isFlashing = true;
-        fillImage.color = hitFlashColor;
+        if (fillImage != null) fillImage.color = hitFlashColor;
         yield return new WaitForSeconds(0.08f);
         isFlashing = false;
     }
@@ -144,13 +201,14 @@ public class AutoUniversalHealthBar : MonoBehaviour
     {
         isDying = true;
         float timer = 0;
-        Vector3 startScale = canvas.transform.localScale;
+        Vector3 startScale = canvas != null ? canvas.transform.localScale : originalCanvasScale;
         Vector3 flatScale = new Vector3(startScale.x, 0f, startScale.z);
 
         while (timer < 0.1f)
         {
             timer += Time.deltaTime;
-            canvas.transform.localScale = Vector3.Lerp(startScale, flatScale, timer / 0.1f);
+            if (canvas != null)
+                canvas.transform.localScale = Vector3.Lerp(startScale, flatScale, timer / 0.1f);
             yield return null;
         }
 
@@ -160,10 +218,11 @@ public class AutoUniversalHealthBar : MonoBehaviour
         while (timer < 0.15f)
         {
             timer += Time.deltaTime;
-            canvas.transform.localScale = Vector3.Lerp(flatScale, dotScale, timer / 0.15f);
+            if (canvas != null)
+                canvas.transform.localScale = Vector3.Lerp(flatScale, dotScale, timer / 0.15f);
             yield return null;
         }
 
-        if (canvasGroup != null) canvasGroup.alpha = 0f; // Tắt ngúm Tivi
+        if (canvasGroup != null) canvasGroup.alpha = 0f;
     }
 }

@@ -244,6 +244,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
             anim.enabled = true;
             anim.SetTrigger("Dead");
         }
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 2f);
     }
 }

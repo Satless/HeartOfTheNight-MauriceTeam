@@ -17,14 +17,29 @@ public class UIToggleSFX : MonoBehaviour, IPointerEnterHandler
     private Toggle toggle;
     private bool isInitialized = false; // Biến chặn phát âm thanh khi mới load UI
 
+    private Coroutine enableCoroutine;
+
     private void Awake()
     {
         toggle = GetComponent<Toggle>();
     }
 
+    //private void OnEnable()
+    //{
+    //    // Đánh dấu chưa khởi tạo để tránh phát tiếng khi OnEnable set trạng thái On/Off
+    //    isInitialized = false;
+
+    //    if (toggle != null)
+    //    {
+    //        toggle.onValueChanged.AddListener(OnToggleChanged);
+    //    }
+
+    //    // Cho phép phát âm thanh ở các khung hình tiếp theo (sau khi UI ổn định)
+    //    Invoke(nameof(EnableSFX), 0.05f);
+    //}
+
     private void OnEnable()
     {
-        // Đánh dấu chưa khởi tạo để tránh phát tiếng khi OnEnable set trạng thái On/Off
         isInitialized = false;
 
         if (toggle != null)
@@ -32,9 +47,19 @@ public class UIToggleSFX : MonoBehaviour, IPointerEnterHandler
             toggle.onValueChanged.AddListener(OnToggleChanged);
         }
 
-        // Cho phép phát âm thanh ở các khung hình tiếp theo (sau khi UI ổn định)
-        Invoke(nameof(EnableSFX), 0.05f);
+        if (enableCoroutine != null) StopCoroutine(enableCoroutine);
+
+        // Thay Invoke(...) bằng Coroutine chạy thời gian thực
+        enableCoroutine = StartCoroutine(EnableSFXRoutine());
     }
+
+    //private void OnDisable()
+    //{
+    //    if (toggle != null)
+    //    {
+    //        toggle.onValueChanged.RemoveListener(OnToggleChanged);
+    //    }
+    //}
 
     private void OnDisable()
     {
@@ -42,6 +67,8 @@ public class UIToggleSFX : MonoBehaviour, IPointerEnterHandler
         {
             toggle.onValueChanged.RemoveListener(OnToggleChanged);
         }
+
+        if (enableCoroutine != null) StopCoroutine(enableCoroutine);
     }
 
     private void EnableSFX()
@@ -72,5 +99,11 @@ public class UIToggleSFX : MonoBehaviour, IPointerEnterHandler
         {
             AudioEvents.TriggerSound2D(categoryID, subCategoryID, hoverAction);
         }
+    }
+
+    private System.Collections.IEnumerator EnableSFXRoutine()
+    {
+        yield return new WaitForSecondsRealtime(0.05f);
+        isInitialized = true;
     }
 }
