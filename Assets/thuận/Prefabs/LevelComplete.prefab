@@ -281,7 +281,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 5123984756102837461}
         m_TargetAssemblyTypeName: LevelCompleteManager, Assembly-CSharp
         m_MethodName: BackToHome
         m_Mode: 1
@@ -459,7 +459,7 @@ GameObject:
   - component: {fileID: 4142217193483101888}
   - component: {fileID: 1145359579257318348}
   m_Layer: 5
-  m_Name: Text (TMP) (2)
+  m_Name: SecretValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -595,6 +595,7 @@ GameObject:
   - component: {fileID: 1686063679314477200}
   - component: {fileID: 1957182615417570037}
   - component: {fileID: 4577532845972013182}
+  - component: {fileID: 5123984756102837461}
   m_Layer: 5
   m_Name: LevelComplete
   m_TagString: Untagged
@@ -660,6 +661,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5123984756102837461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3431957648109866116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce88c250553c41542a33e03a0f75d43d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nextLevelScene: 
+  homeScene: mainMenu
+  enemiesValueText: {fileID: 3223471052827086035}
+  timeValueText: {fileID: 498773533509129349}
+  secretsValueText: {fileID: 1145359579257318348}
 --- !u!1 &3600789205037603198
 GameObject:
   m_ObjectHideFlags: 0
@@ -809,7 +827,7 @@ GameObject:
   - component: {fileID: 7290148859380508388}
   - component: {fileID: 3223471052827086035}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: KillValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -946,7 +964,7 @@ GameObject:
   - component: {fileID: 4397849080121997753}
   - component: {fileID: 498773533509129349}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: TimeValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1231,7 +1249,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 5123984756102837461}
         m_TargetAssemblyTypeName: LevelCompleteManager, Assembly-CSharp
         m_MethodName: NextLevel
         m_Mode: 1
@@ -1758,7 +1776,7 @@ GameObject:
   - component: {fileID: 589889155640450736}
   - component: {fileID: 6794929373834367262}
   m_Layer: 5
-  m_Name: score
+  m_Name: SECRET
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
