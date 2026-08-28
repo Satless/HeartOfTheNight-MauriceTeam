@@ -154,11 +154,24 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cursor_0
+      name: RedCursor_1
       rect:
         serializedVersion: 2
         x: 1
@@ -180,7 +193,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor_4
+      name: RedCursor_2
       rect:
         serializedVersion: 2
         x: 32
@@ -202,7 +215,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor_8
+      name: WhiteCursor_1
       rect:
         serializedVersion: 2
         x: 1
@@ -224,7 +237,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cursor_12
+      name: WhiteCursor_2
       rect:
         serializedVersion: 2
         x: 32
@@ -259,22 +272,21 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cursor_0: -4750761433519615375
-      Cursor_1: -3340349168363038409
       Cursor_10: 7083940354380497957
       Cursor_11: -4682245240618478800
-      Cursor_12: 2820687054698515202
       Cursor_13: -4740768243567378543
       Cursor_14: -3452304322062737278
       Cursor_15: -1524976939683410580
       Cursor_2: -8894989074114120652
       Cursor_3: 8084253176091754095
-      Cursor_4: -3647630677443473183
       Cursor_5: 2926769648525297287
       Cursor_6: -7967919159556622880
       Cursor_7: 1347301497552378782
-      Cursor_8: 7577801734594071765
       Cursor_9: -8419580265784979433
+      RedCursor_1: -4750761433519615375
+      RedCursor_2: -3647630677443473183
+      WhiteCursor_1: 7577801734594071765
+      WhiteCursor_2: 2820687054698515202
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
