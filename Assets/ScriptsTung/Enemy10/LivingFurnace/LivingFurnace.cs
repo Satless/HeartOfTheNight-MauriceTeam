@@ -178,7 +178,7 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
 
-        Destroy(gameObject, 1.5f);
+        Destroy(gameObject, 2f);
     }
 
     private void OnDrawGizmosSelected()
