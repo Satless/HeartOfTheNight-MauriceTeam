@@ -37,7 +37,7 @@ public class ButtonHoverEffect : MonoBehaviour,
         transform.localScale = Vector3.Lerp(
             transform.localScale,
             targetScale,
-            Time.deltaTime * animationSpeed
+            Time.unscaledDeltaTime * animationSpeed
         );
     }
 

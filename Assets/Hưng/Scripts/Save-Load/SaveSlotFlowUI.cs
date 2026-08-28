@@ -22,6 +22,14 @@ namespace HeartOfTheNight.Hung
         private static readonly Color RowOccupied = Color.white;
         private static readonly Color RowEmpty = new Color(1f, 1f, 1f, 0.62f);
 
+        // Bố cục hàng 100px: title trên-trái, empty/ngày dưới title, new/delete giữa dọc bên phải.
+        private const float TitlePosX = 32f;
+        private const float TitlePosY = 12f;
+        private const float MetaPosY = -20f;
+        private const float ActionPosY = 0f;
+        private const float SelectPosX = -148f;
+        private const float DeletePosX = -18f;
+
         [SerializeField] private Transform slotsRoot;
         [SerializeField] private Button[] slotButtons;
         [SerializeField] private TMP_Text[] slotLabels;
@@ -50,7 +58,7 @@ namespace HeartOfTheNight.Hung
                 slotsRoot = transform.Find("SLOT");
 
             AutoWireSlotsIfNeeded();
-            DisableSlotRowButtons();
+            WireSlotRowButtons();
             EnsureActionButtons();
             EnsureMetaLabels();
             BindButtons();
@@ -91,6 +99,9 @@ namespace HeartOfTheNight.Hung
                 Debug.Log("[SaveSlotFlow] Đang đồng bộ slot cloud, đợi xong đã.");
                 return;
             }
+
+            if (IsDeleteConfirmOpen())
+                return;
 
             Debug.Log($"[SaveSlotFlow] Selected Slot {slotIndex} | HasSave={DataManager.HasSave(slotIndex)}");
             dm.SelectSlotAndEnter(slotIndex);
@@ -211,8 +222,9 @@ namespace HeartOfTheNight.Hung
             rt.anchorMin = new Vector2(0f, 0.5f);
             rt.anchorMax = new Vector2(0f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(28f, 14f);
-            rt.sizeDelta = new Vector2(260f, 52f);
+            rt.anchoredPosition = new Vector2(TitlePosX, TitlePosY);
+            rt.sizeDelta = new Vector2(280f, 40f);
+            title.margin = Vector4.zero;
             title.enableWordWrapping = false;
             title.overflowMode = TextOverflowModes.Overflow;
             title.alignment = TextAlignmentOptions.MidlineLeft;
@@ -224,8 +236,12 @@ namespace HeartOfTheNight.Hung
             rt.anchorMin = new Vector2(0f, 0.5f);
             rt.anchorMax = new Vector2(0f, 0.5f);
             rt.pivot = new Vector2(0f, 0.5f);
-            rt.anchoredPosition = new Vector2(28f, -26f);
-            rt.sizeDelta = new Vector2(240f, 28f);
+            rt.anchoredPosition = new Vector2(TitlePosX, MetaPosY);
+            rt.sizeDelta = new Vector2(280f, 24f);
+            meta.margin = Vector4.zero;
+            meta.alignment = TextAlignmentOptions.MidlineLeft;
+            meta.enableWordWrapping = false;
+            meta.overflowMode = TextOverflowModes.Overflow;
         }
 
         private static TMP_Text FindOrCreateMetaLabel(Transform slot, TMP_Text fontSource)
@@ -340,36 +356,34 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        private void DisableSlotRowButtons()
+        private void WireSlotRowButtons()
         {
             if (_slotRows == null)
                 return;
+
+            if (slotButtons == null || slotButtons.Length < DataManager.SlotCount)
+                slotButtons = new Button[DataManager.SlotCount];
 
             for (int i = 0; i < _slotRows.Length; i++)
             {
                 if (_slotRows[i] == null)
                     continue;
 
+                int slot = i + 1;
                 var rowButton = _slotRows[i].GetComponent<Button>();
-                if (rowButton != null)
-                {
-                    rowButton.onClick.RemoveAllListeners();
-                    rowButton.enabled = false;
-                    rowButton.interactable = false;
-                }
-            }
+                if (rowButton == null)
+                    rowButton = _slotRows[i].gameObject.AddComponent<Button>();
 
-            if (slotButtons == null)
-                return;
+                var graphic = _slotRows[i].GetComponent<Graphic>();
+                if (graphic != null)
+                    rowButton.targetGraphic = graphic;
 
-            for (int i = 0; i < slotButtons.Length; i++)
-            {
-                if (slotButtons[i] == null)
-                    continue;
-
-                slotButtons[i].onClick.RemoveAllListeners();
-                slotButtons[i].enabled = false;
-                slotButtons[i].interactable = false;
+                rowButton.enabled = true;
+                rowButton.interactable = true;
+                rowButton.transition = Selectable.Transition.ColorTint;
+                rowButton.onClick.RemoveAllListeners();
+                rowButton.onClick.AddListener(() => OnSlotClicked(slot));
+                slotButtons[i] = rowButton;
             }
         }
 
@@ -382,6 +396,8 @@ namespace HeartOfTheNight.Hung
         {
             _pendingDeleteSlot = slotIndex;
             ResolveDeleteConfirmRefs();
+            if (_confirmMessageTargets == null || _confirmMessageTargets.Length == 0)
+                CacheConfirmMessageTemplate();
 
             if (_confirmMessageTargets != null)
             {
@@ -394,15 +410,11 @@ namespace HeartOfTheNight.Hung
                 }
             }
 
-            if (deleteConfirmPopup != null)
-            {
-                deleteConfirmPopup.transform.SetAsLastSibling();
-                deleteConfirmPopup.SetActive(true);
-            }
-            else
-            {
-                Debug.LogError("[SaveSlotFlow] Chưa gán DeleteConfirmPopup trên LoadSavePanel.");
-            }
+            if (deleteConfirmPopup == null)
+                return;
+
+            deleteConfirmPopup.transform.SetAsLastSibling();
+            deleteConfirmPopup.SetActive(true);
         }
 
         public void HideDeleteConfirm()
@@ -509,28 +521,33 @@ namespace HeartOfTheNight.Hung
 
                 TMP_Text fontSource = (slotLabels != null && i < slotLabels.Length) ? slotLabels[i] : null;
 
+                Vector2 selectPos = new Vector2(SelectPosX, ActionPosY);
+                Vector2 selectSize = new Vector2(150f, 50f);
+                Vector2 deletePos = new Vector2(DeletePosX, ActionPosY);
+                Vector2 deleteSize = new Vector2(120f, 50f);
+
                 if (selectButtons[i] == null)
                 {
                     selectButtons[i] = FindOrCreateActionButton(
                         slot, "Selected", "select",
-                        new Vector2(-128f, 0f), new Vector2(128f, 50f),
-                        fontSource, TextAlignmentOptions.MidlineLeft);
+                        selectPos, selectSize,
+                        fontSource, TextAlignmentOptions.MidlineRight);
                 }
 
                 if (deleteButtons[i] == null)
                 {
                     deleteButtons[i] = FindOrCreateActionButton(
                         slot, "Delete", "delete",
-                        new Vector2(-18f, 0f), new Vector2(100f, 50f),
-                        fontSource, TextAlignmentOptions.MidlineLeft);
+                        deletePos, deleteSize,
+                        fontSource, TextAlignmentOptions.MidlineRight);
                 }
 
                 ApplyActionButtonLayout(
-                    selectButtons[i], new Vector2(-128f, 0f), new Vector2(128f, 50f),
-                    TextAlignmentOptions.MidlineLeft);
+                    selectButtons[i], selectPos, selectSize,
+                    TextAlignmentOptions.MidlineRight);
                 ApplyActionButtonLayout(
-                    deleteButtons[i], new Vector2(-18f, 0f), new Vector2(100f, 50f),
-                    TextAlignmentOptions.MidlineLeft);
+                    deleteButtons[i], deletePos, deleteSize,
+                    TextAlignmentOptions.MidlineRight);
 
                 _selectLabels[i] = selectButtons[i].GetComponent<TMP_Text>();
                 _deleteLabels[i] = deleteButtons[i].GetComponent<TMP_Text>();
@@ -559,6 +576,7 @@ namespace HeartOfTheNight.Hung
                 tmp.alignment = align;
                 tmp.enableWordWrapping = false;
                 tmp.overflowMode = TextOverflowModes.Truncate;
+                tmp.margin = Vector4.zero;
             }
         }
 
@@ -615,14 +633,24 @@ namespace HeartOfTheNight.Hung
             return button;
         }
 
+        private bool IsDeleteConfirmOpen()
+        {
+            return deleteConfirmPopup != null && deleteConfirmPopup.activeSelf;
+        }
+
         private void ResolveDeleteConfirmRefs()
         {
             if (deleteConfirmPopup == null)
             {
                 var found = transform.Find("DeleteConfirmPopup");
+                if (found == null)
+                    found = FindDeep(transform, "DeleteConfirmPopup");
                 if (found != null)
                     deleteConfirmPopup = found.gameObject;
             }
+
+            if (deleteConfirmPopup == null)
+                BuildRuntimeDeleteConfirm();
 
             if (deleteConfirmPopup == null)
                 return;
@@ -652,6 +680,155 @@ namespace HeartOfTheNight.Hung
                 deleteConfirmCloseButton = FindNamedButton(deleteConfirmPopup.transform, "CloseButton", "ButtonClose", "X");
 
             DisableDecorativeWindowButtons(deleteConfirmPopup.transform);
+        }
+
+        private void BuildRuntimeDeleteConfirm()
+        {
+            TMP_Text fontSource = (slotLabels != null && slotLabels.Length > 0) ? slotLabels[0] : null;
+            Sprite windowSprite = null;
+            Image.Type windowType = Image.Type.Simple;
+            var panelImage = GetComponent<Image>();
+            if (panelImage != null)
+            {
+                windowSprite = panelImage.sprite;
+                windowType = panelImage.type;
+            }
+
+            Transform canvasRoot = transform;
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null)
+                canvasRoot = canvas.transform;
+
+            var overlay = new GameObject("DeleteConfirmPopup", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            overlay.layer = gameObject.layer;
+            overlay.transform.SetParent(canvasRoot, false);
+            StretchFull(overlay.GetComponent<RectTransform>());
+            var dim = overlay.GetComponent<Image>();
+            dim.color = new Color(0.02f, 0f, 0f, 0.72f);
+            dim.raycastTarget = true;
+
+            var panel = new GameObject("Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            panel.layer = gameObject.layer;
+            panel.transform.SetParent(overlay.transform, false);
+            var panelRt = panel.GetComponent<RectTransform>();
+            panelRt.anchorMin = panelRt.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRt.pivot = new Vector2(0.5f, 0.5f);
+            panelRt.sizeDelta = new Vector2(560f, 280f);
+            panelRt.anchoredPosition = Vector2.zero;
+            var window = panel.GetComponent<Image>();
+            window.raycastTarget = true;
+            if (windowSprite != null)
+            {
+                window.sprite = windowSprite;
+                window.color = Color.white;
+                window.type = windowType;
+            }
+            else
+            {
+                window.color = new Color(0.12f, 0.04f, 0.04f, 0.98f);
+            }
+
+            deleteConfirmMessage = CreatePopupLabel(
+                panel.transform, "Message",
+                "Xóa {slot}?\n\nSave sẽ mất vĩnh viễn.",
+                new Vector2(0f, 36f), new Vector2(480f, 120f), 26f, fontSource);
+
+            deleteConfirmYesButton = CreatePopupButton(
+                panel.transform, "ButtonYes", "XÓA",
+                new Vector2(-110f, -78f), new Color(0.62f, 0.12f, 0.12f, 0.95f), fontSource);
+            deleteConfirmNoButton = CreatePopupButton(
+                panel.transform, "ButtonNo", "HỦY",
+                new Vector2(110f, -78f), new Color(0.18f, 0.16f, 0.16f, 0.95f), fontSource);
+            deleteConfirmCloseButton = CreatePopupButton(
+                panel.transform, "CloseButton", "X",
+                new Vector2(236f, 112f), new Color(0.35f, 0.1f, 0.1f, 0.9f), fontSource);
+            var closeRt = deleteConfirmCloseButton.transform as RectTransform;
+            if (closeRt != null)
+                closeRt.sizeDelta = new Vector2(44f, 36f);
+
+            overlay.SetActive(false);
+            deleteConfirmPopup = overlay;
+        }
+
+        private static TMP_Text CreatePopupLabel(
+            Transform parent, string objectName, string text,
+            Vector2 pos, Vector2 size, float fontSize, TMP_Text fontSource)
+        {
+            var go = new GameObject(objectName, typeof(RectTransform));
+            go.layer = parent.gameObject.layer;
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            var tmp = go.AddComponent<TextMeshProUGUI>();
+            tmp.text = text;
+            tmp.fontSize = fontSize;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = new Color(1f, 0.92f, 0.88f, 0.95f);
+            tmp.enableWordWrapping = true;
+            tmp.raycastTarget = false;
+            CopyFont(fontSource, tmp);
+            return tmp;
+        }
+
+        private static Button CreatePopupButton(
+            Transform parent, string objectName, string label,
+            Vector2 pos, Color bg, TMP_Text fontSource)
+        {
+            var go = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
+            go.layer = parent.gameObject.layer;
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = new Vector2(180f, 52f);
+
+            var image = go.GetComponent<Image>();
+            image.color = bg;
+            image.raycastTarget = true;
+
+            var button = go.GetComponent<Button>();
+            button.targetGraphic = image;
+            button.transition = Selectable.Transition.ColorTint;
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+
+            var textGo = new GameObject("Text", typeof(RectTransform));
+            textGo.layer = go.layer;
+            textGo.transform.SetParent(go.transform, false);
+            StretchFull(textGo.GetComponent<RectTransform>());
+            var tmp = textGo.AddComponent<TextMeshProUGUI>();
+            tmp.text = label;
+            tmp.fontSize = 24f;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = Color.white;
+            tmp.raycastTarget = false;
+            CopyFont(fontSource, tmp);
+            return button;
+        }
+
+        private static Transform FindDeep(Transform root, string objectName)
+        {
+            if (root == null)
+                return null;
+            var all = root.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < all.Length; i++)
+            {
+                if (all[i] != null && all[i].name == objectName)
+                    return all[i];
+            }
+            return null;
+        }
+
+        private static void StretchFull(RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
         }
 
         private void BindDeleteConfirmButtons()
