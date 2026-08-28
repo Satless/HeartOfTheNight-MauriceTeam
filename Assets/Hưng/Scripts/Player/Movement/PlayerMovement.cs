@@ -654,7 +654,9 @@ namespace HeartOfTheNight.Player
     {
 		Time.timeScale = 0; // Dừng toàn bộ game (vật lý, animation, timer)
 		yield return _sleepWait; // Chờ dashSleepTime giây THỰC (dùng WaitForSecondsRealtime vì timeScale = 0)
-		Time.timeScale = 1; // Trả game về tốc độ bình thường
+		var hp = GetComponent<PlayerHealth>();
+		if ((hp == null || !hp.IsDead) && !PauseUI.IsPaused)
+			Time.timeScale = 1;
 	}
     #endregion
 

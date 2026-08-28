@@ -39,6 +39,21 @@ namespace HeartOfTheNight.Hung
         private bool _playTimeDirty;
         private float _playTimeSaveTimer;
         private bool _slotEnterBusy;
+        private string _activeSceneName;
+
+        /// <summary>Scene.name cấp phát string mới mỗi lần gọi — cache lại để Update không sinh rác.</summary>
+        private string ActiveSceneName
+        {
+            get
+            {
+                if (_activeSceneName == null)
+                    _activeSceneName = SceneManager.GetActiveScene().name;
+                return _activeSceneName;
+            }
+        }
+
+        /// <summary>Scene mới đang hồi sinh / Continue — PlayerHealth không được ghi đè máu save bằng max.</summary>
+        public bool IsApplyingSpawnRestore => _pendingRespawnApply;
 
         internal Firebase.Auth.FirebaseUser FirebaseUser => _user;
 
@@ -55,6 +70,7 @@ namespace HeartOfTheNight.Hung
                 return Instance;
             }
 
+            Debug.LogWarning("[Save System] Không tìm thấy Resources/Data/DataManager. Tạo trống — Google OAuth trên Windows sẽ thiếu Client Secret nếu không đi từ AuthScene.");
             var go = new GameObject("DataManager");
             return go.AddComponent<DataManager>();
         }
@@ -91,12 +107,18 @@ namespace HeartOfTheNight.Hung
 
         private void Update()
         {
-            if (!ShouldTrackPlayTime())
+            if (!Application.isPlaying)
                 return;
 
-            Data.totalPlayTimeSeconds += Time.unscaledDeltaTime;
+            float delta = Time.unscaledDeltaTime;
+            TickLevelTimer(ActiveSceneName, delta);
+
+            if (_levelTimerPaused || !ShouldTrackPlayTime())
+                return;
+
+            Data.totalPlayTimeSeconds += delta;
             _playTimeDirty = true;
-            _playTimeSaveTimer += Time.unscaledDeltaTime;
+            _playTimeSaveTimer += delta;
             if (_playTimeSaveTimer >= 60f)
                 FlushPlayTimeIfNeeded();
         }
@@ -114,8 +136,12 @@ namespace HeartOfTheNight.Hung
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            if (scene.name == "mainMenu" || scene.name == SelectLevelScene)
+            _activeSceneName = SceneManager.GetActiveScene().name;
+
+            if (_activeSceneName == "mainMenu" || _activeSceneName == SelectLevelScene)
                 FlushPlayTimeIfNeeded();
+
+            SyncLevelTimerToLoadedScene(_activeSceneName);
         }
 
         private bool ShouldTrackPlayTime()
@@ -123,13 +149,14 @@ namespace HeartOfTheNight.Hung
             if (!Application.isPlaying || Data == null || !Data.hasSave)
                 return false;
 
-            string scene = SceneManager.GetActiveScene().name;
-            return scene != "mainMenu" && scene != SelectLevelScene;
+            return ActiveSceneName != "mainMenu" && ActiveSceneName != SelectLevelScene;
         }
 
         private void FlushPlayTimeIfNeeded()
         {
             if (!_playTimeDirty || Data == null || !Data.hasSave)
+                return;
+            if (_isRespawning || Data.playerHealth <= 0)
                 return;
 
             Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
@@ -225,11 +252,15 @@ namespace HeartOfTheNight.Hung
                 maxUnlockedLevel = 1,
                 currentScene = NewGameTutorialScene,
                 hasCheckpoint = false,
+                hasCheckpointWorldState = false,
                 totalPlayTimeSeconds = 0f,
                 scenePlayTimes = new List<ScenePlayTimeEntry>(),
                 clearedRooms = new List<string>(),
                 unlockedDoors = new List<string>(),
                 collectedKeyPickupIds = new List<string>(),
+                checkpointClearedRooms = new List<string>(),
+                checkpointUnlockedDoors = new List<string>(),
+                checkpointCollectedKeyPickupIds = new List<string>(),
             };
 
             ChapterProgress.ResetForNewSave();
@@ -274,11 +305,38 @@ namespace HeartOfTheNight.Hung
         public void AbandonInProgress()
         {
             if (Data == null) return;
-            Data.hasCheckpoint = false;
-            Data.checkpointScene = "";
-            Data.checkpointSpawnID = "";
-            Data.checkpointPosition = Vector3.zero;
+            Data.ClearInProgressWorldState();
             Data.targetSpawnID = "";
+            SaveGame();
+        }
+
+        /// <summary>
+        /// Pause HOME / EXIT: giữ checkpoint làm điểm Continue, không ghi máu/chìa/phòng giữa màn lên file.
+        /// Vẫn lưu thời gian chơi.
+        /// </summary>
+        public void SaveBeforeLeaveLevel()
+        {
+            if (Data == null || !Data.hasSave)
+                return;
+
+            if (HasInProgress() && Data.hasCheckpointWorldState)
+            {
+                Data.RestoreCheckpointWorldState();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+            }
+
+            SaveGame();
+        }
+
+        public bool IsRoomCleared(string roomId)
+        {
+            return Data != null && Data.IsRoomCleared(roomId);
+        }
+
+        public void MarkRoomCleared(string roomId)
+        {
+            if (Data == null) Data = new GameData();
+            Data.MarkRoomCleared(roomId);
             SaveGame();
         }
 
@@ -305,6 +363,10 @@ namespace HeartOfTheNight.Hung
             string sceneToLoad = Data.checkpointScene;
             _pendingRespawnApply = true;
             _pendingContinueRestoreHealth = true;
+            KeepLevelTimeAcrossNextLoad();
+
+            if (Data.hasCheckpointWorldState && Data.checkpointPlayerHealth > 0)
+                Data.playerHealth = Data.checkpointPlayerHealth;
 
             if (!string.IsNullOrEmpty(Data.checkpointSpawnID))
                 LevelEntrance.SetPendingSpawn(Data.checkpointSpawnID);
@@ -351,6 +413,7 @@ namespace HeartOfTheNight.Hung
             if (health > 0)
                 Data.playerHealth = health;
 
+            Data.CaptureCheckpointWorldState();
             SaveGame();
             Debug.Log($"[Checkpoint] Đã lưu cửa: scene={Data.checkpointScene}, spawnId={Data.checkpointSpawnID}, pos={worldPosition}");
         }
@@ -373,7 +436,15 @@ namespace HeartOfTheNight.Hung
             if (Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointScene))
                 sceneToLoad = Data.checkpointScene;
 
+            if (Data != null)
+            {
+                Data.RestoreCheckpointWorldState();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                SaveGame();
+            }
+
             _pendingRespawnApply = true;
+            KeepLevelTimeAcrossNextLoad();
 
             if (Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointSpawnID))
                 LevelEntrance.SetPendingSpawn(Data.checkpointSpawnID);

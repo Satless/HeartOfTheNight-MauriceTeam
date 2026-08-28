@@ -60,13 +60,14 @@ namespace HeartOfTheNight.Player
                 _currentHealth = 100;
             }
 
-            // Đồng bộ vào DataManager để UI hoặc Save/Load khác đọc
-            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // Continue / respawn sẽ ghi máu từ save — đừng đè max lên RAM trước đó.
+            if (HeartOfTheNight.Hung.DataManager.Instance != null
+                && !HeartOfTheNight.Hung.DataManager.Instance.IsApplyingSpawnRestore)
             {
                 HeartOfTheNight.Hung.DataManager.Instance.Data.playerHealth = _currentHealth;
             }
-
-            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         /// <summary>
@@ -131,6 +132,13 @@ namespace HeartOfTheNight.Player
         {
             if (_isDead) return;
             _isDead = true;
+
+            if (HeartOfTheNight.Hung.DataManager.Instance != null)
+                HeartOfTheNight.Hung.DataManager.Instance.PauseLevelTimer();
+
+            if (PauseUI.Instance != null)
+                PauseUI.Instance.DismissForExternalFlow();
+
             Debug.Log("[PlayerHealth] Player <color=red>ĐÃ CHẾT</color>!");
             OnDeath?.Invoke();
             StartCoroutine(DieRoutine());           
@@ -156,7 +164,8 @@ namespace HeartOfTheNight.Player
                 anim.TriggerDeath();
 
             float delay = _deathScreenDelay > 0f ? _deathScreenDelay : 2f;
-            yield return new WaitForSeconds(delay);
+            Time.timeScale = 1f;
+            yield return new WaitForSecondsRealtime(delay);
 
             var deadScreen = UnityEngine.Object.FindFirstObjectByType<DeadScreenUI>(FindObjectsInactive.Include);
             if (deadScreen != null)

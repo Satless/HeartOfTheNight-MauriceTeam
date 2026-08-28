@@ -59,6 +59,9 @@ public class MinimapManager : MonoBehaviour
     // --- HÀM NÀY SẼ TỰ CHẠY MỘT LẦN KHI BẠN NHẤN PHÍM TAB ---
     private void OnToggleMap(InputAction.CallbackContext context)
     {
+        if (PauseUI.IsPaused)
+            return;
+
         if (mapUIContainer != null)
         {
             // Đảo ngược trạng thái: Nếu đang tắt thì bật, đang bật thì tắt
