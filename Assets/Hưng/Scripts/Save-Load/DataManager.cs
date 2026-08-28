@@ -310,6 +310,24 @@ namespace HeartOfTheNight.Hung
             SaveGame();
         }
 
+        /// <summary>
+        /// Pause HOME / EXIT: giữ checkpoint làm điểm Continue, không ghi máu/chìa/phòng giữa màn lên file.
+        /// Vẫn lưu thời gian chơi.
+        /// </summary>
+        public void SaveBeforeLeaveLevel()
+        {
+            if (Data == null || !Data.hasSave)
+                return;
+
+            if (HasInProgress() && Data.hasCheckpointWorldState)
+            {
+                Data.RestoreCheckpointWorldState();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+            }
+
+            SaveGame();
+        }
+
         public bool IsRoomCleared(string roomId)
         {
             return Data != null && Data.IsRoomCleared(roomId);
