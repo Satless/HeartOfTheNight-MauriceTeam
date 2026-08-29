@@ -8,11 +8,11 @@ public class AntiHeal : MonoBehaviour
     {
         if (thoiGianConLai > 0)
         {
-            thoiGianConLai -= Time.deltaTime; // Trừ dần thời gian
+            thoiGianConLai -= Time.deltaTime;
         }
         else
         {
-            // Hết 6 giây, tự động hủy lá bùa khỏi người Player
+            // Hết 6 giây thì bùa tự rớt ra khỏi người Player
             Destroy(this);
         }
     }

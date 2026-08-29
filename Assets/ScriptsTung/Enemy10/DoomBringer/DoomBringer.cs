@@ -170,7 +170,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
 
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 2f);
     }
 
     void MoveRelentlessly()
