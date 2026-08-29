@@ -123,6 +123,31 @@ public class PauseUI : MonoBehaviour
             Pause();
     }
 
+    //public void Pause()
+    //{
+    //    if (IsPaused || !CanOpenPause())
+    //        return;
+
+    //    EnsureCanvas();
+    //    EnsurePanel();
+    //    EnsureEventSystem();
+    //    if (_panel == null)
+    //        return;
+
+    //    IsPaused = true;
+    //    _panel.SetActive(true);
+    //    _panel.transform.SetAsLastSibling();
+    //    CloseSettings();
+
+    //    _levelTimerWasPaused = DataManager.Instance != null && DataManager.Instance.IsLevelTimerPaused;
+    //    if (DataManager.Instance != null)
+    //        DataManager.Instance.PauseLevelTimer();
+
+    //    Time.timeScale = 0f;
+    //    AudioListener.pause = true;
+    //    FreezeGameplay();
+    //}
+
     public void Pause()
     {
         if (IsPaused || !CanOpenPause())
@@ -144,7 +169,10 @@ public class PauseUI : MonoBehaviour
             DataManager.Instance.PauseLevelTimer();
 
         Time.timeScale = 0f;
-        AudioListener.pause = true;
+
+        // BỎ HOẶC COMMENT DÒNG NÀY ĐỂ ÂM THANH UI KHÔNG BỊ KHÓA
+        // AudioListener.pause = true; 
+
         FreezeGameplay();
     }
 
@@ -238,6 +266,9 @@ public class PauseUI : MonoBehaviour
         if (dead != null && dead.gameObject.activeInHierarchy)
             return false;
 
+        if (LevelCompleteUI.IsShowing)
+            return false;
+
         var player = FindFirstObjectByType<PlayerHealth>();
         if (player != null && player.IsDead)
             return false;
@@ -299,6 +330,9 @@ public class PauseUI : MonoBehaviour
         _disabledOnPause.Clear();
         DisableIfEnabled(FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None));
         DisableIfEnabled(FindObjectsByType<PlayerAttack>(FindObjectsSortMode.None));
+        
+        // [TƯƠNG THÍCH HUD] Tắt script nhận diện bàn phím của HUD để nó ngừng chớp màu khi Pause
+        DisableIfEnabled(FindObjectsByType<HeartOfTheNight.UI.HUDKeyboardController>(FindObjectsSortMode.None));
     }
 
     private void DisableIfEnabled(Behaviour[] behaviours)

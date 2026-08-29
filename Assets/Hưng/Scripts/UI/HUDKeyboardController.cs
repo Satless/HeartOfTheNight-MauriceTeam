@@ -8,6 +8,7 @@ namespace HeartOfTheNight.UI
     public class HUDKeyboardController : MonoBehaviour
     {
         [Header("Key Indicators (Đổi màu Image nền)")]
+        [SerializeField] private Image _o0Pause; // Nút ESC
         [SerializeField] private Image _o1Shoot;
         [SerializeField] private Image _o2Jump;
         [SerializeField] private Image _o3Dash;
@@ -35,24 +36,29 @@ namespace HeartOfTheNight.UI
         private void Awake()
         {
             _inputActions = new InputSystem_Actions();
-        }
-
-        private void OnEnable()
-        {
-            _inputActions.Enable();
-
-            // Đăng ký đổi MÀU
+            
+            // [QUAN TRỌNG] Đăng ký Event một lần duy nhất trong Awake để tránh Memory Leak khi Disable/Enable liên tục (ví dụ lúc Pause)
             RegisterColorAction(_inputActions.Player.Attack, _o1Shoot);
             RegisterColorAction(_inputActions.Player.Jump, _o2Jump);
             RegisterColorAction(_inputActions.Player.Dash, _o3Dash);
             RegisterColorAction(_inputActions.UI.ToggleMap, _o4Map);
             RegisterColorAction(_inputActions.Player.ToggleVariant, _o5Toggle);
             
-            // Đăng ký đổi MÀU cho O6 VÀ đổi ALPHA cho súng tương ứng
             RegisterWeaponAction(_inputActions.Player.Weapon1, _gun1);
             RegisterWeaponAction(_inputActions.Player.Weapon2, _gun2);
             RegisterWeaponAction(_inputActions.Player.Weapon3, _gun3);
             RegisterWeaponAction(_inputActions.Player.Weapon4, _gun4);
+        }
+
+        private void OnEnable()
+        {
+            _inputActions.Enable();
+            
+            // Tắt sáng nút ESC khi game hết Pause
+            if (_o0Pause != null)
+            {
+                _o0Pause.color = _normalColor;
+            }
         }
 
         private void OnDisable()
@@ -60,6 +66,13 @@ namespace HeartOfTheNight.UI
             if (_inputActions != null)
             {
                 _inputActions.Disable();
+            }
+            
+            // [TÍNH NĂNG ESC] Khi script này bị PauseUI tắt đi (FreezeGameplay), lập tức thắp sáng nút ESC 
+            // và nó sẽ giữ nguyên trạng thái sáng này cho tới khi Unpause (OnEnable chạy lại).
+            if (PauseUI.IsPaused && _o0Pause != null)
+            {
+                _o0Pause.color = _pressedColor;
             }
         }
 

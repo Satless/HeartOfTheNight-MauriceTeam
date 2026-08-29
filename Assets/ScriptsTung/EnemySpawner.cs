@@ -10,6 +10,13 @@ public class EnemySpawner : MonoBehaviour
 
     private bool hasSpawned = false; // Biến đánh dấu để chỉ gọi quái 1 lần
 
+    public bool HasSpawned => hasSpawned;
+
+    public int CountPlannedEnemies()
+    {
+        return spawnPoints != null ? spawnPoints.Length : 0;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Kiểm tra xem ai vừa chạm vào. Nếu là Player và vùng này chưa từng sinh quái
@@ -33,7 +40,8 @@ public class EnemySpawner : MonoBehaviour
                 GameObject quaiMuonGoi = enemyPrefabs[randomIndex];
 
                 // Lệnh Instantiate dùng để đẻ (clone) quái ra màn hình ngay tại vị trí của point
-                Instantiate(quaiMuonGoi, point.position, Quaternion.identity);
+                GameObject spawned = Instantiate(quaiMuonGoi, point.position, Quaternion.identity);
+                LevelStatsTracker.BindSpawnedEnemy(spawned);
             }
         }
 

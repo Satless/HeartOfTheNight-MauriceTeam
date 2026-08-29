@@ -53,7 +53,6 @@ public class Wrath : MonoBehaviour, IDamageable
     private float nextAttackTime = 0f;
     private bool isBusy = false;
 
-
     private float idleSoundTimer;
     private float moveSoundTimer;
 
@@ -81,7 +80,6 @@ public class Wrath : MonoBehaviour, IDamageable
 
             if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                // Thêm check Y
                 if (distanceX <= attackRange && distanceY <= attackRangeY)
                 {
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -141,9 +139,8 @@ public class Wrath : MonoBehaviour, IDamageable
         idleSoundTimer -= Time.fixedDeltaTime;
         if (idleSoundTimer <= 0f)
         {
-            //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
             AudioEvents.TriggerSound3D("Enemy", "Wrath", "Idle", transform.position);
-            idleSoundTimer = 10f; // Phát lại sau mỗi 10s
+            idleSoundTimer = 10f;
         }
     }
 
@@ -165,9 +162,8 @@ public class Wrath : MonoBehaviour, IDamageable
             moveSoundTimer -= Time.fixedDeltaTime;
             if (moveSoundTimer <= 0f)
             {
-                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
                 AudioEvents.TriggerSound3D("Enemy", "Wrath", "Move", transform.position);
-                moveSoundTimer = 0.2f; // Phát lại sau mỗi 10s
+                moveSoundTimer = 0.2f;
             }
         }
     }
@@ -175,7 +171,6 @@ public class Wrath : MonoBehaviour, IDamageable
     IEnumerator ThucHienHucRoutine()
     {
         isBusy = true;
-
         AudioEvents.TriggerSound3D("Enemy", "Wrath", "Attack", transform.position);
 
         rb.linearVelocity = Vector2.zero;
@@ -210,13 +205,21 @@ public class Wrath : MonoBehaviour, IDamageable
                     if (p.CompareTag("Player") || p.gameObject.layer == LayerMask.NameToLayer("Player"))
                     {
                         daTrungDon = true;
+
                         IDamageable target = p.GetComponent<IDamageable>();
-                        if (target == null) target = p.GetComponentInParent<IDamageable>();
+                        GameObject targetObj = p.gameObject;
+
+                        if (target == null)
+                        {
+                            target = p.GetComponentInParent<IDamageable>();
+                            if (target != null) targetObj = p.transform.parent.gameObject;
+                        }
 
                         if (target != null)
                         {
                             target.TakeDamage(attackDamage);
-                            ApplyAntiHeal();
+                            // 🔥 GỌI HÀM VÀ TRUYỀN ĐÚNG CÁI CỤC VỪA NHẬN DAMAGE VÀO
+                            ApplyAntiHeal(targetObj);
                         }
                     }
                 }
@@ -241,11 +244,12 @@ public class Wrath : MonoBehaviour, IDamageable
         isBusy = false;
     }
 
-    void ApplyAntiHeal()
+    // 🔥 HÀM ĐÃ SỬA: NHẬN VÀO GAMEOBJECT MỤC TIÊU ĐỂ GẮN SCRIPT ANTIHEAL
+    void ApplyAntiHeal(GameObject targetObj)
     {
-        if (player == null) return;
-        AntiHeal anti = player.GetComponent<AntiHeal>();
-        if (anti == null) anti = player.gameObject.AddComponent<AntiHeal>();
+        if (targetObj == null) return;
+        AntiHeal anti = targetObj.GetComponent<AntiHeal>();
+        if (anti == null) anti = targetObj.AddComponent<AntiHeal>();
         anti.thoiGianConLai = antiHealDuration;
     }
 
@@ -262,14 +266,12 @@ public class Wrath : MonoBehaviour, IDamageable
         if (isDead) return;
         currentHealth -= damage;
         AudioEvents.TriggerSound3D("Enemy", "Wrath", "Hurt", transform.position);
-
         if (currentHealth <= 0) Die();
     }
 
     void Die()
     {
         isDead = true;
-
         AudioEvents.TriggerSound3D("Enemy", "Wrath", "Die", transform.position);
 
         rb.linearVelocity = Vector2.zero;
@@ -283,6 +285,6 @@ public class Wrath : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
 
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 2f);
     }
 }
