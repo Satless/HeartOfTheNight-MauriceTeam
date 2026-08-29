@@ -498,7 +498,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 3059883534073385911, guid: 5ddeb85ab12d7024cb52cc8db96c920d, type: 3}
+  m_Sprite: {fileID: 115919859150548368, guid: 37615f63227adcf4fb0b990c1b450038, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -591,7 +591,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4278190335
-  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -608,8 +608,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 35
+  m_fontSizeBase: 35
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1111,27 +1111,21 @@ MonoBehaviour:
   continueButton: {fileID: 218490287}
   backButton: {fileID: 1200077646}
   storyLines:
-  - 'The artifact reveals in your back still that to you make your way down the cold,
-    black and bloody hallway. But once it had been reached...
-
-
-    You leave the
-    ruined town of Dusk Island, littered with the corpses of the possessed, hoping
-    never to return.
-
-
-    In the distance stand imposing silhouettes of what appear
-    to be military facilities... but why?
-
-
-    A dark voice guides you forward.
-
-
-    Do
-    you truly seek answers?
-
-
-    Or will you turn back?'
+  - "[20/1/1988]\r\nKhi b\u01B0\u1EDBc \u0111\u1EBFn v\xF9ng \u0111\u1EA5t n\xE0y,
+    nh\u1EEFng g\xEC b\u1EA1n th\u1EA5y tr\u01B0\u1EDBc m\u1EAFt l\xE0 m\u1ED9t v\xF9ng
+    \u0111\u1EA5t \u0111\xE3 b\u1ECB m\xE0n \u0111\xEAm bao ph\u1EE7 t\u1EEB l\xE2u\r\nNh\u1EEFng
+    l\xE0n s\u01B0\u01A1ng m\xF9 v\xE0 kh\xF3i \u0111en kh\xF4ng ng\u1EEBng tu\xF4n
+    ra t\u1EEB m\u1ED9t c\xF4ng tr\xECnh kh\u1ED5ng l\u1ED3 n\u1EB1m s\xE2u trong
+    v\xF9ng \u0111\u1EA5t hoang t\xE0n.\r\nNh\u1EEFng ng\u01B0\u1EDDi d\xE2n t\u1EEBng
+    s\u1ED1ng b\xECnh th\u01B0\u1EDDng gi\u1EDD \u0111\xE2y l\u1EA7n l\u01B0\u1EE3t
+    bi\u1EBFn th\xE0nh nh\u1EEFng sinh v\u1EADt qu\xE1i d\u1ECB.\r\nNhi\u1EC1u chi\u1EBFn
+    binh \u0111\xE3 \u0111\u01B0\u1EE3c c\u1EED v\xE0o c\xF4ng tr\xECnh...\r\nNh\u01B0ng
+    ch\u01B0a m\u1ED9t ai tr\u1EDF v\u1EC1.\r\nGi\u1EDD \u0111\xE2y, b\u1EA1n b\u01B0\u1EDBc
+    v\xE0o n\u01A1i \u0111\xF3.\r\nNhi\u1EC7m v\u1EE5 c\u1EE7a b\u1EA1n r\u1EA5t
+    \u0111\u01A1n gi\u1EA3n:\r\nTi\xEAu di\u1EC7t nh\u1EEFng th\u1EE9 b\xEAn trong
+    v\xE0 ph\xE1 h\u1EE7y c\xF4ng tr\xECnh t\u1EEB b\xEAn trong.\r\nNh\u01B0ng li\u1EC7u
+    b\u1EA1n c\xF3 th\u1EC3 s\u1ED1ng s\xF3t \u0111\u1EC3 t\xECm ra ngu\u1ED3n g\u1ED1c
+    c\u1EE7a m\xE0n \u0111\xEAm?"
   typingSpeed: 0.03
   delayBetweenLines: 1.2
 --- !u!4 &1832419686
