@@ -30,9 +30,19 @@ public class ItemPickupPlayer : MonoBehaviour
 
         if (playerHp != null)
         {
-       
             if (itemType == ItemType.HealHP)
             {
+                // 🔥 CHÍNH LÀ CHỖ NÀY: Quét xem trên người Player có tờ bùa AntiHeal không?
+                AntiHeal buaCamMau = collision.GetComponentInParent<AntiHeal>();
+
+                // Nếu có bùa và bùa vẫn còn thời gian -> Lập tức "dội" ra, không cho nhặt máu!
+                if (buaCamMau != null && buaCamMau.thoiGianConLai > 0)
+                {
+                    Debug.Log("⛔ Đang dính Anti-Heal! Đi ngang qua cục máu không thèm nhặt!");
+                    return;
+                }
+
+                // Nếu không bị cấm máu thì mới check xem máu đầy chưa
                 if (playerHp.GetCurrentHealth() >= playerHp.MaxHealth)
                 {
                     return; // Đầy máu rồi thì thoát hàm luôn, không nhặt và không xóa item
@@ -69,7 +79,7 @@ public class ItemPickupPlayer : MonoBehaviour
                 if (hpScript != null)
                 {
                     hpScript.Heal(healAmount);
-                    Debug.Log("Đã hồi máu!");
+                    Debug.Log("💚 Đã hồi máu!");
                 }
                 else
                 {

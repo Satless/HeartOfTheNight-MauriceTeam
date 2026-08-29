@@ -158,6 +158,6 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
 
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 2f);
     }
 }

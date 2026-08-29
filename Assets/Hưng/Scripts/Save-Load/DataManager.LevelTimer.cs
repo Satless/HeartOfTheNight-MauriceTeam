@@ -104,7 +104,7 @@ namespace HeartOfTheNight.Hung
             _levelTimerPaused = false;
         }
 
-        private static bool IsLevelScene(string sceneName)
+        public static bool IsLevelScene(string sceneName)
         {
             if (string.IsNullOrEmpty(sceneName))
                 return false;

@@ -10,7 +10,45 @@ namespace HeartOfTheNight.ThuNghiem
 
         [Tooltip("Index của phòng này trên Minimap (để -1 nếu phòng không có trên map)")]
         [SerializeField] private int roomIndex;
+
+        [Header("Secret")]
+        [Tooltip("Bật = phòng bí mật, hiện trên màn Level Complete (SECRET found/total).")]
+        [SerializeField] private bool isSecretRoom;
+        [Tooltip("Để trống = Scene + tên object.")]
+        [SerializeField] private string secretId;
+
         private bool _isPlayerInRoom = false;
+
+        public bool IsSecretRoom
+        {
+            get
+            {
+                if (isSecretRoom)
+                    return true;
+                return NameLooksSecret(gameObject.name)
+                    || (transform.parent != null && NameLooksSecret(transform.parent.name));
+            }
+        }
+
+        public string SecretId
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(secretId))
+                    return secretId;
+                return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
+            }
+        }
+
+        private static bool NameLooksSecret(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return false;
+            return name.IndexOf("secret", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("hidden", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("bí mật", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("bi mat", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
 
         private Collider2D _roomCollider;
         private Transform _playerTransform;
@@ -57,36 +95,31 @@ namespace HeartOfTheNight.ThuNghiem
         // Giải quyết triệt để lỗi "Camera lề mề" do Unity Physics thường bị khựng 1 nhịp khi Player dịch chuyển tức thời (Teleport).
         private void Update()
         {
-            if (_playerTransform == null || _roomCamera == null) return;
+            if (_playerTransform == null || _roomCollider == null) return;
 
-            // Kiểm tra xem vị trí tâm của Player có đang nằm trong giới hạn của Phòng này không?
             if (_roomCollider.OverlapPoint(_playerTransform.position))
             {
-                // Nếu có, đưa Camera này lên làm Vua (Priority 20)
-                _roomCamera.Priority = 20;
+                if (_roomCamera != null)
+                    _roomCamera.Priority = 20;
 
-                // --- LOGIC MỚI CHO MINIMAP ---
-                if (MinimapManager.Instance != null && roomIndex >= 0)
+                if (!_isPlayerInRoom)
                 {
-                    // Chỉ gọi SetCurrentRoom 1 lần khi player vừa bước vào hoặc respawn tại phòng này
-                    if (!_isPlayerInRoom)
-                    {
-                        _isPlayerInRoom = true;
-                        // Gửi thêm tọa độ tâm phòng ngoài thế giới (world space) cho Minimap
+                    _isPlayerInRoom = true;
+                    if (IsSecretRoom)
+                        LevelStatsTracker.DiscoverSecret(SecretId);
+
+                    if (MinimapManager.Instance != null && roomIndex >= 0)
                         MinimapManager.Instance.SetCurrentRoom(roomIndex, _roomCollider.bounds.center);
-                    }
-                    
-                    // Cập nhật vị trí liên tục theo thời gian thực (Zero-GC)
-                    MinimapManager.Instance.UpdatePlayerPosition(_playerTransform.position);
                 }
-                // -----------------------------
+
+                if (MinimapManager.Instance != null && roomIndex >= 0)
+                    MinimapManager.Instance.UpdatePlayerPosition(_playerTransform.position);
             }
             else
             {
-                // Nếu Player đi khỏi, giáng cấp Camera này xuống (Priority 10)
-                _roomCamera.Priority = 10;
-                
-                // --- RESET TRẠNG THÁI MINIMAP ---
+                if (_roomCamera != null)
+                    _roomCamera.Priority = 10;
+
                 _isPlayerInRoom = false;
             }
         }

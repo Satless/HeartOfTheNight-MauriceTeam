@@ -15,6 +15,8 @@ public class DeadScreenUI : MonoBehaviour
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
         _waitingForRestart = true;
+        if (PauseUI.Instance != null)
+            PauseUI.Instance.DismissForExternalFlow();
         Time.timeScale = 0f;
     }
 
