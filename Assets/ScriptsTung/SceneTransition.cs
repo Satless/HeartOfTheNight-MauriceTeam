@@ -68,7 +68,7 @@ public class SceneTransition : MonoBehaviour
         }
 
         if (HeartOfTheNight.Hung.DataManager.Instance != null)
-            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
+            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(nextSceneName);
 
         // Continuation on ScreenFader so loading + FadeIn survive scene unload.
         ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);

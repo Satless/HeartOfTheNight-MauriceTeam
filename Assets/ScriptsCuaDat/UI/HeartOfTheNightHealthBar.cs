@@ -1,5 +1,6 @@
 using System.Collections;
 using HeartOfTheNight.Enemy;
+using HeartOfTheNight.Player;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,7 +43,9 @@ namespace HeartOfTheNight.UI
         private bool isFlashing;
         private bool isDying;
         private bool isShowing;
+        private bool hideForPlayerDeath;
         private int lastHealth = -1;
+        private PlayerHealth playerHealth;
 
         private void Awake()
         {
@@ -117,6 +120,8 @@ namespace HeartOfTheNight.UI
         private void OnEnable()
         {
             HeartOfTheNightBoss.OnBossReady += Bind;
+            SubscribePlayerDeath();
+            if (hideForPlayerDeath) return;
             if (boss != null) Bind(boss);
             else TryFindBoss();
         }
@@ -124,7 +129,39 @@ namespace HeartOfTheNight.UI
         private void OnDisable()
         {
             HeartOfTheNightBoss.OnBossReady -= Bind;
+            UnsubscribePlayerDeath();
             Unbind();
+        }
+
+        private void SubscribePlayerDeath()
+        {
+            if (playerHealth == null)
+                playerHealth = FindFirstObjectByType<PlayerHealth>();
+            if (playerHealth == null) return;
+
+            playerHealth.OnDeath -= HideBecausePlayerDied;
+            playerHealth.OnDeath += HideBecausePlayerDied;
+            if (playerHealth.IsDead)
+                HideBecausePlayerDied();
+        }
+
+        private void UnsubscribePlayerDeath()
+        {
+            if (playerHealth == null) return;
+            playerHealth.OnDeath -= HideBecausePlayerDied;
+        }
+
+        private void HideBecausePlayerDied()
+        {
+            if (hideForPlayerDeath) return;
+            hideForPlayerDeath = true;
+
+            StopAllCoroutines();
+            isShowing = false;
+            isDying = false;
+
+            if (canvasGroup != null) canvasGroup.alpha = 0f;
+            if (canvas != null) canvas.enabled = false;
         }
 
         private void TryFindBoss()
@@ -134,6 +171,7 @@ namespace HeartOfTheNight.UI
 
         private void Bind(HeartOfTheNightBoss target)
         {
+            if (hideForPlayerDeath) return;
             if (target == null || target.IsDead) return;
             if (boss == target && lastHealth >= 0 && !isDying) return;
 
@@ -157,7 +195,7 @@ namespace HeartOfTheNight.UI
 
         private void HandleHealthChanged(int currentHealth, int maxHealth)
         {
-            if (maxHealth <= 0) return;
+            if (hideForPlayerDeath || maxHealth <= 0) return;
 
             float newFill = Mathf.Clamp01((float)currentHealth / maxHealth);
             bool firstSync = lastHealth < 0;
@@ -183,6 +221,11 @@ namespace HeartOfTheNight.UI
 
         private void Update()
         {
+            if (playerHealth == null)
+                SubscribePlayerDeath();
+
+            if (hideForPlayerDeath) return;
+
             if (boss == null)
             {
                 TryFindBoss();
@@ -203,7 +246,7 @@ namespace HeartOfTheNight.UI
 
         private void ShowBar()
         {
-            if (canvasGroup == null || isShowing) return;
+            if (hideForPlayerDeath || canvasGroup == null || isShowing) return;
             isShowing = true;
             if (barFrame != null) barFrame.localScale = barBaseScale;
             StartCoroutine(FadeInRoutine());
