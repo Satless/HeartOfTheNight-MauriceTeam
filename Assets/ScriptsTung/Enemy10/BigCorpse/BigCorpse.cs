@@ -38,6 +38,11 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     public Transform wallCheck;
     public float edgeCheckDistance = 1.5f;
     public float wallCheckDistance = 0.5f;
+    public float wallCheckHeight = 1.5f; // 🔥 THÊM: Check tường theo trục Y
+
+    [Header("Fix Bug Lật Liên Tục")]
+    public float flipCooldown = 0.5f; // Thời gian cấm lật lại
+    private float flipTimer = 0f;
 
     [Header("Tấn công")]
     public int attackDamage = 15;
@@ -48,7 +53,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     private Collider2D myCol;
     private float nextAttackTime = 0f;
     private bool isBusy = false;
-
 
     private float idleSoundTimer;
     private float moveSoundTimer;
@@ -70,6 +74,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
 
         CheckGroundStatus();
 
+        if (flipTimer > 0) flipTimer -= Time.deltaTime;
+
         if (player != null)
         {
             float distanceX = Mathf.Abs(player.position.x - transform.position.x);
@@ -77,7 +83,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
 
             if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                // Ép phải cùng độ cao Y mới được chém
                 if (distanceX <= attackRange && distanceY <= attackRangeY)
                 {
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -113,7 +118,12 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     {
         if (wallCheck == null) return false;
         float dir = Mathf.Sign(transform.localScale.x);
-        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, Vector2.right * dir, wallCheckDistance, groundLayer);
+
+        // 🔥 FIX: Nhấc tâm của hộp lên trên để đáy hộp CHẮC CHẮN NÉ MẶT ĐẤT
+        Vector2 boxCenter = (Vector2)wallCheck.position + new Vector2(0f, (wallCheckHeight / 2f) + 0.1f);
+        Vector2 boxSize = new Vector2(0.1f, wallCheckHeight);
+
+        RaycastHit2D hit = Physics2D.BoxCast(boxCenter, boxSize, 0f, Vector2.right * dir, wallCheckDistance, groundLayer);
         return hit.collider != null && !hit.collider.isTrigger;
     }
 
@@ -123,25 +133,40 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
         float currentDir = Mathf.Sign(transform.localScale.x);
         float dirToStart = Mathf.Sign(startX - transform.position.x);
 
-
         idleSoundTimer -= Time.fixedDeltaTime;
         if (idleSoundTimer <= 0f)
         {
-            //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
             AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Idle", transform.position);
-            idleSoundTimer = 10f; // Phát lại sau mỗi 10s
+            idleSoundTimer = 10f;
         }
-        
 
-        if (IsNearEdge() || IsHittingWall() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
+        // 🔥 FIX: Tách riêng logic check Tường/Vực và check Khoảng cách
+        if (flipTimer <= 0f)
         {
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
+            if (IsNearEdge() || IsHittingWall())
+            {
+                // Đụng tường/mép vực -> Quay đầu VÀ đổi nhà mới
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+                startX = transform.position.x; // Set tâm mới để chống kẹt logic
+            }
+            else if (distanceFromStart >= patrolDistance && currentDir != dirToStart)
+            {
+                // Hết khu tuần tra -> Quay đầu bình thường
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+            }
         }
 
-        float dir = Mathf.Sign(transform.localScale.x);
-        rb.linearVelocity = new Vector2(dir * patrolSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(currentDir * patrolSpeed, rb.linearVelocity.y);
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
     }
 
@@ -160,21 +185,25 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
             rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
 
-
             moveSoundTimer -= Time.fixedDeltaTime;
             if (moveSoundTimer <= 0f)
             {
-                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
                 AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Move", transform.position);
-                moveSoundTimer = 0.3f; // Phát lại sau mỗi 0.3s
+                moveSoundTimer = 0.3f;
             }
         }
     }
 
     void LookAtPlayer()
     {
+        if (flipTimer > 0) return;
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+
+        if (Mathf.Sign(transform.localScale.x) != dir)
+        {
+            transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+            flipTimer = flipCooldown;
+        }
     }
 
     IEnumerator AttackRoutine()
@@ -230,7 +259,6 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
     void Die()
     {
         isDead = true;
-
         AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Die", transform.position);
 
         rb.linearVelocity = Vector2.zero;
@@ -245,5 +273,17 @@ public class BigCorpseImg : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
         Destroy(gameObject, 2f);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (wallCheck != null)
+        {
+            Gizmos.color = Color.cyan;
+            float dir = Mathf.Sign(transform.localScale.x);
+            // 🔥 Vẽ hộp BoxCast chính xác
+            Vector3 center = wallCheck.position + new Vector3(dir * (wallCheckDistance / 2f), (wallCheckHeight / 2f) + 0.1f, 0);
+            Gizmos.DrawWireCube(center, new Vector3(wallCheckDistance, wallCheckHeight, 0));
+        }
     }
 }

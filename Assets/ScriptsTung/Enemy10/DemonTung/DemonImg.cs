@@ -30,7 +30,12 @@ public class DemonImg : MonoBehaviour, IDamageable
     [Header("Kiểm tra Vật cản (Tường)")]
     public Transform wallCheck;
     public float wallCheckDistance = 0.5f;
+    public float wallCheckHeight = 2f;
     public LayerMask obstacleLayer;
+
+    [Header("Fix Bug Lật Liên Tục")]
+    public float flipCooldown = 0.5f;
+    private float flipTimer = 0f;
 
     [Header("Kỹ năng Cột Lửa (Demon Skill Laser)")]
     public float attackCooldown = 3f;
@@ -81,6 +86,7 @@ public class DemonImg : MonoBehaviour, IDamageable
     void Update()
     {
         if (isDead || player == null) return;
+        if (flipTimer > 0) flipTimer -= Time.deltaTime;
 
         if (isCasting)
         {
@@ -102,7 +108,6 @@ public class DemonImg : MonoBehaviour, IDamageable
                 StopMoving();
                 LookAtPlayer();
 
-                // KHÓA MÕM NGAY LẬP TỨC: Đưa bộ đếm lên đầu để tránh spam đúp
                 if (Time.time >= nextAttackTime)
                 {
                     nextAttackTime = Time.time + chargeTime + attackCooldown;
@@ -122,24 +127,41 @@ public class DemonImg : MonoBehaviour, IDamageable
         float currentDir = Mathf.Sign(transform.localScale.x);
         float dirToStart = Mathf.Sign(startX - transform.position.x);
 
-        if (IsHittingWall(currentDir) || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
+        if (flipTimer <= 0f)
         {
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
-            currentDir = Mathf.Sign(transform.localScale.x);
+            if (IsHittingWall(currentDir))
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+                startX = transform.position.x; // FIX
+            }
+            else if (distanceFromStart >= patrolDistance && currentDir != dirToStart)
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+            }
         }
 
         rb.linearVelocity = new Vector2(currentDir * patrolSpeed, 0f);
-
-        // THÊM: Đang đi tuần mà thấy mặt sếp thì cũng phải giật mình "thở" 0.5s mới bắn
         nextAttackTime = Mathf.Max(nextAttackTime, Time.time + delayAfterMove);
     }
 
     bool IsHittingWall(float direction)
     {
         if (wallCheck == null) return false;
-        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, Vector2.right * direction, wallCheckDistance, obstacleLayer);
+
+        Vector2 boxCenter = (Vector2)wallCheck.position + new Vector2(0f, (wallCheckHeight / 2f) + 0.1f);
+        Vector2 boxSize = new Vector2(0.1f, wallCheckHeight);
+
+        RaycastHit2D hit = Physics2D.BoxCast(boxCenter, boxSize, 0f, Vector2.right * direction, wallCheckDistance, obstacleLayer);
         return hit.collider != null && !hit.collider.isTrigger;
     }
 
@@ -161,9 +183,11 @@ public class DemonImg : MonoBehaviour, IDamageable
         else
         {
             rb.linearVelocity = new Vector2(fleeDir * runSpeed, 0f);
-            transform.localScale = new Vector3(fleeDir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-
-            // THÊM: Vừa chạy xong phải mất 0.5s mới được vận nội công
+            if (flipTimer <= 0f && Mathf.Sign(transform.localScale.x) != fleeDir)
+            {
+                transform.localScale = new Vector3(fleeDir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+                flipTimer = flipCooldown;
+            }
             nextAttackTime = Mathf.Max(nextAttackTime, Time.time + delayAfterMove);
         }
     }
@@ -175,13 +199,15 @@ public class DemonImg : MonoBehaviour, IDamageable
 
     void LookAtPlayer()
     {
+        if (flipTimer > 0) return;
         float dir = player.position.x > transform.position.x ? 1f : -1f;
-        transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+        if (Mathf.Sign(transform.localScale.x) != dir)
+        {
+            transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+            flipTimer = flipCooldown;
+        }
     }
 
-    // ==========================================
-    // KỸ NĂNG: GỌI LỬA DƯỚI ĐẤT
-    // ==========================================
     IEnumerator CastFireRoutine()
     {
         isCasting = true;
@@ -222,15 +248,7 @@ public class DemonImg : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(chargeTime);
 
         if (sr != null) sr.color = originalColor;
-        isCasting = false; // Xong xuôi hết rồi mới nhả cờ Casting
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectionRange);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, minimumDistance);
+        isCasting = false;
     }
 
     public void TakeDamage(int damage)
@@ -259,5 +277,21 @@ public class DemonImg : MonoBehaviour, IDamageable
         }
 
         Destroy(gameObject, 2f);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, minimumDistance);
+
+        if (wallCheck != null)
+        {
+            Gizmos.color = Color.cyan;
+            float dir = Mathf.Sign(transform.localScale.x);
+            Vector3 center = wallCheck.position + new Vector3(dir * (wallCheckDistance / 2f), (wallCheckHeight / 2f) + 0.1f, 0);
+            Gizmos.DrawWireCube(center, new Vector3(wallCheckDistance, wallCheckHeight, 0));
+        }
     }
 }

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2490736511703192767}
   - component: {fileID: 8071330434877214273}
   - component: {fileID: 8029422305492878261}
+  - component: {fileID: 1300379041726724672}
   m_Layer: 10
   m_Name: Eye&Demon_2
   m_TagString: Enemy
@@ -34,7 +35,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 9100000000000000132}
+  - {fileID: 7289289852025066202}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3499749036575454754
@@ -204,7 +205,24 @@ MonoBehaviour:
   shieldPrefab: {fileID: 118813027983608198, guid: c0f725d66f67941418c15cf5c20b6314, type: 3}
   shieldDuration: 5
   cooldown: 10
-
+  shieldOpacity: 0.1
+  deathAnimDuration: 2
+  deathYOffset: -1
+--- !u!114 &1300379041726724672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6729062528421831190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: add6581f9d070f8418c0cb0bdf5806f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropMultipleItems: 1
+  lootTable: []
+  customVariableName: 
 --- !u!1001 &9100000000000000131
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -213,9 +231,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6743551541821064588}
     m_Modifications:
-    - target: {fileID: 7349025364790326907, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
-      propertyPath: m_Name
-      value: EnemyHealthCanvas
+    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -223,11 +249,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_LocalRotation.x
@@ -242,28 +272,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.5
+      value: 1.68
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -277,12 +291,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7349025364790326907, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
+      propertyPath: m_Name
+      value: EnemyHealthCanvas
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
---- !u!224 &9100000000000000132 stripped
+--- !u!224 &7289289852025066202 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000131}
