@@ -163,7 +163,7 @@ public class LevelCompleteUI : MonoBehaviour
                 DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
 
             DataManager.Instance.Data.currentScene = next;
-            DataManager.Instance.PrepareForNewScene();
+            DataManager.Instance.PrepareForNewScene(next);
 
             if (saveCheckpoint)
                 DataManager.Instance.SaveCheckpoint(next, spawnId, Vector3.zero, health);

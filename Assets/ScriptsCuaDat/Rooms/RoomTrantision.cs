@@ -144,7 +144,7 @@ public class RoomTransition : MonoBehaviour
                     HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
 
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
-                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
+                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
 
                 if (saveAsCheckpoint)
                     TrySaveCheckpoint(playerObj, next, spawnIDInNextScene, Vector3.zero);

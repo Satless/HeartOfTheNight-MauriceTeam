@@ -559,12 +559,17 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        public void PrepareForNewScene()
+        /// <summary>
+        /// Vào màn từ Select Level / cửa qua màn: tui chìa = 0, data của scene đích reset (replay).
+        /// Không gọi khi chết / Continue.
+        /// </summary>
+        public void PrepareForNewScene(string destinationSceneName = "")
         {
             HeartOfTheNight.Rooms.PlayerKeyInventory.ClearKeyCountsForNewScene();
             if (Data == null) return;
             Data.EnsureLists();
-            Data.foundSecrets.Clear();
+            if (!string.IsNullOrEmpty(destinationSceneName))
+                Data.ClearSceneLocalProgress(destinationSceneName);
             Data.CaptureCheckpointWorldState();
         }
 

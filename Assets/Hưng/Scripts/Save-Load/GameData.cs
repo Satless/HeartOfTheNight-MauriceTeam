@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -185,6 +186,48 @@ namespace HeartOfTheNight.Hung
             collectedRedKey = checkpointCollectedRedKey;
             if (checkpointPlayerHealth > 0)
                 playerHealth = checkpointPlayerHealth;
+        }
+
+        /// <summary>
+        /// ID mặc định: SceneName_ObjectName. Dùng khi replay / vào màn từ Select Level.
+        /// </summary>
+        public static bool IdBelongsToScene(string id, string sceneName)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(sceneName))
+                return false;
+            return id.StartsWith(sceneName + "_", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// Xóa phòng/chìa/cửa/secret/timer của đúng scene — chơi lại từ đầu (speedrun).
+        /// Scene khác trong slot không đụng.
+        /// </summary>
+        public void ClearSceneLocalProgress(string sceneName)
+        {
+            if (string.IsNullOrEmpty(sceneName))
+                return;
+
+            EnsureLists();
+            RemoveIdsForScene(clearedRooms, sceneName);
+            RemoveIdsForScene(unlockedDoors, sceneName);
+            RemoveIdsForScene(collectedKeyPickupIds, sceneName);
+            RemoveIdsForScene(foundSecrets, sceneName);
+
+            ScenePlayTimeEntry timer = FindScenePlayTime(sceneName);
+            if (timer != null)
+                timer.playSeconds = 0f;
+        }
+
+        private static void RemoveIdsForScene(List<string> list, string sceneName)
+        {
+            if (list == null)
+                return;
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                if (IdBelongsToScene(list[i], sceneName))
+                    list.RemoveAt(i);
+            }
         }
 
         /// <summary>

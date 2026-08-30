@@ -203,7 +203,7 @@ public class LevelStatsTracker : MonoBehaviour
         for (int i = 0; i < data.foundSecrets.Count; i++)
         {
             string id = data.foundSecrets[i];
-            if (!string.IsNullOrEmpty(id))
+            if (GameData.IdBelongsToScene(id, _sceneName))
                 _foundSecrets.Add(id);
         }
     }

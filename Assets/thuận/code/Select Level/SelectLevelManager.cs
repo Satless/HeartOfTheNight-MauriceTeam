@@ -138,7 +138,7 @@ public class SelectLevelManager : MonoBehaviour
         if (dm != null)
         {
             dm.AbandonInProgress();
-            dm.PrepareForNewScene();
+            dm.PrepareForNewScene(sceneName);
             LevelEntrance.ClearPendingSpawn();
         }
 
