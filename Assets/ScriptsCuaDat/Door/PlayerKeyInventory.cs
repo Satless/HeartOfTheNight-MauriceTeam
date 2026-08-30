@@ -162,8 +162,8 @@ namespace HeartOfTheNight.Rooms
         }
 
         /// <summary>
-        /// Sang scene moi: tui chia ve 0 (chi dung trong scene nhat).
-        /// Giu collectedKeyPickupIds + unlockedDoors de key/cua da xu ly khong hien lai.
+        /// Sang scene mới: tui chìa về 0. Chìa chỉ tồn tại trong scene nhặt.
+        /// Pickup/cửa đã xử lý giữ theo ID (có prefix scene) — không đụng scene khác.
         /// </summary>
         public static void ClearKeyCountsForNewScene()
         {
@@ -172,8 +172,10 @@ namespace HeartOfTheNight.Rooms
 
             data.blueKeys = 0;
             data.redKeys = 0;
+            data.collectedBlueKey = false;
+            data.collectedRedKey = false;
             OnKeysChanged?.Invoke();
-            Debug.Log("[PlayerKeyInventory] Sang scene moi: tui chia ve 0 (pickup da nhat van an).");
+            Debug.Log("[PlayerKeyInventory] Sang scene moi: tui chia ve 0.");
         }
 
         /// <summary>Goi khi load save xong de HUD cap nhat.</summary>
