@@ -5,7 +5,7 @@ using UnityEngine;
 namespace HeartOfTheNight.Rooms
 {
     /// <summary>
-    /// Đếm chìa Blue/Red qua DataManager của Hưng (lưu local + cloud).
+    /// Đếm chìa Blue/Red trên RAM. Chỉ ghi file khi qua cửa checkpoint.
     /// Track từng KeyPickup bằng pickupId khi map có nhiều chìa cùng màu.
     /// </summary>
     public static class PlayerKeyInventory
@@ -61,7 +61,6 @@ namespace HeartOfTheNight.Rooms
             if (data.collectedKeyPickupIds.Contains(pickupId)) return;
 
             data.collectedKeyPickupIds.Add(pickupId);
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
         }
 
@@ -108,7 +107,6 @@ namespace HeartOfTheNight.Rooms
                     data.collectedKeyPickupIds.Add(pickupId);
             }
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log($"[PlayerKeyInventory] +{amount} {type} (con {GetCount(type)})" +
                       (string.IsNullOrEmpty(pickupId) ? "" : $" pickupId={pickupId}"));
@@ -135,7 +133,6 @@ namespace HeartOfTheNight.Rooms
                     return false;
             }
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log($"[PlayerKeyInventory] -{amount} {type} (con {GetCount(type)})");
             return true;
@@ -161,7 +158,6 @@ namespace HeartOfTheNight.Rooms
             if (!data.unlockedDoors.Contains(doorId))
                 data.unlockedDoors.Add(doorId);
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
         }
 
@@ -176,7 +172,6 @@ namespace HeartOfTheNight.Rooms
 
             data.blueKeys = 0;
             data.redKeys = 0;
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log("[PlayerKeyInventory] Sang scene moi: tui chia ve 0 (pickup da nhat van an).");
         }
@@ -199,7 +194,6 @@ namespace HeartOfTheNight.Rooms
             else
                 data.collectedKeyPickupIds.Clear();
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log("[PlayerKeyInventory] Da xoa het chia.");
         }

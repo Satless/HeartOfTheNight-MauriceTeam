@@ -39,17 +39,20 @@ namespace HeartOfTheNight.Hung
         public bool collectedRedKey;
         public List<string> unlockedDoors = new List<string>();
         public List<string> collectedKeyPickupIds = new List<string>();
+        public List<string> foundSecrets = new List<string>();
 
         public float totalPlayTimeSeconds;
         public List<ScenePlayTimeEntry> scenePlayTimes = new List<ScenePlayTimeEntry>();
 
         /// <summary>
-        /// Snapshot lúc qua cửa checkpoint. Chết rollback về đây (phòng/chìa/cửa sau cửa chưa commit).
+        /// Snapshot lúc qua cửa checkpoint. Chết / Continue / thoát màn rollback về đây.
+        /// File chỉ ghi tại checkpoint (và khi rời màn về menu).
         /// </summary>
         public bool hasCheckpointWorldState;
         public List<string> checkpointClearedRooms = new List<string>();
         public List<string> checkpointUnlockedDoors = new List<string>();
         public List<string> checkpointCollectedKeyPickupIds = new List<string>();
+        public List<string> checkpointFoundSecrets = new List<string>();
         public int checkpointBlueKeys;
         public int checkpointRedKeys;
         public bool checkpointCollectedBlueKey;
@@ -61,10 +64,12 @@ namespace HeartOfTheNight.Hung
             if (clearedRooms == null) clearedRooms = new List<string>();
             if (unlockedDoors == null) unlockedDoors = new List<string>();
             if (collectedKeyPickupIds == null) collectedKeyPickupIds = new List<string>();
+            if (foundSecrets == null) foundSecrets = new List<string>();
             if (scenePlayTimes == null) scenePlayTimes = new List<ScenePlayTimeEntry>();
             if (checkpointClearedRooms == null) checkpointClearedRooms = new List<string>();
             if (checkpointUnlockedDoors == null) checkpointUnlockedDoors = new List<string>();
             if (checkpointCollectedKeyPickupIds == null) checkpointCollectedKeyPickupIds = new List<string>();
+            if (checkpointFoundSecrets == null) checkpointFoundSecrets = new List<string>();
         }
 
         public bool IsRoomCleared(string roomId)
@@ -116,6 +121,7 @@ namespace HeartOfTheNight.Hung
             checkpointClearedRooms = new List<string>(clearedRooms);
             checkpointUnlockedDoors = new List<string>(unlockedDoors);
             checkpointCollectedKeyPickupIds = new List<string>(collectedKeyPickupIds);
+            checkpointFoundSecrets = new List<string>(foundSecrets);
             checkpointBlueKeys = blueKeys;
             checkpointRedKeys = redKeys;
             checkpointCollectedBlueKey = collectedBlueKey;
@@ -133,12 +139,14 @@ namespace HeartOfTheNight.Hung
             if (!hasCheckpointWorldState)
             {
                 clearedRooms = new List<string>();
+                foundSecrets = new List<string>();
                 return;
             }
 
             clearedRooms = new List<string>(checkpointClearedRooms);
             unlockedDoors = new List<string>(checkpointUnlockedDoors);
             collectedKeyPickupIds = new List<string>(checkpointCollectedKeyPickupIds);
+            foundSecrets = new List<string>(checkpointFoundSecrets);
             blueKeys = checkpointBlueKeys;
             redKeys = checkpointRedKeys;
             collectedBlueKey = checkpointCollectedBlueKey;
@@ -147,18 +155,35 @@ namespace HeartOfTheNight.Hung
                 playerHealth = checkpointPlayerHealth;
         }
 
+        /// <summary>
+        /// Bỏ màn đang dở: world về snapshot checkpoint gần nhất, rồi hết in-progress.
+        /// Không xóa phòng đã clear ở checkpoint.
+        /// </summary>
         public void ClearInProgressWorldState()
         {
             EnsureLists();
+            if (hasCheckpointWorldState)
+                RestoreCheckpointWorldState();
+
             hasCheckpoint = false;
             hasCheckpointWorldState = false;
             checkpointScene = "";
             checkpointSpawnID = "";
             checkpointPosition = Vector3.zero;
-            clearedRooms = new List<string>();
             checkpointClearedRooms = new List<string>();
             checkpointUnlockedDoors = new List<string>();
             checkpointCollectedKeyPickupIds = new List<string>();
+            checkpointFoundSecrets = new List<string>();
+        }
+
+        /// <summary>Qua màn mà cửa không phải checkpoint — đừng giữ checkpoint màn cũ.</summary>
+        public void ClearCheckpointFlags()
+        {
+            hasCheckpoint = false;
+            hasCheckpointWorldState = false;
+            checkpointScene = "";
+            checkpointSpawnID = "";
+            checkpointPosition = Vector3.zero;
         }
     }
 }

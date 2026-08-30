@@ -167,6 +167,8 @@ public class LevelCompleteUI : MonoBehaviour
 
             if (saveCheckpoint)
                 DataManager.Instance.SaveCheckpoint(next, spawnId, Vector3.zero, health);
+            else
+                DataManager.Instance.ClearCheckpointAfterLeavingLevel();
         }
 
         LevelEntrance.SetPendingSpawn(spawnId);

@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Đếm enemies / secrets / thời gian trong màn đang chơi.
-/// Secret: cửa RoomTransition có Counts As Secret — đi qua là tìm thấy.
+/// Secret: cửa Counts As Secret — đi qua là tìm thấy (RAM). Ghi file lúc checkpoint.
 /// </summary>
 public class LevelStatsTracker : MonoBehaviour
 {
@@ -115,6 +115,7 @@ public class LevelStatsTracker : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         CensusSecrets();
+        SeedFoundSecretsFromSave();
         CensusEnemies();
         _censusRoutine = null;
     }
@@ -184,6 +185,27 @@ public class LevelStatsTracker : MonoBehaviour
 
         Instance._secretIds.Add(secretId);
         Instance._foundSecrets.Add(secretId);
+
+        var data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+        if (data == null) return;
+        data.EnsureLists();
+        if (!data.foundSecrets.Contains(secretId))
+            data.foundSecrets.Add(secretId);
+    }
+
+    private void SeedFoundSecretsFromSave()
+    {
+        var data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+        if (data == null)
+            return;
+
+        data.EnsureLists();
+        for (int i = 0; i < data.foundSecrets.Count; i++)
+        {
+            string id = data.foundSecrets[i];
+            if (!string.IsNullOrEmpty(id))
+                _foundSecrets.Add(id);
+        }
     }
 
     private void BindEnemy(GameObject enemy, bool incrementTotal)

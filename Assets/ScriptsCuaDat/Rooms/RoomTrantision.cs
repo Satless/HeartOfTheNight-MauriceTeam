@@ -145,9 +145,13 @@ public class RoomTransition : MonoBehaviour
 
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
                 HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
+
+                if (saveAsCheckpoint)
+                    TrySaveCheckpoint(playerObj, next, spawnIDInNextScene, Vector3.zero);
+                else
+                    HeartOfTheNight.Hung.DataManager.Instance.ClearCheckpointAfterLeavingLevel();
             }
 
-            TrySaveCheckpoint(playerObj, next, spawnIDInNextScene, Vector3.zero);
             LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
             ScreenFader.Instance.LoadSceneWithLoading(next, fadeDuration, delayBeforeFadeIn);
         }

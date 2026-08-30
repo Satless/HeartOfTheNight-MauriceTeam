@@ -125,13 +125,13 @@ namespace HeartOfTheNight.Hung
 
         private void OnApplicationQuit()
         {
-            FlushPlayTimeIfNeeded();
+            PersistOnLeaveApp();
         }
 
         private void OnApplicationPause(bool pause)
         {
             if (pause)
-                FlushPlayTimeIfNeeded();
+                PersistOnLeaveApp();
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -152,11 +152,28 @@ namespace HeartOfTheNight.Hung
             return ActiveSceneName != "mainMenu" && ActiveSceneName != SelectLevelScene;
         }
 
+        /// <summary>
+        /// Đang trong màn: không ghi file (tránh autosave chìa/phòng).
+        /// Thoát app khi còn checkpoint → rollback về cửa rồi mới ghi.
+        /// </summary>
+        private void PersistOnLeaveApp()
+        {
+            if (Data != null && Data.hasSave && HasInProgress() && IsLevelScene(ActiveSceneName))
+            {
+                SaveBeforeLeaveLevel();
+                return;
+            }
+
+            FlushPlayTimeIfNeeded();
+        }
+
         private void FlushPlayTimeIfNeeded()
         {
             if (!_playTimeDirty || Data == null || !Data.hasSave)
                 return;
             if (_isRespawning || Data.playerHealth <= 0)
+                return;
+            if (HasInProgress() && IsLevelScene(ActiveSceneName))
                 return;
 
             Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
@@ -220,6 +237,8 @@ namespace HeartOfTheNight.Hung
                     ApplyChapterProgressFromLoadedData();
                     TouchLastPlayed();
                     SaveGame();
+                    ApplyEditorKeyResetIfNeeded();
+                    HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     LoadSceneSafe(SelectLevelScene);
                     return;
                 }
@@ -258,9 +277,11 @@ namespace HeartOfTheNight.Hung
                 clearedRooms = new List<string>(),
                 unlockedDoors = new List<string>(),
                 collectedKeyPickupIds = new List<string>(),
+                foundSecrets = new List<string>(),
                 checkpointClearedRooms = new List<string>(),
                 checkpointUnlockedDoors = new List<string>(),
                 checkpointCollectedKeyPickupIds = new List<string>(),
+                checkpointFoundSecrets = new List<string>(),
             };
 
             ChapterProgress.ResetForNewSave();
@@ -337,7 +358,6 @@ namespace HeartOfTheNight.Hung
         {
             if (Data == null) Data = new GameData();
             Data.MarkRoomCleared(roomId);
-            SaveGame();
         }
 
         public void ContinueFromCheckpoint()
@@ -360,7 +380,14 @@ namespace HeartOfTheNight.Hung
             if (ScreenFader.Instance != null)
                 yield return ScreenFader.Instance.FadeOut();
 
-            string sceneToLoad = Data.checkpointScene;
+            if (Data != null)
+            {
+                Data.RestoreCheckpointWorldState();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                SaveGame();
+            }
+
+            string sceneToLoad = Data != null ? Data.checkpointScene : "";
             _pendingRespawnApply = true;
             _pendingContinueRestoreHealth = true;
             KeepLevelTimeAcrossNextLoad();
@@ -514,6 +541,18 @@ namespace HeartOfTheNight.Hung
         public void PrepareForNewScene()
         {
             HeartOfTheNight.Rooms.PlayerKeyInventory.ClearKeyCountsForNewScene();
+            if (Data == null) return;
+            Data.EnsureLists();
+            Data.foundSecrets.Clear();
+        }
+
+        /// <summary>Cửa qua màn không phải checkpoint — xóa in-progress màn cũ rồi ghi slot.</summary>
+        public void ClearCheckpointAfterLeavingLevel()
+        {
+            if (Data == null) return;
+            Data.ClearCheckpointFlags();
+            Data.targetSpawnID = "";
+            SaveGame();
         }
     }
 }
