@@ -52,6 +52,10 @@ public class Wrath : MonoBehaviour, IDamageable
     public float hitRadius = 1.5f;
     public float recoveryTime = 1.5f;
 
+    [Header("Lực Đẩy Văng (Knockback)")]
+    public float knockbackForceX = 12f; // 🔥 THÊM: Lực hất văng dội lùi về sau
+    public float knockbackForceY = 5f;  // 🔥 THÊM: Lực hất tung nhẹ lên trời cho đẹp
+
     private Transform player;
     private Rigidbody2D rb;
     private Collider2D myCol;
@@ -145,7 +149,7 @@ public class Wrath : MonoBehaviour, IDamageable
                 currentDir = Mathf.Sign(transform.localScale.x);
 
                 flipTimer = flipCooldown;
-                startX = transform.position.x; // FIX
+                startX = transform.position.x;
             }
             else if (distanceFromStart >= patrolDistance && currentDir != dirToStart)
             {
@@ -258,25 +262,46 @@ public class Wrath : MonoBehaviour, IDamageable
                         {
                             target.TakeDamage(attackDamage);
                             ApplyAntiHeal(targetObj);
+
+                            Rigidbody2D playerRb = targetObj.GetComponent<Rigidbody2D>();
+                            if (playerRb != null)
+                            {
+                                playerRb.linearVelocity = Vector2.zero;
+                                Vector2 knockbackDir = new Vector2(huongHuc * knockbackForceX, knockbackForceY);
+                                playerRb.AddForce(knockbackDir, ForceMode2D.Impulse);
+                            }
                         }
+                        break;
                     }
                 }
+            }
+
+            if (daTrungDon)
+            {
+                break; // Vừa chạm là đập vỡ vòng lặp, thoát ngay lập tức!
             }
 
             thoiGianDaHuc += Time.deltaTime;
             yield return null;
         }
 
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        // 🔥 CHỐT CHẶN CUỐI CÙNG: KHÓA CHẶT VẬT LÝ VÀ ANIMATION
+        // Đóng băng toàn bộ tọa độ, không cho bất kỳ lực nào làm nó xê dịch
         rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
         if (anim != null)
         {
+            anim.ResetTrigger("Rush"); // Hủy lệnh húc
+            anim.Play("Idle", -1, 0f); // Chiếu ngay lập tức cảnh đứng im từ mili-giây số 0
             anim.SetFloat("Speed", 0f);
-            anim.Play("Idle");
         }
 
+        // Đứng im nghỉ mệt (Lúc này đang bị đóng băng)
         yield return new WaitForSeconds(recoveryTime);
+
+        // Hết thời gian nghỉ -> Mở khóa tọa độ để quái di chuyển bình thường
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
