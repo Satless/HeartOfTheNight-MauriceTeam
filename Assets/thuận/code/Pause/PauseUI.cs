@@ -266,6 +266,9 @@ public class PauseUI : MonoBehaviour
         if (dead != null && dead.gameObject.activeInHierarchy)
             return false;
 
+        if (LevelCompleteUI.IsShowing)
+            return false;
+
         var player = FindFirstObjectByType<PlayerHealth>();
         if (player != null && player.IsDead)
             return false;
@@ -327,6 +330,9 @@ public class PauseUI : MonoBehaviour
         _disabledOnPause.Clear();
         DisableIfEnabled(FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None));
         DisableIfEnabled(FindObjectsByType<PlayerAttack>(FindObjectsSortMode.None));
+        
+        // [TƯƠNG THÍCH HUD] Tắt script nhận diện bàn phím của HUD để nó ngừng chớp màu khi Pause
+        DisableIfEnabled(FindObjectsByType<HeartOfTheNight.UI.HUDKeyboardController>(FindObjectsSortMode.None));
     }
 
     private void DisableIfEnabled(Behaviour[] behaviours)

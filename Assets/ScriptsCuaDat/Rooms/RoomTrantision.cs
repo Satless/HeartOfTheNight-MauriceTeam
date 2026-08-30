@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RoomTransition : MonoBehaviour
@@ -19,6 +20,10 @@ public class RoomTransition : MonoBehaviour
     public string nextSceneName;
     public string spawnIDInNextScene;
 
+    [Header("Secret")]
+    [Tooltip("Bật trên cửa VÀO phòng secret. Đi qua cửa này = tìm thấy 1 SECRET.")]
+    [SerializeField] private bool countsAsSecret;
+
     [Header("Checkpoint")]
     [Tooltip("Bật = đi qua cửa này lưu điểm hồi sinh. Chết sẽ về phía bên kia cửa.")]
     [SerializeField] private bool saveAsCheckpoint;
@@ -34,6 +39,10 @@ public class RoomTransition : MonoBehaviour
     public float delayBeforeFadeIn = 0.2f;
 
     private bool isTransitioning;
+
+    public bool CountsAsSecret => countsAsSecret;
+
+    public string SecretId => SceneManager.GetActiveScene().name + "_" + gameObject.name;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -79,6 +88,8 @@ public class RoomTransition : MonoBehaviour
 
             if (targetDoor != null) targetDoor.Open(instant: true);
 
+            RegisterSecretIfNeeded();
+
             TrySaveCheckpoint(
                 playerObj,
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
@@ -93,15 +104,8 @@ public class RoomTransition : MonoBehaviour
         }
         else if (transitionType == TransitionType.NextLevel)
         {
-            if (string.IsNullOrEmpty(nextSceneName))
-            {
-                var current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-                var idx = ChapterProgress.IndexOf(current);
-                if (idx >= 0 && idx < ChapterProgress.Chapter1Scenes.Length - 1)
-                    nextSceneName = ChapterProgress.Chapter1Scenes[idx + 1];
-            }
-
-            if (string.IsNullOrEmpty(nextSceneName))
+            string next = ResolveNextLevelSceneName();
+            if (string.IsNullOrEmpty(next))
             {
                 Debug.LogError("Chưa nhập tên Scene tiếp theo!", this);
                 yield return ScreenFader.Instance.FadeIn(fadeDuration);
@@ -114,26 +118,67 @@ public class RoomTransition : MonoBehaviour
             if (hp != null && !saveAsCheckpoint)
                 hp.HealToFull();
 
-            ChapterProgress.UnlockIfChapterScene(nextSceneName);
+            ChapterProgress.UnlockIfChapterScene(next);
+            RegisterSecretIfNeeded();
+
+            var pending = new LevelCompletePending
+            {
+                nextSceneName = next,
+                spawnIDInNextScene = spawnIDInNextScene,
+                fadeDuration = fadeDuration,
+                delayBeforeFadeIn = delayBeforeFadeIn,
+                nextLevelIndex = nextLevelIndex,
+                saveAsCheckpoint = saveAsCheckpoint,
+                playerHealth = hp != null ? hp.GetCurrentHealth() : -1
+            };
+
+            if (LevelCompleteUI.TryShow(pending))
+            {
+                yield return ScreenFader.Instance.FadeIn(fadeDuration);
+                yield break;
+            }
 
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
             {
                 if (nextLevelIndex > HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel)
                     HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
 
-                HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
-                // Zero chìa scene-cũ TRƯỚC snapshot checkpoint của scene mới.
-                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
+                HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
+                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
+
+                if (saveAsCheckpoint)
+                    TrySaveCheckpoint(playerObj, next, spawnIDInNextScene, Vector3.zero);
+                else
+                    HeartOfTheNight.Hung.DataManager.Instance.ClearCheckpointAfterLeavingLevel();
             }
 
-            TrySaveCheckpoint(playerObj, nextSceneName, spawnIDInNextScene, Vector3.zero);
-
-            // Static pending không bị Firebase LoadGame ghi đè targetSpawnID trên RAM.
             LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
-
-            // Continuation on ScreenFader — dùng timing prefab nếu muốn: truyền -1f.
-            ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);
+            ScreenFader.Instance.LoadSceneWithLoading(next, fadeDuration, delayBeforeFadeIn);
         }
+    }
+
+    private string ResolveNextLevelSceneName()
+    {
+        if (!string.IsNullOrEmpty(nextSceneName))
+            return nextSceneName;
+
+        var current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        var idx = ChapterProgress.IndexOf(current);
+        if (idx >= 0 && idx < ChapterProgress.Chapter1Scenes.Length - 1)
+            return ChapterProgress.Chapter1Scenes[idx + 1];
+
+        if (idx >= 0 && idx == ChapterProgress.Chapter1Scenes.Length - 1)
+            return HeartOfTheNight.Hung.DataManager.SelectLevelScene;
+
+        return nextSceneName;
+    }
+
+    private void RegisterSecretIfNeeded()
+    {
+        if (!countsAsSecret)
+            return;
+
+        LevelStatsTracker.DiscoverSecret(SecretId);
     }
 
     private void TrySaveCheckpoint(GameObject playerObj, string sceneName, string spawnId, Vector3 worldPosition)

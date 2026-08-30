@@ -22,6 +22,13 @@ namespace HeartOfTheNight.UI
             if (cursorImage != null)
             {
                 parentCanvas = cursorImage.GetComponentInParent<Canvas>();
+                
+                // [CHỐNG CHÌM CURSOR] 
+                // Tự động gắn thêm Canvas vào chính tấm ảnh để ép nó nổi lên trên cùng (đè lên Pause Menu)
+                Canvas localCanvas = cursorImage.GetComponent<Canvas>();
+                if (localCanvas == null) localCanvas = cursorImage.gameObject.AddComponent<Canvas>();
+                localCanvas.overrideSorting = true;
+                localCanvas.sortingOrder = 999;
             }
             
             if (parentCanvas == null)

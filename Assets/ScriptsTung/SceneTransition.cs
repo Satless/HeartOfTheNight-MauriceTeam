@@ -48,8 +48,27 @@ public class SceneTransition : MonoBehaviour
 
         yield return ScreenFader.Instance.FadeOut(fadeDuration);
 
+        bool leavingLevel = HeartOfTheNight.Hung.DataManager.IsLevelScene(
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        if (leavingLevel)
+        {
+            ChapterProgress.UnlockIfChapterScene(nextSceneName);
+            var pending = new LevelCompletePending
+            {
+                nextSceneName = nextSceneName,
+                fadeDuration = fadeDuration,
+                delayBeforeFadeIn = delayBeforeFadeIn
+            };
+
+            if (LevelCompleteUI.TryShow(pending))
+            {
+                yield return ScreenFader.Instance.FadeIn(fadeDuration);
+                yield break;
+            }
+        }
+
         if (HeartOfTheNight.Hung.DataManager.Instance != null)
-            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene();
+            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(nextSceneName);
 
         // Continuation on ScreenFader so loading + FadeIn survive scene unload.
         ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);
