@@ -75,7 +75,8 @@ GameObject:
   - component: {fileID: 1698299449291947144}
   - component: {fileID: 3764077923484285341}
   - component: {fileID: 3113102913077424777}
-  m_Layer: 0
+  - component: {fileID: 9100000000000000104}
+  m_Layer: 10
   m_Name: BruteMage
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -255,6 +256,18 @@ MonoBehaviour:
   showStateColor: 1
   state1Color: {r: 1, g: 0.55, b: 0.55, a: 1}
   state2Color: {r: 0.6, g: 0.75, b: 1, a: 1}
+--- !u!114 &9100000000000000104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3607069823588825633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5970877943438011725
 GameObject:
   m_ObjectHideFlags: 0
