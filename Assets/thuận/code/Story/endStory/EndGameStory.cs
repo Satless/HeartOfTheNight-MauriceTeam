@@ -12,6 +12,9 @@ public class EndGameStory : MonoBehaviour
     [SerializeField] private TMP_Text storyText;
     [SerializeField] private Image fadePanel;
 
+    [Header("Buttons")]
+    [SerializeField] private GameObject buttons;
+
     [Header("Background")]
     [SerializeField] private Sprite background1;
     [SerializeField] private Sprite background2;
@@ -23,6 +26,10 @@ public class EndGameStory : MonoBehaviour
 
     [Header("Scene")]
     [SerializeField] private string mainMenuScene = "MainMenu";
+
+    // ==============================
+    // STORY 1
+    // ==============================
 
     private string story1 =
         "Sau một trận chiến dài, bạn cuối cùng cũng đánh bại được Heart Of The Night. " +
@@ -37,6 +44,11 @@ public class EndGameStory : MonoBehaviour
         "Quái vật vẫn tồn tại, môi trường bị ô nhiễm và không còn ai để trở về. " +
         "Không còn nơi nào để đi, bạn tìm thấy một con tàu và bắt đầu hành trình trên đại dương.";
 
+
+    // ==============================
+    // STORY 2
+    // ==============================
+
     private string story2 =
         "Sau một thời gian dài, một vùng đất mới xuất hiện ở phía chân trời. " +
         "Bạn tiến về phía đó, hy vọng tìm được một nơi để bắt đầu lại. " +
@@ -44,15 +56,25 @@ public class EndGameStory : MonoBehaviour
         "Bạn siết chặt vũ khí và nhìn về phía trước. " +
         "Cuộc hành trình chưa kết thúc.";
 
+
+    // ==============================
+    // SKIP
+    // ==============================
+
+    private bool skipText = false;
+
+
+    // ==============================
+    // START
+    // ==============================
+
     private void Start()
     {
-        StartCoroutine(PlayEndStory());
-    }
-
-    private IEnumerator PlayEndStory()
-    {
-        // Background đầu tiên
-        background.sprite = background1;
+        // Ẩn Buttons ngay khi bắt đầu
+        if (buttons != null)
+        {
+            buttons.SetActive(false);
+        }
 
         // Đảm bảo FadePanel trong suốt
         SetFadeAlpha(0f);
@@ -60,45 +82,120 @@ public class EndGameStory : MonoBehaviour
         // Xóa text
         storyText.text = "";
 
-        // Chạy story 1
+        // Bắt đầu story
+        StartCoroutine(PlayEndStory());
+    }
+
+
+    // ==============================
+    // UPDATE
+    // ==============================
+
+    private void Update()
+    {
+        // Nhấn SPACE để bỏ qua đoạn text đang chạy
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            skipText = true;
+        }
+    }
+
+
+    // ==============================
+    // MAIN STORY
+    // ==============================
+
+    private IEnumerator PlayEndStory()
+    {
+        // --------------------------------
+        // BACKGROUND 1
+        // --------------------------------
+
+        background.sprite = background1;
+
+        storyText.text = "";
+
+        // Chạy Story 1
         yield return StartCoroutine(TypeText(story1));
 
         // Chờ một chút
         yield return new WaitForSeconds(delayAfterStory);
 
-        // Fade sang background 2
+
+        // --------------------------------
+        // FADE OUT
+        // --------------------------------
+
         yield return StartCoroutine(Fade(0f, 1f));
 
-        // Đổi background
+
+        // --------------------------------
+        // ĐỔI BACKGROUND
+        // --------------------------------
+
         background.sprite = background2;
 
-        // Xóa story cũ
+        // Xóa Story 1
         storyText.text = "";
 
-        // Fade trở lại
+
+        // --------------------------------
+        // FADE IN
+        // --------------------------------
+
         yield return StartCoroutine(Fade(1f, 0f));
 
-        // Chạy story 2
+
+        // --------------------------------
+        // STORY 2
+        // --------------------------------
+
         yield return StartCoroutine(TypeText(story2));
 
-        // Chờ
+        // Chờ một chút
         yield return new WaitForSeconds(delayAfterStory);
 
-        // Hiện nút
+
+        // --------------------------------
+        // HIỆN BUTTONS
+        // --------------------------------
+
         ShowButtons();
     }
+
+
+    // ==============================
+    // TYPEWRITER EFFECT
+    // ==============================
 
     private IEnumerator TypeText(string text)
     {
         storyText.text = "";
 
+        skipText = false;
+
         foreach (char letter in text)
         {
+            // Nếu nhấn Space
+            if (skipText)
+            {
+                storyText.text = text;
+
+                yield break;
+            }
+
+            // Thêm từng chữ
             storyText.text += letter;
 
+            // Tốc độ chạy chữ
             yield return new WaitForSeconds(textSpeed);
         }
     }
+
+
+    // ==============================
+    // FADE EFFECT
+    // ==============================
 
     private IEnumerator Fade(float startAlpha, float endAlpha)
     {
@@ -117,36 +214,58 @@ public class EndGameStory : MonoBehaviour
             );
 
             color.a = alpha;
+
             fadePanel.color = color;
 
             yield return null;
         }
 
         color.a = endAlpha;
+
         fadePanel.color = color;
     }
+
+
+    // ==============================
+    // SET FADE ALPHA
+    // ==============================
 
     private void SetFadeAlpha(float alpha)
     {
         Color color = fadePanel.color;
+
         color.a = alpha;
+
         fadePanel.color = color;
     }
 
+
+    // ==============================
+    // SHOW BUTTONS
+    // ==============================
+
     private void ShowButtons()
     {
-        GameObject buttons = GameObject.Find("Buttons");
-
         if (buttons != null)
         {
             buttons.SetActive(true);
         }
     }
 
+
+    // ==============================
+    // BACK TO MENU
+    // ==============================
+
     public void BackToMenu()
     {
         SceneManager.LoadScene("mainMenu");
     }
+
+
+    // ==============================
+    // QUIT GAME
+    // ==============================
 
     public void QuitGame()
     {

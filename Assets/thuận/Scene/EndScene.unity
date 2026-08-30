@@ -220,8 +220,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: StoryCutscene, Assembly-CSharp
+      - m_Target: {fileID: 1847804345}
+        m_TargetAssemblyTypeName: EndGameStory, Assembly-CSharp
         m_MethodName: BackToMenu
         m_Mode: 1
         m_Arguments:
@@ -986,6 +986,7 @@ MonoBehaviour:
   background: {fileID: 1847804343}
   storyText: {fileID: 1751406476}
   fadePanel: {fileID: 1718242288}
+  buttons: {fileID: 768615821}
   background1: {fileID: -4314545713981670409, guid: 38c5d955f0b4b6a4689ef82cf62683d6, type: 3}
   background2: {fileID: 33643560008069212, guid: 54cab84aee681eb43b16ff2bd1e7b73d, type: 3}
   textSpeed: 0.03
