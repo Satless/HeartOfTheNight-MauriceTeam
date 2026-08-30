@@ -21,7 +21,7 @@ public class Wrath : MonoBehaviour, IDamageable
     public float detectionRangeX = 12f;
     public float detectionRangeY = 2.5f;
     public float attackRange = 4.5f;
-    public float attackRangeY = 1.5f; // Chống lỗi gầm không khí
+    public float attackRangeY = 1.5f;
 
     [Header("Kiểm tra Mặt đất & Mép vực")]
     public Transform groundCheck;
@@ -34,6 +34,11 @@ public class Wrath : MonoBehaviour, IDamageable
     public Transform wallCheck;
     public float edgeCheckDistance = 1.5f;
     public float wallCheckDistance = 0.5f;
+    public float wallCheckHeight = 1.5f;
+
+    [Header("Fix Bug Lật Liên Tục")]
+    public float flipCooldown = 0.5f;
+    private float flipTimer = 0f;
 
     [Header("Sát thương & Cú Húc (Charge)")]
     public int attackDamage = 15;
@@ -46,6 +51,10 @@ public class Wrath : MonoBehaviour, IDamageable
     public float chargeDuration = 0.35f;
     public float hitRadius = 1.5f;
     public float recoveryTime = 1.5f;
+
+    [Header("Lực Đẩy Văng (Knockback)")]
+    public float knockbackForceX = 12f; // 🔥 THÊM: Lực hất văng dội lùi về sau
+    public float knockbackForceY = 5f;  // 🔥 THÊM: Lực hất tung nhẹ lên trời cho đẹp
 
     private Transform player;
     private Rigidbody2D rb;
@@ -72,6 +81,7 @@ public class Wrath : MonoBehaviour, IDamageable
         if (isBusy || isDead) return;
 
         CheckGroundStatus();
+        if (flipTimer > 0) flipTimer -= Time.deltaTime;
 
         if (player != null)
         {
@@ -115,7 +125,11 @@ public class Wrath : MonoBehaviour, IDamageable
     {
         if (wallCheck == null) return false;
         float dir = Mathf.Sign(transform.localScale.x);
-        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, Vector2.right * dir, wallCheckDistance, groundLayer);
+
+        Vector2 boxCenter = (Vector2)wallCheck.position + new Vector2(0f, (wallCheckHeight / 2f) + 0.1f);
+        Vector2 boxSize = new Vector2(0.1f, wallCheckHeight);
+
+        RaycastHit2D hit = Physics2D.BoxCast(boxCenter, boxSize, 0f, Vector2.right * dir, wallCheckDistance, groundLayer);
         return hit.collider != null && !hit.collider.isTrigger;
     }
 
@@ -125,15 +139,30 @@ public class Wrath : MonoBehaviour, IDamageable
         float currentDir = Mathf.Sign(transform.localScale.x);
         float dirToStart = Mathf.Sign(startX - transform.position.x);
 
-        if (IsNearEdge() || IsHittingWall() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
+        if (flipTimer <= 0f)
         {
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
+            if (IsNearEdge() || IsHittingWall())
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+                startX = transform.position.x;
+            }
+            else if (distanceFromStart >= patrolDistance && currentDir != dirToStart)
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+            }
         }
 
-        float dir = Mathf.Sign(transform.localScale.x);
-        rb.linearVelocity = new Vector2(dir * patrolSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(currentDir * patrolSpeed, rb.linearVelocity.y);
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
 
         idleSoundTimer -= Time.fixedDeltaTime;
@@ -165,6 +194,20 @@ public class Wrath : MonoBehaviour, IDamageable
                 AudioEvents.TriggerSound3D("Enemy", "Wrath", "Move", transform.position);
                 moveSoundTimer = 0.2f;
             }
+        }
+    }
+
+    void LookAtPlayer()
+    {
+        if (flipTimer > 0) return;
+        Vector3 scale = transform.localScale;
+        float expectedSign = player.position.x > transform.position.x ? 1f : -1f;
+
+        if (Mathf.Sign(scale.x) != expectedSign)
+        {
+            scale.x = expectedSign * Mathf.Abs(scale.x);
+            transform.localScale = scale;
+            flipTimer = flipCooldown;
         }
     }
 
@@ -218,47 +261,58 @@ public class Wrath : MonoBehaviour, IDamageable
                         if (target != null)
                         {
                             target.TakeDamage(attackDamage);
-                            // 🔥 GỌI HÀM VÀ TRUYỀN ĐÚNG CÁI CỤC VỪA NHẬN DAMAGE VÀO
                             ApplyAntiHeal(targetObj);
+
+                            Rigidbody2D playerRb = targetObj.GetComponent<Rigidbody2D>();
+                            if (playerRb != null)
+                            {
+                                playerRb.linearVelocity = Vector2.zero;
+                                Vector2 knockbackDir = new Vector2(huongHuc * knockbackForceX, knockbackForceY);
+                                playerRb.AddForce(knockbackDir, ForceMode2D.Impulse);
+                            }
                         }
+                        break;
                     }
                 }
+            }
+
+            if (daTrungDon)
+            {
+                break; // Vừa chạm là đập vỡ vòng lặp, thoát ngay lập tức!
             }
 
             thoiGianDaHuc += Time.deltaTime;
             yield return null;
         }
 
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        // 🔥 CHỐT CHẶN CUỐI CÙNG: KHÓA CHẶT VẬT LÝ VÀ ANIMATION
+        // Đóng băng toàn bộ tọa độ, không cho bất kỳ lực nào làm nó xê dịch
         rb.linearVelocity = Vector2.zero;
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
         if (anim != null)
         {
+            anim.ResetTrigger("Rush"); // Hủy lệnh húc
+            anim.Play("Idle", -1, 0f); // Chiếu ngay lập tức cảnh đứng im từ mili-giây số 0
             anim.SetFloat("Speed", 0f);
-            anim.Play("Idle");
         }
 
+        // Đứng im nghỉ mệt (Lúc này đang bị đóng băng)
         yield return new WaitForSeconds(recoveryTime);
+
+        // Hết thời gian nghỉ -> Mở khóa tọa độ để quái di chuyển bình thường
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         nextAttackTime = Time.time + attackCooldown;
         isBusy = false;
     }
 
-    // 🔥 HÀM ĐÃ SỬA: NHẬN VÀO GAMEOBJECT MỤC TIÊU ĐỂ GẮN SCRIPT ANTIHEAL
     void ApplyAntiHeal(GameObject targetObj)
     {
         if (targetObj == null) return;
         AntiHeal anti = targetObj.GetComponent<AntiHeal>();
         if (anti == null) anti = targetObj.AddComponent<AntiHeal>();
         anti.thoiGianConLai = antiHealDuration;
-    }
-
-    void LookAtPlayer()
-    {
-        Vector3 scale = transform.localScale;
-        if (player.position.x > transform.position.x) scale.x = Mathf.Abs(scale.x);
-        else scale.x = -Mathf.Abs(scale.x);
-        transform.localScale = scale;
     }
 
     public void TakeDamage(int damage)
@@ -286,5 +340,16 @@ public class Wrath : MonoBehaviour, IDamageable
         }
 
         Destroy(gameObject, 2f);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (wallCheck != null)
+        {
+            Gizmos.color = Color.cyan;
+            float dir = Mathf.Sign(transform.localScale.x);
+            Vector3 center = wallCheck.position + new Vector3(dir * (wallCheckDistance / 2f), (wallCheckHeight / 2f) + 0.1f, 0);
+            Gizmos.DrawWireCube(center, new Vector3(wallCheckDistance, wallCheckHeight, 0));
+        }
     }
 }
