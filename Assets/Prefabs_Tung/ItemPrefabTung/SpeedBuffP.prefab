@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7700279620455369456}
   - component: {fileID: 8430635982586212044}
   - component: {fileID: 3557960382861794632}
+  - component: {fileID: -7174830837394052175}
   m_Layer: 13
   m_Name: SpeedBuffP
   m_TagString: Untagged
@@ -229,3 +230,17 @@ MonoBehaviour:
   jumpMultiplier: 1.5
   pickupVFX: {fileID: 0}
   shieldVisualPrefab: {fileID: 0}
+--- !u!114 &-7174830837394052175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2787408048170355484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ffaa0ed11b54743a4b5bdd17466a88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floatSpeed: 5
+  floatAmplitude: 0.25
