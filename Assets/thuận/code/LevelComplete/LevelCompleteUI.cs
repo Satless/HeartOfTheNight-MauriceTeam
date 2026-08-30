@@ -182,7 +182,13 @@ public class LevelCompleteUI : MonoBehaviour
     public void GoHome()
     {
         if (DataManager.Instance != null)
-            DataManager.Instance.SaveBeforeLeaveLevel();
+        {
+            if (_hasPending && DataManager.Instance.Data != null
+                && _pending.nextLevelIndex > DataManager.Instance.Data.maxUnlockedLevel)
+                DataManager.Instance.Data.maxUnlockedLevel = _pending.nextLevelIndex;
+
+            DataManager.Instance.CommitFinishedLevelAndLeave();
+        }
 
         LevelEntrance.ClearPendingSpawn();
         _hasPending = false;

@@ -576,5 +576,20 @@ namespace HeartOfTheNight.Hung
             Data.targetSpawnID = "";
             SaveGame();
         }
+
+        /// <summary>
+        /// Level Complete → Home: chốt world lúc thắng, hết màn đang dở.
+        /// Select Level không hỏi Continue màn vừa YOU WIN.
+        /// </summary>
+        public void CommitFinishedLevelAndLeave()
+        {
+            if (Data == null || !Data.hasSave)
+                return;
+
+            Data.CaptureCheckpointWorldState();
+            Data.ClearCheckpointFlags();
+            Data.targetSpawnID = "";
+            SaveGame();
+        }
     }
 }
