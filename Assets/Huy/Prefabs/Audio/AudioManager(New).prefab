@@ -50,6 +50,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tracks:
+  - trackName: DefaultBGM
+    clip: {fileID: 8300000, guid: 1484121cecfb4cb4a9c13a00f052f60c, type: 3}
+  - trackName: MainMenuBGM
+    clip: {fileID: 8300000, guid: c6b4d668525a506439f41d04527cbbe5, type: 3}
+  - trackName: SelectLevelBGM
+    clip: {fileID: 8300000, guid: c80f716f652e41844a7135353794ee6b, type: 3}
+  - trackName: PauseBGM
+    clip: {fileID: 8300000, guid: e23c1017ee3f85243bd4c2ca32c463e8, type: 3}
+  - trackName: WinBGM
+    clip: {fileID: 8300000, guid: 42460163f32c9ce459ea68eb9a21cae8, type: 3}
+  - trackName: GameOver
+    clip: {fileID: 8300000, guid: 28c92559180cd174a8630b9d26e98bad, type: 3}
+  - trackName: Tutorial
+    clip: {fileID: 8300000, guid: 37bd29bcc1dde3b4989ad8824fee4049, type: 3}
+  - trackName: Level2-1
+    clip: {fileID: 8300000, guid: 55020d96864e32e44afd97f1ea43138e, type: 3}
+  - trackName: Level3-1
+    clip: {fileID: 8300000, guid: efd6de938197b1b4bbed335b212157cb, type: 3}
+  - trackName: Level4-1
+    clip: {fileID: 8300000, guid: ceca6d638fda0304a9b0e2eaa9bebab7, type: 3}
+  - trackName: Level5-1
+    clip: {fileID: 8300000, guid: 5d42f7575c1a8364599448d958a8ab9a, type: 3}
+  - trackName: Level1-2
+    clip: {fileID: 8300000, guid: f4a061ac8b4394040967e36a71d9cc3b, type: 3}
+  - trackName: Level2-2
+    clip: {fileID: 8300000, guid: de8b3ca8531a3744aa8c2783a901e781, type: 3}
+  - trackName: Level3-2
+    clip: {fileID: 8300000, guid: 2d2effb31d53c8245bb8cbf5039adb87, type: 3}
+  - trackName: Level4-2
+    clip: {fileID: 0}
+  - trackName: Level5-2
+    clip: {fileID: 8300000, guid: 20d8d49d61180c44cb871aeef497e466, type: 3}
+  - trackName: Level1-3
+    clip: {fileID: 8300000, guid: fcc38839b1e0d834cbef6ae1d3ddf850, type: 3}
+  - trackName: Level2-3
+    clip: {fileID: 8300000, guid: e177f6c0d2f7bd24a95e2f99412f11ce, type: 3}
   - trackName: 
     clip: {fileID: 0}
 --- !u!114 &5944829389066682039
@@ -133,7 +169,8 @@ MonoBehaviour:
       actions:
       - actionID: n
         clips:
-        - {fileID: 8300000, guid: 590341818be55674b81baad4192df565, type: 3}
+        - {fileID: 8300000, guid: fd915ff348928ca45a951dedabb4f132, type: 3}
+        - {fileID: 8300000, guid: 5a307ef0896554b40a27407b3e17ce52, type: 3}
     - subCategoryID: Land
       actions:
       - actionID: n
@@ -452,8 +489,7 @@ MonoBehaviour:
         - {fileID: 8300000, guid: ca319ae43c3ba2a40adc2c5648db68d9, type: 3}
       - actionID: Off
         clips:
-        - {fileID: 8300000, guid: bbd347bc48f21264c94a3f0c2cbaa44d, type: 3}
-        - {fileID: 8300000, guid: 5413db4f9e0d331418d3c50c4eb9c2b2, type: 3}
+        - {fileID: 8300000, guid: d8594025c3f492442a7dd8e537a82d1b, type: 3}
     - subCategoryID: Action
       actions:
       - actionID: Equip
@@ -492,8 +528,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxLibrary: {fileID: 5067380971107506713}
   sfxSource: {fileID: 8948161869996854376}
-  defaultCooldown: 0
-  audioMixer: {fileID: 24100000, guid: 2c6235ab0ab416a4b855b3c7c0222d7c, type: 2}
 --- !u!1 &5560072483489250521
 GameObject:
   m_ObjectHideFlags: 0
