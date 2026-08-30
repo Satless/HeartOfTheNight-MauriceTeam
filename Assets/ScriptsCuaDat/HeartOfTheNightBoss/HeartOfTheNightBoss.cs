@@ -26,6 +26,10 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color enrageColor = new(1f, 0.5f, 0.5f, 1f);
 
+        [Header("Death Camera Shake")]
+        [SerializeField] private float deathShakeAmplitude = 0.45f;
+        [SerializeField] private float deathShakeDuration = 1.1f;
+
         public static event Action<HeartOfTheNightBoss> OnBossReady;
         public event Action<int, int> OnHealthChanged;
         public event Action OnDeath;
@@ -646,6 +650,7 @@ namespace HeartOfTheNight.Enemy
                 }
                 StopAllCoroutines();
                 if (anim != null) anim.SetTrigger("Die");
+                CameraShake.Shake(deathShakeAmplitude, deathShakeDuration);
                 OnDeath?.Invoke();
             }
         }
