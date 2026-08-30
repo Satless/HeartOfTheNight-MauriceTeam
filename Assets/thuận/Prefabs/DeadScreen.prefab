@@ -225,6 +225,7 @@ GameObject:
   - component: {fileID: 1093637705534430109}
   - component: {fileID: 1008985781718743111}
   - component: {fileID: 7748129033440011221}
+  - component: {fileID: 6563239633178220605}
   m_Layer: 5
   m_Name: DeadScreen
   m_TagString: Untagged
@@ -305,6 +306,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   restartKey: 114
+--- !u!114 &6563239633178220605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3051033446059922542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea860c6fe97c3324d88fd803c1e2d814, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menuTrackName: GameOver
+  fadeDuration: 0.3
 --- !u!1 &5366094700198121443
 GameObject:
   m_ObjectHideFlags: 0
