@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using HeartOfTheNight.Hung;
 using HeartOfTheNight.Rooms;
-using HeartOfTheNight.ThuNghiem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Đếm enemies / secrets / thời gian trong màn đang chơi.
-/// Census lúc load scene; kill khi EnemyKillReporter Destroy; secret khi player vào phòng đánh dấu.
+/// Secret: cửa RoomTransition có Counts As Secret — đi qua là tìm thấy.
 /// </summary>
 public class LevelStatsTracker : MonoBehaviour
 {
@@ -250,19 +249,12 @@ public class LevelStatsTracker : MonoBehaviour
 
     private void CensusSecrets()
     {
-        var markers = FindObjectsByType<SecretRoom>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < markers.Length; i++)
+        var doors = FindObjectsByType<RoomTransition>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < doors.Length; i++)
         {
-            if (markers[i] != null)
-                _secretIds.Add(markers[i].SecretId);
-        }
-
-        var rooms = FindObjectsByType<RoomCameraPriority>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < rooms.Length; i++)
-        {
-            var room = rooms[i];
-            if (room != null && room.IsSecretRoom)
-                _secretIds.Add(room.SecretId);
+            var door = doors[i];
+            if (door != null && door.CountsAsSecret)
+                _secretIds.Add(door.SecretId);
         }
     }
 

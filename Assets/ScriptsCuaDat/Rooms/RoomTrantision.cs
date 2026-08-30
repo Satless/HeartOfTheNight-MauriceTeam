@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RoomTransition : MonoBehaviour
@@ -19,6 +20,10 @@ public class RoomTransition : MonoBehaviour
     public string nextSceneName;
     public string spawnIDInNextScene;
 
+    [Header("Secret")]
+    [Tooltip("Bật trên cửa VÀO phòng secret. Đi qua cửa này = tìm thấy 1 SECRET.")]
+    [SerializeField] private bool countsAsSecret;
+
     [Header("Checkpoint")]
     [Tooltip("Bật = đi qua cửa này lưu điểm hồi sinh. Chết sẽ về phía bên kia cửa.")]
     [SerializeField] private bool saveAsCheckpoint;
@@ -34,6 +39,10 @@ public class RoomTransition : MonoBehaviour
     public float delayBeforeFadeIn = 0.2f;
 
     private bool isTransitioning;
+
+    public bool CountsAsSecret => countsAsSecret;
+
+    public string SecretId => SceneManager.GetActiveScene().name + "_" + gameObject.name;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -79,6 +88,8 @@ public class RoomTransition : MonoBehaviour
 
             if (targetDoor != null) targetDoor.Open(instant: true);
 
+            RegisterSecretIfNeeded();
+
             TrySaveCheckpoint(
                 playerObj,
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
@@ -108,6 +119,7 @@ public class RoomTransition : MonoBehaviour
                 hp.HealToFull();
 
             ChapterProgress.UnlockIfChapterScene(next);
+            RegisterSecretIfNeeded();
 
             var pending = new LevelCompletePending
             {
@@ -155,6 +167,14 @@ public class RoomTransition : MonoBehaviour
             return HeartOfTheNight.Hung.DataManager.SelectLevelScene;
 
         return nextSceneName;
+    }
+
+    private void RegisterSecretIfNeeded()
+    {
+        if (!countsAsSecret)
+            return;
+
+        LevelStatsTracker.DiscoverSecret(SecretId);
     }
 
     private void TrySaveCheckpoint(GameObject playerObj, string sceneName, string spawnId, Vector3 worldPosition)
