@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using HeartOfTheNight.Hung;
 using HeartOfTheNight.Rooms;
-using HeartOfTheNight.ThuNghiem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Đếm enemies / secrets / thời gian trong màn đang chơi.
-/// Census lúc load scene; kill khi EnemyKillReporter Destroy; secret khi player vào phòng đánh dấu.
+/// Secret: cửa Counts As Secret — đi qua là tìm thấy (RAM). Ghi file lúc checkpoint.
 /// </summary>
 public class LevelStatsTracker : MonoBehaviour
 {
@@ -116,6 +115,7 @@ public class LevelStatsTracker : MonoBehaviour
         yield return new WaitForEndOfFrame();
 
         CensusSecrets();
+        SeedFoundSecretsFromSave();
         CensusEnemies();
         _censusRoutine = null;
     }
@@ -185,6 +185,27 @@ public class LevelStatsTracker : MonoBehaviour
 
         Instance._secretIds.Add(secretId);
         Instance._foundSecrets.Add(secretId);
+
+        var data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+        if (data == null) return;
+        data.EnsureLists();
+        if (!data.foundSecrets.Contains(secretId))
+            data.foundSecrets.Add(secretId);
+    }
+
+    private void SeedFoundSecretsFromSave()
+    {
+        var data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+        if (data == null)
+            return;
+
+        data.EnsureLists();
+        for (int i = 0; i < data.foundSecrets.Count; i++)
+        {
+            string id = data.foundSecrets[i];
+            if (GameData.IdBelongsToScene(id, _sceneName))
+                _foundSecrets.Add(id);
+        }
     }
 
     private void BindEnemy(GameObject enemy, bool incrementTotal)
@@ -250,19 +271,12 @@ public class LevelStatsTracker : MonoBehaviour
 
     private void CensusSecrets()
     {
-        var markers = FindObjectsByType<SecretRoom>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < markers.Length; i++)
+        var doors = FindObjectsByType<RoomTransition>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < doors.Length; i++)
         {
-            if (markers[i] != null)
-                _secretIds.Add(markers[i].SecretId);
-        }
-
-        var rooms = FindObjectsByType<RoomCameraPriority>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = 0; i < rooms.Length; i++)
-        {
-            var room = rooms[i];
-            if (room != null && room.IsSecretRoom)
-                _secretIds.Add(room.SecretId);
+            var door = doors[i];
+            if (door != null && door.CountsAsSecret)
+                _secretIds.Add(door.SecretId);
         }
     }
 

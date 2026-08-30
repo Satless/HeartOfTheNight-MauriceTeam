@@ -5,7 +5,7 @@ using UnityEngine;
 namespace HeartOfTheNight.Rooms
 {
     /// <summary>
-    /// Đếm chìa Blue/Red qua DataManager của Hưng (lưu local + cloud).
+    /// Đếm chìa Blue/Red trên RAM. Chỉ ghi file khi qua cửa checkpoint.
     /// Track từng KeyPickup bằng pickupId khi map có nhiều chìa cùng màu.
     /// </summary>
     public static class PlayerKeyInventory
@@ -61,7 +61,6 @@ namespace HeartOfTheNight.Rooms
             if (data.collectedKeyPickupIds.Contains(pickupId)) return;
 
             data.collectedKeyPickupIds.Add(pickupId);
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
         }
 
@@ -108,7 +107,6 @@ namespace HeartOfTheNight.Rooms
                     data.collectedKeyPickupIds.Add(pickupId);
             }
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log($"[PlayerKeyInventory] +{amount} {type} (con {GetCount(type)})" +
                       (string.IsNullOrEmpty(pickupId) ? "" : $" pickupId={pickupId}"));
@@ -135,7 +133,6 @@ namespace HeartOfTheNight.Rooms
                     return false;
             }
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log($"[PlayerKeyInventory] -{amount} {type} (con {GetCount(type)})");
             return true;
@@ -161,13 +158,12 @@ namespace HeartOfTheNight.Rooms
             if (!data.unlockedDoors.Contains(doorId))
                 data.unlockedDoors.Add(doorId);
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
         }
 
         /// <summary>
-        /// Sang scene moi: tui chia ve 0 (chi dung trong scene nhat).
-        /// Giu collectedKeyPickupIds + unlockedDoors de key/cua da xu ly khong hien lai.
+        /// Sang scene mới: tui chìa về 0. Chìa chỉ tồn tại trong scene nhặt.
+        /// Pickup/cửa đã xử lý giữ theo ID (có prefix scene) — không đụng scene khác.
         /// </summary>
         public static void ClearKeyCountsForNewScene()
         {
@@ -176,9 +172,10 @@ namespace HeartOfTheNight.Rooms
 
             data.blueKeys = 0;
             data.redKeys = 0;
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
+            data.collectedBlueKey = false;
+            data.collectedRedKey = false;
             OnKeysChanged?.Invoke();
-            Debug.Log("[PlayerKeyInventory] Sang scene moi: tui chia ve 0 (pickup da nhat van an).");
+            Debug.Log("[PlayerKeyInventory] Sang scene moi: tui chia ve 0.");
         }
 
         /// <summary>Goi khi load save xong de HUD cap nhat.</summary>
@@ -199,7 +196,6 @@ namespace HeartOfTheNight.Rooms
             else
                 data.collectedKeyPickupIds.Clear();
 
-            HeartOfTheNight.Hung.DataManager.Instance.SaveGame();
             OnKeysChanged?.Invoke();
             Debug.Log("[PlayerKeyInventory] Da xoa het chia.");
         }

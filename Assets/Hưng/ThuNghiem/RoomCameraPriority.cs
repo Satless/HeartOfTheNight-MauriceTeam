@@ -11,44 +11,7 @@ namespace HeartOfTheNight.ThuNghiem
         [Tooltip("Index của phòng này trên Minimap (để -1 nếu phòng không có trên map)")]
         [SerializeField] private int roomIndex;
 
-        [Header("Secret")]
-        [Tooltip("Bật = phòng bí mật, hiện trên màn Level Complete (SECRET found/total).")]
-        [SerializeField] private bool isSecretRoom;
-        [Tooltip("Để trống = Scene + tên object.")]
-        [SerializeField] private string secretId;
-
         private bool _isPlayerInRoom = false;
-
-        public bool IsSecretRoom
-        {
-            get
-            {
-                if (isSecretRoom)
-                    return true;
-                return NameLooksSecret(gameObject.name)
-                    || (transform.parent != null && NameLooksSecret(transform.parent.name));
-            }
-        }
-
-        public string SecretId
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(secretId))
-                    return secretId;
-                return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
-            }
-        }
-
-        private static bool NameLooksSecret(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-                return false;
-            return name.IndexOf("secret", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || name.IndexOf("hidden", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || name.IndexOf("bí mật", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || name.IndexOf("bi mat", System.StringComparison.OrdinalIgnoreCase) >= 0;
-        }
 
         private Collider2D _roomCollider;
         private Transform _playerTransform;
@@ -105,8 +68,6 @@ namespace HeartOfTheNight.ThuNghiem
                 if (!_isPlayerInRoom)
                 {
                     _isPlayerInRoom = true;
-                    if (IsSecretRoom)
-                        LevelStatsTracker.DiscoverSecret(SecretId);
 
                     if (MinimapManager.Instance != null && roomIndex >= 0)
                         MinimapManager.Instance.SetCurrentRoom(roomIndex, _roomCollider.bounds.center);

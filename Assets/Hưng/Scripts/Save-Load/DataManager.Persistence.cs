@@ -31,6 +31,10 @@ namespace HeartOfTheNight.Hung
             }
         }
 
+        /// <summary>
+        /// Ghi file/cloud. Chỉ gọi lúc qua cửa checkpoint, Pause Home / thoát màn, tạo-xóa slot.
+        /// Không gọi khi nhặt chìa, clear phòng, hay mỗi phút trong màn.
+        /// </summary>
         public void SaveGame()
         {
             if (Data == null) Data = new GameData();
@@ -185,7 +189,6 @@ namespace HeartOfTheNight.Hung
 
                         SaveGameLocal();
                         RememberCloudSlot(ActiveSlotIndex, Data);
-                        ApplyEditorKeyResetIfNeeded();
                         HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     }
                     else if (ActiveSlotIndex == 1)
@@ -201,7 +204,6 @@ namespace HeartOfTheNight.Hung
                 }
 
                 onLoaded?.Invoke();
-                ApplyEditorKeyResetIfNeeded();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
             });
         }
@@ -234,7 +236,6 @@ namespace HeartOfTheNight.Hung
                 }
 
                 onLoaded?.Invoke();
-                ApplyEditorKeyResetIfNeeded();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
             });
         }
@@ -264,7 +265,6 @@ namespace HeartOfTheNight.Hung
                     Data.slotIndex = ActiveSlotIndex;
                     Data.EnsureLists();
                     Debug.Log($"[Save System] Tải local Slot {ActiveSlotIndex} thành công. RAM: playerHealth={Data.playerHealth}");
-                    ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     return;
                 }
@@ -287,7 +287,6 @@ namespace HeartOfTheNight.Hung
                         Data.EnsureLists();
                         SaveGameLocal();
                         Debug.Log("[Save System] Đã migrate save_data.json → save_slot_1.json");
-                        ApplyEditorKeyResetIfNeeded();
                         HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                         return;
                     }
@@ -313,7 +312,6 @@ namespace HeartOfTheNight.Hung
                     Data.slotIndex = ActiveSlotIndex;
                     Data.EnsureLists();
                     Debug.Log("[Save System] Đã khôi phục thành công từ file Backup.");
-                    ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     return;
                 }
@@ -326,7 +324,6 @@ namespace HeartOfTheNight.Hung
             Debug.Log("[Save System] Chưa có file save nào (Game mới). Bắt đầu với Data gốc.");
             Data = new GameData();
             Data.EnsureLists();
-            ApplyEditorKeyResetIfNeeded();
             HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
         }
 
