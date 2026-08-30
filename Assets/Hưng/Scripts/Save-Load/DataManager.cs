@@ -153,18 +153,33 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
-        /// Đang trong màn: không ghi file (tránh autosave chìa/phòng).
-        /// Thoát app khi còn checkpoint → rollback về cửa rồi mới ghi.
+        /// Alt-tab / thoát app: ghi snapshot đã commit, không rollback RAM đang chơi.
         /// </summary>
         private void PersistOnLeaveApp()
         {
-            if (Data != null && Data.hasSave && HasInProgress() && IsLevelScene(ActiveSceneName))
+            if (Data != null && Data.hasSave && IsLevelScene(ActiveSceneName))
             {
-                SaveBeforeLeaveLevel();
+                PersistCommittedWorldToDiskKeepLive();
                 return;
             }
 
             FlushPlayTimeIfNeeded();
+        }
+
+        /// <summary>
+        /// Ghi chìa/phòng/cửa đã commit xuống đĩa. HUD và map giữ nguyên bản đang chơi.
+        /// </summary>
+        private void PersistCommittedWorldToDiskKeepLive()
+        {
+            if (Data == null || !Data.hasSave)
+                return;
+            if (!Data.hasCheckpointWorldState)
+                return;
+
+            var live = Data.CopyLiveWorld();
+            Data.RestoreCheckpointWorldState();
+            SaveGame();
+            Data.ApplyLiveWorld(live);
         }
 
         private void FlushPlayTimeIfNeeded()
@@ -173,7 +188,7 @@ namespace HeartOfTheNight.Hung
                 return;
             if (_isRespawning || Data.playerHealth <= 0)
                 return;
-            if (HasInProgress() && IsLevelScene(ActiveSceneName))
+            if (IsLevelScene(ActiveSceneName))
                 return;
 
             Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
@@ -285,6 +300,7 @@ namespace HeartOfTheNight.Hung
             };
 
             ChapterProgress.ResetForNewSave();
+            Data.CaptureCheckpointWorldState();
             SaveGame();
             RememberCloudSlot(slotIndex, Data);
             Debug.Log($"[Save System] Tạo save mới Slot {slotIndex} → {NewGameTutorialScene}");
@@ -332,19 +348,24 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
-        /// Pause HOME / EXIT: giữ checkpoint làm điểm Continue, không ghi máu/chìa/phòng giữa màn lên file.
-        /// Vẫn lưu thời gian chơi.
+        /// Pause HOME / EXIT: rollback RAM về snapshot (cửa checkpoint hoặc lúc vào màn), rồi mới ghi file.
+        /// Chưa có snapshot thì không ghi chìa/phòng đang dở.
         /// </summary>
         public void SaveBeforeLeaveLevel()
         {
             if (Data == null || !Data.hasSave)
                 return;
 
-            if (HasInProgress() && Data.hasCheckpointWorldState)
+            if (Data.hasCheckpointWorldState)
             {
                 Data.RestoreCheckpointWorldState();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                SaveGame();
+                return;
             }
+
+            if (IsLevelScene(ActiveSceneName))
+                return;
 
             SaveGame();
         }
@@ -463,7 +484,7 @@ namespace HeartOfTheNight.Hung
             if (Data != null && Data.hasCheckpoint && !string.IsNullOrEmpty(Data.checkpointScene))
                 sceneToLoad = Data.checkpointScene;
 
-            if (Data != null)
+            if (Data != null && Data.hasCheckpointWorldState)
             {
                 Data.RestoreCheckpointWorldState();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
@@ -544,6 +565,7 @@ namespace HeartOfTheNight.Hung
             if (Data == null) return;
             Data.EnsureLists();
             Data.foundSecrets.Clear();
+            Data.CaptureCheckpointWorldState();
         }
 
         /// <summary>Cửa qua màn không phải checkpoint — xóa in-progress màn cũ rồi ghi slot.</summary>

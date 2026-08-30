@@ -130,18 +130,50 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
-        /// Chết: phòng/chìa/cửa sau checkpoint trở lại như lúc qua cửa.
-        /// Save cũ chưa có snapshot thì coi như chưa clear phòng nào.
+        /// RAM đang chơi (chìa/phòng chưa commit). Dùng khi ghi file mà không được đụng HUD.
+        /// </summary>
+        public WorldLiveState CopyLiveWorld()
+        {
+            EnsureLists();
+            return new WorldLiveState
+            {
+                clearedRooms = new List<string>(clearedRooms),
+                unlockedDoors = new List<string>(unlockedDoors),
+                collectedKeyPickupIds = new List<string>(collectedKeyPickupIds),
+                foundSecrets = new List<string>(foundSecrets),
+                blueKeys = blueKeys,
+                redKeys = redKeys,
+                collectedBlueKey = collectedBlueKey,
+                collectedRedKey = collectedRedKey,
+                playerHealth = playerHealth,
+            };
+        }
+
+        public void ApplyLiveWorld(WorldLiveState live)
+        {
+            if (live == null)
+                return;
+
+            clearedRooms = live.clearedRooms ?? new List<string>();
+            unlockedDoors = live.unlockedDoors ?? new List<string>();
+            collectedKeyPickupIds = live.collectedKeyPickupIds ?? new List<string>();
+            foundSecrets = live.foundSecrets ?? new List<string>();
+            blueKeys = live.blueKeys;
+            redKeys = live.redKeys;
+            collectedBlueKey = live.collectedBlueKey;
+            collectedRedKey = live.collectedRedKey;
+            playerHealth = live.playerHealth;
+        }
+
+        /// <summary>
+        /// Chết / Home: phòng/chìa/cửa sau checkpoint trở lại như lúc qua cửa (hoặc lúc vào màn).
+        /// Không có snapshot thì giữ nguyên — không xóa clearedRooms cả slot.
         /// </summary>
         public void RestoreCheckpointWorldState()
         {
             EnsureLists();
             if (!hasCheckpointWorldState)
-            {
-                clearedRooms = new List<string>();
-                foundSecrets = new List<string>();
                 return;
-            }
 
             clearedRooms = new List<string>(checkpointClearedRooms);
             unlockedDoors = new List<string>(checkpointUnlockedDoors);
@@ -166,24 +198,33 @@ namespace HeartOfTheNight.Hung
                 RestoreCheckpointWorldState();
 
             hasCheckpoint = false;
-            hasCheckpointWorldState = false;
             checkpointScene = "";
             checkpointSpawnID = "";
             checkpointPosition = Vector3.zero;
-            checkpointClearedRooms = new List<string>();
-            checkpointUnlockedDoors = new List<string>();
-            checkpointCollectedKeyPickupIds = new List<string>();
-            checkpointFoundSecrets = new List<string>();
+            CaptureCheckpointWorldState();
         }
 
-        /// <summary>Qua màn mà cửa không phải checkpoint — đừng giữ checkpoint màn cũ.</summary>
+        /// <summary>Qua màn mà cửa không phải checkpoint — hết điểm hồi, giữ snapshot world đã commit.</summary>
         public void ClearCheckpointFlags()
         {
             hasCheckpoint = false;
-            hasCheckpointWorldState = false;
             checkpointScene = "";
             checkpointSpawnID = "";
             checkpointPosition = Vector3.zero;
+        }
+
+        /// <summary>Bản copy RAM world — không ghi vào save JSON.</summary>
+        public class WorldLiveState
+        {
+            public List<string> clearedRooms;
+            public List<string> unlockedDoors;
+            public List<string> collectedKeyPickupIds;
+            public List<string> foundSecrets;
+            public int blueKeys;
+            public int redKeys;
+            public bool collectedBlueKey;
+            public bool collectedRedKey;
+            public int playerHealth;
         }
     }
 }
