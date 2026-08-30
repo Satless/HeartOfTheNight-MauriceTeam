@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using HeartOfTheNight.Common;
 using UnityEngine;
@@ -24,6 +25,14 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private bool showStateColor = true;
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color enrageColor = new(1f, 0.5f, 0.5f, 1f);
+
+        public static event Action<HeartOfTheNightBoss> OnBossReady;
+        public event Action<int, int> OnHealthChanged;
+        public event Action OnDeath;
+
+        public int CurrentHealth => health;
+        public int MaxHealth => stats != null ? stats.maxHealth : 0;
+        public bool IsDead => dead;
 
         private Animator anim;
         private Attack currentAttack;
@@ -64,6 +73,8 @@ namespace HeartOfTheNight.Enemy
                 var found = GameObject.FindGameObjectWithTag("Player");
                 if (found != null) player = found.transform;
             }
+
+            if (stats != null) health = stats.maxHealth;
         }
 
         private void Start()
@@ -101,7 +112,11 @@ namespace HeartOfTheNight.Enemy
 
         private void OnEnable()
         {
-            if (fightBooted) EnsureAttackLoopRunning();
+            if (fightBooted)
+            {
+                EnsureAttackLoopRunning();
+                AnnounceReady();
+            }
         }
 
         private void OnDisable()
@@ -137,9 +152,22 @@ namespace HeartOfTheNight.Enemy
                 fightBooted = true;
                 ApplyEnrageVisual();
                 ForceIdlePose();
+                NotifyHealth();
             }
 
             EnsureAttackLoopRunning();
+            AnnounceReady();
+        }
+
+        private void AnnounceReady()
+        {
+            if (dead) return;
+            OnBossReady?.Invoke(this);
+        }
+
+        private void NotifyHealth()
+        {
+            OnHealthChanged?.Invoke(health, MaxHealth);
         }
 
         private void EnsureAttackLoopRunning()
@@ -343,7 +371,7 @@ namespace HeartOfTheNight.Enemy
 
             if (ready.Count == 0 || total <= 0f) return null;
 
-            float roll = Random.value * total;
+            float roll = UnityEngine.Random.value * total;
             for (int i = 0; i < ready.Count; i++)
             {
                 roll -= readyWeights[i];
@@ -529,7 +557,7 @@ namespace HeartOfTheNight.Enemy
                 }
             }
             float centerX = player != null ? player.position.x : transform.position.x;
-            float offsetX = Random.Range(-stats.summonScatterRadius, stats.summonScatterRadius);
+            float offsetX = UnityEngine.Random.Range(-stats.summonScatterRadius, stats.summonScatterRadius);
             return GroundUnder(new Vector2(centerX + offsetX, transform.position.y));
         }
 
@@ -596,12 +624,13 @@ namespace HeartOfTheNight.Enemy
 
         public void TakeDamage(int amount)
         {
-            if (dead) return;
+            if (dead || !fightBooted || amount <= 0) return;
 
-            health -= amount;
+            health = Mathf.Max(0, health - amount);
             AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Hurt", transform.position);
 
             CheckEnrage();
+            NotifyHealth();
 
             if (health <= 0)
             {
@@ -617,13 +646,22 @@ namespace HeartOfTheNight.Enemy
                 }
                 StopAllCoroutines();
                 if (anim != null) anim.SetTrigger("Die");
+                OnDeath?.Invoke();
             }
         }
 
         public void DestroyBoss()
         {
             Destroy(gameObject);
-            
+        }
+
+        private void OnDestroy()
+        {
+            if (dead) return;
+            health = 0;
+            dead = true;
+            NotifyHealth();
+            OnDeath?.Invoke();
         }
     }
 }
