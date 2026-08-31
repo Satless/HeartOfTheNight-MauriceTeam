@@ -58,12 +58,6 @@ public class CollectibleItem : MonoBehaviour
     public bool waitForGroundHit = true;
 
     private ItemFloating _floatingScript;
-    private System.Reflection.FieldInfo _hasLandField;
-
-    // Cache kết quả Reflection để không gọi GetValue mỗi frame (Zero-GC)
-    private bool _hasLandedCache;
-    private float _lastLandCheckTime;
-    private const float LAND_CHECK_INTERVAL = 0.1f;
 
     // Extract magic numbers thành constants (Data-Driven)
     private const float PULL_RELEASE_TIMEOUT = 0.1f;
@@ -115,12 +109,7 @@ public class CollectibleItem : MonoBehaviour
         // Item spawn bởi EnemyLootDrop sẽ có _spawnTime > 0 (game đã chạy một lúc).
         // Item đặt sẵn có Awake() chạy ở frame đầu tiên khi scene load.
         _isPrePlaced = (gameObject.scene.isLoaded && Time.frameCount <= 1);
-
-        if (TryGetComponent(out _floatingScript))
-        {
-            var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
-            _hasLandField = _floatingScript.GetType().GetField("hasLandOnGround", flags);
-        }
+        _floatingScript = GetComponent<ItemFloating>();
     }
 
     private void Update()
@@ -143,10 +132,7 @@ public class CollectibleItem : MonoBehaviour
                 if (_floatingScript != null)
                 {
                     _floatingScript.enabled = true;
-                    if (_hasLandField != null)
-                    {
-                        _hasLandField.SetValue(_floatingScript, false);
-                    }
+                    _floatingScript.ResetLandedState();
                 }
 
                 // KHÔNG set isTrigger = false ở đây!
@@ -202,17 +188,10 @@ public class CollectibleItem : MonoBehaviour
         //    Item đặt sẵn (_isPrePlaced) bỏ qua bước này vì ItemFloating.Start()
         //    sẽ bắn item lên với lực ngẫu nhiên, có thể không rơi trúng Ground layer
         //    → hasLandOnGround vĩnh viễn false → nam châm không bao giờ hút được.
-        if (waitForGroundHit && !_isPrePlaced
-            && _floatingScript != null && _floatingScript.enabled && _hasLandField != null)
+        if (waitForGroundHit && !_isPrePlaced && _floatingScript != null && _floatingScript.enabled)
         {
-            // Chỉ gọi Reflection mỗi 0.1s thay vì mỗi frame (tránh boxing GC)
-            if (Time.time - _lastLandCheckTime > LAND_CHECK_INTERVAL)
-            {
-                _hasLandedCache = (bool)_hasLandField.GetValue(_floatingScript);
-                _lastLandCheckTime = Time.time;
-            }
             bool timedOut = (Time.time - _spawnTime) > GROUND_WAIT_TIMEOUT;
-            if (!_hasLandedCache && !timedOut) return;
+            if (!_floatingScript.HasLanded && !timedOut) return;
         }
 
         // Ghi nhận khoảng cách ban đầu khi bắt đầu hút (dùng cho wobble fade-out)

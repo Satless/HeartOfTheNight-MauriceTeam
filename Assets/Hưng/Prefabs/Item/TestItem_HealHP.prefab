@@ -180,6 +180,8 @@ MonoBehaviour:
   _isCollected: 0
   _currentSpeed: 0
   _lastPullTime: 0
+  pullDelayAfterSpawn: 0.4
+  waitForGroundHit: 1
 --- !u!114 &7292172366287647832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,9 +194,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3ffaa0ed11b54743a4b5bdd17466a88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minForceX: -3
-  maxForceX: 3
-  minForceY: 4
-  maxForceY: 7
+  minForceX: -10
+  maxForceX: 10
+  minForceY: 5
+  maxForceY: 12
   floatSpeed: 5
   floatAmplitude: 0.25
