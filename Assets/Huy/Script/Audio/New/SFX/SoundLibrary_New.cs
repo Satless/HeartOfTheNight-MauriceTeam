@@ -47,11 +47,10 @@ public class SoundLibrary_New : MonoBehaviour
                         {
                             if (action.actionID == actionName)
                             {
-                                if (action.clips != null && action.clips.Length > 0)
-                                {
-                                    // Chọn ngẫu nhiên 1 clip trong mảng
-                                    return action.clips[Random.Range(0, action.clips.Length)];
-                                }
+                                if (action.clips == null || action.clips.Length == 0)
+                                    return null;
+
+                                return action.clips[Random.Range(0, action.clips.Length)];
                             }
                         }
                     }

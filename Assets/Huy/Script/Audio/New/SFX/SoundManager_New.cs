@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Audio;
-using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class SoundManager_New : MonoBehaviour
 {
@@ -40,6 +38,8 @@ public class SoundManager_New : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject); // Chỉ giữ lại chính SoundManager, không lấy root
+            if (sfxSource != null)
+                sfxSource.ignoreListenerPause = true;
         }
         else if (Instance != this)
         {
@@ -85,6 +85,7 @@ public class SoundManager_New : MonoBehaviour
             // Nhân bản SfxSource đã gán sẵn Output Mixer SFX
             AudioSource tempSource = Instantiate(sfxSource, pos, Quaternion.identity);
             tempSource.clip = clip;
+            tempSource.ignoreListenerPause = false;
             tempSource.Play();
 
             // Tự động xóa GameObject tạm sau khi clip chạy xong

@@ -430,8 +430,6 @@ namespace HeartOfTheNight.Enemy
             float spread = stats.barrageSpreadAngle;
             float interval = stats.barrageBetweenShots * SpeedMul;
 
-            AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Barrage", transform.position);
-
             for (int i = 0; i < count; i++)
             {
                 if (player == null) break;

@@ -185,7 +185,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             moveSoundTimer -= Time.fixedDeltaTime;
             if (moveSoundTimer <= 0f)
             {
-                AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Move", transform.position);
+                AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Move", transform.position);
                 moveSoundTimer = 0.3f;
             }
         }

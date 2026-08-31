@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class MainMenuHuy : MonoBehaviour
@@ -38,8 +37,6 @@ public class MainMenuHuy : MonoBehaviour
         masterSlider.onValueChanged.AddListener(UpdateMaster);
         musicSlider.onValueChanged.AddListener(UpdateMusicVolume);
         sfxSlider.onValueChanged.AddListener(UpdateSoundVolume);
-
-        PlayMenuMusic();
     }
 
     private void SyncSlidersFromPrefs()
@@ -47,38 +44,6 @@ public class MainMenuHuy : MonoBehaviour
         if (masterSlider != null) masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
         if (musicSlider != null) musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
         if (sfxSlider != null) sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
-    }
-
-    private void AddStopDragSound(Slider slider)
-    {
-        if (slider == null) return;
-
-        EventTrigger trigger = slider.gameObject.GetComponent<EventTrigger>();
-        if (trigger == null) trigger = slider.gameObject.AddComponent<EventTrigger>();
-
-        EventTrigger.Entry entry = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerUp
-        };
-        entry.callback.AddListener((data) =>
-        {
-            if (SoundManager_New.Instance != null)
-            {
-                bool wasPaused = AudioListener.pause; 
-                if (wasPaused) AudioListener.pause = false; 
-
-                AudioEvents.TriggerSound2D("UI", "Slider", "StopDrag");
-
-                if (wasPaused) AudioListener.pause = true; 
-            }
-        });
-
-        trigger.triggers.Add(entry);
-    }
-
-    private void PlayMenuMusic()
-    {
-        AudioEvents.TriggerMusic("MainMenu", 0.5f);
     }
 
     public void Quit()
