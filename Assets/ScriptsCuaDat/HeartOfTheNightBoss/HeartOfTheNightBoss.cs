@@ -47,6 +47,8 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private SpriteRenderer bodySprite;
         [Tooltip("Sau khi ẩn body + nổ VFX, giữ head thêm x giây rồi Destroy.")]
         [SerializeField] private float destroyAfterBurstDelay = 1.2f;
+        [Tooltip("Vòng nổ dead-Sheet (~54px) scale cho khớp cạnh dài của đầu (~132px). 1 = phủ hết đầu.")]
+        [SerializeField] [Min(0.1f)] private float deathRingSizeMul = 1f;
 
         public static event Action<HeartOfTheNightBoss> OnBossReady;
         public event Action<int, int> OnHealthChanged;
@@ -735,11 +737,26 @@ namespace HeartOfTheNight.Enemy
                 yield return null;
             }
 
+            Vector3 headCenter = sprite != null ? sprite.bounds.center : transform.position;
+            float headSpan = sprite != null
+                ? Mathf.Max(sprite.bounds.size.x, sprite.bounds.size.y)
+                : 8.25f;
+
             if (anim != null)
                 anim.Play("HeartDie", 0, endingStart / clipLen);
 
             BurstDeathVfx();
             CameraShake.Shake(deathShakeAmplitude * 1.35f, 1.3f);
+
+            float waitRing = 0.2f;
+            while (waitRing > 0f && !IsDeathRingSprite(sprite != null ? sprite.sprite : null))
+            {
+                waitRing -= Time.deltaTime;
+                yield return null;
+            }
+
+            if (IsDeathRingSprite(sprite != null ? sprite.sprite : null))
+                FitDeathRingToHead(headCenter, headSpan);
 
             yield return new WaitForSeconds(endingLen);
 
@@ -763,6 +780,31 @@ namespace HeartOfTheNight.Enemy
         {
             BurstDeathVfx();
             Destroy(gameObject, Mathf.Max(0f, destroyAfterBurstDelay));
+        }
+
+        /// <summary>
+        /// dead-Sheet frame đầu ~54px, đầu boss ~132px — cùng PPU. Sheet dùng chung quái khác nên chỉ scale tại đây.
+        /// Pivot vòng ở đáy: dời transform để tâm vòng trùng tâm đầu.
+        /// </summary>
+        private void FitDeathRingToHead(Vector3 headCenter, float headSpan)
+        {
+            if (headSpan < 0.01f)
+                return;
+
+            const float ringNative = 54f / 16f;
+            float scale = headSpan * deathRingSizeMul / ringNative;
+            Vector3 ls = transform.localScale;
+            float sx = ls.x < 0f ? -1f : 1f;
+            float sy = ls.y < 0f ? -1f : 1f;
+            transform.localScale = new Vector3(sx * scale, sy * scale, ls.z);
+
+            if (sprite != null)
+                transform.position += headCenter - sprite.bounds.center;
+        }
+
+        private static bool IsDeathRingSprite(Sprite s)
+        {
+            return s != null && s.rect.width <= 80f;
         }
 
         /// <summary>
