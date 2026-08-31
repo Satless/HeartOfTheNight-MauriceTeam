@@ -126,6 +126,8 @@ GameObject:
   - component: {fileID: 5141435882979783124}
   - component: {fileID: 890032511126001227}
   - component: {fileID: 2265503281112699794}
+  - component: {fileID: 1483641288426173045}
+  - component: {fileID: 3202476296815374175}
   m_Layer: 0
   m_Name: PlayTestThemAnimation
   m_TagString: Player
@@ -351,9 +353,60 @@ MonoBehaviour:
   pullSpeed: 6
   maxPullSpeed: 12
   timeToMaxSpeed: 0.58
-  wobbleAmplitude: 0.1
+  wobbleAmplitude: 2
   wobbleFrequency: 5
   pullAcceleration: 10.344828
+--- !u!114 &1483641288426173045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721345467516107366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4e4e5e0f1bafa4daa6c55852f65d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _resistance: 0.039
+  _deceleration: 1
+  _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
+--- !u!114 &3202476296815374175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721345467516107366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!1 &3596674238653366494
 GameObject:
   m_ObjectHideFlags: 0
