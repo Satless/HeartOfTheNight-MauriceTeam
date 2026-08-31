@@ -12,20 +12,6 @@ public class SliderAudioHandler : MonoBehaviour, IPointerUpHandler
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        // Kiểm tra SoundManager tồn tại
-        if (SoundManager_New.Instance != null)
-        {
-            AudioEvents.TriggerSound2D(audioCategory, audioGroup, audioName);
-
-            // Tìm và bắt AudioSource vừa phát sound UI phải ignore trạng thái Pause
-            AudioSource[] sources = SoundManager_New.Instance.GetComponentsInChildren<AudioSource>();
-            foreach (AudioSource source in sources)
-            {
-                if (source.isPlaying)
-                {
-                    source.ignoreListenerPause = true;
-                }
-            }
-        }
+        AudioEvents.TriggerSound2D(audioCategory, audioGroup, audioName);
     }
 }

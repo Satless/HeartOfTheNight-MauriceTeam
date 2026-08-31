@@ -63,7 +63,6 @@ public class Wrath : MonoBehaviour, IDamageable
     private bool isBusy = false;
 
     private float idleSoundTimer;
-    private float moveSoundTimer;
 
     void Start()
     {
@@ -187,13 +186,6 @@ public class Wrath : MonoBehaviour, IDamageable
             float dir = (player.position.x > transform.position.x) ? 1 : -1;
             rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
-
-            moveSoundTimer -= Time.fixedDeltaTime;
-            if (moveSoundTimer <= 0f)
-            {
-                AudioEvents.TriggerSound3D("Enemy", "Wrath", "Move", transform.position);
-                moveSoundTimer = 0.2f;
-            }
         }
     }
 
