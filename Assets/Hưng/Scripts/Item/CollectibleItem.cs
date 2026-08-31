@@ -48,6 +48,9 @@ public class CollectibleItem : MonoBehaviour
     // Ngăn item teleport xuyên Ground/Wall.
     private const float MAX_WOBBLE_DELTA_PER_FRAME = 0.5f;
 
+    // Ngăn chặn MoveTowards nhảy một khoảng quá xa trong 1 frame nếu maxSpeed bị set quá lớn
+    private const float MAX_PULL_DELTA_PER_FRAME = 1.0f;
+
     [Tooltip("Thời gian chờ tối thiểu sau khi spawn trước khi item có thể bị nam châm hút (0 = hút ngay)")]
     public float pullDelayAfterSpawn = 0.4f;
 
@@ -217,6 +220,7 @@ public class CollectibleItem : MonoBehaviour
         {
             _initialPullDistance = Vector2.Distance(transform.position, target.position);
             if (_initialPullDistance < 0.1f) _initialPullDistance = 1f; // safety
+            _lastWobbleOffset = 0f; // Đảm bảo reset pha dao động khi hút lại sau khi rớt
         }
 
         _isBeingPulled = true;
@@ -240,7 +244,12 @@ public class CollectibleItem : MonoBehaviour
         float actualSpeed = Mathf.Min(baseSpeed + _currentSpeed, maxSpeed);
 
         float distanceRemaining = Vector2.Distance(transform.position, target.position);
-        transform.position = Vector3.MoveTowards(transform.position, target.position, actualSpeed * Time.deltaTime);
+        
+        // Rào tốc độ tối đa mỗi frame để không bị tunnel qua Ground nếu Designer set maxSpeed cực lớn
+        float moveStep = actualSpeed * Time.deltaTime;
+        moveStep = Mathf.Min(moveStep, MAX_PULL_DELTA_PER_FRAME);
+        
+        transform.position = Vector3.MoveTowards(transform.position, target.position, moveStep);
 
         // Hiệu ứng quỹ đạo hình Sin (Wobble) sử dụng Delta để không bị dồn pos
         //
