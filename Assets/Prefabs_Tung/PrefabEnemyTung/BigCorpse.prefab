@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 414277998448119279}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.78, y: 1.53, z: 0}
+  m_LocalPosition: {x: 0.78, y: -0.017, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 1038229771059565492}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.78, y: 0.84, z: 0}
+  m_LocalPosition: {x: 0.78, y: 0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -154,6 +154,8 @@ GameObject:
   - component: {fileID: 8900680286279986136}
   - component: {fileID: -272461633313803676}
   - component: {fileID: 539931980909869456}
+  - component: {fileID: 1607064163850120616}
+  - component: {fileID: 414937155192101203}
   m_Layer: 10
   m_Name: BigCorpse
   m_TagString: Enemy
@@ -345,7 +347,9 @@ MonoBehaviour:
   edgeCheck: {fileID: 2441634690281828419}
   wallCheck: {fileID: 3823528332310706900}
   edgeCheckDistance: 3
-  wallCheckDistance: 0.5
+  wallCheckDistance: 0
+  wallCheckHeight: 2.92
+  flipCooldown: 0.5
   attackDamage: 15
   attackCooldown: 2.5
 --- !u!95 &539931980909869456
@@ -370,6 +374,50 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1607064163850120616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013350649504234070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e69a0d851dd74814883a860d74efcb7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 8113873224156500538}
+  flashColor: {r: 1, g: 0, b: 0, a: 1}
+  flashDuration: 0.15
+  damageTags:
+  - Dan
+--- !u!114 &414937155192101203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013350649504234070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: add6581f9d070f8418c0cb0bdf5806f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropMultipleItems: 1
+  lootTable:
+  - itemName: 
+    itemPrefab: {fileID: 5216420102608481259, guid: 1abb01393af01aa47bbea3e5a1b4bd79, type: 3}
+    dropChance: 100
+  - itemName: 
+    itemPrefab: {fileID: 7281742956343847639, guid: e815a6f508460b54889b1fafe31488b2, type: 3}
+    dropChance: 50
+  - itemName: 
+    itemPrefab: {fileID: 2787408048170355484, guid: 5209ad2420dee4d49964ed24c0c0875c, type: 3}
+    dropChance: 100
+  - itemName: 
+    itemPrefab: {fileID: 7856878159730602905, guid: 2d18efdf82b1e6b45a679a8f92ebd003, type: 3}
+    dropChance: 100
+  customVariableName: 
 --- !u!1 &8898692820044542170
 GameObject:
   m_ObjectHideFlags: 0
@@ -451,11 +499,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 3.42
+      value: 3.27
       objectReference: {fileID: 0}
     - target: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -472,6 +520,10 @@ PrefabInstance:
     - target: {fileID: 7349025364790326907, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
       propertyPath: m_Name
       value: EnemyHealthCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 8081753652522447078, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

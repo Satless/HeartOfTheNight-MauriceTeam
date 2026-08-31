@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 9122692583889050465}
   - component: {fileID: 3623336256932715327}
   - component: {fileID: 5545718281574831241}
+  - component: {fileID: 3714700001967110821}
   m_Layer: 13
   m_Name: JumpBuffP
   m_TagString: Untagged
@@ -80,7 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 2921906184154577061, guid: 945b1e0f268c40647b5639654125b499, type: 3}
   m_Color: {r: 0, g: 1, b: 0.042769432, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -129,7 +130,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.8125, y: 1.75}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -202,7 +203,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.8125, y: 1.75}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -229,3 +230,21 @@ MonoBehaviour:
   jumpMultiplier: 1.5
   pickupVFX: {fileID: 0}
   shieldVisualPrefab: {fileID: 0}
+--- !u!114 &3714700001967110821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7856878159730602905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ffaa0ed11b54743a4b5bdd17466a88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minForceX: -3
+  maxForceX: 3
+  minForceY: 4
+  maxForceY: 7
+  floatSpeed: 5
+  floatAmplitude: 0.25

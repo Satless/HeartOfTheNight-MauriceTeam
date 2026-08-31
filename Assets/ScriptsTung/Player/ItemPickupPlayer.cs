@@ -21,50 +21,68 @@ public class ItemPickupPlayer : MonoBehaviour
 
     private bool isCollected = false;
 
+    // 🔥 BAO TRỌN GÓI: Player đi xuyên qua (Trigger) hay đụng vật lý (Collision) đều nhặt được hết!
     private void OnTriggerEnter2D(Collider2D collision)
+    {
+        XuLyNhatDo(collision.gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        XuLyNhatDo(collision.gameObject);
+    }
+
+    // Tách riêng logic nhặt đồ ra một hàm để dùng chung cho cả 2 trường hợp trên
+    private void XuLyNhatDo(GameObject doiTuongVaCham)
     {
         if (isCollected) return;
 
-        // Dùng GetComponentInParent để tìm file PlayerHealth từ object va chạm hoặc cha của nó
-        HeartOfTheNight.Player.PlayerHealth playerHp = collision.GetComponentInParent<HeartOfTheNight.Player.PlayerHealth>();
+        // Tìm file PlayerHealth từ object va chạm hoặc cha của nó
+        HeartOfTheNight.Player.PlayerHealth playerHp = doiTuongVaCham.GetComponentInParent<HeartOfTheNight.Player.PlayerHealth>();
 
         if (playerHp != null)
         {
             if (itemType == ItemType.HealHP)
             {
-                // 🔥 CHÍNH LÀ CHỖ NÀY: Quét xem trên người Player có tờ bùa AntiHeal không?
-                AntiHeal buaCamMau = collision.GetComponentInParent<AntiHeal>();
+                AntiHeal buaCamMau = doiTuongVaCham.GetComponentInParent<AntiHeal>();
 
-                // Nếu có bùa và bùa vẫn còn thời gian -> Lập tức "dội" ra, không cho nhặt máu!
                 if (buaCamMau != null && buaCamMau.thoiGianConLai > 0)
                 {
                     Debug.Log("⛔ Đang dính Anti-Heal! Đi ngang qua cục máu không thèm nhặt!");
                     return;
                 }
 
-                // Nếu không bị cấm máu thì mới check xem máu đầy chưa
                 if (playerHp.GetCurrentHealth() >= playerHp.MaxHealth)
                 {
-                    return; // Đầy máu rồi thì thoát hàm luôn, không nhặt và không xóa item
+                    return;
                 }
             }
 
             isCollected = true;
 
-            // Hiệu ứng ăn đồ
+            // Dừng hiệu ứng lơ lửng của item (nếu có script ItemFloating)
+            if (TryGetComponent(out ItemFloating floatingScript))
+            {
+                floatingScript.StopFloating();
+            }
+
+            // Sinh hiệu ứng ăn đồ
             if (pickupVFX != null) Instantiate(pickupVFX, transform.position, Quaternion.identity);
 
-            // Ẩn vật phẩm đi
-            if (TryGetComponent(out SpriteRenderer sr)) sr.enabled = false;
+            // Tắt Rigidbody và toàn bộ hình ảnh, va chạm của Item
+            if (TryGetComponent(out Rigidbody2D rb)) rb.simulated = false;
 
-            // Tắt hết toàn bộ Collider của viên Item để tránh va chạm lần 2
+            SpriteRenderer[] allSprites = GetComponentsInChildren<SpriteRenderer>();
+            foreach (var sr in allSprites) sr.enabled = false;
+
             Collider2D[] cols = GetComponents<Collider2D>();
             foreach (var c in cols) c.enabled = false;
 
+            // Gắn vào Player để đếm thời gian buff
             transform.SetParent(playerHp.transform);
             transform.localPosition = Vector3.zero;
 
-            // Kích hoạt coroutine buff (truyền thẳng GameObject gốc của Player vào)
+            // Kích hoạt buff cho các loại item
             StartCoroutine(ApplyBuffRoutine(playerHp.gameObject));
         }
     }
@@ -74,26 +92,20 @@ public class ItemPickupPlayer : MonoBehaviour
         switch (itemType)
         {
             case ItemType.HealHP:
-                // Tìm file máu từ object bị đụng hoặc cha của nó
                 HeartOfTheNight.Player.PlayerHealth hpScript = player.GetComponentInParent<HeartOfTheNight.Player.PlayerHealth>();
                 if (hpScript != null)
                 {
                     hpScript.Heal(healAmount);
                     Debug.Log("💚 Đã hồi máu!");
                 }
-                else
-                {
-                    Debug.LogWarning("⚠️ Đụng Player rồi nhưng không tìm thấy file PlayerHealth!");
-                }
-
-                Destroy(gameObject); // Ăn máu xong là hủy viên máu liền
+                Destroy(gameObject);
                 yield break;
 
             case ItemType.Shield:
                 HeartOfTheNight.Player.PlayerHealth shieldScript = player.GetComponentInParent<HeartOfTheNight.Player.PlayerHealth>();
                 if (shieldScript != null)
                 {
-                    shieldScript.hasShield = true; // Bật cờ vô địch
+                    shieldScript.hasShield = true;
 
                     GameObject shieldInstance = null;
                     if (shieldVisualPrefab != null)
@@ -101,10 +113,10 @@ public class ItemPickupPlayer : MonoBehaviour
                         shieldInstance = Instantiate(shieldVisualPrefab, player.transform.position, Quaternion.identity, player.transform);
                     }
 
-                    Debug.Log("🛡️ Bật Khiên! Quái chém vẫn ra đòn nhưng không mất máu.");
+                    Debug.Log("🛡️ Bật Khiên!");
                     yield return new WaitForSeconds(buffDuration);
 
-                    shieldScript.hasShield = false; // Tắt cờ vô địch
+                    shieldScript.hasShield = false;
                     if (shieldInstance != null) Destroy(shieldInstance);
                     Debug.Log("Hết Khiên!");
                 }
@@ -139,7 +151,6 @@ public class ItemPickupPlayer : MonoBehaviour
                 break;
         }
 
-        // Hủy viên Item sau khi buff xong (Áp dụng cho Shield, Speed, Jump vì nó phải dùng yield return đợi hết giờ)
         Destroy(gameObject);
     }
 }
