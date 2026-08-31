@@ -330,15 +330,25 @@ MonoBehaviour:
     - subCategoryID: Husk
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: a1795722f43ebd147a01fcf4ba836d1d, type: 3}
+        - {fileID: 8300000, guid: 39a1b0f7d8536dd4094878b4f29d1cba, type: 3}
       - actionID: Move
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 9c8db61554a034949b22d832e5bc0a89, type: 3}
+        - {fileID: 8300000, guid: d360266dc6e6f9f4ca6adbe0fb5755ed, type: 3}
       - actionID: Attack
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 80eded04ec01b0943b56180061b08923, type: 3}
+        - {fileID: 8300000, guid: 3ec14b4a443a3434c9177205343f1a7d, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 696171b6402717844a9dd718c19ecaba, type: 3}
+        - {fileID: 8300000, guid: 52ce86dd94a6045448eb324f77298e93, type: 3}
+        - {fileID: 8300000, guid: ce167c796fdf3434395b92e789f75492, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 503e2c83709cccd4ca559095d4e52fd7, type: 3}
     - subCategoryID: Inquisitor
       actions:
       - actionID: Idle
@@ -450,9 +460,11 @@ MonoBehaviour:
     - subCategoryID: Fire
       actions:
       - actionID: ApplyEffect
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: f887c81494064a64eb63cf0ec3085d6e, type: 3}
       - actionID: TickDmg
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 580d61b5c3c7281478e57efb18570d86, type: 3}
   - categoryID: Weapons
     subCategories:
     - subCategoryID: Pistol
