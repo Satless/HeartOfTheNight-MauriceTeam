@@ -289,8 +289,27 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    private void OnEnable() => _input?.Enable();
-    private void OnDisable() => _input?.Disable();
+    private void OnEnable()
+    {
+        GameplayEvents.OnGameplayInputEnabled += HandleGameplayInputEnabled;
+        HandleGameplayInputEnabled(GameplayEvents.InputEnabled);
+    }
+
+    private void OnDisable()
+    {
+        GameplayEvents.OnGameplayInputEnabled -= HandleGameplayInputEnabled;
+        _input?.Disable();
+    }
+
+    private void HandleGameplayInputEnabled(bool inputEnabled)
+    {
+        if (_input == null)
+            return;
+        if (inputEnabled)
+            _input.Enable();
+        else
+            _input.Disable();
+    }
 
     private void Start()
     {
