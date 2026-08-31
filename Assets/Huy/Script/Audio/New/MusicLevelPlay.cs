@@ -31,9 +31,6 @@ public class MusicLevelPlay : MonoBehaviour
         new SceneMusicData { sceneName = "mainMenu", trackName = "MainMenuBGM" },
         new SceneMusicData { sceneName = "SelectLevel", trackName = "SelectLevelBGM" },
         new SceneMusicData { sceneName = "LevelComplete", trackName = "WinBGM" },
-
-        //floor1
-        new SceneMusicData { sceneName = "LevelComplete", trackName = "Tutorial" }
     };
 
     private string currentPlayingTrack = "";

@@ -19,6 +19,12 @@ public class MusicManager_New : MonoBehaviour
     {
         if (Instance != null) { Destroy(gameObject); }
         else { Instance = this; DontDestroyOnLoad(gameObject); }
+
+        // Đảm bảo MusicSource không bị ảnh hưởng bởi AudioListener.pause
+        if (musicSource != null)
+        {
+            musicSource.ignoreListenerPause = true;
+        }
     }
 
     private void OnEnable() => AudioEvents.OnPlayMusic += PlayMusic;
