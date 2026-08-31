@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95824c7a7658b6449aefab2ff0a9ae8d, type: 3}
+  m_Name: TestItem_SpeedBuff
+  m_EditorClassIdentifier: 
+  itemName: "Buff T\u1ED1c \u0110\u1ED9 Test"
+  itemType: 2
+  value: 0
+  buffDuration: 5
+  multiplier: 1.5
+  maxStacks: 3
+  maxMultiplier: 3
+  durationBehavior: 1
+  pickupVFX: {fileID: 0}
+  buffVisualPrefab: {fileID: 0}
+  collectDistance: 0.5
+  sfxCategory: Player
+  sfxSubCategory: CollectItems
+  sfxAction: n
