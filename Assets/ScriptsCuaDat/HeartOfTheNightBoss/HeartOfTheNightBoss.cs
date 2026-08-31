@@ -30,6 +30,15 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private float deathShakeAmplitude = 0.45f;
         [SerializeField] private float deathShakeDuration = 1.1f;
 
+        [Header("Death VFX")]
+        [SerializeField] private GameObject deathVfxPrefab;
+        [SerializeField] [Min(0)] private int deathVfxCount = 8;
+        [Tooltip("0 = ngay tâm body. 1 = rải hết bounds sprite/collider.")]
+        [SerializeField] [Range(0f, 1.5f)] private float deathVfxScatter = 0.75f;
+        [SerializeField] private float deathVfxSpeed = 7f;
+        [SerializeField] private float deathVfxSpeedJitter = 3f;
+        [SerializeField] private float deathVfxLifetime = 3.5f;
+
         public static event Action<HeartOfTheNightBoss> OnBossReady;
         public event Action<int, int> OnHealthChanged;
         public event Action OnDeath;
@@ -57,6 +66,7 @@ namespace HeartOfTheNight.Enemy
         private float nextAllowedTime;
         private float combatUnlockTime;
         private bool receivedSpawnHold;
+        private bool deathVfxSpawned;
 
         private readonly Dictionary<Attack, float> nextReadyTime = new();
         private readonly List<GameObject> activeSummons = new();
@@ -651,6 +661,7 @@ namespace HeartOfTheNight.Enemy
                 StopAllCoroutines();
                 if (anim != null) anim.SetTrigger("Die");
                 CameraShake.Shake(deathShakeAmplitude, deathShakeDuration);
+                SpawnDeathVfx();
                 OnDeath?.Invoke();
             }
         }
@@ -658,6 +669,55 @@ namespace HeartOfTheNight.Enemy
         public void DestroyBoss()
         {
             Destroy(gameObject);
+        }
+
+        /// <summary>
+        /// Nổ VFX_HOT ra khỏi body. Không parent vào boss — HeartDie gọi DestroyBoss sau 1.5s.
+        /// </summary>
+        private void SpawnDeathVfx()
+        {
+            if (deathVfxSpawned || deathVfxPrefab == null || deathVfxCount <= 0)
+                return;
+
+            deathVfxSpawned = true;
+
+            Bounds body = col != null ? col.bounds : new Bounds(transform.position, Vector3.one);
+            if (sprite != null)
+                body = sprite.bounds;
+
+            Vector3 center = body.center;
+
+            for (int i = 0; i < deathVfxCount; i++)
+            {
+                Vector3 offset = new Vector3(
+                    UnityEngine.Random.Range(-body.extents.x, body.extents.x),
+                    UnityEngine.Random.Range(-body.extents.y, body.extents.y),
+                    0f) * deathVfxScatter;
+
+                Vector3 pos = center + offset;
+                var go = Instantiate(deathVfxPrefab, pos, Quaternion.identity);
+                go.transform.SetParent(null, true);
+
+                var vfxCol = go.GetComponent<Collider2D>();
+                if (vfxCol != null)
+                    vfxCol.enabled = false;
+
+                var vfxRb = go.GetComponent<Rigidbody2D>();
+                if (vfxRb != null)
+                {
+                    Vector2 dir = (Vector2)(pos - center);
+                    if (dir.sqrMagnitude < 0.01f)
+                        dir = UnityEngine.Random.insideUnitCircle;
+                    dir = (dir.normalized + Vector2.up * 0.4f).normalized;
+
+                    float speed = deathVfxSpeed + UnityEngine.Random.Range(-deathVfxSpeedJitter, deathVfxSpeedJitter);
+                    vfxRb.linearVelocity = dir * Mathf.Max(0.1f, speed);
+                    vfxRb.angularVelocity = UnityEngine.Random.Range(-420f, 360f);
+                }
+
+                if (deathVfxLifetime > 0f)
+                    Destroy(go, deathVfxLifetime);
+            }
         }
 
         private void OnDestroy()

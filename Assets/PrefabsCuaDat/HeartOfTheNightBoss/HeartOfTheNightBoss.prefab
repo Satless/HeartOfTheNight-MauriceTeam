@@ -435,6 +435,14 @@ MonoBehaviour:
   showStateColor: 1
   normalColor: {r: 1, g: 0.9792453, b: 0.9792453, a: 1}
   enrageColor: {r: 1, g: 1, b: 1, a: 1}
+  deathShakeAmplitude: 0.45
+  deathShakeDuration: 1.1
+  deathVfxPrefab: {fileID: 8107031208782475583, guid: 5e36947a1d749cb42a91964b7af514ba, type: 3}
+  deathVfxCount: 8
+  deathVfxScatter: 0.75
+  deathVfxSpeed: 7
+  deathVfxSpeedJitter: 3
+  deathVfxLifetime: 3.5
 --- !u!95 &6120374570562086116
 Animator:
   serializedVersion: 7
