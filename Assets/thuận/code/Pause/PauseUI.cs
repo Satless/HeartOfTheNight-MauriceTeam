@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using HeartOfTheNight.Hung;
 using HeartOfTheNight.Player;
 using UnityEngine;
@@ -36,7 +35,6 @@ public class PauseUI : MonoBehaviour
     private Canvas _canvas;
     private bool _buttonsWired;
     private bool _levelTimerWasPaused;
-    private readonly List<Behaviour> _disabledOnPause = new List<Behaviour>(8);
 
     private static readonly string[] MenuScenes =
     {
@@ -170,8 +168,8 @@ public class PauseUI : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        // BỎ HOẶC COMMENT DÒNG NÀY ĐỂ ÂM THANH UI KHÔNG BỊ KHÓA
-        // AudioListener.pause = true; 
+        // Kích hoạt dừng toàn bộ AudioListener để ngắt âm thanh SFX quái và môi trường
+        AudioListener.pause = true;
 
         FreezeGameplay();
     }
@@ -300,6 +298,8 @@ public class PauseUI : MonoBehaviour
     {
         IsPaused = false;
         HideImmediate();
+
+        // Mở lại AudioListener khi bỏ Pause
         AudioListener.pause = false;
         Time.timeScale = 1f;
 
@@ -327,36 +327,12 @@ public class PauseUI : MonoBehaviour
 
     private void FreezeGameplay()
     {
-        _disabledOnPause.Clear();
-        DisableIfEnabled(FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None));
-        DisableIfEnabled(FindObjectsByType<PlayerAttack>(FindObjectsSortMode.None));
-        
-        // [TƯƠNG THÍCH HUD] Tắt script nhận diện bàn phím của HUD để nó ngừng chớp màu khi Pause
-        DisableIfEnabled(FindObjectsByType<HeartOfTheNight.UI.HUDKeyboardController>(FindObjectsSortMode.None));
-    }
-
-    private void DisableIfEnabled(Behaviour[] behaviours)
-    {
-        for (int i = 0; i < behaviours.Length; i++)
-        {
-            var behaviour = behaviours[i];
-            if (behaviour == null || !behaviour.enabled)
-                continue;
-
-            behaviour.enabled = false;
-            _disabledOnPause.Add(behaviour);
-        }
+        GameplayEvents.SetGameplayInputEnabled(false);
     }
 
     private void UnfreezeGameplay()
     {
-        for (int i = 0; i < _disabledOnPause.Count; i++)
-        {
-            if (_disabledOnPause[i] != null)
-                _disabledOnPause[i].enabled = true;
-        }
-
-        _disabledOnPause.Clear();
+        GameplayEvents.SetGameplayInputEnabled(true);
     }
 
     private void EnsureCanvas()

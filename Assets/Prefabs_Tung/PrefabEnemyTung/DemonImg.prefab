@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7612098044278302754}
   - component: {fileID: 4487586894414772499}
   - component: {fileID: 593916793460549626}
+  - component: {fileID: 4750414597347466426}
   m_Layer: 10
   m_Name: DemonImg
   m_TagString: Enemy
@@ -137,7 +138,7 @@ MonoBehaviour:
   castColor: {r: 0.9169811, g: 0.8633464, b: 0.8633464, a: 1}
   detectionRange: 10
   patrolSpeed: 2
-  patrolDistance: 5
+  patrolDistance: 10
   runSpeed: 4
   minimumDistance: 5
   wallCheck: {fileID: 7495683428084574895}
@@ -147,7 +148,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   flipCooldown: 0.5
-  attackCooldown: 2
+  attackCooldown: 4
   chargeTime: 1
   delayAfterMove: 0.5
   fireHazardPrefab: {fileID: 2342528712879075001, guid: 66f7c0d63e5a97c498ece800ec0a30e9, type: 3}
@@ -389,3 +390,16 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 6620344767007307283}
   m_PrefabAsset: {fileID: 0}
+
+--- !u!114 &4750414597347466426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 762178265589352770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

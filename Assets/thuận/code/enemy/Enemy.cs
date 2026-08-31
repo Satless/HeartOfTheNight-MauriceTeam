@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using HeartOfTheNight.Common;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     [Header("HP")]
     public int hp = 150;
@@ -102,6 +103,9 @@ public class Enemy : MonoBehaviour
                       " đang được bảo vệ");
             return;
         }
+
+        if (hp <= 0)
+            return;
 
         hp -= damage;
 

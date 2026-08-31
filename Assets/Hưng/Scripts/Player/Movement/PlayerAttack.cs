@@ -1,4 +1,5 @@
 using System;
+using HeartOfTheNight.Hung;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -127,14 +128,36 @@ public class PlayerAttack : MonoBehaviour
     public void UnlockWeapon(int slotIndex)
     {
         if (slotIndex < 1 || slotIndex > 4) return;
-        if (!_unlockedWeapons[slotIndex - 1])
+        if (_unlockedWeapons[slotIndex - 1]) return;
+
+        _unlockedWeapons[slotIndex - 1] = true;
+        DataManager.Instance?.Data?.UnlockWeapon(slotIndex);
+        OnWeaponUnlocked?.Invoke(slotIndex);
+        EquipSlot(slotIndex);
+    }
+
+    /// <summary>
+    /// Ô súng theo slot save, không theo scene. Gọi trước EquipSlot lúc spawn.
+    /// </summary>
+    private void ApplyUnlocksFromSave()
+    {
+        GameData data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+        if (data == null || !data.hasSave)
+            return;
+
+        data.EnsureUnlockedWeapons();
+        int n = _unlockedWeapons.Length < data.unlockedWeapons.Length
+            ? _unlockedWeapons.Length
+            : data.unlockedWeapons.Length;
+        for (int i = 0; i < n; i++)
         {
-            _unlockedWeapons[slotIndex - 1] = true;
-            OnWeaponUnlocked?.Invoke(slotIndex);
-            
-            // Ép đổi ngay lập tức sang khẩu vừa mở khóa
-            EquipSlot(slotIndex);
+            bool saved = data.unlockedWeapons[i];
+            bool wasUnlocked = _unlockedWeapons[i];
+            _unlockedWeapons[i] = saved;
+            if (saved && !wasUnlocked)
+                OnWeaponUnlocked?.Invoke(i + 1);
         }
+        _unlockedWeapons[0] = true;
     }
 
     public void ReduceHeatPercentage(int slotIndex, float percentage)
@@ -218,6 +241,8 @@ public class PlayerAttack : MonoBehaviour
             _useVariant2 = !_useVariant2;
             EquipSlot(_currentSlotIndex);
         };
+
+        ApplyUnlocksFromSave();
     }
 
     private void OnValidate()
@@ -264,8 +289,27 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    private void OnEnable() => _input?.Enable();
-    private void OnDisable() => _input?.Disable();
+    private void OnEnable()
+    {
+        GameplayEvents.OnGameplayInputEnabled += HandleGameplayInputEnabled;
+        HandleGameplayInputEnabled(GameplayEvents.InputEnabled);
+    }
+
+    private void OnDisable()
+    {
+        GameplayEvents.OnGameplayInputEnabled -= HandleGameplayInputEnabled;
+        _input?.Disable();
+    }
+
+    private void HandleGameplayInputEnabled(bool inputEnabled)
+    {
+        if (_input == null)
+            return;
+        if (inputEnabled)
+            _input.Enable();
+        else
+            _input.Disable();
+    }
 
     private void Start()
     {
@@ -280,6 +324,7 @@ public class PlayerAttack : MonoBehaviour
         PrewarmWeapon(Weapon3);
         PrewarmWeapon(Weapon4);
 
+        ApplyUnlocksFromSave();
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
         _hasInitialized = true; // Đánh dấu đã khởi tạo xong
     }
@@ -476,8 +521,6 @@ public class PlayerAttack : MonoBehaviour
         {
             if (_input.Player.Attack.IsPressed())
             {
-                AudioEvents.TriggerSound3D("Weapons", "Flamethrower", "Shoot", transform.position);
-
                 // Đảm bảo thân trên được bật trước khi Animator chạy (tránh race condition thứ tự Update)
                 _animation?.ShowUpperBodyImmediately();
 
@@ -681,12 +724,9 @@ public class PlayerAttack : MonoBehaviour
         if (slot == null) return;
 
         _isFiringThisFrame = true;
-        float heatBefore = slot.currentHeat; // Bắt lấy mức nhiệt thực tế sau khi đã tản bớt
         slot.currentHeat += amount;
         slot.currentHeat = Mathf.Min(slot.currentHeat, slot.maxHeat);
         OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
-
-        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: Nhiệt hiện tại {heatBefore:F1} + {amount:F2} → {slot.currentHeat:F1}/{slot.maxHeat}");
 
         if (!slot.isOverheated && slot.currentHeat >= slot.maxHeat)
         {

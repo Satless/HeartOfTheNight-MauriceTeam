@@ -304,6 +304,7 @@ MonoBehaviour:
   _upperBodyVisual: {fileID: 7785440647838262849}
   _firePoint: {fileID: 3145261341872688593}
   _switchDelay: 2
+  _unlockedWeapons: 01000000
 --- !u!114 &890032511126001227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -350,6 +351,8 @@ MonoBehaviour:
   pullSpeed: 6
   maxPullSpeed: 12
   timeToMaxSpeed: 0.58
+  wobbleAmplitude: 0.1
+  wobbleFrequency: 5
   pullAcceleration: 10.344828
 --- !u!1 &3596674238653366494
 GameObject:

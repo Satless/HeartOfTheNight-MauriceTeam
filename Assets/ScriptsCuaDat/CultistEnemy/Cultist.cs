@@ -42,6 +42,7 @@ namespace HeartOfTheNight.Enemy
         private float closeRangeTimer;
         private int   health;
         private int   facing = 1;
+        private float moveSoundTimer;
 
         private void Awake()
         {
@@ -140,6 +141,16 @@ namespace HeartOfTheNight.Enemy
         ApplyVelocity(facing);  // Tiến theo hướng nhìn
     else 
         Decelerate();           // Đứng im (Idle hoặc Attack)
+
+    if (health > 0 && Mathf.Abs(rb.linearVelocity.x) > 0.1f)
+    {
+        moveSoundTimer -= Time.fixedDeltaTime;
+        if (moveSoundTimer <= 0f)
+        {
+            AudioEvents.TriggerSound3D("Enemy", "Cultist", "Move", transform.position);
+            moveSoundTimer = 0.35f;
+        }
+    }
 }
        private void DecideState(float distance)
 

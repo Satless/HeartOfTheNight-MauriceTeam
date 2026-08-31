@@ -27,6 +27,9 @@ public class HitVfx : MonoBehaviour
         }
         else if (_anim != null)
         {
+            // Pool respawn: Animator chưa vào clip → length = 0 nếu đọc ngay
+            _anim.Play(0, 0, 0f);
+            _anim.Update(0f);
             AnimatorStateInfo state = _anim.GetCurrentAnimatorStateInfo(0);
             duration = state.length > 0 ? state.length : 1f;
         }

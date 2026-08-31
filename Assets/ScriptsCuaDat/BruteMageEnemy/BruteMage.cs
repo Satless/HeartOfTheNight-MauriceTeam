@@ -258,6 +258,12 @@ namespace HeartOfTheNight.Enemy
         {
             speed = speed > 0f ? speed : 3f;
 
+            if (!HasGroundAhead(moveDir) || IsWallAhead(moveDir))
+            {
+                Decelerate();
+                return;
+            }
+
             float target = moveDir * speed;
             float accel = stats.groundAccel > 0f ? stats.groundAccel : 28f;
             float newX = Mathf.MoveTowards(rb.linearVelocity.x, target, accel * Time.fixedDeltaTime);
@@ -349,6 +355,7 @@ namespace HeartOfTheNight.Enemy
 
         public void TakeDamage(int amount)
         {
+            if (health <= 0) return;
             health -= amount;
             if (health <= 0) Destroy(gameObject);
         }

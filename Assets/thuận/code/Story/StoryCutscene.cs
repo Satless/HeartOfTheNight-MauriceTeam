@@ -54,7 +54,17 @@ public class StoryCutscene : MonoBehaviour
 
     public void Continue()
     {
-        SceneManager.LoadScene("khanh_level1-2");
+        const string next = "khanh_level1-2";
+        ChapterProgress.UnlockIfChapterScene(next);
+        if (HeartOfTheNight.Hung.DataManager.Instance != null
+            && HeartOfTheNight.Hung.DataManager.Instance.Data != null)
+        {
+            HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
+            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
+            HeartOfTheNight.Hung.DataManager.Instance.ClearCheckpointAfterLeavingLevel();
+        }
+
+        SceneManager.LoadScene(next);
     }
 
     public void BackToMenu()

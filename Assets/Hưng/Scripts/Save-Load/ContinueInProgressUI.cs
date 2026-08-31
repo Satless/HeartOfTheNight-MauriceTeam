@@ -103,12 +103,36 @@ namespace HeartOfTheNight.Hung
             }
         }
 
+        private static Canvas FindUiCanvas()
+        {
+            var canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            Canvas fallback = null;
+            for (int i = 0; i < canvases.Length; i++)
+            {
+                Canvas c = canvases[i];
+                if (c == null || !c.isActiveAndEnabled) continue;
+                if (c.renderMode != RenderMode.ScreenSpaceOverlay) continue;
+                if (c.GetComponentInChildren<HeartOfTheNight.UI.CursorManager>(true) != null)
+                    continue;
+                if (c.name.IndexOf("Cursor", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                    continue;
+                if (c.sortingOrder >= 900)
+                    continue;
+
+                if (c.name == "Canvas")
+                    return c;
+                fallback = c;
+            }
+
+            return fallback;
+        }
+
         private void BuildRuntimePopup()
         {
-            var canvas = FindFirstObjectByType<Canvas>();
+            var canvas = FindUiCanvas();
             if (canvas == null)
             {
-                Debug.LogError("[ContinueInProgress] Không thấy Canvas trong scene.");
+                Debug.LogError("[ContinueInProgress] Không thấy Canvas UI (đã bỏ qua Canvas Cursor).");
                 return;
             }
 

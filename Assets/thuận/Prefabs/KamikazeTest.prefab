@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3622531755533477214}
   - component: {fileID: 8074261893953614518}
   - component: {fileID: 5819059759263491222}
+  - component: {fileID: 7423504966593261989}
   m_Layer: 0
   m_Name: KamikazeTest
   m_TagString: Untagged
@@ -183,3 +184,16 @@ MonoBehaviour:
   flashInterval: 0.1
   damage: 30
   hp: 1
+
+--- !u!114 &7423504966593261989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 365608900957119065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

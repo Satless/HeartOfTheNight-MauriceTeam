@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Quản lý logic vùng sát thương của Súng phun lửa bằng Physics2D.OverlapBoxAll.
+/// Quản lý logic vùng sát thương của Súng phun lửa bằng Physics2D.OverlapBoxNonAlloc.
 /// KHÔNG CẦN Collider trên Prefab.
 /// </summary>
 public class FlamethrowerLogic : MonoBehaviour
@@ -23,9 +23,57 @@ public class FlamethrowerLogic : MonoBehaviour
     [Tooltip("Hiệu ứng trạng thái (Cháy, Độc...) đang được gán cho luồng lửa này")]
     [SerializeField, ReadOnly] private StatusEffectData _statusEffect;
 
+    private const string LoopCategory = "Weapons";
+    private const string LoopSubCategory = "Flamethrower";
+    private const string LoopAction = "Shoot";
+
+    private AudioSource _loopSource;
+
+    // Pre-allocated cho OverlapBoxNonAlloc (Zero-GC, giống PlayerMagnet / Bullet)
+    private static readonly Collider2D[] _overlapBuffer = new Collider2D[20];
+
     public void Activate(StatusEffectData effectData)
     {
         _statusEffect = effectData;
+        EnsureLoopSource();
+        if (_loopSource != null && _loopSource.clip != null && !_loopSource.isPlaying)
+            _loopSource.Play();
+    }
+
+    private void OnEnable()
+    {
+        EnsureLoopSource();
+    }
+
+    private void OnDisable()
+    {
+        if (_loopSource != null)
+            _loopSource.Stop();
+    }
+
+    private void EnsureLoopSource()
+    {
+        if (_loopSource == null)
+        {
+            _loopSource = GetComponent<AudioSource>();
+            if (_loopSource == null)
+                _loopSource = gameObject.AddComponent<AudioSource>();
+
+            _loopSource.playOnAwake = false;
+            _loopSource.loop = true;
+            _loopSource.spatialBlend = 0f;
+            _loopSource.ignoreListenerPause = false;
+        }
+
+        var mgr = SoundManager_New.Instance;
+        if (mgr == null)
+            return;
+
+        if (_loopSource.clip == null)
+            _loopSource.clip = mgr.GetSfxClip(LoopCategory, LoopSubCategory, LoopAction);
+
+        if (mgr.SfxMixerGroup != null)
+            _loopSource.outputAudioMixerGroup = mgr.SfxMixerGroup;
     }
 
     private void Update()
@@ -35,19 +83,20 @@ public class FlamethrowerLogic : MonoBehaviour
         // Tính tâm của Hitbox (hỗ trợ cả xoay Y 180 độ)
         Vector2 centerPos = (Vector2)transform.position + (Vector2)(transform.right * hitboxOffset.x) + (Vector2)(transform.up * hitboxOffset.y);
 
-        // Quét tất cả collider lọt vào vùng lửa
-        var results = Physics2D.OverlapBoxAll(centerPos, hitboxSize, transform.eulerAngles.z, targetLayer);
+        // Quét vùng lửa (NonAlloc = Zero-GC)
+        int count = Physics2D.OverlapBoxNonAlloc(centerPos, hitboxSize, transform.eulerAngles.z, _overlapBuffer, targetLayer);
 
-        for (int i = 0; i < results.Length; i++)
+        for (int i = 0; i < count; i++)
         {
+            Collider2D col = _overlapBuffer[i];
             // Lọc theo Tag trước khi xử lý
-            if (!HasTargetTag(results[i])) continue;
+            if (!HasTargetTag(col)) continue;
 
-            StatusEffectReceiver receiver = results[i].GetComponent<StatusEffectReceiver>();
+            StatusEffectReceiver receiver = col.GetComponent<StatusEffectReceiver>();
+            if (receiver == null)
+                receiver = col.GetComponentInParent<StatusEffectReceiver>();
             if (receiver != null)
-            {
                 receiver.ApplyStatus(_statusEffect);
-            }
         }
     }
 

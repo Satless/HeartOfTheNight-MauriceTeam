@@ -63,6 +63,8 @@ namespace HeartOfTheNight.Enemy
                     isFiring = true;
                     timer = 0f; // Reset đồng hồ cho giai đoạn cháy
                     TriggerFire();
+
+                    AudioEvents.TriggerSound3D("Enemy", "Demon", "Warning", transform.position);
                 }
                 return;
             }
@@ -78,6 +80,7 @@ namespace HeartOfTheNight.Enemy
             if (timer >= fireTime)
             {
                 Destroy(gameObject);
+                AudioEvents.TriggerSound3D("Enemy", "Demon", "Disappear", transform.position);
             }
         }
 
@@ -85,6 +88,8 @@ namespace HeartOfTheNight.Enemy
         {
             if (fireTriggered) return;
             fireTriggered = true;
+
+            AudioEvents.TriggerSound3D("Enemy", "Demon", "Explode", transform.position);
 
             if (anim != null)
             {

@@ -12,38 +12,43 @@ public class GameMnagaer : MonoBehaviour
 
     public void Openchapter1()
     {
-        menuLevel.SetActive(false);
-        chapter1.SetActive(true);
+        if (menuLevel != null) menuLevel.SetActive(false);
+        if (chapter1 != null) chapter1.SetActive(true);
     }
 
     public void Openchapter2()
     {
-        menuLevel.SetActive(false);
-        chapter1.SetActive(true);
+        if (!ChapterProgress.IsUnlocked(ChapterProgress.Chapter2Scenes[0]))
+            return;
+
+        if (menuLevel != null) menuLevel.SetActive(false);
+        if (chapter2 != null) chapter2.SetActive(true);
     }
 
     public void Openchapter3()
     {
-        menuLevel.SetActive(false);
-        chapter1.SetActive(true);
+        if (!ChapterProgress.IsUnlocked(ChapterProgress.Chapter3Scenes[0]))
+            return;
+
+        if (menuLevel != null) menuLevel.SetActive(false);
+        if (chapter3 != null) chapter3.SetActive(true);
     }
-
-
 
     public void Closechapter1()
     {
-        chapter1.SetActive(false);
-        menuLevel.SetActive(true);
+        if (chapter1 != null) chapter1.SetActive(false);
+        if (menuLevel != null) menuLevel.SetActive(true);
     }
 
     public void Closechapter2()
     {
-        chapter1.SetActive(false);
-        menuLevel.SetActive(true);
+        if (chapter2 != null) chapter2.SetActive(false);
+        if (menuLevel != null) menuLevel.SetActive(true);
     }
+
     public void Closechapter3()
     {
-        chapter1.SetActive(false);
-        menuLevel.SetActive(true);
+        if (chapter3 != null) chapter3.SetActive(false);
+        if (menuLevel != null) menuLevel.SetActive(true);
     }
 }

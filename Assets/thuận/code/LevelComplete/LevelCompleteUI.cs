@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using HeartOfTheNight.Hung;
-using HeartOfTheNight.Player;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -31,7 +29,6 @@ public class LevelCompleteUI : MonoBehaviour
     private LevelCompletePending _pending;
     private bool _hasPending;
     private bool _buttonsWired;
-    private readonly List<Behaviour> _disabledOnShow = new List<Behaviour>(8);
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -150,7 +147,6 @@ public class LevelCompleteUI : MonoBehaviour
         float fade = _hasPending ? _pending.fadeDuration : -1f;
         float delay = _hasPending ? _pending.delayBeforeFadeIn : -1f;
         string spawnId = _hasPending ? _pending.spawnIDInNextScene : "";
-        int nextLevelIndex = _hasPending ? _pending.nextLevelIndex : 0;
         bool saveCheckpoint = _hasPending && _pending.saveAsCheckpoint;
         int health = _hasPending ? _pending.playerHealth : -1;
 
@@ -159,9 +155,6 @@ public class LevelCompleteUI : MonoBehaviour
 
         if (DataManager.Instance != null)
         {
-            if (nextLevelIndex > DataManager.Instance.Data.maxUnlockedLevel)
-                DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
-
             DataManager.Instance.Data.currentScene = next;
             DataManager.Instance.PrepareForNewScene(next);
 
@@ -183,10 +176,6 @@ public class LevelCompleteUI : MonoBehaviour
     {
         if (DataManager.Instance != null)
         {
-            if (_hasPending && DataManager.Instance.Data != null
-                && _pending.nextLevelIndex > DataManager.Instance.Data.maxUnlockedLevel)
-                DataManager.Instance.Data.maxUnlockedLevel = _pending.nextLevelIndex;
-
             DataManager.Instance.CommitFinishedLevelAndLeave();
         }
 
@@ -227,33 +216,12 @@ public class LevelCompleteUI : MonoBehaviour
 
     private void FreezeGameplay()
     {
-        _disabledOnShow.Clear();
-        DisableIfEnabled(FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None));
-        DisableIfEnabled(FindObjectsByType<PlayerAttack>(FindObjectsSortMode.None));
-    }
-
-    private void DisableIfEnabled(Behaviour[] behaviours)
-    {
-        for (int i = 0; i < behaviours.Length; i++)
-        {
-            var behaviour = behaviours[i];
-            if (behaviour == null || !behaviour.enabled)
-                continue;
-
-            behaviour.enabled = false;
-            _disabledOnShow.Add(behaviour);
-        }
+        GameplayEvents.SetGameplayInputEnabled(false);
     }
 
     private void UnfreezeGameplay()
     {
-        for (int i = 0; i < _disabledOnShow.Count; i++)
-        {
-            if (_disabledOnShow[i] != null)
-                _disabledOnShow[i].enabled = true;
-        }
-
-        _disabledOnShow.Clear();
+        GameplayEvents.SetGameplayInputEnabled(true);
     }
 
     private void EnsureCanvas()

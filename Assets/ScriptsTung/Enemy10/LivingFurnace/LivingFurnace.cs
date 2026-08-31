@@ -71,9 +71,8 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
                 idleSoundTimer -= Time.fixedDeltaTime;
                 if (idleSoundTimer <= 0f)
                 {
-                    //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
-                    AudioEvents.TriggerSound3D("Player", "Slide", "n", transform.position);
-                    idleSoundTimer = 2f; // Phát lại sau mỗi 0.2s
+                    AudioEvents.TriggerSound3D("Enemy", "LivingFurnace", "Idle", transform.position);
+                    idleSoundTimer = 2f;
                 }
             }
         }
