@@ -60,6 +60,7 @@ namespace HeartOfTheNight.Rooms
         private bool isSpawning;
         private string hierarchyKey;
         private string registeredId;
+        private readonly Collider2D[] overlapBuf = new Collider2D[16];
 
         public bool IsCleared => state == RoomState.Cleared;
 
@@ -135,6 +136,11 @@ namespace HeartOfTheNight.Rooms
             if (this == null) yield break;
             if (state == RoomState.Idle && wasEnabled)
                 col.enabled = true;
+
+            // Continue/checkpoint teleport sẵn trong trigger: OnTriggerEnter không chạy.
+            yield return new WaitForFixedUpdate();
+            if (this == null) yield break;
+            TryStartIfPlayerAlreadyInside();
         }
 
         private static bool ShouldWaitForSpawnApply()
@@ -152,6 +158,36 @@ namespace HeartOfTheNight.Rooms
             if (!IsPlayer(other)) return;
 
             StartRoom();
+        }
+
+        /// <summary>
+        /// Chỉ phòng có quái, chỉ 1 lần sau load. Không Stay — tránh khóa cửa khi còn đứng hành lang.
+        /// </summary>
+        private void TryStartIfPlayerAlreadyInside()
+        {
+            if (state != RoomState.Idle) return;
+            if (!HasEnemiesToSpawn) return;
+
+            var roomCol = GetComponent<Collider2D>();
+            if (roomCol == null || !roomCol.enabled) return;
+            if (!PlayerOverlapsRoom(roomCol)) return;
+
+            StartRoom();
+        }
+
+        private bool PlayerOverlapsRoom(Collider2D roomCol)
+        {
+            var filter = new ContactFilter2D();
+            filter.NoFilter();
+            filter.useTriggers = true;
+            int n = roomCol.Overlap(filter, overlapBuf);
+            for (int i = 0; i < n; i++)
+            {
+                if (IsPlayer(overlapBuf[i]))
+                    return true;
+            }
+
+            return false;
         }
 
         private string GetRoomId()
