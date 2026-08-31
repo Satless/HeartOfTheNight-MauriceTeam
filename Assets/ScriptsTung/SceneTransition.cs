@@ -52,7 +52,8 @@ public class SceneTransition : MonoBehaviour
             UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
         if (leavingLevel)
         {
-            ChapterProgress.UnlockIfChapterScene(nextSceneName);
+            ChapterProgress.UnlockOnLeavingLevel(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             var pending = new LevelCompletePending
             {
                 nextSceneName = nextSceneName,

@@ -123,7 +123,8 @@ public class RoomTransition : MonoBehaviour
             if (hp != null && !saveAsCheckpoint)
                 hp.HealToFull();
 
-            ChapterProgress.UnlockIfChapterScene(next);
+            ChapterProgress.UnlockOnLeavingLevel(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             RegisterSecretIfNeeded();
 
             var pending = new LevelCompletePending
@@ -145,9 +146,6 @@ public class RoomTransition : MonoBehaviour
 
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
             {
-                if (nextLevelIndex > HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel)
-                    HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
-
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
                 HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
 
@@ -169,13 +167,13 @@ public class RoomTransition : MonoBehaviour
 
         var current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         var idx = ChapterProgress.IndexOf(current);
-        if (idx >= 0 && idx < ChapterProgress.Chapter1Scenes.Length - 1)
-            return ChapterProgress.Chapter1Scenes[idx + 1];
+        if (idx < 0)
+            return nextSceneName;
 
-        if (idx >= 0 && idx == ChapterProgress.Chapter1Scenes.Length - 1)
-            return HeartOfTheNight.Hung.DataManager.SelectLevelScene;
+        if (idx + 1 < ChapterProgress.TotalSceneCount)
+            return ChapterProgress.GetSceneAt(idx + 1);
 
-        return nextSceneName;
+        return HeartOfTheNight.Hung.DataManager.SelectLevelScene;
     }
 
     private void RegisterSecretIfNeeded()

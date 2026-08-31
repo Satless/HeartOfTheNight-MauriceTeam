@@ -3,7 +3,9 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Tiến độ Chapter 1 (Floor 1 Khánh). Qua scene nào thì unlock nút scene đó trên Select Level.
+/// Unlock Select Level: Chapter 1 (6) → Chapter 2 (5) → Chapter 3 (2).
+/// Scene nào đã vào thì mở nút scene đó. Scene đầu Chapter 1 luôn mở.
+/// Qua cửa hết màn thì mở luôn scene kế trong chuỗi (kể cả chapter sau).
 /// </summary>
 public static class ChapterProgress
 {
@@ -16,6 +18,29 @@ public static class ChapterProgress
         "Khanh_Level2-1",
         "Khanh_Level3-1",
         "Khanh_Level4-1",
+        "Khanh_Level5-1",
+    };
+
+    public static readonly string[] Chapter2Scenes =
+    {
+        "khanh_level1-2",
+        "khanh_level2-2",
+        "khanh_level3-2",
+        "Khanh_level4-2",
+        "Khanh_level5-2",
+    };
+
+    public static readonly string[] Chapter3Scenes =
+    {
+        "Khanh_Level1-3",
+        "Khanh_Level2-3",
+    };
+
+    public static readonly string[][] Chapters =
+    {
+        Chapter1Scenes,
+        Chapter2Scenes,
+        Chapter3Scenes,
     };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -36,22 +61,58 @@ public static class ChapterProgress
         if (string.IsNullOrEmpty(sceneName))
             return -1;
 
-        for (var i = 0; i < Chapter1Scenes.Length; i++)
+        int offset = 0;
+        for (int c = 0; c < Chapters.Length; c++)
         {
-            if (string.Equals(Chapter1Scenes[i], sceneName, System.StringComparison.OrdinalIgnoreCase))
-                return i;
+            var list = Chapters[c];
+            for (int i = 0; i < list.Length; i++)
+            {
+                if (string.Equals(list[i], sceneName, System.StringComparison.OrdinalIgnoreCase))
+                    return offset + i;
+            }
+
+            offset += list.Length;
         }
 
         return -1;
     }
 
+    public static int TotalSceneCount
+    {
+        get
+        {
+            int n = 0;
+            for (int i = 0; i < Chapters.Length; i++)
+                n += Chapters[i].Length;
+            return n;
+        }
+    }
+
+    public static string GetSceneAt(int globalIndex)
+    {
+        return CanonicalName(globalIndex);
+    }
+
     public static bool IsUnlocked(string sceneName)
     {
         var index = IndexOf(sceneName);
-        if (index <= 0)
+        if (index < 0)
+            return false;
+        if (index == 0)
             return true;
 
-        return GetUnlocked().Contains(Chapter1Scenes[index]);
+        return GetUnlocked().Contains(CanonicalName(index));
+    }
+
+    public static string DisplayName(string sceneName)
+    {
+        if (string.IsNullOrEmpty(sceneName))
+            return "";
+
+        const string prefix = "Khanh_Level";
+        if (sceneName.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
+            return "Level " + sceneName.Substring(prefix.Length);
+        return sceneName;
     }
 
     public static void UnlockScene(string sceneName)
@@ -61,11 +122,11 @@ public static class ChapterProgress
             return;
 
         var unlocked = GetUnlocked();
-        var canonical = Chapter1Scenes[index];
-        if (!unlocked.Add(canonical))
-            return;
+        var canonical = CanonicalName(index);
+        bool added = unlocked.Add(canonical);
 
-        Save(unlocked);
+        if (added)
+            Save(unlocked);
 
         var dm = HeartOfTheNight.Hung.DataManager.Instance;
         if (dm?.Data != null && index + 1 > dm.Data.maxUnlockedLevel)
@@ -78,30 +139,75 @@ public static class ChapterProgress
             UnlockScene(sceneName);
     }
 
-    /// <summary>Reset unlock khi tạo save mới (tránh dính PlayerPrefs slot cũ).</summary>
+    /// <summary>
+    /// Hết màn: mở scene hiện tại và scene kế trong chuỗi 6+5+2.
+    /// Không phụ thuộc cửa ghi next = SelectLevel.
+    /// </summary>
+    public static void UnlockOnLeavingLevel(string currentSceneName)
+    {
+        int index = IndexOf(currentSceneName);
+        if (index < 0)
+            return;
+
+        UnlockScene(currentSceneName);
+        if (index + 1 < TotalSceneCount)
+            UnlockScene(GetSceneAt(index + 1));
+    }
+
     public static void ResetForNewSave()
     {
+        ResetForSlot(ActiveSlotIndex());
+    }
+
+    public static void ResetForSlot(int slotIndex)
+    {
         PlayerPrefs.DeleteKey(PrefsKey);
+        PlayerPrefs.DeleteKey(PrefsKeyForSlot(slotIndex));
         PlayerPrefs.Save();
     }
 
-    /// <summary>Gắn unlock Select Level theo save đang load, không giữ prefs của slot/máy trước.</summary>
     public static void ApplyFromSave(HeartOfTheNight.Hung.GameData data)
     {
-        var set = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase) { Chapter1Scenes[0] };
+        var set = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase)
+        {
+            Chapter1Scenes[0]
+        };
         if (data == null)
         {
             Save(set);
             return;
         }
 
-        int max = Mathf.Clamp(data.maxUnlockedLevel, 1, Chapter1Scenes.Length);
-        for (int i = 0; i < max && i < Chapter1Scenes.Length; i++)
-            set.Add(Chapter1Scenes[i]);
+        int total = TotalSceneCount;
+        int max = Mathf.Clamp(data.maxUnlockedLevel, 1, total);
+        int cursor = 0;
+        for (int c = 0; c < Chapters.Length; c++)
+        {
+            var list = Chapters[c];
+            for (int i = 0; i < list.Length && cursor < max; i++, cursor++)
+                set.Add(list[i]);
+        }
 
         AddSceneAndPriors(set, data.currentScene);
         AddSceneAndPriors(set, data.checkpointScene);
         Save(set);
+    }
+
+    private static string CanonicalName(int globalIndex)
+    {
+        if (globalIndex < 0)
+            return Chapter1Scenes[0];
+
+        int offset = 0;
+        for (int c = 0; c < Chapters.Length; c++)
+        {
+            var list = Chapters[c];
+            if (globalIndex < offset + list.Length)
+                return list[globalIndex - offset];
+            offset += list.Length;
+        }
+
+        return Chapter1Scenes[0];
     }
 
     private static void AddSceneAndPriors(HashSet<string> set, string sceneName)
@@ -110,14 +216,36 @@ public static class ChapterProgress
         if (index < 0)
             return;
 
-        for (int i = 0; i <= index && i < Chapter1Scenes.Length; i++)
-            set.Add(Chapter1Scenes[i]);
+        int cursor = 0;
+        for (int c = 0; c < Chapters.Length; c++)
+        {
+            var list = Chapters[c];
+            for (int i = 0; i < list.Length; i++, cursor++)
+            {
+                if (cursor > index)
+                    return;
+                set.Add(list[i]);
+            }
+        }
+    }
+
+    private static int ActiveSlotIndex()
+    {
+        var dm = HeartOfTheNight.Hung.DataManager.Instance;
+        if (dm == null)
+            return HeartOfTheNight.Hung.SaveSlotStorage.GetActiveSlotIndex();
+        return dm.ActiveSlotIndex;
+    }
+
+    private static string PrefsKeyForSlot(int slotIndex)
+    {
+        return PrefsKey + "." + Mathf.Clamp(slotIndex, 1, HeartOfTheNight.Hung.DataManager.SlotCount);
     }
 
     private static HashSet<string> GetUnlocked()
     {
         var set = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase) { Chapter1Scenes[0] };
-        var raw = PlayerPrefs.GetString(PrefsKey, string.Empty);
+        var raw = PlayerPrefs.GetString(PrefsKeyForSlot(ActiveSlotIndex()), string.Empty);
         if (string.IsNullOrEmpty(raw))
             return set;
 
@@ -133,7 +261,7 @@ public static class ChapterProgress
 
     private static void Save(HashSet<string> unlocked)
     {
-        PlayerPrefs.SetString(PrefsKey, string.Join("|", unlocked));
+        PlayerPrefs.SetString(PrefsKeyForSlot(ActiveSlotIndex()), string.Join("|", unlocked));
         PlayerPrefs.Save();
     }
 }
