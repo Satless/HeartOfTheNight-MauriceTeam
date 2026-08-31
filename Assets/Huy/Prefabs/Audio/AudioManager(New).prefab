@@ -241,6 +241,8 @@ MonoBehaviour:
         clips: []
       - actionID: Die
         clips: []
+      - actionID: LootDrop
+        clips: []
     - subCategoryID: BigCorpse
       actions:
       - actionID: Idle
@@ -299,18 +301,34 @@ MonoBehaviour:
       - actionID: Die
         clips:
         - {fileID: 8300000, guid: 93a8a68bbe0ef0245b6a38963ad7d378, type: 3}
-    - subCategoryID: Demon
+    - subCategoryID: EyeOfNight
       actions:
       - actionID: Idle
         clips: []
-      - actionID: Move
-        clips: []
-      - actionID: Attack
-        clips: []
+      - actionID: ShieldActivate
+        clips:
+        - {fileID: 8300000, guid: f07e92dbd275a3c448e49ed5e7813bde, type: 3}
+        - {fileID: 8300000, guid: b6e775ca91b06e54ab06d71dc1222441, type: 3}
+      - actionID: ShieldDeactivate
+        clips:
+        - {fileID: 8300000, guid: 503dbee3cdbb9e1478c7867a81a26cea, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: e3bf04f89e2f2ab4d8838d7bd8c010c2, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 553e4f3863801374aa172333bead38e9, type: 3}
+    - subCategoryID: Demon
+      actions:
+      - actionID: Warning
+        clips:
+        - {fileID: 8300000, guid: 5db5d0edb7d843a499ecbdf3eb00d7e0, type: 3}
+      - actionID: Explode
+        clips:
+        - {fileID: 8300000, guid: 57927bd595a6acd49b54f2b8b26ebeda, type: 3}
+      - actionID: Disappear
+        clips:
+        - {fileID: 8300000, guid: 1963d293f27bd384d995758f6ed2b8bd, type: 3}
     - subCategoryID: LivingFurnace
       actions:
       - actionID: Idle
