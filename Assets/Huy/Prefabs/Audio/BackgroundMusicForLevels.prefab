@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83eab2f5a1767334fb4ed5c7ddd36bd4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioMixer: {fileID: 24100000, guid: 2c6235ab0ab416a4b855b3c7c0222d7c, type: 2}
   defaultTrackName: DefaultBGM
   defaultFadeDuration: 0.5
   sceneMusicList:
@@ -60,7 +61,7 @@ MonoBehaviour:
     trackName: Tutorial
     fadeDuration: 0.5
   - sceneName: Khanh_Level1-1
-    trackName: DefaultBGM
+    trackName: Level1-1
     fadeDuration: 0.5
   - sceneName: Khanh_Level2-1
     trackName: Level2-1

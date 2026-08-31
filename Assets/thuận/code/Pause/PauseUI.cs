@@ -170,8 +170,8 @@ public class PauseUI : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        // BỎ HOẶC COMMENT DÒNG NÀY ĐỂ ÂM THANH UI KHÔNG BỊ KHÓA
-        // AudioListener.pause = true; 
+        // Kích hoạt dừng toàn bộ AudioListener để ngắt âm thanh SFX quái và môi trường
+        AudioListener.pause = true;
 
         FreezeGameplay();
     }
@@ -300,6 +300,8 @@ public class PauseUI : MonoBehaviour
     {
         IsPaused = false;
         HideImmediate();
+
+        // Mở lại AudioListener khi bỏ Pause
         AudioListener.pause = false;
         Time.timeScale = 1f;
 

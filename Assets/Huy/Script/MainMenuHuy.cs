@@ -12,31 +12,41 @@ public class MainMenuHuy : MonoBehaviour
     public Slider musicSlider;
     public Slider sfxSlider;
 
-
-    private void Start()
-    {
-        // 1. Load giá trị từ PlayerPrefs lên Slider trước
-        LoadVolume();
-
-        // 2. Đăng ký listener SAU KHI đã Load giá trị để tránh gọi trùng lặp
-        masterSlider.onValueChanged.AddListener(UpdateMaster);
-        musicSlider.onValueChanged.AddListener(UpdateMusicVolume);
-        sfxSlider.onValueChanged.AddListener(UpdateSoundVolume);
-
-        // 3. Bật nhạc nền bằng Observer Pattern mới
-        PlayMenuMusic();
-
-        AddStopDragSound(masterSlider);
-        AddStopDragSound(musicSlider);
-        AddStopDragSound(sfxSlider);
-    }
-
     private void Awake()
     {
         if (audioMixer == null)
         {
-            audioMixer = Resources.Load<AudioMixer>("Settings"); // Đặt file AudioMixer vào thư mục Resources
+            audioMixer = Resources.Load<AudioMixer>("Settings");
         }
+    }
+
+    private void OnEnable()
+    {
+        // Mỗi khi mở SettingPanel, cập nhật vị trí các thanh Slider đúng với PlayerPrefs
+        SyncSlidersFromPrefs();
+    }
+
+    private void Start()
+    {
+        // Load dữ liệu và áp dụng vào Slider + AudioMixer trước
+        LoadVolume();
+
+        masterSlider.onValueChanged.RemoveAllListeners();
+        musicSlider.onValueChanged.RemoveAllListeners();
+        sfxSlider.onValueChanged.RemoveAllListeners();
+
+        masterSlider.onValueChanged.AddListener(UpdateMaster);
+        musicSlider.onValueChanged.AddListener(UpdateMusicVolume);
+        sfxSlider.onValueChanged.AddListener(UpdateSoundVolume);
+
+        PlayMenuMusic();
+    }
+
+    private void SyncSlidersFromPrefs()
+    {
+        if (masterSlider != null) masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
+        if (musicSlider != null) musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+        if (sfxSlider != null) sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
     }
 
     private void AddStopDragSound(Slider slider)
@@ -54,7 +64,12 @@ public class MainMenuHuy : MonoBehaviour
         {
             if (SoundManager_New.Instance != null)
             {
+                bool wasPaused = AudioListener.pause; 
+                if (wasPaused) AudioListener.pause = false; 
+
                 AudioEvents.TriggerSound2D("UI", "Slider", "StopDrag");
+
+                if (wasPaused) AudioListener.pause = true; 
             }
         });
 
@@ -63,7 +78,6 @@ public class MainMenuHuy : MonoBehaviour
 
     private void PlayMenuMusic()
     {
-        // Phát nhạc nền "MainMenu" thông qua Event System
         AudioEvents.TriggerMusic("MainMenu", 0.5f);
     }
 
@@ -75,43 +89,49 @@ public class MainMenuHuy : MonoBehaviour
     public void UpdateMaster(float volume)
     {
         audioMixer.SetFloat("Master", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
-        SaveVolume();
-
-        //float db = Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20;
-        //bool result = audioMixer.SetFloat("Master", db);
-        //Debug.Log($"Master Vol: {volume} -> dB: {db} | Thanh cong: {result}");
+        PlayerPrefs.SetFloat("Master", volume);
+        PlayerPrefs.Save();
         //SaveVolume();
     }
 
     public void UpdateMusicVolume(float volume)
     {
         audioMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
-        SaveVolume();
+        PlayerPrefs.SetFloat("MusicVolume", volume);
+        PlayerPrefs.Save();
+        //SaveVolume();
     }
 
     public void UpdateSoundVolume(float volume)
     {
         audioMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Max(0.0001f, volume)) * 20);
-        SaveVolume();
+        PlayerPrefs.SetFloat("SFXVolume", volume);
+        PlayerPrefs.Save();
+        //SaveVolume();
     }
 
     public void SaveVolume()
     {
-        PlayerPrefs.SetFloat("Master", masterSlider.value);
-        PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
-        PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
+        //PlayerPrefs.SetFloat("Master", masterSlider.value);
+        //PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
+        //PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
+
+        if (masterSlider != null) PlayerPrefs.SetFloat("Master", masterSlider.value);
+        if (musicSlider != null) PlayerPrefs.SetFloat("MusicVolume", musicSlider.value);
+        if (sfxSlider != null) PlayerPrefs.SetFloat("SFXVolume", sfxSlider.value);
+
         PlayerPrefs.Save();
     }
 
     public void LoadVolume()
     {
-        masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
-        musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
-        sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+        SyncSlidersFromPrefs();
 
-        // Áp dụng ngay giá trị âm lượng vào AudioMixer
-        UpdateMaster(masterSlider.value);
-        UpdateMusicVolume(musicSlider.value);
-        UpdateSoundVolume(sfxSlider.value);
+        if (masterSlider != null) UpdateMaster(masterSlider.value);
+        if (musicSlider != null) UpdateMusicVolume(musicSlider.value);
+        if (sfxSlider != null) UpdateSoundVolume(sfxSlider.value);
+        //UpdateMaster(masterSlider.value);
+        //UpdateMusicVolume(musicSlider.value);
+        //UpdateSoundVolume(sfxSlider.value);
     }
 }
