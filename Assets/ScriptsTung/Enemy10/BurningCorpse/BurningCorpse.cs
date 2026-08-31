@@ -277,6 +277,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= damage;
+        AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Hurt", transform.position);
         if (currentHealth <= 0) Die();
     }
 
