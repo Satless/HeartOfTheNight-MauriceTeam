@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using HeartOfTheNight.Common; // 🔥 QUAN TRỌNG: Gọi thư viện chứa IDamageable
 
 public class KamikazeEnemy : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class KamikazeEnemy : MonoBehaviour
     [Header("Detection")]
     [SerializeField] private float detectionRange = 6f;
     [SerializeField] private float explodeRange = 1.5f;
+    [Tooltip("Tầm vụ nổ sát thương thực tế. Nên to hơn Explode Range một xíu để Player khó né")]
+    [SerializeField] private float blastRadius = 2.5f; // 🔥 MỚI THÊM
 
     [Header("Explosion")]
     [SerializeField] private float explodeDelay = 1.2f;
@@ -29,6 +32,7 @@ public class KamikazeEnemy : MonoBehaviour
     private bool dead;
 
     private float moveSoundTimer;
+
     private void Awake()
     {
         currentHP = maxHP;
@@ -69,13 +73,11 @@ public class KamikazeEnemy : MonoBehaviour
                 player.position,
                 moveSpeed * Time.deltaTime);
 
-
             moveSoundTimer -= Time.fixedDeltaTime;
             if (moveSoundTimer <= 0f)
             {
-                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
                 AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Move", transform.position);
-                moveSoundTimer = 0.5f; // Phát lại sau mỗi 0.3s
+                moveSoundTimer = 0.5f;
             }
 
             // Lật hướng
@@ -96,7 +98,7 @@ public class KamikazeEnemy : MonoBehaviour
 
         AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Attack", transform.position);
 
-        // Dừng di chuyển và nhấp nháy trắng trong 1.5 giây
+        // Dừng di chuyển và nhấp nháy trắng
         float timer = 0f;
         bool visible = true;
 
@@ -121,27 +123,29 @@ public class KamikazeEnemy : MonoBehaviour
         if (spriteRenderer != null)
             spriteRenderer.color = Color.white;
 
-        // Sau 1.5 giây mới phát animation Attack
+        // Phát animation Attack
         if (animator != null)
         {
             animator.SetTrigger("Attack");
         }
 
-        // Chờ animation Attack chạy (điều chỉnh theo độ dài animation)
+        // Chờ animation Attack chạy (0.3s)
         yield return new WaitForSeconds(0.3f);
 
-        // Gây sát thương
-        if (player != null)
+        // 🔥 SỬA LỖI SÁT THƯƠNG: Dùng sóng xung kích quét toàn bộ Player nằm trong vùng nổ
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, blastRadius);
+        foreach (Collider2D hit in hits)
         {
-            float distance = Vector2.Distance(transform.position, player.position);
-
-            if (distance <= explodeRange)
+            // Kiểm tra xem có trúng Player không
+            if (hit.CompareTag("Player") || hit.gameObject.layer == LayerMask.NameToLayer("Player"))
             {
-                PlayerHealth1 hp = player.GetComponent<PlayerHealth1>();
+                // Gọi IDamageable chuẩn như mấy con Boss
+                IDamageable target = hit.GetComponent<IDamageable>();
+                if (target == null) target = hit.GetComponentInParent<IDamageable>();
 
-                if (hp != null)
+                if (target != null)
                 {
-                    hp.TakeDamage(damage);
+                    target.TakeDamage(damage);
                 }
             }
         }
@@ -160,11 +164,8 @@ public class KamikazeEnemy : MonoBehaviour
         if (currentHP <= 0)
         {
             dead = true;
-
             AudioEvents.TriggerSound3D("Enemy", "Kamikaze", "Die", transform.position);
-
             StopAllCoroutines();
-
             Destroy(gameObject);
         }
     }
@@ -174,7 +175,12 @@ public class KamikazeEnemy : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
+        // Vòng đỏ là vòng bắt đầu đếm ngược kích nổ
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, explodeRange);
+
+        // Vòng tím (mới) là vòng sát thương thực tế khi nổ cái bùm
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, blastRadius);
     }
 }

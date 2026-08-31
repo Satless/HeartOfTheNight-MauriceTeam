@@ -331,8 +331,8 @@ MonoBehaviour:
   attackHitbox: {fileID: 5974252196976683058}
   attackOffset: {x: 0, y: 1.61}
   moveSpeed: 3
-  patrolSpeed: 1.5
-  patrolDistance: 5
+  patrolSpeed: 2
+  patrolDistance: 10
   detectionRangeX: 6
   detectionRangeY: 3
   attackRange: 1
@@ -346,7 +346,7 @@ MonoBehaviour:
   isGrounded: 0
   edgeCheck: {fileID: 2441634690281828419}
   wallCheck: {fileID: 3823528332310706900}
-  edgeCheckDistance: 3
+  edgeCheckDistance: 5
   wallCheckDistance: 0
   wallCheckHeight: 2.92
   flipCooldown: 0.5

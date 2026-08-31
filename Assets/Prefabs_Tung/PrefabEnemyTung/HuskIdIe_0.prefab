@@ -252,10 +252,10 @@ MonoBehaviour:
   anim: {fileID: 9189729926134698254}
   attackHitbox: {fileID: 8314471508327488015}
   attackOffset: {x: 0, y: 1}
-  moveSpeed: 3
-  patrolSpeed: 1.5
-  patrolDistance: 5
-  detectionRangeX: 6
+  moveSpeed: 4
+  patrolSpeed: 3
+  patrolDistance: 10
+  detectionRangeX: 10
   detectionRangeY: 3
   attackRange: 1
   attackRangeY: 1.5
@@ -268,7 +268,7 @@ MonoBehaviour:
   isGrounded: 0
   edgeCheck: {fileID: 3744662041910016717}
   wallCheck: {fileID: 1503666516329470254}
-  edgeCheckDistance: 3
+  edgeCheckDistance: 5
   wallCheckDistance: 0
   wallCheckHeight: 1.23
   flipCooldown: 0.5

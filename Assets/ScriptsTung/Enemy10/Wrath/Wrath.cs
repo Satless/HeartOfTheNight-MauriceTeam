@@ -293,7 +293,11 @@ public class Wrath : MonoBehaviour, IDamageable
         if (anim != null)
         {
             anim.ResetTrigger("Rush"); // Hủy lệnh húc
-            anim.Play("Idle", -1, 0f); // Chiếu ngay lập tức cảnh đứng im từ mili-giây số 0
+            anim.ResetTrigger("Roar"); // 🔥 MỚI THÊM: Hủy luôn lệnh Gầm lỡ đang bị kẹt
+
+            // Ép về Idle. Thêm try-catch để lỡ bác gõ sai tên cục Idle trong Animator nó cũng không báo lỗi đỏ lòm
+            try { anim.Play("Idle", -1, 0f); } catch { }
+
             anim.SetFloat("Speed", 0f);
         }
 
