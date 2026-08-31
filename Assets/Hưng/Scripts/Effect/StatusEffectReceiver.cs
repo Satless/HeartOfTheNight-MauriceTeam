@@ -23,9 +23,14 @@ public class StatusEffectReceiver : MonoBehaviour
     [SerializeField, ReadOnly] private ActiveStatus[] _activeStatuses = new ActiveStatus[4];
     private IDamageable _healthComponent;
 
+    // Cache SpriteRenderer (Zero GC — không GetComponent trong gameplay)
+    private SpriteRenderer _spriteRenderer;
+
     private void Awake()
     {
         _healthComponent = GetComponent<IDamageable>();
+        // Cache reference (Zero GC, không dùng GetComponent trong lúc đang chơi)
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
     private void Update()
@@ -48,7 +53,9 @@ public class StatusEffectReceiver : MonoBehaviour
                 // Cập nhật vị trí bám theo tâm của Parent, không nhận tỷ lệ Scale của Parent để chống méo hình
                 if (_activeStatuses[i].vfxInstance != null)
                 {
-                    _activeStatuses[i].vfxInstance.transform.position = transform.position;
+                    _activeStatuses[i].vfxInstance.transform.position = _spriteRenderer != null
+                        ? _spriteRenderer.bounds.center
+                        : transform.position;
                 }
 
                 if (_activeStatuses[i].durationLeft <= 0)
@@ -93,7 +100,8 @@ public class StatusEffectReceiver : MonoBehaviour
             if (statusData.effectVfxPrefab != null)
             {
                 // Lấy VFX từ Pool (thay vì Instantiate)
-                _activeStatuses[emptySlot].vfxInstance = statusData.effectVfxPrefab.Spawn(transform.position, Quaternion.identity);
+                Vector3 vfxPos = _spriteRenderer != null ? _spriteRenderer.bounds.center : transform.position;
+                _activeStatuses[emptySlot].vfxInstance = statusData.effectVfxPrefab.Spawn(vfxPos, Quaternion.identity);
             }
         }
     }
