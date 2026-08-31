@@ -94,12 +94,21 @@ namespace HeartOfTheNight.Rooms
 
         private string ResolvePickupId()
         {
-            if (!string.IsNullOrWhiteSpace(pickupId))
-                return pickupId.Trim();
-
-            string sceneName = SceneManager.GetActiveScene().name;
+            string sceneName = gameObject.scene.name;
+            if (string.IsNullOrEmpty(sceneName))
+                sceneName = SceneManager.GetActiveScene().name;
             if (string.IsNullOrEmpty(sceneName))
                 sceneName = "UnknownScene";
+
+            if (!string.IsNullOrWhiteSpace(pickupId))
+            {
+                // Id gõ tay phải gắn scene: id trần ("Blue2") thì scene khác trùng theo,
+                // và chơi lại màn cũng không reset được vì ClearSceneLocalProgress lọc theo prefix scene.
+                string manualId = pickupId.Trim();
+                return HeartOfTheNight.Hung.GameData.IdBelongsToScene(manualId, sceneName)
+                    ? manualId
+                    : $"{sceneName}_{manualId}";
+            }
 
             string autoId = $"{sceneName}_{gameObject.name}";
             Debug.LogWarning(
