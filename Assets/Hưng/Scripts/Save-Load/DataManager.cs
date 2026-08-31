@@ -293,6 +293,7 @@ namespace HeartOfTheNight.Hung
                 unlockedDoors = new List<string>(),
                 collectedKeyPickupIds = new List<string>(),
                 foundSecrets = new List<string>(),
+                unlockedWeapons = new bool[] { true, false, false, false },
                 checkpointClearedRooms = new List<string>(),
                 checkpointUnlockedDoors = new List<string>(),
                 checkpointCollectedKeyPickupIds = new List<string>(),

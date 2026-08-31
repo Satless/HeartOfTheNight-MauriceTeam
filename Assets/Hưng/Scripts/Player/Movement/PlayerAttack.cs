@@ -1,4 +1,5 @@
 using System;
+using HeartOfTheNight.Hung;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -127,14 +128,36 @@ public class PlayerAttack : MonoBehaviour
     public void UnlockWeapon(int slotIndex)
     {
         if (slotIndex < 1 || slotIndex > 4) return;
-        if (!_unlockedWeapons[slotIndex - 1])
+        if (_unlockedWeapons[slotIndex - 1]) return;
+
+        _unlockedWeapons[slotIndex - 1] = true;
+        DataManager.Instance?.Data?.UnlockWeapon(slotIndex);
+        OnWeaponUnlocked?.Invoke(slotIndex);
+        EquipSlot(slotIndex);
+    }
+
+    /// <summary>
+    /// Ô súng theo slot save, không theo scene. Gọi trước EquipSlot lúc spawn.
+    /// </summary>
+    private void ApplyUnlocksFromSave()
+    {
+        GameData data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+        if (data == null || !data.hasSave)
+            return;
+
+        data.EnsureUnlockedWeapons();
+        int n = _unlockedWeapons.Length < data.unlockedWeapons.Length
+            ? _unlockedWeapons.Length
+            : data.unlockedWeapons.Length;
+        for (int i = 0; i < n; i++)
         {
-            _unlockedWeapons[slotIndex - 1] = true;
-            OnWeaponUnlocked?.Invoke(slotIndex);
-            
-            // Ép đổi ngay lập tức sang khẩu vừa mở khóa
-            EquipSlot(slotIndex);
+            bool saved = data.unlockedWeapons[i];
+            bool wasUnlocked = _unlockedWeapons[i];
+            _unlockedWeapons[i] = saved;
+            if (saved && !wasUnlocked)
+                OnWeaponUnlocked?.Invoke(i + 1);
         }
+        _unlockedWeapons[0] = true;
     }
 
     public void ReduceHeatPercentage(int slotIndex, float percentage)
@@ -218,6 +241,8 @@ public class PlayerAttack : MonoBehaviour
             _useVariant2 = !_useVariant2;
             EquipSlot(_currentSlotIndex);
         };
+
+        ApplyUnlocksFromSave();
     }
 
     private void OnValidate()
@@ -280,6 +305,7 @@ public class PlayerAttack : MonoBehaviour
         PrewarmWeapon(Weapon3);
         PrewarmWeapon(Weapon4);
 
+        ApplyUnlocksFromSave();
         EquipSlot(1); // Mặc định cầm súng 1 (nếu có)
         _hasInitialized = true; // Đánh dấu đã khởi tạo xong
     }

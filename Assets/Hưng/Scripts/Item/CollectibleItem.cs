@@ -258,7 +258,8 @@ public class CollectibleItem : MonoBehaviour
             distanceRemaining = Vector2.Distance(transform.position, target.position);
         }
 
-        if (distanceRemaining <= data.collectDistance)
+        float collectRange = data.collectDistance > 0f ? data.collectDistance : 0.5f;
+        if (distanceRemaining <= collectRange)
         {
             Collect(target.gameObject);
         }
