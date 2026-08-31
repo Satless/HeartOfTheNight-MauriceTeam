@@ -279,11 +279,11 @@ MonoBehaviour:
   currentHealth: 0
   isDead: 0
   anim: {fileID: 229900370268365192}
-  moveSpeed: 5
-  patrolSpeed: 2
-  patrolDistance: 5
-  detectionRangeX: 6
-  detectionRangeY: 2
+  moveSpeed: 4
+  patrolSpeed: 3
+  patrolDistance: 10
+  detectionRangeX: 10
+  detectionRangeY: 3
   attackRange: 6
   attackRangeY: 1.5
   groundCheck: {fileID: 342520986139658425}
@@ -306,6 +306,8 @@ MonoBehaviour:
   chargeDuration: 0.5
   hitRadius: 1.5
   recoveryTime: 1.5
+  knockbackForceX: 100
+  knockbackForceY: 5
 --- !u!95 &229900370268365192
 Animator:
   serializedVersion: 7

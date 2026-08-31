@@ -137,7 +137,7 @@ MonoBehaviour:
   castColor: {r: 0.9169811, g: 0.8633464, b: 0.8633464, a: 1}
   detectionRange: 10
   patrolSpeed: 2
-  patrolDistance: 5
+  patrolDistance: 10
   runSpeed: 4
   minimumDistance: 5
   wallCheck: {fileID: 7495683428084574895}
@@ -147,7 +147,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   flipCooldown: 0.5
-  attackCooldown: 2
+  attackCooldown: 4
   chargeTime: 1
   delayAfterMove: 0.5
   fireHazardPrefab: {fileID: 2342528712879075001, guid: 66f7c0d63e5a97c498ece800ec0a30e9, type: 3}

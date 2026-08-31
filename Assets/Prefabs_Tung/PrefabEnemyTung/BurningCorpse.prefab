@@ -361,8 +361,8 @@ MonoBehaviour:
   attackHitbox: {fileID: 2668810523740595134}
   attackOffset: {x: 0, y: 1}
   moveSpeed: 4
-  patrolSpeed: 2
-  patrolDistance: 5
+  patrolSpeed: 3
+  patrolDistance: 10
   detectionRangeX: 6
   detectionRangeY: 3
   attackRange: 2
@@ -376,14 +376,14 @@ MonoBehaviour:
   isGrounded: 0
   edgeCheck: {fileID: 1069917305108128500}
   wallCheck: {fileID: 1456197583277624646}
-  edgeCheckDistance: 3
+  edgeCheckDistance: 5
   wallCheckDistance: 0
   wallCheckHeight: 1.84
   flipCooldown: 0.5
   attackDamage: 10
   attackCooldown: 2
   burnDamagePerTick: 2
-  burnTicks: 3
+  burnTicks: 6
   timeBetweenTicks: 1
   dashSpeedThreshold: 12
 --- !u!95 &1545656820512012261

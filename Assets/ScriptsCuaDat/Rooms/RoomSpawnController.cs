@@ -291,7 +291,7 @@ namespace HeartOfTheNight.Rooms
             foreach (var s in scripts)
             {
                 if (s == null || !s.enabled) continue;
-                if (s is AutoUniversalHealthBar) continue;
+                if (s is EnemyHealthBar) continue;
                 if (s.GetType().Namespace == null || !s.GetType().Namespace.StartsWith("UnityEngine"))
                 {
                     s.enabled = false;

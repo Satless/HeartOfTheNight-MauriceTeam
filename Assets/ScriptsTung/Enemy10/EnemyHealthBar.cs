@@ -5,11 +5,13 @@ using System.Reflection;
 using System.Collections;
 using HeartOfTheNight.Common;
 
-public class AutoUniversalHealthBar : MonoBehaviour
+public class EnemyHealthBar : MonoBehaviour
 {
     [Header("Cài đặt UI Minimalist")]
     public Canvas canvas;
     public Image fillImage;
+    [Tooltip("Tick vào ô này nếu là Boss hoặc quái cần hiện thanh máu liên tục không bao giờ ẩn")]
+    public bool alwaysShowBar = false; // 🔥 MỚI THÊM: Checkbox để ép hiện thanh máu liên tục
 
     [Header("Màu sắc & Nhấp nháy")]
     public Color highHealthColor = Color.green;
@@ -55,7 +57,9 @@ public class AutoUniversalHealthBar : MonoBehaviour
 
             canvasGroup = canvas.GetComponent<CanvasGroup>();
             if (canvasGroup == null) canvasGroup = canvas.gameObject.AddComponent<CanvasGroup>();
-            canvasGroup.alpha = 0f;
+
+            // 🔥 NẾU LÀ BOSS (alwaysShowBar = true) THÌ BẬT SÁNG NGAY LẬP TỨC
+            canvasGroup.alpha = alwaysShowBar ? 1f : 0f;
         }
 
         enemyScript = GetComponentInParent<IDamageable>() as Component;
@@ -75,8 +79,6 @@ public class AutoUniversalHealthBar : MonoBehaviour
 
         float newFill = Mathf.Clamp01((float)curHp / maxHp);
 
-        // Freeze spawn tắt script quái trước Start() → currentHealth còn 0.
-        // Đừng tưởng quái chết rồi co canvas về (0,0,z).
         if (!hasBaseline)
         {
             if (curHp <= 0) return;
@@ -114,7 +116,8 @@ public class AutoUniversalHealthBar : MonoBehaviour
             if (!isFlashing) fillImage.color = currentBaseColor;
         }
 
-        if (canvasGroup != null && canvasGroup.alpha > 0f)
+        // 🔥 CHỈ ĐẾM GIỜ ẨN THANH MÁU KHI KHÔNG PHẢI LÀ BOSS
+        if (!alwaysShowBar && canvasGroup != null && canvasGroup.alpha > 0f)
         {
             hideTimer += Time.deltaTime;
             if (hideTimer >= timeToHide)
