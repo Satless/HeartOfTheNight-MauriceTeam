@@ -56,12 +56,12 @@ public class FlyingRat : MonoBehaviour, IDamageable
     {
         attacking = true;
 
-        PlayerHealth1 health = player.GetComponent<PlayerHealth1>();
+        IDamageable health = player.GetComponent<IDamageable>();
+        if (health == null)
+            health = player.GetComponentInChildren<IDamageable>();
 
         if (health != null)
-        {
             health.TakeDamage(damage);
-        }
 
         yield return new WaitForSeconds(attackCooldown);
 
@@ -85,6 +85,9 @@ public class FlyingRat : MonoBehaviour, IDamageable
 
     public void TakeDamage(int dmg)
     {
+        if (hp <= 0)
+            return;
+
         hp -= dmg;
 
         if (hp <= 0)

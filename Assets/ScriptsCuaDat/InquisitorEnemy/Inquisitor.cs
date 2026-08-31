@@ -45,6 +45,8 @@ namespace HeartOfTheNight.Enemy
         private bool isDead = false;
         private HitEffectVFX hitEffect;
         private readonly List<EnemyStrengthModifier> buffedAllies = new();
+        private readonly HashSet<EnemyStrengthModifier> _buffInRange = new();
+        private static readonly Collider2D[] _buffHitBuffer = new Collider2D[24];
 
         private void Awake()
         {
@@ -213,17 +215,16 @@ namespace HeartOfTheNight.Enemy
 
         private void ApplyRoomBuffToAllies()
         {
-            //var hits = Physics2D.OverlapCircleAll(transform.position, stats.buffRadius);
-            //test thử tối ưu hiệu năng quét buff
-            var hits = Physics2D.OverlapCircleAll(transform.position, stats.buffRadius, enemyLayer);
-            var inRange = new HashSet<EnemyStrengthModifier>();
+            _buffInRange.Clear();
+            int hitCount = Physics2D.OverlapCircleNonAlloc(
+                transform.position, stats.buffRadius, _buffHitBuffer, enemyLayer);
 
-            for (int i = 0; i < hits.Length; i++)
+            for (int i = 0; i < hitCount; i++)
             {
-                var mod = hits[i].GetComponentInParent<EnemyStrengthModifier>();
+                var mod = _buffHitBuffer[i].GetComponentInParent<EnemyStrengthModifier>();
                 if (mod == null || mod.gameObject == gameObject) continue;
 
-                inRange.Add(mod);
+                _buffInRange.Add(mod);
                 mod.SetRoomBuff(stats.roomBuffBonus);
 
                 if (!buffedAllies.Contains(mod))
@@ -239,7 +240,7 @@ namespace HeartOfTheNight.Enemy
                     continue;
                 }
 
-                if (!inRange.Contains(mod))
+                if (!_buffInRange.Contains(mod))
                 {
                     mod.ClearBuff();
                     buffedAllies.RemoveAt(i);

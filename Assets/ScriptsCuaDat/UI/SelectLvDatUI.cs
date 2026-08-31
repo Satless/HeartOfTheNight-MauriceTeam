@@ -42,6 +42,15 @@ namespace HeartOfTheNight.UI
             }
 
             Debug.Log($"[SelectLvDatUI] Load → {sceneName}");
+
+            var dm = HeartOfTheNight.Hung.DataManager.EnsureExists();
+            if (dm != null)
+            {
+                dm.AbandonInProgress();
+                dm.PrepareForNewScene(sceneName);
+                LevelEntrance.ClearPendingSpawn();
+            }
+
             SceneManager.LoadScene(sceneName);
         }
     }

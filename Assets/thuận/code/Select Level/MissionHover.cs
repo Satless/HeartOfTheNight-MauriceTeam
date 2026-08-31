@@ -95,6 +95,14 @@ public class MissionHover : MonoBehaviour,
             return;
         }
 
+        var dm = HeartOfTheNight.Hung.DataManager.EnsureExists();
+        if (dm != null)
+        {
+            dm.AbandonInProgress();
+            dm.PrepareForNewScene(sceneName);
+            LevelEntrance.ClearPendingSpawn();
+        }
+
         SceneManager.LoadScene(sceneName);
     }
 

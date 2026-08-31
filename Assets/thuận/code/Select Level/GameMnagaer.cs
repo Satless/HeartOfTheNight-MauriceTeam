@@ -19,13 +19,13 @@ public class GameMnagaer : MonoBehaviour
     public void Openchapter2()
     {
         menuLevel.SetActive(false);
-        chapter1.SetActive(true);
+        chapter2.SetActive(true);
     }
 
     public void Openchapter3()
     {
         menuLevel.SetActive(false);
-        chapter1.SetActive(true);
+        chapter3.SetActive(true);
     }
 
 
@@ -38,12 +38,12 @@ public class GameMnagaer : MonoBehaviour
 
     public void Closechapter2()
     {
-        chapter1.SetActive(false);
+        chapter2.SetActive(false);
         menuLevel.SetActive(true);
     }
     public void Closechapter3()
     {
-        chapter1.SetActive(false);
+        chapter3.SetActive(false);
         menuLevel.SetActive(true);
     }
 }
