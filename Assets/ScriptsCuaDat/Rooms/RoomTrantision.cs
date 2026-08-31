@@ -25,8 +25,10 @@ public class RoomTransition : MonoBehaviour
     [SerializeField] private bool countsAsSecret;
 
     [Header("Checkpoint")]
-    [Tooltip("Bật = đi qua cửa này lưu điểm hồi sinh. Chết sẽ về phía bên kia cửa.")]
+    [Tooltip("Next Level: bật = lưu checkpoint khi sang map. Same Scene không dùng ô này.")]
     [SerializeField] private bool saveAsCheckpoint;
+    [Tooltip("Same Scene: mặc định luôn lưu checkpoint lúc qua cửa. Bật = không lưu (cửa giả / trap).")]
+    [SerializeField] private bool skipCheckpoint;
     [Tooltip("Same Scene: ID LevelEntrance bên kia cửa (nếu có). Để trống = hồi sinh đúng nextRoomSpawnPoint.")]
     [SerializeField] private string checkpointSpawnID;
 
@@ -90,11 +92,14 @@ public class RoomTransition : MonoBehaviour
 
             RegisterSecretIfNeeded();
 
-            TrySaveCheckpoint(
-                playerObj,
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
-                checkpointSpawnID,
-                nextRoomSpawnPoint.position);
+            if (!skipCheckpoint)
+            {
+                TrySaveCheckpoint(
+                    playerObj,
+                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                    checkpointSpawnID,
+                    nextRoomSpawnPoint.position);
+            }
 
             yield return new WaitForSeconds(0.2f);
             yield return ScreenFader.Instance.FadeIn(fadeDuration);
@@ -183,7 +188,6 @@ public class RoomTransition : MonoBehaviour
 
     private void TrySaveCheckpoint(GameObject playerObj, string sceneName, string spawnId, Vector3 worldPosition)
     {
-        if (!saveAsCheckpoint) return;
         if (HeartOfTheNight.Hung.DataManager.Instance == null) return;
 
         var hp = playerObj != null ? playerObj.GetComponent<HeartOfTheNight.Player.PlayerHealth>() : null;
