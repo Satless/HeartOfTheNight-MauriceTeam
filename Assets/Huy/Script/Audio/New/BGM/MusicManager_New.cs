@@ -68,7 +68,8 @@ public class MusicManager_New : MonoBehaviour
     private IEnumerator AnimateMusicCrossfade(AudioClip nextTrack, float fadeDuration, float startTime)
     {
         float percent = 0;
-        float startVolume = musicSource.volume;
+        //float startVolume = musicSource.volume;
+        float startVolume = musicSource.volume > 0.05f ? musicSource.volume : 1f;
 
         // Fade Out (dùng unscaledDeltaTime để chạy bình thường ngay cả khi Time.timeScale = 0)
         while (percent < 1)
@@ -91,6 +92,7 @@ public class MusicManager_New : MonoBehaviour
             yield return null;
         }
 
-        musicSource.volume = 1f;
+        //musicSource.volume = 1f;
+        musicSource.volume = startVolume;
     }
 }
