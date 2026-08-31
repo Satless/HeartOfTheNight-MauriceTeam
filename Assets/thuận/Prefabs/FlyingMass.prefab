@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 5032768957505992761}
   - component: {fileID: 5304638279064308638}
   - component: {fileID: 2835305118011372057}
+  - component: {fileID: 2324631066322039539}
   m_Layer: 0
   m_Name: FlyingMass
   m_TagString: Untagged
@@ -214,3 +215,16 @@ MonoBehaviour:
   bombPrefab: {fileID: 803908490607697669, guid: b8bc6c21005c3bf4d929fd3488d7d6c3, type: 3}
   firePoint: {fileID: 2669406464548998742}
   attackCooldown: 4
+
+--- !u!114 &2324631066322039539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7766037975094596898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -89,10 +89,10 @@ public class FlamethrowerLogic : MonoBehaviour
             if (!HasTargetTag(results[i])) continue;
 
             StatusEffectReceiver receiver = results[i].GetComponent<StatusEffectReceiver>();
+            if (receiver == null)
+                receiver = results[i].GetComponentInParent<StatusEffectReceiver>();
             if (receiver != null)
-            {
                 receiver.ApplyStatus(_statusEffect);
-            }
         }
     }
 

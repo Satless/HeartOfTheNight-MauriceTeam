@@ -156,6 +156,7 @@ GameObject:
   - component: {fileID: 539931980909869456}
   - component: {fileID: 1607064163850120616}
   - component: {fileID: 414937155192101203}
+  - component: {fileID: 6222734617713366866}
   m_Layer: 10
   m_Name: BigCorpse
   m_TagString: Enemy
@@ -535,3 +536,16 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000081}
   m_PrefabAsset: {fileID: 0}
+
+--- !u!114 &6222734617713366866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6013350649504234070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

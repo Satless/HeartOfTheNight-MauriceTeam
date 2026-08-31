@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using HeartOfTheNight.Common;
 
-public class FlyingMass : MonoBehaviour
+public class FlyingMass : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     // Máu của Flying Mass
