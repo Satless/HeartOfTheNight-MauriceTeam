@@ -74,7 +74,7 @@ GameObject:
   - component: {fileID: 8802143833636715171}
   - component: {fileID: 450737879616435838}
   - component: {fileID: 6937359219346687869}
-  - component: {fileID: 4647949707946389898}
+  - component: {fileID: 4982096216992911509}
   - component: {fileID: 9189729926134698254}
   - component: {fileID: 3641384330369384795}
   - component: {fileID: -3340504792106145302}
@@ -234,7 +234,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.526998, y: 1.27298}
   m_EdgeRadius: 0.02
---- !u!114 &4647949707946389898
+--- !u!114 &4982096216992911509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -243,7 +243,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7965682724504148304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 484765bd3e9ad824f8c228e756945723, type: 3}
+  m_Script: {fileID: 11500000, guid: f8ce0759e6f067545a623cecc20f7cb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
@@ -269,9 +269,9 @@ MonoBehaviour:
   isGrounded: 0
   edgeCheck: {fileID: 3744662041910016717}
   wallCheck: {fileID: 1503666516329470254}
-  edgeCheckDistance: 5
-  wallCheckDistance: 0
-  wallCheckHeight: 1.23
+  edgeCheckDistance: 1.5
+  wallCheckDistance: 0.5
+  wallCheckHeight: 1.5
   flipCooldown: 0.5
   attackDamage: 15
   attackCooldown: 2.5
@@ -329,6 +329,39 @@ MonoBehaviour:
   dropMultipleItems: 1
   lootTable: []
   customVariableName: 
+--- !u!114 &5976753065464727290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7965682724504148304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!1 &8314471508327488015
 GameObject:
   m_ObjectHideFlags: 0
@@ -520,16 +553,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000091}
   m_PrefabAsset: {fileID: 0}
-
---- !u!114 &5976753065464727290
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7965682724504148304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
