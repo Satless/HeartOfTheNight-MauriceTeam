@@ -447,6 +447,12 @@ MonoBehaviour:
       - actionID: MaxHealthDecrease
         clips:
         - {fileID: 8300000, guid: fe0c1f9b97c0e674ba6fad361c1da365, type: 3}
+    - subCategoryID: Fire
+      actions:
+      - actionID: ApplyEffect
+        clips: []
+      - actionID: TickDmg
+        clips: []
   - categoryID: Weapons
     subCategories:
     - subCategoryID: Pistol
