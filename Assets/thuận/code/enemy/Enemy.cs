@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using HeartOfTheNight.Common;
 
-public class Enemy : MonoBehaviour
+public class Enemy : MonoBehaviour, IDamageable
 {
     [Header("HP")]
     public int hp = 150;

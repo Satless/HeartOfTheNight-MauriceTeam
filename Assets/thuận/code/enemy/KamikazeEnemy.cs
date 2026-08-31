@@ -2,7 +2,7 @@
 using UnityEngine;
 using HeartOfTheNight.Common; // 🔥 QUAN TRỌNG: Gọi thư viện chứa IDamageable
 
-public class KamikazeEnemy : MonoBehaviour
+public class KamikazeEnemy : MonoBehaviour, IDamageable
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 6f;

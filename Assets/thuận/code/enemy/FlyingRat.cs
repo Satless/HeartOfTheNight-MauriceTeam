@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
+using HeartOfTheNight.Common;
 
-public class FlyingRat : MonoBehaviour
+public class FlyingRat : MonoBehaviour, IDamageable
 {
     [Header("Movement")]
     public float speed = 4f;

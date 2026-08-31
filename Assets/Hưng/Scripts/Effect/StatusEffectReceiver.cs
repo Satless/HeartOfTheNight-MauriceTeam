@@ -41,7 +41,8 @@ public class StatusEffectReceiver : MonoBehaviour
                 if (_activeStatuses[i].tickTimer <= 0)
                 {
                     _activeStatuses[i].tickTimer = _activeStatuses[i].data.tickInterval;
-                    _healthComponent.TakeDamage(_activeStatuses[i].data.damagePerTick);
+                    if (_healthComponent != null)
+                        _healthComponent.TakeDamage(_activeStatuses[i].data.damagePerTick);
                 }
 
                 // Cập nhật vị trí bám theo tâm của Parent, không nhận tỷ lệ Scale của Parent để chống méo hình

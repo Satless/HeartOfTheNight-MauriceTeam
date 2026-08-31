@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: 1545656820512012261}
   - component: {fileID: 5407404829224091378}
   - component: {fileID: 3808746206463335801}
+  - component: {fileID: 5620567915181675913}
   m_Layer: 10
   m_Name: BurningCorpse
   m_TagString: Enemy
@@ -528,3 +529,16 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000061}
   m_PrefabAsset: {fileID: 0}
+
+--- !u!114 &5620567915181675913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8880767367151915262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
