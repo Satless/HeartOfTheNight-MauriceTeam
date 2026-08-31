@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class MusicLevelPlay : MonoBehaviour
 {
     public static MusicLevelPlay Instance { get; private set; }
+
+    [Header("Audio Mixer Settings")]
+    [SerializeField] private UnityEngine.Audio.AudioMixer audioMixer;
 
     [System.Serializable]
     public class SceneMusicData
@@ -31,9 +35,6 @@ public class MusicLevelPlay : MonoBehaviour
         new SceneMusicData { sceneName = "mainMenu", trackName = "MainMenuBGM" },
         new SceneMusicData { sceneName = "SelectLevel", trackName = "SelectLevelBGM" },
         new SceneMusicData { sceneName = "LevelComplete", trackName = "WinBGM" },
-
-        //floor1
-        new SceneMusicData { sceneName = "LevelComplete", trackName = "Tutorial" }
     };
 
     private string currentPlayingTrack = "";
@@ -67,7 +68,41 @@ public class MusicLevelPlay : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // 1. Áp dụng ngay âm lượng từ PlayerPrefs vào AudioMixer khi Scene vừa load
+        ApplySavedVolumes();
+
+        // 2. Phát nhạc cho Scene
         PlayMusicForScene(scene.name);
+    }
+
+    /// <summary>
+    /// Đọc PlayerPrefs và ép giá trị trực tiếp vào AudioMixer
+    /// </summary>
+    public void ApplySavedVolumes()
+    {
+        StartCoroutine(ApplySavedVolumesRoutine());
+    }
+
+    private System.Collections.IEnumerator ApplySavedVolumesRoutine()
+    {
+        // Chờ 0.05 giây (dùng unscaledTime để không bị ảnh hưởng bởi Pause/Time.timeScale = 0)
+        yield return new WaitForSecondsRealtime(0.05f);
+
+        if (audioMixer == null)
+        {
+            audioMixer = Resources.Load<UnityEngine.Audio.AudioMixer>("Settings");
+        }
+
+        if (audioMixer != null)
+        {
+            float master = PlayerPrefs.HasKey("Master") ? PlayerPrefs.GetFloat("Master") : 1f;
+            float music = PlayerPrefs.HasKey("MusicVolume") ? PlayerPrefs.GetFloat("MusicVolume") : 1f;
+            float sfx = PlayerPrefs.HasKey("SFXVolume") ? PlayerPrefs.GetFloat("SFXVolume") : 1f;
+
+            audioMixer.SetFloat("Master", Mathf.Log10(Mathf.Max(0.0001f, master)) * 20);
+            audioMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Max(0.0001f, music)) * 20);
+            audioMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Max(0.0001f, sfx)) * 20);
+        }
     }
 
     private void PlayMusicForScene(string sceneName)
