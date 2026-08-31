@@ -169,7 +169,8 @@ public class CollectibleItem : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, target.position, actualSpeed * Time.deltaTime);
 
-        if (Vector2.Distance(transform.position, target.position) <= data.collectDistance)
+        float collectRange = data.collectDistance > 0f ? data.collectDistance : 0.5f;
+        if (Vector2.Distance(transform.position, target.position) <= collectRange)
         {
             Collect(target.gameObject);
         }
