@@ -882,14 +882,5 @@ namespace HeartOfTheNight.Enemy
             if (bodyTf != null)
                 bodyTf.gameObject.SetActive(false);
         }
-
-        private void OnDestroy()
-        {
-            if (dead) return;
-            health = 0;
-            dead = true;
-            NotifyHealth();
-            OnDeath?.Invoke();
-        }
     }
 }

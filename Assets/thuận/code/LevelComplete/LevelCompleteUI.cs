@@ -147,7 +147,6 @@ public class LevelCompleteUI : MonoBehaviour
         float fade = _hasPending ? _pending.fadeDuration : -1f;
         float delay = _hasPending ? _pending.delayBeforeFadeIn : -1f;
         string spawnId = _hasPending ? _pending.spawnIDInNextScene : "";
-        int nextLevelIndex = _hasPending ? _pending.nextLevelIndex : 0;
         bool saveCheckpoint = _hasPending && _pending.saveAsCheckpoint;
         int health = _hasPending ? _pending.playerHealth : -1;
 
@@ -156,9 +155,6 @@ public class LevelCompleteUI : MonoBehaviour
 
         if (DataManager.Instance != null)
         {
-            if (nextLevelIndex > DataManager.Instance.Data.maxUnlockedLevel)
-                DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
-
             DataManager.Instance.Data.currentScene = next;
             DataManager.Instance.PrepareForNewScene(next);
 
@@ -180,10 +176,6 @@ public class LevelCompleteUI : MonoBehaviour
     {
         if (DataManager.Instance != null)
         {
-            if (_hasPending && DataManager.Instance.Data != null
-                && _pending.nextLevelIndex > DataManager.Instance.Data.maxUnlockedLevel)
-                DataManager.Instance.Data.maxUnlockedLevel = _pending.nextLevelIndex;
-
             DataManager.Instance.CommitFinishedLevelAndLeave();
         }
 

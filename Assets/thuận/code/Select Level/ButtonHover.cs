@@ -6,6 +6,7 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 {
     private Vector3 originalScale;
     private Image image;
+    private Button button;
 
     [SerializeField] private float hoverScale = 1.15f;
 
@@ -16,18 +17,25 @@ public class ButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         originalScale = transform.localScale;
         image = GetComponent<Image>();
-        image.color = normalColor;
+        button = GetComponent<Button>();
+        if (image != null)
+            image.color = normalColor;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (button != null && !button.interactable)
+            return;
+
         transform.localScale = originalScale * hoverScale;
-        image.color = hoverColor;
+        if (image != null)
+            image.color = hoverColor;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         transform.localScale = originalScale;
-        image.color = normalColor;
+        if (image != null)
+            image.color = normalColor;
     }
 }

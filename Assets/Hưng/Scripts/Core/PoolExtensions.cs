@@ -59,8 +59,11 @@ public static class PoolExtensions
     /// </summary>
     public static void Despawn(this GameObject instance)
     {
+        if (instance == null) return;
         if (Pooling.Instance != null)
             Pooling.Instance.Return(instance);
+        else
+            Object.Destroy(instance);
     }
 
     /// <summary>
@@ -68,8 +71,11 @@ public static class PoolExtensions
     /// </summary>
     public static void Despawn(this Component instance)
     {
+        if (instance == null) return;
         if (Pooling.Instance != null)
             Pooling.Instance.Return(instance.gameObject);
+        else
+            Object.Destroy(instance.gameObject);
     }
 
     // ─── PREWARM (tạo sẵn) ───────────────────────────────────────────────
