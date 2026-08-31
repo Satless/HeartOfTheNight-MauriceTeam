@@ -113,6 +113,51 @@ public class PlayerAttack : MonoBehaviour
     /// <summary> Event cho UI/SFX: true = vừa quá nhiệt, false = vừa nguội xong. </summary>
     public event Action<bool> OnOverheatStateChanged;
     public event Action<GunWeaponData> OnWeaponChanged;
+    public event Action<int> OnWeaponUnlocked;
+
+    [Header("Unlocks (Weapon 1 is unlocked by default)")]
+    [SerializeField, ReadOnly] private bool[] _unlockedWeapons = new bool[4] { true, false, false, false };
+
+    public bool IsWeaponUnlocked(int slotIndex)
+    {
+        if (slotIndex < 1 || slotIndex > 4) return false;
+        return _unlockedWeapons[slotIndex - 1];
+    }
+
+    public void UnlockWeapon(int slotIndex)
+    {
+        if (slotIndex < 1 || slotIndex > 4) return;
+        if (!_unlockedWeapons[slotIndex - 1])
+        {
+            _unlockedWeapons[slotIndex - 1] = true;
+            OnWeaponUnlocked?.Invoke(slotIndex);
+            
+            // Ép đổi ngay lập tức sang khẩu vừa mở khóa
+            EquipSlot(slotIndex);
+        }
+    }
+
+    public void ReduceHeatPercentage(int slotIndex, float percentage)
+    {
+        WeaponSlot slot = GetSlot(slotIndex);
+        if (slot != null && slot.maxHeat > 0)
+        {
+            float amountToReduce = slot.maxHeat * percentage;
+            slot.currentHeat = Mathf.Max(0, slot.currentHeat - amountToReduce);
+            
+            // Nếu giảm dưới ngưỡng, gỡ khóa quá nhiệt
+            if (slot.isOverheated && (slot.currentHeat / slot.maxHeat) <= slot.unlockThreshold)
+            {
+                slot.isOverheated = false;
+                if (slotIndex == _currentSlotIndex)
+                    OnOverheatStateChanged?.Invoke(false);
+            }
+            
+            // Cập nhật UI nếu đang cầm súng đó
+            if (slotIndex == _currentSlotIndex)
+                OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
+        }
+    }
 
     private WeaponSlot GetSlot(int slotIndex)
     {
@@ -286,6 +331,8 @@ public class PlayerAttack : MonoBehaviour
 
     private void EquipSlot(int slotNumber)
     {
+        if (!IsWeaponUnlocked(slotNumber)) return; // Khóa không cho đổi súng nếu chưa nhặt được
+
         // Chặn người chơi ấn chuyển súng liên tục (chỉ chặn khi chuyển sang ô súng khác, bấm Q thì được qua)
         if (slotNumber != _currentSlotIndex && Time.time < _switchEndTime) return;
 
