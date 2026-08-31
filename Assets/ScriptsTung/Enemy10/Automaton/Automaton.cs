@@ -68,6 +68,8 @@ public class Automaton : MonoBehaviour, IDamageable
     private float nextMeleeTime = 0f;
     private float teleportTimer = 0f;
 
+
+    private float idleTimer;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -250,6 +252,16 @@ public class Automaton : MonoBehaviour, IDamageable
         }
 
         rb.linearVelocity = new Vector2(currentDir * patrolSpeed, rb.linearVelocity.y);
+
+ 
+        idleTimer -= Time.deltaTime;
+        if (idleTimer <= 0f)
+        {
+            //SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+
+            AudioEvents.TriggerSound3D("Enemy", "Automation", "Idle", transform.position);
+            idleTimer = 2f;
+        }
     }
 
     bool IsHittingWallOrPit()
@@ -277,12 +289,16 @@ public class Automaton : MonoBehaviour, IDamageable
         currentHealth -= damage;
         Debug.Log("Automaton nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
         if (currentHealth <= 0) Die();
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Hurt", transform.position);
     }
 
     void Die()
     {
         isDead = true;
         dangBanRaDon = true;
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Die", transform.position);
 
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (myCol == null) myCol = GetComponent<Collider2D>();
@@ -309,6 +325,8 @@ public class Automaton : MonoBehaviour, IDamageable
         LookAtPlayer();
         float huong = (player.position.x > transform.position.x) ? 1f : -1f;
         rb.linearVelocity = new Vector2(huong * moveSpeed, rb.linearVelocity.y);
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Move", transform.position);
     }
 
     void StopMoving()
@@ -374,6 +392,8 @@ public class Automaton : MonoBehaviour, IDamageable
         rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         if (anim != null) anim.SetTrigger("Attack");
 
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Attack", transform.position);
+
         yield return new WaitForSeconds(1.5f);
 
         if (isDead) yield break;
@@ -395,6 +415,8 @@ public class Automaton : MonoBehaviour, IDamageable
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         if (anim != null) anim.SetFloat("Speed", dashSpeed);
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Dash", transform.position);
 
         float thoiGianDaLuot = 0f;
         bool daTrungDon = false;

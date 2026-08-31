@@ -58,6 +58,8 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
         originalTags.Clear();
         activeShields.Clear();
 
+        AudioEvents.TriggerSound3D("Enemy", "EyeOfNight", "ShieldActivate", transform.position);
+
         List<GameObject> allTargets = new List<GameObject>();
         allTargets.AddRange(GameObject.FindGameObjectsWithTag("Enemy"));
         allTargets.AddRange(GameObject.FindGameObjectsWithTag("Boss"));
@@ -114,6 +116,8 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
     void DeactivateShield()
     {
         Debug.Log("Mắt Đêm: Thu hồi Khiên!");
+
+        AudioEvents.TriggerSound3D("Enemy", "EyeOfNight", "ShieldDeactivate", transform.position);
 
         foreach (var kvp in originalTags)
         {

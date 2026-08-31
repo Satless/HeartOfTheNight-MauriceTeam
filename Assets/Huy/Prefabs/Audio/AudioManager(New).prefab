@@ -241,6 +241,8 @@ MonoBehaviour:
         clips: []
       - actionID: Die
         clips: []
+      - actionID: LootDrop
+        clips: []
     - subCategoryID: BigCorpse
       actions:
       - actionID: Idle
@@ -299,18 +301,34 @@ MonoBehaviour:
       - actionID: Die
         clips:
         - {fileID: 8300000, guid: 93a8a68bbe0ef0245b6a38963ad7d378, type: 3}
-    - subCategoryID: Demon
+    - subCategoryID: EyeOfNight
       actions:
       - actionID: Idle
         clips: []
-      - actionID: Move
-        clips: []
-      - actionID: Attack
-        clips: []
+      - actionID: ShieldActivate
+        clips:
+        - {fileID: 8300000, guid: f07e92dbd275a3c448e49ed5e7813bde, type: 3}
+        - {fileID: 8300000, guid: b6e775ca91b06e54ab06d71dc1222441, type: 3}
+      - actionID: ShieldDeactivate
+        clips:
+        - {fileID: 8300000, guid: 503dbee3cdbb9e1478c7867a81a26cea, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: e3bf04f89e2f2ab4d8838d7bd8c010c2, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 553e4f3863801374aa172333bead38e9, type: 3}
+    - subCategoryID: Demon
+      actions:
+      - actionID: Warning
+        clips:
+        - {fileID: 8300000, guid: 5db5d0edb7d843a499ecbdf3eb00d7e0, type: 3}
+      - actionID: Explode
+        clips:
+        - {fileID: 8300000, guid: 57927bd595a6acd49b54f2b8b26ebeda, type: 3}
+      - actionID: Disappear
+        clips:
+        - {fileID: 8300000, guid: 1963d293f27bd384d995758f6ed2b8bd, type: 3}
     - subCategoryID: LivingFurnace
       actions:
       - actionID: Idle
@@ -330,15 +348,25 @@ MonoBehaviour:
     - subCategoryID: Husk
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: a1795722f43ebd147a01fcf4ba836d1d, type: 3}
+        - {fileID: 8300000, guid: 39a1b0f7d8536dd4094878b4f29d1cba, type: 3}
       - actionID: Move
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 9c8db61554a034949b22d832e5bc0a89, type: 3}
+        - {fileID: 8300000, guid: d360266dc6e6f9f4ca6adbe0fb5755ed, type: 3}
       - actionID: Attack
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 80eded04ec01b0943b56180061b08923, type: 3}
+        - {fileID: 8300000, guid: 3ec14b4a443a3434c9177205343f1a7d, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 696171b6402717844a9dd718c19ecaba, type: 3}
+        - {fileID: 8300000, guid: 52ce86dd94a6045448eb324f77298e93, type: 3}
+        - {fileID: 8300000, guid: ce167c796fdf3434395b92e789f75492, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 503e2c83709cccd4ca559095d4e52fd7, type: 3}
     - subCategoryID: Inquisitor
       actions:
       - actionID: Idle
@@ -393,23 +421,37 @@ MonoBehaviour:
     - subCategoryID: Automation
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: da6eb7ab5381e0747a60216396203882, type: 3}
+        - {fileID: 8300000, guid: bd9222ac5227fe64381f32e29f4b285f, type: 3}
       - actionID: Move
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 80a57cbec1df03244a89363c0fccebf1, type: 3}
+      - actionID: Dash
+        clips:
+        - {fileID: 8300000, guid: 6bcb61b017c1dd745bf9cd0d9f8cd893, type: 3}
+        - {fileID: 8300000, guid: 722f9a42a9ddeb24db1410665d3bab40, type: 3}
       - actionID: Attack
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 635f4f4c1ced9dd4aa5ed56d5b076b73, type: 3}
+        - {fileID: 8300000, guid: 4886586825a45714691ffbb16a594c5f, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: db2985226b8a00049b1da70ffe7224dd, type: 3}
+        - {fileID: 8300000, guid: 27664db15369d2040885e0eed4a3c11b, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 8575e26061f70bb44bc606a6f4af6bf4, type: 3}
     - subCategoryID: Doombringer
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 4935f994f554ac84f8eacf6232666a9e, type: 3}
       - actionID: Move
         clips: []
       - actionID: Barrage
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 7ba08ce3068203248bc228ed4a62f63f, type: 3}
       - actionID: Laser
         clips:
         - {fileID: 8300000, guid: 635f4f4c1ced9dd4aa5ed56d5b076b73, type: 3}
@@ -447,6 +489,14 @@ MonoBehaviour:
       - actionID: MaxHealthDecrease
         clips:
         - {fileID: 8300000, guid: fe0c1f9b97c0e674ba6fad361c1da365, type: 3}
+    - subCategoryID: Fire
+      actions:
+      - actionID: ApplyEffect
+        clips:
+        - {fileID: 8300000, guid: f887c81494064a64eb63cf0ec3085d6e, type: 3}
+      - actionID: TickDmg
+        clips:
+        - {fileID: 8300000, guid: 580d61b5c3c7281478e57efb18570d86, type: 3}
   - categoryID: Weapons
     subCategories:
     - subCategoryID: Pistol

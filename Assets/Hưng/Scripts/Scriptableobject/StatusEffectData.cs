@@ -21,4 +21,14 @@ public class StatusEffectData : ScriptableObject
     [Header("Pooling")]
     [Tooltip("Số lượng VFX tạo sẵn trong Pool khi game khởi động (mỗi hiệu ứng tự quyết số lượng riêng)")]
     public int prewarmCount;
+
+    [Header("Audio Settings")]
+    [Tooltip("Category (Tầng 1) - Ví dụ: StatusEffect")]
+    public string soundCategory = "Effects";
+    [Tooltip("SubCategory (Tầng 2) - Ví dụ: Burn, Poison")]
+    public string soundSubCategory;
+    [Tooltip("ActionName (Tầng 3) phát khi dính hiệu ứng - Ví dụ: Apply")]
+    public string applySoundName = "ApplyEffect";
+    [Tooltip("ActionName (Tầng 3) phát mỗi nhịp giật - Ví dụ: Tick")]
+    public string tickSoundName = "TickDmg";
 }

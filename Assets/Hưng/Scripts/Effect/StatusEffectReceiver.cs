@@ -48,6 +48,16 @@ public class StatusEffectReceiver : MonoBehaviour
                     _activeStatuses[i].tickTimer = _activeStatuses[i].data.tickInterval;
                     if (_healthComponent != null)
                         _healthComponent.TakeDamage(_activeStatuses[i].data.damagePerTick);
+
+                    //sfx cho sát thương liên tục
+                    if (!string.IsNullOrEmpty(_activeStatuses[i].data.tickSoundName))
+                    {
+                        AudioEvents.TriggerSound2D(
+                            _activeStatuses[i].data.soundCategory,
+                            _activeStatuses[i].data.soundSubCategory,
+                            _activeStatuses[i].data.tickSoundName
+                        );
+                    }
                 }
 
                 // Cập nhật vị trí bám theo tâm của Parent, không nhận tỷ lệ Scale của Parent để chống méo hình
@@ -102,6 +112,16 @@ public class StatusEffectReceiver : MonoBehaviour
                 // Lấy VFX từ Pool (thay vì Instantiate)
                 Vector3 vfxPos = _spriteRenderer != null ? _spriteRenderer.bounds.center : transform.position;
                 _activeStatuses[emptySlot].vfxInstance = statusData.effectVfxPrefab.Spawn(vfxPos, Quaternion.identity);
+            }
+
+            //sfx cho object khi nhận hiệu ứng
+            if (!string.IsNullOrEmpty(statusData.applySoundName))
+            {
+                AudioEvents.TriggerSound2D(
+                    statusData.soundCategory,
+                    statusData.soundSubCategory,
+                    statusData.applySoundName
+                );
             }
         }
     }

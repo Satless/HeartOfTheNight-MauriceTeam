@@ -95,6 +95,7 @@ public class MainMenuHuy : MonoBehaviour
         if (masterSlider != null) UpdateMaster(masterSlider.value);
         if (musicSlider != null) UpdateMusicVolume(musicSlider.value);
         if (sfxSlider != null) UpdateSoundVolume(sfxSlider.value);
+
         //UpdateMaster(masterSlider.value);
         //UpdateMusicVolume(musicSlider.value);
         //UpdateSoundVolume(sfxSlider.value);
