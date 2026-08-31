@@ -666,15 +666,18 @@ namespace HeartOfTheNight.Player
 	/// Gọi trước khi Dash để người chơi có thời gian chọn hướng lướt chính xác.</summary>
 	private void Sleep()
     {
+		if (!GameplayEvents.InputEnabled)
+			return;
 		StartCoroutine(nameof(PerformSleep));
     }
 
 	private IEnumerator PerformSleep()
     {
-		Time.timeScale = 0; // Dừng toàn bộ game (vật lý, animation, timer)
-		yield return _sleepWait; // Chờ dashSleepTime giây THỰC (dùng WaitForSecondsRealtime vì timeScale = 0)
+		Time.timeScale = 0;
+		yield return _sleepWait;
 		var hp = GetComponent<PlayerHealth>();
-		if ((hp == null || !hp.IsDead) && !PauseUI.IsPaused)
+		// Pause + Level Complete đều câm input qua event — đừng bật timeScale khi overlay đang đứng game.
+		if ((hp == null || !hp.IsDead) && GameplayEvents.InputEnabled)
 			Time.timeScale = 1;
 	}
     #endregion
