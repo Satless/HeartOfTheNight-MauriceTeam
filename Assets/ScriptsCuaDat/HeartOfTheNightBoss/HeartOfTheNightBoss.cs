@@ -26,9 +26,27 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color enrageColor = new(1f, 0.5f, 0.5f, 1f);
 
-        [Header("Death Camera Shake")]
-        [SerializeField] private float deathShakeAmplitude = 0.45f;
-        [SerializeField] private float deathShakeDuration = 1.1f;
+        [Header("Death")]
+        [SerializeField] private float deathShakeAmplitude = 0.38f;
+        [Tooltip("Tổng thời gian chết: đầu nhấp nháy + camera rung, rồi vòng trắng + body nổ VFX.")]
+        [SerializeField] private float deathDuration = 10f;
+        [Tooltip("Giữ rung hết % thời gian này rồi mới fade (0 = fade từ đầu).")]
+        [SerializeField] [Range(0f, 1f)] private float deathShakeHold = 0.85f;
+        [Tooltip("Mốc trong HeartDie bắt đầu 4 frame dead-Sheet (vòng trắng). Đoạn trước đó được loop.")]
+        [SerializeField] private float deathEndingStart = 1.5833334f;
+
+        [Header("Death VFX")]
+        [SerializeField] private GameObject deathVfxPrefab;
+        [SerializeField] [Min(0)] private int deathVfxCount = 8;
+        [Tooltip("0 = ngay tâm body. 1 = rải hết bounds sprite/collider.")]
+        [SerializeField] [Range(0f, 1.5f)] private float deathVfxScatter = 0.75f;
+        [SerializeField] private float deathVfxSpeed = 7f;
+        [SerializeField] private float deathVfxSpeedJitter = 3f;
+        [SerializeField] private float deathVfxLifetime = 3.5f;
+        [Tooltip("Child Body. Để trống thì tự tìm object tên Body.")]
+        [SerializeField] private SpriteRenderer bodySprite;
+        [Tooltip("Sau khi ẩn body + nổ VFX, giữ head thêm x giây rồi Destroy.")]
+        [SerializeField] private float destroyAfterBurstDelay = 1.2f;
 
         public static event Action<HeartOfTheNightBoss> OnBossReady;
         public event Action<int, int> OnHealthChanged;
@@ -57,6 +75,7 @@ namespace HeartOfTheNight.Enemy
         private float nextAllowedTime;
         private float combatUnlockTime;
         private bool receivedSpawnHold;
+        private bool deathVfxSpawned;
 
         private readonly Dictionary<Attack, float> nextReadyTime = new();
         private readonly List<GameObject> activeSummons = new();
@@ -67,9 +86,15 @@ namespace HeartOfTheNight.Enemy
         {
             rb = GetComponent<Rigidbody2D>();
             col = GetComponent<Collider2D>();
-            sprite = GetComponentInChildren<SpriteRenderer>();
+            sprite = GetComponent<SpriteRenderer>();
+            if (sprite == null) sprite = GetComponentInChildren<SpriteRenderer>();
             anim = GetComponent<Animator>();
             if (anim == null) anim = GetComponentInChildren<Animator>();
+            if (bodySprite == null)
+            {
+                var bodyTf = transform.Find("Body");
+                if (bodyTf != null) bodySprite = bodyTf.GetComponent<SpriteRenderer>();
+            }
             ConfigureBody();
 
             if (player == null)
@@ -649,15 +674,173 @@ namespace HeartOfTheNight.Enemy
                     attackLoopCo = null;
                 }
                 StopAllCoroutines();
-                if (anim != null) anim.SetTrigger("Die");
-                CameraShake.Shake(deathShakeAmplitude, deathShakeDuration);
+                if (col != null) col.enabled = false;
+                StartCoroutine(DeathSequence());
                 OnDeath?.Invoke();
             }
         }
 
+        /// <summary>
+        /// Nhấp nháy đầu (loop phần đầu clip) trong deathDuration, rồi chơi 4 frame vòng trắng một lần,
+        /// ẩn body và nổ VFX_HOT.
+        /// </summary>
+        private IEnumerator DeathSequence()
+        {
+            if (anim != null)
+            {
+                anim.speed = 1f;
+                anim.ResetTrigger("Attack");
+                anim.ResetTrigger("FinishAttack");
+                anim.SetTrigger("Die");
+            }
+
+            float struggle = Mathf.Max(0.1f, deathDuration);
+            CameraShake.ShakeHeld(deathShakeAmplitude, struggle, deathShakeHold);
+
+            float clipLen = 2.0166667f;
+            float endingStart = Mathf.Max(0.01f, deathEndingStart);
+
+            if (anim != null)
+            {
+                float waitState = 0.5f;
+                while (waitState > 0f && !anim.GetCurrentAnimatorStateInfo(0).IsName("HeartDie"))
+                {
+                    waitState -= Time.deltaTime;
+                    yield return null;
+                }
+
+                var info = anim.GetCurrentAnimatorStateInfo(0);
+                if (info.IsName("HeartDie") && info.length > 0.01f)
+                    clipLen = info.length;
+            }
+
+            float endingLen = Mathf.Max(0.05f, clipLen - endingStart);
+            float flickerBudget = Mathf.Max(0f, struggle - endingLen);
+
+            float flickerElapsed = 0f;
+            while (flickerElapsed < flickerBudget)
+            {
+                if (anim != null)
+                {
+                    var info = anim.GetCurrentAnimatorStateInfo(0);
+                    if (info.IsName("HeartDie"))
+                    {
+                        float t = (info.normalizedTime % 1f) * clipLen;
+                        if (t >= endingStart - 0.02f)
+                            anim.Play("HeartDie", 0, 0f);
+                    }
+                }
+
+                flickerElapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (anim != null)
+                anim.Play("HeartDie", 0, endingStart / clipLen);
+
+            BurstDeathVfx();
+            CameraShake.Shake(deathShakeAmplitude * 1.35f, 1.3f);
+
+            yield return new WaitForSeconds(endingLen);
+
+            if (anim != null) anim.speed = 0f;
+            Destroy(gameObject, Mathf.Max(0f, destroyAfterBurstDelay));
+        }
+
+        /// <summary>
+        /// Animation Event (tuỳ chọn): ẩn body rồi nổ VFX_HOT.
+        /// Chuỗi chết 10s gọi từ DeathSequence, không phụ thuộc event trên clip.
+        /// </summary>
+        public void BurstDeathVfx()
+        {
+            SpawnDeathVfx();
+        }
+
+        /// <summary>
+        /// Animation Event cũ / gọi tay: nổ VFX rồi Destroy.
+        /// </summary>
         public void DestroyBoss()
         {
-            Destroy(gameObject);
+            BurstDeathVfx();
+            Destroy(gameObject, Mathf.Max(0f, destroyAfterBurstDelay));
+        }
+
+        /// <summary>
+        /// Nổ VFX_HOT từ bounds của Body. Không parent vào boss.
+        /// </summary>
+        private void SpawnDeathVfx()
+        {
+            if (deathVfxSpawned)
+                return;
+
+            deathVfxSpawned = true;
+
+            Bounds body = ResolveBodyBounds();
+            HideBody();
+
+            if (deathVfxPrefab == null || deathVfxCount <= 0)
+                return;
+
+            Vector3 center = body.center;
+
+            for (int i = 0; i < deathVfxCount; i++)
+            {
+                Vector3 offset = new Vector3(
+                    UnityEngine.Random.Range(-body.extents.x, body.extents.x),
+                    UnityEngine.Random.Range(-body.extents.y, body.extents.y),
+                    0f) * deathVfxScatter;
+
+                Vector3 pos = center + offset;
+                var go = Instantiate(deathVfxPrefab, pos, Quaternion.identity);
+                go.transform.SetParent(null, true);
+
+                var vfxCol = go.GetComponent<Collider2D>();
+                if (vfxCol != null)
+                    vfxCol.enabled = false;
+
+                var vfxRb = go.GetComponent<Rigidbody2D>();
+                if (vfxRb != null)
+                {
+                    Vector2 dir = (Vector2)(pos - center);
+                    if (dir.sqrMagnitude < 0.01f)
+                        dir = UnityEngine.Random.insideUnitCircle;
+                    dir = (dir.normalized + Vector2.up * 0.4f).normalized;
+
+                    float speed = deathVfxSpeed + UnityEngine.Random.Range(-deathVfxSpeedJitter, deathVfxSpeedJitter);
+                    vfxRb.linearVelocity = dir * Mathf.Max(0.1f, speed);
+                    vfxRb.angularVelocity = UnityEngine.Random.Range(-420f, 360f);
+                }
+
+                if (deathVfxLifetime > 0f)
+                    Destroy(go, deathVfxLifetime);
+            }
+        }
+
+        private Bounds ResolveBodyBounds()
+        {
+            if (bodySprite != null)
+                return bodySprite.bounds;
+
+            var bodyTf = transform.Find("Body");
+            if (bodyTf != null && bodyTf.TryGetComponent<SpriteRenderer>(out var sr))
+                return sr.bounds;
+
+            if (col != null) return col.bounds;
+            if (sprite != null) return sprite.bounds;
+            return new Bounds(transform.position, Vector3.one);
+        }
+
+        private void HideBody()
+        {
+            if (bodySprite != null)
+            {
+                bodySprite.gameObject.SetActive(false);
+                return;
+            }
+
+            var bodyTf = transform.Find("Body");
+            if (bodyTf != null)
+                bodyTf.gameObject.SetActive(false);
         }
 
         private void OnDestroy()
