@@ -31,6 +31,9 @@ namespace HeartOfTheNight.UI
         [Tooltip("Kéo các GameObject muốn ẩn khi chết vào đây (HUD_HeartAGun, HUD_Keyboard, KeyHUD, HUDKeyboardController...)")]
         [SerializeField] private GameObject[] elementsToHideOnDeath;
 
+        [Header("Keyboard Controller")]
+        [SerializeField] private HUDKeyboardController keyboardController;
+
         private HeartOfTheNight.Player.PlayerHealth _playerHealth;
         private HeartOfTheNight.Player.PlayerAttack _playerAttack;
 
@@ -66,6 +69,8 @@ namespace HeartOfTheNight.UI
             {
                 _playerAttack.OnHeatChanged += UpdateHeat;
                 _playerAttack.OnWeaponChanged += UpdateWeapon;
+                _playerAttack.OnWeaponUnlocked += HandleWeaponUnlocked;
+
                 // Force update ngay lập tức để hiển thị vũ khí mặc định
                 // (phòng trường hợp PlayerAttack.Start() đã chạy trước và event đã fire rồi)
                 if (_playerAttack.Data != null)
@@ -73,6 +78,18 @@ namespace HeartOfTheNight.UI
 
                 // Cũng sync thanh nhiệt ban đầu
                 UpdateHeat(_playerAttack.CurrentHeat, _playerAttack.MaxHeat);
+
+                // Khởi tạo trạng thái hiển thị của các phím súng (ẩn súng chưa mở khóa)
+                if (keyboardController == null)
+                    keyboardController = Object.FindFirstObjectByType<HUDKeyboardController>();
+                
+                if (keyboardController != null)
+                {
+                    for (int i = 1; i <= 4; i++)
+                    {
+                        keyboardController.SetWeaponKeyVisibility(i, _playerAttack.IsWeaponUnlocked(i));
+                    }
+                }
             }
             else
             {
@@ -141,6 +158,15 @@ namespace HeartOfTheNight.UI
             {
                 _playerAttack.OnHeatChanged -= UpdateHeat;
                 _playerAttack.OnWeaponChanged -= UpdateWeapon;
+                _playerAttack.OnWeaponUnlocked -= HandleWeaponUnlocked;
+            }
+        }
+
+        private void HandleWeaponUnlocked(int slotIndex)
+        {
+            if (keyboardController != null)
+            {
+                keyboardController.SetWeaponKeyVisibility(slotIndex, true);
             }
         }
 

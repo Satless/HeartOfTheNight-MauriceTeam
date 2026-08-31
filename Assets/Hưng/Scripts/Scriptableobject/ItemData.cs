@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewItemData", menuName = "Data/Item Data")]
 public class ItemData : ScriptableObject
 {
-    public enum ItemType { HealHP, Shield, SpeedBuff, JumpBuff }
+    public enum ItemType { HealHP, Shield, SpeedBuff, JumpBuff, WeaponUnlock }
 
     /// <summary>
     /// Independent: mỗi buff tự chạy timer riêng (nhặt 2 cái = 2 timer song song).
@@ -46,6 +46,16 @@ public class ItemData : ScriptableObject
 
     [Tooltip("Prefab visual gắn lên player suốt thời gian buff (khiên, aura tốc độ...). Để trống nếu chưa có.")]
     public GameObject buffVisualPrefab;
+
+    // ─── WEAPON UNLOCK SETTINGS ─────────────────────────────────────────────────
+    [Header("Weapon Unlock Settings")]
+    [Tooltip("Ô súng sẽ được mở khóa (1, 2, 3, 4). Chỉ dùng cho ItemType.WeaponUnlock.")]
+    [Range(1, 4)]
+    public int weaponSlotIndex = 1;
+
+    [Tooltip("Phần trăm thanh nhiệt sẽ được giảm đi nếu nhặt trùng súng đã mở khóa (0.5 = 50%).")]
+    [Range(0f, 1f)]
+    public float heatReducePercentage = 0.5f;
 
     // ─── MAGNET SETTINGS ────────────────────────────────────────────────────────
     [Header("Magnet Settings")]

@@ -193,6 +193,7 @@ public class CollectibleItem : MonoBehaviour
         // Tìm components trên player (one-time, không ở Update)
         var health = player.GetComponentInParent<PlayerHealth>();
         var movement = player.GetComponentInParent<PlayerMovement>();
+        var attack = player.GetComponentInParent<PlayerAttack>();
 
         switch (data.itemType)
         {
@@ -215,7 +216,34 @@ public class CollectibleItem : MonoBehaviour
                     () => movement.jumpForceMultiplier,
                     val => movement.jumpForceMultiplier = val);
                 break;
+
+            case ItemData.ItemType.WeaponUnlock:
+                ApplyWeaponUnlock(attack);
+                break;
         }
+    }
+
+    // ─── WEAPON UNLOCK ──────────────────────────────────────────────────────────
+
+    private void ApplyWeaponUnlock(PlayerAttack attack)
+    {
+        if (attack != null)
+        {
+            int slot = data.weaponSlotIndex;
+            if (!attack.IsWeaponUnlocked(slot))
+            {
+                // Nhặt lần đầu -> Mở khóa và tự động đổi súng
+                attack.UnlockWeapon(slot);
+            }
+            else
+            {
+                // Đã mở khóa -> Giảm nhiệt độ
+                attack.ReduceHeatPercentage(slot, data.heatReducePercentage);
+            }
+        }
+        
+        // Tác dụng tức thì → deactivate ngay
+        gameObject.SetActive(false);
     }
 
     // ─── HEAL ───────────────────────────────────────────────────────────────────
