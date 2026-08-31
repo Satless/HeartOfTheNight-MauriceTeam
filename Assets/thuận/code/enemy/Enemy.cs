@@ -104,6 +104,9 @@ public class Enemy : MonoBehaviour, IDamageable
             return;
         }
 
+        if (hp <= 0)
+            return;
+
         hp -= damage;
 
         Debug.Log(gameObject.name +

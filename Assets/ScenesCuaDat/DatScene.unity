@@ -513,11 +513,6 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
---- !u!1 &208342685 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8703274974080858081, guid: f5a06091e9c07f843a7ce1d43fad827f, type: 3}
-  m_PrefabInstance: {fileID: 8070775402381088537}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &214606057
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2712,7 +2707,7 @@ PrefabInstance:
     - target: {fileID: 1553343613902458788, guid: dd1148839ccb6d841ae9a49448b66d0a, type: 3}
       propertyPath: waves.Array.data[0].enemies.Array.data[0].enemyPrefab
       value: 
-      objectReference: {fileID: 208342685}
+      objectReference: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
     - target: {fileID: 1553343613902458788, guid: dd1148839ccb6d841ae9a49448b66d0a, type: 3}
       propertyPath: waves.Array.data[0].enemies.Array.data[1].enemyPrefab
       value: 

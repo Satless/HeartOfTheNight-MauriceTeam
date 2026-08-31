@@ -241,7 +241,7 @@ namespace HeartOfTheNight.Hung
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(sceneName))
                 return false;
-            return id.StartsWith(sceneName + "_", StringComparison.Ordinal);
+            return id.StartsWith(sceneName + "_", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>

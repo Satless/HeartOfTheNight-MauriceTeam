@@ -24,8 +24,9 @@ public class Bullet : MonoBehaviour
     [TagSelector] 
     [SerializeField] private string[] _enemyTags;
 
-    // Cache Rigidbody2D — tránh GetComponent mỗi lần bắn (Zero GC)
+    // Cache Rigidbody2D / Trail — tránh GetComponent mỗi lần bắn (Zero GC)
     public Rigidbody2D RB { get; private set; }
+    private TrailRenderer _trail;
 
     [Header("Debug Tracking")]
     [Tooltip("Dữ liệu súng bắn ra viên đạn này")]
@@ -48,6 +49,7 @@ public class Bullet : MonoBehaviour
     private void Awake()
     {
         RB = GetComponent<Rigidbody2D>(); // Cache 1 lần duy nhất
+        _trail = GetComponent<TrailRenderer>();
     }
 
 
@@ -69,8 +71,7 @@ public class Bullet : MonoBehaviour
         _hasHit = false;
 
         // Xóa Trail rác (nếu có) khi lôi đạn từ pool ra
-        TrailRenderer trail = GetComponent<TrailRenderer>();
-        if (trail != null) trail.Clear();
+        if (_trail != null) _trail.Clear();
     }
 
     private void Update()
@@ -88,17 +89,12 @@ public class Bullet : MonoBehaviour
 
         Vector2 currentPosition = RB.position;
 
-        // Quét xuyên nhiều vật thể bằng Linecast (API mới, tự Zero-GC)
-        var hitResults = Physics2D.LinecastAll(_lastPosition, currentPosition, _enemyLayer | _groundLayer);
-        int hitCount = hitResults.Length;
-        
-        // Copy kết quả vào buffer tĩnh để sort mà không sinh GC
-        int copyCount = Mathf.Min(hitCount, _hitBuffer.Length);
-        for (int i = 0; i < copyCount; i++) _hitBuffer[i] = hitResults[i];
-        hitCount = copyCount;
-        
-        // Vẽ đường đạn để Debug
+        // LinecastNonAlloc vào buffer tĩnh (Zero-GC) — không LinecastAll rồi copy
+        int hitCount = Physics2D.LinecastNonAlloc(_lastPosition, currentPosition, _hitBuffer, _enemyLayer | _groundLayer);
+
+#if UNITY_EDITOR
         Debug.DrawLine(_lastPosition, currentPosition, hitCount > 0 ? Color.green : Color.red, 0.5f);
+#endif
         
         if (hitCount > 1)
         {
@@ -192,10 +188,12 @@ public class Bullet : MonoBehaviour
                 HeartOfTheNight.UI.DamagePopup.Create(hitPoint, _data.damage);
             }
 
-            // Đẩy lùi theo hướng bay của đạn
+            // Đẩy lùi theo hướng bay của đạn (hurtbox con → tìm trên Parent, giống IDamageable)
             if (_data.knockbackForce > 0)
             {
                 INhanKnockback knockback = other.GetComponent<INhanKnockback>();
+                if (knockback == null)
+                    knockback = other.GetComponentInParent<INhanKnockback>();
                 if (knockback != null)
                 {
                     Vector2 knockDir = RB.linearVelocity.normalized;
@@ -238,12 +236,11 @@ public class Bullet : MonoBehaviour
 
         if (_data.explosionRadius <= 0) return;
 
-        // 2. Quét các mục tiêu trong bán kính nổ (API mới, tự Zero-GC)
-        var aoeResults = Physics2D.OverlapCircleAll(explosionCenter, _data.explosionRadius, _enemyLayer);
-        int count = aoeResults.Length;
+        // 2. Quét AOE vào buffer tĩnh (Zero-GC)
+        int count = Physics2D.OverlapCircleNonAlloc(explosionCenter, _data.explosionRadius, _aoeBuffer, _enemyLayer);
         for (int i = 0; i < count; i++)
         {
-            Collider2D col = aoeResults[i];
+            Collider2D col = _aoeBuffer[i];
             
             // Bỏ qua nếu là mục tiêu chính đã ăn sát thương gốc
             if (col == primaryTarget) continue;
@@ -261,8 +258,10 @@ public class Bullet : MonoBehaviour
                     continue; 
                 }
 
-                // Gây sát thương nổ lan
+                // Gây sát thương nổ lan (hurtbox con → Parent)
                 IDamageable damageable = col.GetComponent<IDamageable>();
+                if (damageable == null)
+                    damageable = col.GetComponentInParent<IDamageable>();
                 if (damageable != null)
                 {
                     damageable.TakeDamage(_data.explosionDamage);
@@ -274,6 +273,8 @@ public class Bullet : MonoBehaviour
                 if (_data.explosionKnockbackForce > 0)
                 {
                     INhanKnockback knockback = col.GetComponent<INhanKnockback>();
+                    if (knockback == null)
+                        knockback = col.GetComponentInParent<INhanKnockback>();
                     if (knockback != null)
                     {
                         Vector2 knockDir = ((Vector2)targetPos - explosionCenter).normalized;
