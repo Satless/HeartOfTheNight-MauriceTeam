@@ -502,8 +502,6 @@ public class PlayerAttack : MonoBehaviour
         {
             if (_input.Player.Attack.IsPressed())
             {
-                AudioEvents.TriggerSound3D("Weapons", "Flamethrower", "Shoot", transform.position);
-
                 // Đảm bảo thân trên được bật trước khi Animator chạy (tránh race condition thứ tự Update)
                 _animation?.ShowUpperBodyImmediately();
 
@@ -707,12 +705,9 @@ public class PlayerAttack : MonoBehaviour
         if (slot == null) return;
 
         _isFiringThisFrame = true;
-        float heatBefore = slot.currentHeat; // Bắt lấy mức nhiệt thực tế sau khi đã tản bớt
         slot.currentHeat += amount;
         slot.currentHeat = Mathf.Min(slot.currentHeat, slot.maxHeat);
         OnHeatChanged?.Invoke(slot.currentHeat, slot.maxHeat);
-
-        Debug.Log($"<color=yellow>[Heat]</color> {Data.name}: Nhiệt hiện tại {heatBefore:F1} + {amount:F2} → {slot.currentHeat:F1}/{slot.maxHeat}");
 
         if (!slot.isOverheated && slot.currentHeat >= slot.maxHeat)
         {

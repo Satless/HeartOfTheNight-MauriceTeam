@@ -10,6 +10,15 @@ public class SoundManager_New : MonoBehaviour
     [SerializeField] private SoundLibrary_New sfxLibrary;
     [SerializeField] private AudioSource sfxSource;
 
+    public AudioMixerGroup SfxMixerGroup => sfxSource != null ? sfxSource.outputAudioMixerGroup : null;
+
+    public AudioClip GetSfxClip(string categoryID, string subCategoryID, string actionName)
+    {
+        if (sfxLibrary == null)
+            return null;
+        return sfxLibrary.GetClipFromName(categoryID, subCategoryID, actionName);
+    }
+
     // Cooldown quản lý thời gian chờ để chống nhiễu/stack tiếng
     //private Dictionary<string, float> lastPlayTimes = new Dictionary<string, float>();
     //[SerializeField] private float defaultCooldown = 0.15f;
