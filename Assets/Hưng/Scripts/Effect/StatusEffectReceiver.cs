@@ -47,7 +47,10 @@ public class StatusEffectReceiver : MonoBehaviour
                 {
                     _activeStatuses[i].tickTimer = _activeStatuses[i].data.tickInterval;
                     if (_healthComponent != null)
+                    {
                         _healthComponent.TakeDamage(_activeStatuses[i].data.damagePerTick);
+                        HeartOfTheNight.UI.DamagePopup.Create(transform.position + Vector3.up * 0.5f, _activeStatuses[i].data.damagePerTick);
+                    }
 
                     //sfx cho sát thương liên tục
                     if (!string.IsNullOrEmpty(_activeStatuses[i].data.tickSoundName))
