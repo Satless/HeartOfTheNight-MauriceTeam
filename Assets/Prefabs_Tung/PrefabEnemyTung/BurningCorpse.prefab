@@ -365,7 +365,7 @@ MonoBehaviour:
   patrolSpeed: 3
   patrolDistance: 10
   detectionRangeX: 6
-  detectionRangeY: 3
+  detectionRangeY: 1
   attackRange: 2
   attackRangeY: 1.5
   attackRadius: 1.2
@@ -447,6 +447,39 @@ MonoBehaviour:
     itemPrefab: {fileID: 7281742956343847639, guid: e815a6f508460b54889b1fafe31488b2, type: 3}
     dropChance: 50
   customVariableName: 
+--- !u!114 &5620567915181675913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8880767367151915262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!1001 &9100000000000000061
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -529,16 +562,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000061}
   m_PrefabAsset: {fileID: 0}
-
---- !u!114 &5620567915181675913
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8880767367151915262}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

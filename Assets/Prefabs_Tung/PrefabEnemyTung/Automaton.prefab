@@ -171,8 +171,8 @@ MonoBehaviour:
   sr: {fileID: 6463731281556513350}
   dashAttackSprite: {fileID: 792988338, guid: 361944f99599388428776ecf701b4bc4, type: 3}
   moveSpeed: 4
-  detectionRangeX: 12
-  detectionRangeY: 3
+  detectionRangeX: 10
+  detectionRangeY: 4
   dashRange: 9
   attackRange: 1
   attackOffset: {x: 0.75, y: 0.77}
@@ -263,6 +263,39 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7110234075211430788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036838522198258641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!1001 &9100000000000000031
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -345,16 +378,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000031}
   m_PrefabAsset: {fileID: 0}
-
---- !u!114 &7110234075211430788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6036838522198258641}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
