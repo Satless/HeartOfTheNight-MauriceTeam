@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
-using System.Reflection; // BẮT BUỘC CÓ: Dùng để soi code của đồng đội
+using System.Reflection; // BẮT BUỘC CÓ: Dùng để soi code của đồng đội (Fallback)
+using HeartOfTheNight.Enemy;
 
 [System.Serializable]
 public class LootItem
@@ -28,13 +29,19 @@ public class EnemyLootDrop : MonoBehaviour
     private FieldInfo healthField;
     private Collider2D enemyCollider;
     private bool isQuitting = false;
+    private IEnemyStatus enemyStatus;
 
     void Start()
     {
         enemyCollider = GetComponent<Collider2D>();
+
+        // [LỚP BẢO VỆ MỚI - TỐI ƯU ZERO-GC]: Ưu tiên dùng Interface chuẩn
+        enemyStatus = GetComponent<IEnemyStatus>();
+        if (enemyStatus != null) return; // Nếu quái đã hỗ trợ Interface thì nghỉ luôn, không cần soi code!
+
         MonoBehaviour[] allScripts = GetComponents<MonoBehaviour>();
 
-        // Điệp viên bắt đầu đi soi các script khác gắn trên cùng con quái
+        // Điệp viên bắt đầu đi soi các script khác gắn trên cùng con quái (Fallback chậm)
         foreach (MonoBehaviour script in allScripts)
         {
             if (script == this) continue; // Bỏ qua bản thân nó
@@ -68,8 +75,13 @@ public class EnemyLootDrop : MonoBehaviour
 
         bool isEnemyDead = false;
 
-        // Nếu tóm được Script của đồng đội
-        if (targetScript != null)
+        // Nếu có Interface chuẩn -> Dùng luôn (Zero-GC, cực nhanh)
+        if (enemyStatus != null)
+        {
+            isEnemyDead = enemyStatus.IsDead;
+        }
+        // Nếu không có, Fallback về trò soi lén Reflection của Tùng (Gây GC Boxing)
+        else if (targetScript != null)
         {
             if (customField != null)
             {

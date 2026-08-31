@@ -22,13 +22,22 @@ public class PlayerMagnet : MonoBehaviour
     [Tooltip("Thời gian (giây) để tăng tốc từ 'Tốc độ cơ bản' lên đến 'Tốc độ tối đa'.")]
     public float timeToMaxSpeed;
 
+    [Header("Wobble Effect (Quỹ đạo hình Sin)")]
+    [Tooltip("Biên độ sóng (độ ngoằn ngoèo). 0 = bay thẳng.")]
+    public float wobbleAmplitude = 0.15f;
+    
+    [Tooltip("Tần số sóng (tốc độ gợn sóng).")]
+    public float wobbleFrequency = 10f;
+
     // Thay vì ẩn đi, lôi ra Inspector cho Design xem nhưng không cho sửa để dễ debug
     [Header("Debug Tracking")]
     [Tooltip("Gia tốc hút thực tế (tự động tính).\nCông thức: (maxPullSpeed - pullSpeed) / timeToMaxSpeed")]
     [ReadOnly]
     public float pullAcceleration;
 
-    // Zero-GC array không cần nữa vì API mới tự quản lý
+    // Pre-allocated array cho OverlapCircleNonAlloc (Zero-GC)
+    private const int MAX_ITEMS_IN_RANGE = 20;
+    private readonly Collider2D[] _results = new Collider2D[MAX_ITEMS_IN_RANGE];
 
     private void OnValidate()
     {
@@ -59,19 +68,15 @@ public class PlayerMagnet : MonoBehaviour
 
     private void Update()
     {
-        // Quét các vật phẩm xung quanh trong bán kính (API mới tự Zero-GC)
-        var results = Physics2D.OverlapCircleAll(transform.position, magnetRadius, itemLayer);
+        // Quét các vật phẩm xung quanh trong bán kính (NonAlloc = Zero-GC)
+        int count = Physics2D.OverlapCircleNonAlloc(transform.position, magnetRadius, _results, itemLayer);
 
-        for (int i = 0; i < results.Length; i++)
+        for (int i = 0; i < count; i++)
         {
-            Collider2D col = results[i];
-            if (col != null)
+            Collider2D col = _results[i];
+            if (col != null && col.TryGetComponent(out CollectibleItem item) && !item.IsCollected)
             {
-                // TryGetComponent nhanh hơn GetComponent + null check (tránh overhead Unity override !=)
-                if (col.TryGetComponent(out CollectibleItem item) && !item.IsCollected)
-                {
-                    item.PullTowards(transform, pullSpeed, maxPullSpeed, pullAcceleration);
-                }
+                item.PullTowards(transform, pullSpeed, maxPullSpeed, pullAcceleration, wobbleAmplitude, wobbleFrequency);
             }
         }
     }

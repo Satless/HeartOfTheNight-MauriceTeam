@@ -36,10 +36,39 @@ public class CollectibleItem : MonoBehaviour
 
     private bool _isBeingPulled;
 
-    // ─── CACHED REFERENCES ──────────────────────────────────────────────────────
     private Rigidbody2D _rb;
     private SpriteRenderer[] _renderers;
     private Collider2D[] _colliders;
+    private float _spawnTime;
+    private float _lastWobbleOffset;
+    private float _initialPullDistance;
+
+    // Wobble không bao giờ được dịch item quá con số này mỗi frame,
+    // bất kể Designer chỉnh amplitude/frequency cao đến mấy.
+    // Ngăn item teleport xuyên Ground/Wall.
+    private const float MAX_WOBBLE_DELTA_PER_FRAME = 0.5f;
+
+    // Ngăn chặn MoveTowards nhảy một khoảng quá xa trong 1 frame nếu maxSpeed bị set quá lớn
+    private const float MAX_PULL_DELTA_PER_FRAME = 1.0f;
+
+    [Tooltip("Thời gian chờ tối thiểu sau khi spawn trước khi item có thể bị nam châm hút (0 = hút ngay)")]
+    public float pullDelayAfterSpawn = 0.4f;
+
+    [Tooltip("Nếu bật, item sẽ phải chờ hoàn thành animation rơi chạm đất (của ItemFloating) rồi mới bị hút.")]
+    public bool waitForGroundHit = true;
+
+    private ItemFloating _floatingScript;
+
+    // Extract magic numbers thành constants (Data-Driven)
+    private const float PULL_RELEASE_TIMEOUT = 0.1f;
+    private const float GROUND_WAIT_TIMEOUT = 3f;
+
+    /// <summary>
+    /// true nếu item được đặt sẵn trong Scene (không phải spawn runtime bởi EnemyLootDrop).
+    /// Item đặt sẵn bỏ qua waitForGroundHit vì ItemFloating.Start() sẽ bắn nó lên
+    /// và có thể không rơi trúng Ground layer → vĩnh viễn không hút được.
+    /// </summary>
+    private bool _isPrePlaced;
 
     // ─── BUFF STATE ─────────────────────────────────────────────────────────────
     /// <summary>Thời gian buff còn lại (dùng cho coroutine, hỗ trợ ExtendDuration).</summary>
@@ -73,6 +102,14 @@ public class CollectibleItem : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _renderers = GetComponentsInChildren<SpriteRenderer>();
         _colliders = GetComponents<Collider2D>();
+        _spawnTime = Time.time;
+
+        // Detect item đặt sẵn trong Scene vs spawn runtime:
+        // Nếu item đã có trong Scene từ đầu, Awake() chạy trước bất kỳ Instantiate() nào.
+        // Item spawn bởi EnemyLootDrop sẽ có _spawnTime > 0 (game đã chạy một lúc).
+        // Item đặt sẵn có Awake() chạy ở frame đầu tiên khi scene load.
+        _isPrePlaced = (gameObject.scene.isLoaded && Time.frameCount <= 1);
+        _floatingScript = GetComponent<ItemFloating>();
     }
 
     private void Update()
@@ -85,29 +122,23 @@ public class CollectibleItem : MonoBehaviour
         if (_isBeingPulled && !IsCollected && _rb != null)
         {
             // PlayerMagnet ngừng gọi PullTowards quá 0.1s -> Rơi xuống lại
-            if (Time.time - _lastPullTime > 0.1f)
+            if (Time.time - _lastPullTime > PULL_RELEASE_TIMEOUT)
             {
                 _isBeingPulled = false;
                 _rb.bodyType = RigidbodyType2D.Dynamic;
                 _currentSpeed = 0f;
                 
                 // Bật lại ItemFloating và reset trạng thái để item rớt xuống đất nảy lại
-                if (TryGetComponent(out ItemFloating floating))
+                if (_floatingScript != null)
                 {
-                    floating.enabled = true;
-                    // Dùng Reflection giống cách Tùng làm ở EnemyLootDrop để sửa biến private
-                    var field = floating.GetType().GetField("hasLandOnGround", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    if (field != null) field.SetValue(floating, false);
+                    _floatingScript.enabled = true;
+                    _floatingScript.ResetLandedState();
                 }
 
-                // Trả lại Collider không phải Trigger để item chạm đất không bị lọt xuyên sàn
-                if (_colliders != null)
-                {
-                    for (int i = 0; i < _colliders.Length; i++)
-                    {
-                        if (_colliders[i] != null) _colliders[i].isTrigger = false;
-                    }
-                }
+                // KHÔNG set isTrigger = false ở đây!
+                // ItemFloating.OnCollisionEnter2D() sẽ tự set isTrigger = true khi chạm Ground.
+                // Nếu ta ép false ở đây mà item đặt sẵn không qua OnCollisionEnter2D lần nữa
+                // → collider vĩnh viễn false → player va đập thay vì đi xuyên qua để nhặt.
             }
         }
     }
@@ -120,6 +151,9 @@ public class CollectibleItem : MonoBehaviour
         _currentSpeed = 0f;
         _isRunningBuff = false;
         _remainingBuffTime = 0f;
+        _spawnTime = Time.time;
+        _lastWobbleOffset = 0f;
+        _initialPullDistance = 0f;
 
         // Trả lại vật lý + hiển thị
         if (_rb != null)
@@ -143,17 +177,38 @@ public class CollectibleItem : MonoBehaviour
     /// Được gọi mỗi frame từ PlayerMagnet khi vật phẩm nằm trong từ trường.
     /// Dùng MoveTowards để item bay mượt theo người chơi đang di chuyển.
     /// </summary>
-    public void PullTowards(Transform target, float baseSpeed, float maxSpeed, float acceleration)
+    public void PullTowards(Transform target, float baseSpeed, float maxSpeed, float acceleration, float wobbleAmplitude = 0f, float wobbleFrequency = 0f)
     {
         if (IsCollected || data == null) return;
+        
+        // 1. Chờ đủ thời gian delay tối thiểu
+        if (Time.time - _spawnTime < pullDelayAfterSpawn) return;
+
+        // 2. Chờ chạm đất (nếu có ItemFloating)
+        //    Item đặt sẵn (_isPrePlaced) bỏ qua bước này vì ItemFloating.Start()
+        //    sẽ bắn item lên với lực ngẫu nhiên, có thể không rơi trúng Ground layer
+        //    → hasLandOnGround vĩnh viễn false → nam châm không bao giờ hút được.
+        if (waitForGroundHit && !_isPrePlaced && _floatingScript != null && _floatingScript.enabled)
+        {
+            bool timedOut = (Time.time - _spawnTime) > GROUND_WAIT_TIMEOUT;
+            if (!_floatingScript.HasLanded && !timedOut) return;
+        }
+
+        // Ghi nhận khoảng cách ban đầu khi bắt đầu hút (dùng cho wobble fade-out)
+        if (!_isBeingPulled)
+        {
+            _initialPullDistance = Vector2.Distance(transform.position, target.position);
+            if (_initialPullDistance < 0.1f) _initialPullDistance = 1f; // safety
+            _lastWobbleOffset = 0f; // Đảm bảo reset pha dao động khi hút lại sau khi rớt
+        }
 
         _isBeingPulled = true;
         _lastPullTime = Time.time;
 
         // Tắt script ItemFloating (nếu có) để nó không khóa trục X của item khi đang lơ lửng
-        if (TryGetComponent(out ItemFloating floating) && floating.enabled)
+        if (_floatingScript != null && _floatingScript.enabled)
         {
-            floating.enabled = false;
+            _floatingScript.enabled = false;
         }
 
         // Tắt vật lý (trọng lực) để item bay lơ lửng mượt mà về phía người chơi
@@ -167,16 +222,60 @@ public class CollectibleItem : MonoBehaviour
         _currentSpeed += acceleration * Time.deltaTime;
         float actualSpeed = Mathf.Min(baseSpeed + _currentSpeed, maxSpeed);
 
-        transform.position = Vector3.MoveTowards(transform.position, target.position, actualSpeed * Time.deltaTime);
+        float distanceRemaining = Vector2.Distance(transform.position, target.position);
+        
+        // Rào tốc độ tối đa mỗi frame để không bị tunnel qua Ground nếu Designer set maxSpeed cực lớn
+        float moveStep = actualSpeed * Time.deltaTime;
+        moveStep = Mathf.Min(moveStep, MAX_PULL_DELTA_PER_FRAME);
+        
+        transform.position = Vector3.MoveTowards(transform.position, target.position, moveStep);
+
+        // Hiệu ứng quỹ đạo hình Sin (Wobble) sử dụng Delta để không bị dồn pos
+        //
+        // Fade-out dùng _initialPullDistance (khoảng cách lúc bắt đầu hút) thay vì
+        // collectDistance (khoảng cách nhặt, rất nhỏ ~0.5). Trước đây dùng collectDistance
+        // → ratio luôn = 1.0 → wobble không bao giờ giảm → amplitude quá lớn = teleport
+        // xuyên Ground.
+        if (wobbleAmplitude > 0f)
+        {
+            float fadeFactor = Mathf.Clamp01(distanceRemaining / _initialPullDistance);
+            float currentWobble = Mathf.Sin(Time.time * wobbleFrequency) * fadeFactor * wobbleAmplitude;
+            float wobbleDelta = currentWobble - _lastWobbleOffset;
+            _lastWobbleOffset = currentWobble;
+
+            // Clamp: không bao giờ dịch quá MAX_WOBBLE_DELTA_PER_FRAME mỗi frame
+            // → dù Designer chỉnh amplitude/frequency cao mấy cũng không teleport xuyên collider
+            wobbleDelta = Mathf.Clamp(wobbleDelta, -MAX_WOBBLE_DELTA_PER_FRAME, MAX_WOBBLE_DELTA_PER_FRAME);
+
+            Vector3 toTarget = target.position - transform.position;
+            Vector3 perpendicular = Vector3.Cross(toTarget, Vector3.forward).normalized;
+            // Fallback: khi item gần trùng vị trí player, Cross trả về zero → dùng Vector3.up
+            if (perpendicular.sqrMagnitude < 0.001f)
+                perpendicular = Vector3.up;
+            transform.position += perpendicular * wobbleDelta;
+            
+            // Cập nhật lại khoảng cách sau khi wobble để trigger thu thập chính xác
+            distanceRemaining = Vector2.Distance(transform.position, target.position);
+        }
 
         float collectRange = data.collectDistance > 0f ? data.collectDistance : 0.5f;
-        if (Vector2.Distance(transform.position, target.position) <= collectRange)
+        if (distanceRemaining <= collectRange)
         {
             Collect(target.gameObject);
         }
     }
 
     // ─── COLLECT & APPLY ────────────────────────────────────────────────────────
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!IsCollected && collision.CompareTag("Player")) Collect(collision.gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!IsCollected && collision.gameObject.CompareTag("Player")) Collect(collision.gameObject);
+    }
 
     private void Collect(GameObject player)
     {
