@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using HeartOfTheNight.Hung;
 using HeartOfTheNight.Player;
 using UnityEngine;
@@ -36,7 +35,6 @@ public class PauseUI : MonoBehaviour
     private Canvas _canvas;
     private bool _buttonsWired;
     private bool _levelTimerWasPaused;
-    private readonly List<Behaviour> _disabledOnPause = new List<Behaviour>(8);
 
     private static readonly string[] MenuScenes =
     {
@@ -329,36 +327,12 @@ public class PauseUI : MonoBehaviour
 
     private void FreezeGameplay()
     {
-        _disabledOnPause.Clear();
-        DisableIfEnabled(FindObjectsByType<PlayerMovement>(FindObjectsSortMode.None));
-        DisableIfEnabled(FindObjectsByType<PlayerAttack>(FindObjectsSortMode.None));
-        
-        // [TƯƠNG THÍCH HUD] Tắt script nhận diện bàn phím của HUD để nó ngừng chớp màu khi Pause
-        DisableIfEnabled(FindObjectsByType<HeartOfTheNight.UI.HUDKeyboardController>(FindObjectsSortMode.None));
-    }
-
-    private void DisableIfEnabled(Behaviour[] behaviours)
-    {
-        for (int i = 0; i < behaviours.Length; i++)
-        {
-            var behaviour = behaviours[i];
-            if (behaviour == null || !behaviour.enabled)
-                continue;
-
-            behaviour.enabled = false;
-            _disabledOnPause.Add(behaviour);
-        }
+        GameplayEvents.SetGameplayInputEnabled(false);
     }
 
     private void UnfreezeGameplay()
     {
-        for (int i = 0; i < _disabledOnPause.Count; i++)
-        {
-            if (_disabledOnPause[i] != null)
-                _disabledOnPause[i].enabled = true;
-        }
-
-        _disabledOnPause.Clear();
+        GameplayEvents.SetGameplayInputEnabled(true);
     }
 
     private void EnsureCanvas()

@@ -23,9 +23,54 @@ public class FlamethrowerLogic : MonoBehaviour
     [Tooltip("Hiệu ứng trạng thái (Cháy, Độc...) đang được gán cho luồng lửa này")]
     [SerializeField, ReadOnly] private StatusEffectData _statusEffect;
 
+    private const string LoopCategory = "Weapons";
+    private const string LoopSubCategory = "Flamethrower";
+    private const string LoopAction = "Shoot";
+
+    private AudioSource _loopSource;
+
     public void Activate(StatusEffectData effectData)
     {
         _statusEffect = effectData;
+        EnsureLoopSource();
+        if (_loopSource != null && _loopSource.clip != null && !_loopSource.isPlaying)
+            _loopSource.Play();
+    }
+
+    private void OnEnable()
+    {
+        EnsureLoopSource();
+    }
+
+    private void OnDisable()
+    {
+        if (_loopSource != null)
+            _loopSource.Stop();
+    }
+
+    private void EnsureLoopSource()
+    {
+        if (_loopSource == null)
+        {
+            _loopSource = GetComponent<AudioSource>();
+            if (_loopSource == null)
+                _loopSource = gameObject.AddComponent<AudioSource>();
+
+            _loopSource.playOnAwake = false;
+            _loopSource.loop = true;
+            _loopSource.spatialBlend = 0f;
+            _loopSource.ignoreListenerPause = false;
+        }
+
+        var mgr = SoundManager_New.Instance;
+        if (mgr == null)
+            return;
+
+        if (_loopSource.clip == null)
+            _loopSource.clip = mgr.GetSfxClip(LoopCategory, LoopSubCategory, LoopAction);
+
+        if (mgr.SfxMixerGroup != null)
+            _loopSource.outputAudioMixerGroup = mgr.SfxMixerGroup;
     }
 
     private void Update()
