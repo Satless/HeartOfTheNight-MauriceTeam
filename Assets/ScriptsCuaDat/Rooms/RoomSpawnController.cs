@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -29,7 +30,7 @@ namespace HeartOfTheNight.Rooms
         [Header("Trigger")]
         [SerializeField] private string playerTag = "Player";
         [SerializeField] private bool activateOnce = true;
-        [Tooltip("ID lưu phòng đã clear. Để trống = Scene + tên object.")]
+        [Tooltip("ID lưu phòng đã clear. Để trống = Scene + đường dẫn Hierarchy (không trùng dù trùng tên object).")]
         [SerializeField] private string roomSaveId = "";
 
         [Header("VFX")]
@@ -51,12 +52,23 @@ namespace HeartOfTheNight.Rooms
         [Header("Debug")]
         [SerializeField] private bool debugLogs = false;
 
+        private static readonly Dictionary<string, RoomSpawnController> IdRegistry = new();
+
         private RoomState state = RoomState.Idle;
         private readonly List<GameObject> aliveEnemies = new();
         private int currentWaveIndex = -1;
         private bool isSpawning;
+        private string hierarchyKey;
+        private string registeredId;
+        private readonly Collider2D[] overlapBuf = new Collider2D[16];
 
         public bool IsCleared => state == RoomState.Cleared;
+
+        /// <summary>
+        /// Phòng không có quái (chỉ dùng làm trigger mở cửa) thì không ghi vào save:
+        /// không có gì để khôi phục, mà ghi vào lại làm phòng khác tưởng mình đã clear.
+        /// </summary>
+        private bool HasEnemiesToSpawn => CountPlannedEnemies() > 0;
 
         public int CountPlannedEnemies()
         {
@@ -92,6 +104,7 @@ namespace HeartOfTheNight.Rooms
             if (col != null && !col.isTrigger)
                 Debug.LogWarning($"[{name}] Collider2D nen bat 'Is Trigger'", this);
 
+            RegisterRoomId();
             TryApplyClearedFromSave();
         }
 
@@ -123,6 +136,11 @@ namespace HeartOfTheNight.Rooms
             if (this == null) yield break;
             if (state == RoomState.Idle && wasEnabled)
                 col.enabled = true;
+
+            // Continue/checkpoint teleport sẵn trong trigger: OnTriggerEnter không chạy.
+            yield return new WaitForFixedUpdate();
+            if (this == null) yield break;
+            TryStartIfPlayerAlreadyInside();
         }
 
         private static bool ShouldWaitForSpawnApply()
@@ -142,12 +160,107 @@ namespace HeartOfTheNight.Rooms
             StartRoom();
         }
 
+        /// <summary>
+        /// Chỉ phòng có quái, chỉ 1 lần sau load. Không Stay — tránh khóa cửa khi còn đứng hành lang.
+        /// </summary>
+        private void TryStartIfPlayerAlreadyInside()
+        {
+            if (state != RoomState.Idle) return;
+            if (!HasEnemiesToSpawn) return;
+
+            var roomCol = GetComponent<Collider2D>();
+            if (roomCol == null || !roomCol.enabled) return;
+            if (!PlayerOverlapsRoom(roomCol)) return;
+
+            StartRoom();
+        }
+
+        private bool PlayerOverlapsRoom(Collider2D roomCol)
+        {
+            var filter = new ContactFilter2D();
+            filter.NoFilter();
+            filter.useTriggers = true;
+            int n = roomCol.Overlap(filter, overlapBuf);
+            for (int i = 0; i < n; i++)
+            {
+                if (IsPlayer(overlapBuf[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
         private string GetRoomId()
         {
-            if (!string.IsNullOrEmpty(roomSaveId))
-                return roomSaveId;
+            string scene = gameObject.scene.name;
+            if (string.IsNullOrEmpty(scene))
+                scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (string.IsNullOrEmpty(scene))
+                scene = "UnknownScene";
 
-            return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name + "_" + gameObject.name;
+            if (!string.IsNullOrEmpty(roomSaveId))
+            {
+                // ID gõ tay vẫn phải gắn scene, không thì phòng scene khác trùng ID theo.
+                return roomSaveId.StartsWith(scene + "_", System.StringComparison.OrdinalIgnoreCase)
+                    ? roomSaveId
+                    : scene + "_" + roomSaveId;
+            }
+
+            return scene + "_" + GetHierarchyKey();
+        }
+
+        /// <summary>
+        /// Nhiều phòng trong một scene trùng tên nhau ("Room1", "Room1 (1)") nên tên object
+        /// không đủ làm ID. Ghép đường dẫn cha + thứ tự trong Hierarchy để mỗi phòng một ID.
+        /// Đổi tên hoặc kéo đổi thứ tự phòng = ID mới: save cũ coi như phòng chưa clear.
+        /// </summary>
+        private string GetHierarchyKey()
+        {
+            if (hierarchyKey != null)
+                return hierarchyKey;
+
+            var sb = new StringBuilder();
+            AppendHierarchyKey(transform, sb);
+            hierarchyKey = sb.ToString();
+            return hierarchyKey;
+        }
+
+        private static void AppendHierarchyKey(Transform t, StringBuilder sb)
+        {
+            if (t.parent != null)
+            {
+                AppendHierarchyKey(t.parent, sb);
+                sb.Append('/');
+            }
+
+            sb.Append(t.name).Append('#').Append(t.GetSiblingIndex());
+        }
+
+        private void RegisterRoomId()
+        {
+            if (!HasEnemiesToSpawn) return;
+
+            string id = GetRoomId();
+            if (IdRegistry.TryGetValue(id, out var other) && other != null && other != this)
+            {
+                Debug.LogError(
+                    $"[{name}] Trùng ID save phòng '{id}' với '{other.name}'. Clear một phòng sẽ xóa quái phòng kia — " +
+                    "đổi tên object hoặc điền Room Save Id khác nhau.", this);
+                return;
+            }
+
+            IdRegistry[id] = this;
+            registeredId = id;
+        }
+
+        private void OnDestroy()
+        {
+            if (registeredId != null
+                && IdRegistry.TryGetValue(registeredId, out var current)
+                && current == this)
+            {
+                IdRegistry.Remove(registeredId);
+            }
         }
 
         private bool IsClearedInSave()
@@ -159,6 +272,7 @@ namespace HeartOfTheNight.Rooms
         private void TryApplyClearedFromSave()
         {
             if (state == RoomState.Cleared) return;
+            if (!HasEnemiesToSpawn) return;
             if (!IsClearedInSave()) return;
             ApplyClearedFromSave();
         }
@@ -167,7 +281,7 @@ namespace HeartOfTheNight.Rooms
         {
             state = RoomState.Cleared;
             SetDoorsClosed(false);
-            if (debugLogs) Debug.Log($"[{name}] Phong da clear trong save — khong spawn lai.", this);
+            if (debugLogs) Debug.Log($"[{name}] Phong da clear trong save ({GetRoomId()}) — khong spawn lai.", this);
         }
 
         private bool IsPlayer(Collider2D other)
@@ -179,6 +293,13 @@ namespace HeartOfTheNight.Rooms
 
         private void StartRoom()
         {
+            // Phòng không wave: chỉ chạm collider để cửa chạy Open. Không lock-in, không ghi save.
+            if (!HasEnemiesToSpawn)
+            {
+                PlayDoorsOnly();
+                return;
+            }
+
             state = RoomState.Fighting;
             currentWaveIndex = -1;
 
@@ -187,6 +308,18 @@ namespace HeartOfTheNight.Rooms
             onRoomStarted?.Invoke();
 
             SpawnNextWave();
+        }
+
+        private void PlayDoorsOnly()
+        {
+            SetDoorsClosed(false);
+            onRoomStarted?.Invoke();
+            onRoomCleared?.Invoke();
+
+            if (activateOnce)
+                state = RoomState.Cleared;
+
+            if (debugLogs) Debug.Log($"[{name}] Phong khong quai — chi chay cua, khong ghi save.", this);
         }
 
         private void Update()
@@ -328,7 +461,7 @@ namespace HeartOfTheNight.Rooms
             onRoomCleared?.Invoke();
 
             var dm = HeartOfTheNight.Hung.DataManager.Instance;
-            if (dm != null)
+            if (dm != null && HasEnemiesToSpawn)
                 dm.MarkRoomCleared(GetRoomId());
 
             if (!activateOnce)
