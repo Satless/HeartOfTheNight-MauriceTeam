@@ -731,7 +731,7 @@ namespace HeartOfTheNight.Player
 		    {
 				//SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
 
-				AudioEvents.TriggerSound3D("Player", "Move", "n", transform.position);
+				AudioEvents.TriggerSound3D("Player", "Move", "n1", transform.position);
                 _footstepTimer = 0.35f; 
             }
         }
