@@ -73,10 +73,10 @@ GameObject:
   - component: {fileID: 1921258111785348702}
   - component: {fileID: 8802143833636715171}
   - component: {fileID: 450737879616435838}
-  - component: {fileID: 4647949707946389898}
   - component: {fileID: 9189729926134698254}
   - component: {fileID: 3641384330369384795}
   - component: {fileID: -3340504792106145302}
+  - component: {fileID: 5591147981479132567}
   - component: {fileID: 5976753065464727290}
   - component: {fileID: 346324010672391856}
   m_Layer: 10
@@ -188,47 +188,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &4647949707946389898
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7965682724504148304}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 484765bd3e9ad824f8c228e756945723, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 25
-  currentHealth: 0
-  isDead: 0
-  deathYOffset: 0
-  anim: {fileID: 9189729926134698254}
-  attackHitbox: {fileID: 8314471508327488015}
-  attackOffset: {x: 0, y: 1}
-  moveSpeed: 6
-  patrolSpeed: 5
-  patrolDistance: 15
-  detectionRangeX: 15
-  detectionRangeY: 1
-  attackRange: 1
-  attackRangeY: 1.5
-  attackRadius: 1.5
-  groundCheck: {fileID: 1602724155770441899}
-  groundCheckRadius: 0.2
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
-  isGrounded: 0
-  edgeCheck: {fileID: 3744662041910016717}
-  wallCheck: {fileID: 1503666516329470254}
-  edgeCheckDistance: 5
-  wallCheckDistance: 0
-  wallCheckHeight: 1.23
-  flipCooldown: 0.5
-  attackDamage: 15
-  attackCooldown: 2.5
 --- !u!95 &9189729926134698254
 Animator:
   serializedVersion: 7
@@ -286,6 +245,47 @@ MonoBehaviour:
     itemPrefab: {fileID: 5216420102608481259, guid: 1abb01393af01aa47bbea3e5a1b4bd79, type: 3}
     dropChance: 50
   customVariableName: 
+--- !u!114 &5591147981479132567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7965682724504148304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8ce0759e6f067545a623cecc20f7cb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  isDead: 0
+  deathYOffset: 0
+  anim: {fileID: 9189729926134698254}
+  attackHitbox: {fileID: 8314471508327488015}
+  attackOffset: {x: 0, y: 1}
+  moveSpeed: 3
+  patrolSpeed: 2
+  patrolDistance: 6
+  detectionRangeX: 10
+  detectionRangeY: 1
+  attackRange: 2
+  attackRangeY: 1.5
+  attackRadius: 1.5
+  groundCheck: {fileID: 1602724155770441899}
+  groundCheckRadius: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  isGrounded: 0
+  edgeCheck: {fileID: 3744662041910016717}
+  wallCheck: {fileID: 1503666516329470254}
+  edgeCheckDistance: 1.5
+  wallCheckDistance: 0.5
+  wallCheckHeight: 1.5
+  flipCooldown: 0.5
+  attackDamage: 15
+  attackCooldown: 2.5
 --- !u!114 &5976753065464727290
 MonoBehaviour:
   m_ObjectHideFlags: 0
