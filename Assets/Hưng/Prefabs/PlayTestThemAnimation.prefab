@@ -138,7 +138,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1, y: 0.4, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6949912397899648992}
@@ -184,9 +184,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1089866221
-  m_SortingLayer: 4
-  m_SortingOrder: 10
+  m_SortingLayerID: 1235969527
+  m_SortingLayer: 1
+  m_SortingOrder: -1
   m_Sprite: {fileID: -7534827156490925123, guid: 9729a9822495cc747a98518247f215d4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -344,37 +344,37 @@ MonoBehaviour:
     variant1: {fileID: 11400000, guid: 83bcbdebf6fa5414fbb9ef7777acc396, type: 2}
     variant2: {fileID: 11400000, guid: 4e09fa0ec78b71a48a175ece19dc8bad, type: 2}
     maxHeat: 20
-    cooldownRate: 7
+    cooldownRate: 4
     unlockThreshold: 0.3
-    overheatFreezeDuration: 0.87
+    overheatFreezeDuration: 2.5
     currentHeat: 0
     isOverheated: 0
     overheatFreezeEndTime: 0
-    variant1Capacity: "11 vi\xEAn"
+    variant1Capacity: "6 vi\xEAn"
     variant2Capacity: "3 vi\xEAn"
   Weapon2:
     variant1: {fileID: 11400000, guid: c659baa5169f64c45b4a6be8fbba063b, type: 2}
     variant2: {fileID: 11400000, guid: 91efb52a1e06f93499b232613328c463, type: 2}
     maxHeat: 60
-    cooldownRate: 12
+    cooldownRate: 5
     unlockThreshold: 0.3
-    overheatFreezeDuration: 1.35
+    overheatFreezeDuration: 2.5
     currentHeat: 0
     isOverheated: 0
     overheatFreezeEndTime: 0
-    variant1Capacity: "6 vi\xEAn"
-    variant2Capacity: "6 vi\xEAn"
+    variant1Capacity: "4 vi\xEAn"
+    variant2Capacity: "4 vi\xEAn"
   Weapon3:
     variant1: {fileID: 11400000, guid: b74db7a724210474f88a8184269f6957, type: 2}
     variant2: {fileID: 11400000, guid: 8779c07c791b26945b81a53f41a2ef3b, type: 2}
     maxHeat: 100
-    cooldownRate: 20
+    cooldownRate: 12
     unlockThreshold: 0.3
-    overheatFreezeDuration: 1.5
+    overheatFreezeDuration: 2
     currentHeat: 0
     isOverheated: 0
     overheatFreezeEndTime: 0
-    variant1Capacity: "45 vi\xEAn"
+    variant1Capacity: "16 vi\xEAn"
     variant2Capacity: "8.3 gi\xE2y"
   Weapon4:
     variant1: {fileID: 11400000, guid: 111f979b9993fba4c9715c85ae87e74f, type: 2}
