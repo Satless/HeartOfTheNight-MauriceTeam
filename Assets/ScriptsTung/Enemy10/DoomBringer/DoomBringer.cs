@@ -16,13 +16,9 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public string bossName = "DOOM BRINGER";
 
     [Header("Cài đặt Chết (Theo Animation)")]
-    [Tooltip("Thời gian chạy animation NearlyDead (Ví dụ: 2 giây)")]
     public float nearlyDeadDuration = 2f;
-    [Tooltip("Thời gian chạy clip Dead trước khi Boss biến mất (Ví dụ: 0.5 giây)")]
     public float deadDuration = 0.5f;
-
     [Space]
-    [Tooltip("Nếu bác muốn lúc nổ (Dead) nó bự lên thì giữ số này, không thì chỉnh về 1")]
     public float explosionScale = 5f;
     public float explosionYOffset = 1.5f;
     public float deathShakeAmplitude = 0.5f;
@@ -33,19 +29,16 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public bool isDead = false;
     private bool isPhase2 = false;
 
-    [Header("Kiểm tra Mặt đất (Dùng Layer)")]
-    public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
-    public LayerMask groundLayer;
-    public bool isGrounded;
-
     [Header("Buff Giai đoạn 2 (< 50% HP)")]
     public float phase2SpeedMulti = 1.5f;
     public float phase2FireRateMulti = 0.5f;
 
     [Header("Di chuyển")]
     public float moveSpeed = 3.5f;
-    public bool isWallOfFleshMode = false;
+
+    // 🔥 LƯU Ý Ở ĐÂY: Nếu bật True, Boss chỉ đi thẳng 1 đường. 
+    // Nếu muốn Boss quay đầu rượt Player, hãy ra ngoài Inspector bỏ tích biến này (thành False).
+    public bool isWallOfFleshMode = true;
     private float fixedDirection = 1f;
 
     [Header("Chu kỳ Trạng Thái (State Machine)")]
@@ -57,17 +50,14 @@ public class DoomBringer : MonoBehaviour, IDamageable
 
     [Header("Vũ khí & Prefabs")]
     public Transform firePoint;
-
     [Space]
     public GameObject bombPrefab;
     public float bombFireRate = 1.5f;
     public float bombFlightTime = 1.2f;
-
     [Space]
     public GameObject laserPrefab;
     public float laserFireRate = 0.5f;
     public float laserSpeed = 20f;
-
     [Space]
     public GameObject kamikazePrefab;
     private bool hasSummoned = false;
@@ -80,6 +70,12 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+
+        // Đảm bảo Body Type của Boss phải là Kinematic ngoài Inspector để ủi Player
+        if (rb != null)
+        {
+            rb.gravityScale = 0f;
+        }
 
         if (anim == null) anim = GetComponentInChildren<Animator>();
 
@@ -100,16 +96,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         if (player == null || isDead) return;
 
-        CheckGroundStatus();
-
-        if (!isGrounded)
-        {
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            return;
-        }
-
-        MoveRelentlessly();
-
+        // Xử lý các đòn đánh, chuyển state (Không xử lý vật lý ở đây)
         if (!isTransitioning)
         {
             HandleStateSwitching();
@@ -117,10 +104,12 @@ public class DoomBringer : MonoBehaviour, IDamageable
         }
     }
 
-    void CheckGroundStatus()
+    // 🔥 DI CHUYỂN VẬT LÝ PHẢI ĐẶT TRONG FIXED UPDATE
+    void FixedUpdate()
     {
-        if (groundCheck == null) return;
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        if (player == null || isDead) return;
+
+        MoveRelentlessly();
     }
 
     public void TakeDamage(int damage)
@@ -128,21 +117,10 @@ public class DoomBringer : MonoBehaviour, IDamageable
         if (isDead) return;
 
         currentHealth -= damage;
+        if (healthFillImage != null) healthFillImage.fillAmount = (float)currentHealth / maxHealth;
 
-        if (healthFillImage != null)
-        {
-            healthFillImage.fillAmount = (float)currentHealth / maxHealth;
-        }
-
-        if (currentHealth <= maxHealth / 2 && !isPhase2)
-        {
-            EnterPhase2();
-        }
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
+        if (currentHealth <= maxHealth / 2 && !isPhase2) EnterPhase2();
+        if (currentHealth <= 0) Die();
     }
 
     void EnterPhase2()
@@ -162,7 +140,6 @@ public class DoomBringer : MonoBehaviour, IDamageable
     void Die()
     {
         isDead = true;
-
         if (bossUIContainer != null) bossUIContainer.SetActive(false);
 
         if (rb != null)
@@ -177,40 +154,23 @@ public class DoomBringer : MonoBehaviour, IDamageable
         StartCoroutine(DeathSequenceRoutine());
     }
 
-    // 🔥 HÀM MỚI: XỬ LÝ CHẾT THEO ĐÚNG THỨ TỰ ANIMATION BÁC MUỐN
     IEnumerator DeathSequenceRoutine()
     {
-        // 🔥 FIX: Trả lại màu trắng nguyên bản cho ảnh để không bị ám đỏ lúc chết
         SpriteRenderer sr = GetComponentInChildren<SpriteRenderer>();
         if (sr != null) sr.color = Color.white;
 
-        // 1. Kích hoạt Animation NearlyDead
-        if (anim != null)
-        {
-            anim.enabled = true;
-            anim.SetTrigger("NearlyDead");
-        }
-
-        // Tùy chọn: Rung màn hình trong lúc nó đang giãy (NearlyDead)
+        if (anim != null) { anim.enabled = true; anim.SetTrigger("NearlyDead"); }
         try { CameraShake.Shake(deathShakeAmplitude, nearlyDeadDuration); } catch { }
 
-        // Chờ cho animation NearlyDead chạy xong
         yield return new WaitForSeconds(nearlyDeadDuration);
 
-        // 2. Chuẩn bị chạy Animation Dead (Nổ)
         float signX = Mathf.Sign(transform.localScale.x);
         transform.localScale = new Vector3(signX * explosionScale, explosionScale, 1f);
         transform.position = new Vector3(transform.position.x, transform.position.y + explosionYOffset, transform.position.z);
 
-        if (anim != null)
-        {
-            anim.SetTrigger("Dead");
-        }
-
-        // Tùy chọn: Rung màn hình cú chót cực mạnh lúc Nổ
+        if (anim != null) anim.SetTrigger("Dead");
         try { CameraShake.Shake(deathShakeAmplitude * 1.5f, 0.5f); } catch { }
 
-        // 3. Xóa Boss hoàn toàn khỏi game
         Destroy(gameObject, deadDuration);
     }
 
@@ -218,7 +178,12 @@ public class DoomBringer : MonoBehaviour, IDamageable
     void MoveRelentlessly()
     {
         float dir = isWallOfFleshMode ? fixedDirection : Mathf.Sign(player.position.x - transform.position.x);
-        rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
+
+        // 🔥 Dùng MovePosition để ép không gian, tạo lực đẩy tuyệt đối ủi Player văng đi
+        Vector2 newPosition = rb.position + new Vector2(dir * moveSpeed, 0f) * Time.fixedDeltaTime;
+        rb.MovePosition(newPosition);
+
+        // Xoay mặt Boss
         transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
@@ -247,15 +212,9 @@ public class DoomBringer : MonoBehaviour, IDamageable
         attackTimer -= Time.deltaTime;
         switch (currentState)
         {
-            case 1:
-                if (attackTimer <= 0) { ShootBomb(); attackTimer = bombFireRate; }
-                break;
-            case 2:
-                if (attackTimer <= 0) { ShootLaser(); attackTimer = laserFireRate; }
-                break;
-            case 3:
-                if (!hasSummoned) { StartCoroutine(SummonKamikazesRoutine()); hasSummoned = true; }
-                break;
+            case 1: if (attackTimer <= 0) { ShootBomb(); attackTimer = bombFireRate; } break;
+            case 2: if (attackTimer <= 0) { ShootLaser(); attackTimer = laserFireRate; } break;
+            case 3: if (!hasSummoned) { StartCoroutine(SummonKamikazesRoutine()); hasSummoned = true; } break;
         }
     }
 
@@ -291,22 +250,21 @@ public class DoomBringer : MonoBehaviour, IDamageable
 
     IEnumerator SummonKamikazesRoutine()
     {
-        if (kamikazePrefab == null) yield break;
+        if (kamikazePrefab == null || firePoint == null) yield break;
         int soLuongDe = isPhase2 ? 5 : 3;
         for (int i = 0; i < soLuongDe; i++)
         {
-            Vector2 spawnPos = new Vector2(transform.position.x, transform.position.y + 1.5f + (i * 0.5f));
-            Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
-            yield return new WaitForSeconds(0.3f);
-        }
-    }
+            Vector2 spawnPos = new Vector2(firePoint.position.x, firePoint.position.y + (i * 0.5f));
 
-    void OnDrawGizmosSelected()
-    {
-        if (groundCheck != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+            GameObject kami = Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
+
+            KamikazeEnemy kamiScript = kami.GetComponent<KamikazeEnemy>();
+            if (kamiScript != null)
+            {
+                kamiScript.ActivateBossMode();
+            }
+
+            yield return new WaitForSeconds(0.3f);
         }
     }
 }
