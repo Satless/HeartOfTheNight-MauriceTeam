@@ -214,6 +214,7 @@ GameObject:
   - component: {fileID: 7993045246824448013}
   - component: {fileID: 1558651991685687383}
   - component: {fileID: 802317135466279579}
+  - component: {fileID: 3238568047823953708}
   m_Layer: 10
   m_Name: DoomBringer
   m_TagString: Enemy
@@ -355,7 +356,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.07730961, y: 9.057795}
+  m_Offset: {x: -0.121790886, y: 9.284824}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
@@ -365,7 +366,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 12.669769, y: 18.116245}
+  m_Size: {x: 11.849611, y: 15.068413}
   m_EdgeRadius: 0.02
 --- !u!114 &7993045246824448013
 MonoBehaviour:
@@ -433,6 +434,76 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &802317135466279579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4612588269366096216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+--- !u!70 &3238568047823953708
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4612588269366096216}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.056602478, y: 9.099327}
+  m_Size: {x: 11.69323, y: 17.790995}
+  m_Direction: 0
 --- !u!1001 &9100000000000000111
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -614,16 +685,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1972984870323769945, guid: 1b456af75d2efff44bb644e765fdce4b, type: 3}
   m_PrefabInstance: {fileID: 9100000000000000111}
   m_PrefabAsset: {fileID: 0}
-
---- !u!114 &802317135466279579
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4612588269366096216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

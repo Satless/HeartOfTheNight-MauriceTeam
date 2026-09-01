@@ -195,10 +195,44 @@ MonoBehaviour:
   moveSpeed: 6
   detectionRange: 6
   explodeRange: 1.5
+  blastRadius: 2.5
   explodeDelay: 1
   flashInterval: 0.1
   maxHP: 1
   damage: 30
+--- !u!114 &3661692672331961758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053879339585731337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!1 &6090928455908173831
 GameObject:
   m_ObjectHideFlags: 0
@@ -216,22 +250,26 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2509114835986468956
-Transform:
+  m_IsActive: 0
+--- !u!224 &2509114835986468956
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6090928455908173831}
-  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.8449999, y: 0.12699994, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5057922195352781973}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.206, y: -0.07500002}
+  m_SizeDelta: {x: 0.9375, y: 0.9375}
+  m_Pivot: {x: 1, y: 0.5}
 --- !u!212 &3265906960443156782
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -326,22 +364,26 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1463408280358793346
-Transform:
+  m_IsActive: 0
+--- !u!224 &1463408280358793346
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7951180075886772513}
-  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.765, y: 0.15, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5057922195352781973}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.127, y: -0.105}
+  m_SizeDelta: {x: 1.0625, y: 0.875}
+  m_Pivot: {x: -0, y: 0.5}
 --- !u!212 &8427262760363478370
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -419,16 +461,3 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
-
---- !u!114 &3661692672331961758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5053879339585731337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
