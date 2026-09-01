@@ -112,11 +112,24 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: NewCursor_0
+      name: RedNewCursor
       rect:
         serializedVersion: 2
         x: 0
@@ -138,12 +151,12 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: NewCursor_1
+      name: WhiteNewCursor
       rect:
         serializedVersion: 2
-        x: 25
+        x: 26
         y: 0
-        width: 17
+        width: 16
         height: 16
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -173,8 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      NewCursor_0: 7110253070896699459
-      NewCursor_1: -6459393230826802574
+      RedNewCursor: 7110253070896699459
+      WhiteNewCursor: -6459393230826802574
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

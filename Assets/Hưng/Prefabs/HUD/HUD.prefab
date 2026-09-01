@@ -2487,6 +2487,7 @@ MonoBehaviour:
   elementsToHideOnDeath:
   - {fileID: 5448466762198390179}
   - {fileID: 7969015471578324417}
+  keyboardController: {fileID: 0}
 --- !u!1 &4864677738832278185
 GameObject:
   m_ObjectHideFlags: 0
@@ -5004,6 +5005,58 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5172582166361006827}
     m_Modifications:
+    - target: {fileID: 893708358909938955, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 7110253070896699459, guid: 911e651aaab4ae64a9e529451b0b39a3, type: 3}
+    - target: {fileID: 1860893253103115671, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: actionSprite
+      value: 
+      objectReference: {fileID: -6459393230826802574, guid: 911e651aaab4ae64a9e529451b0b39a3, type: 3}
+    - target: {fileID: 1860893253103115671, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: defaultSprite
+      value: 
+      objectReference: {fileID: 7110253070896699459, guid: 911e651aaab4ae64a9e529451b0b39a3, type: 3}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_Pivot.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 32
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 34
+      objectReference: {fileID: 0}
+    - target: {fileID: 3030953323738408525, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -34
+      objectReference: {fileID: 0}
     - target: {fileID: 4314367042533681259, guid: 90055e6bc697db54cae73db99e714ecb, type: 3}
       propertyPath: m_Name
       value: Cursor
