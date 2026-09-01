@@ -70,6 +70,10 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    [Header("Aim Line")]
+    [Tooltip("Kéo GameObject chứa ảnh aiming.png vào đây")]
+    [SerializeField] private GameObject _aimLineObject;
+
     [Header("Visuals")]
     [Tooltip("Kéo child phần thân trên (súng) vào đây (Tren)")]
     [SerializeField] private Transform _upperBodyVisual;
@@ -372,6 +376,36 @@ public class PlayerAttack : MonoBehaviour
         _isFiringThisFrame = false;
         HandleFire();
         HandleOverheatCooldown();
+        UpdateAimLine();
+    }
+
+    private void UpdateAimLine()
+    {
+        if (_aimLineObject == null) return;
+
+        // Tắt ảnh aim nếu không cầm súng, bám tường, lướt, hoặc game chưa khởi tạo xong
+        bool shouldShow = true;
+        if (Data == null || !_hasInitialized) 
+        {
+            shouldShow = false;
+        }
+        else if (_movement != null && (_movement.IsWallJumpLocked || _movement.IsSliding || _movement.IsDashing)) 
+        {
+            shouldShow = false;
+        }
+
+        if (_aimLineObject.activeSelf != shouldShow)
+        {
+            _aimLineObject.SetActive(shouldShow);
+        }
+
+        // Bám sát nòng súng (Diemban) để tự động khớp độ dài mọi loại súng.
+        // Ép góc xoay 0 hoặc 180 để tia ngắm LUÔN NẰM NGANG, bất kể súng đang chúc xuống hay giật lùi.
+        if (shouldShow)
+        {
+            _aimLineObject.transform.position = _firePoint.position;
+            _aimLineObject.transform.rotation = _isAimingRight ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 180, 0);
+        }
     }
 
     private void EquipSlot(int slotNumber)
