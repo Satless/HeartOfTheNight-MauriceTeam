@@ -4,13 +4,17 @@ using HeartOfTheNight.Common;
 
 public class KamikazeEnemy : MonoBehaviour, IDamageable
 {
+    private float escapeTimer = 0f;
+
     [Header("Movement & Avoidance")]
     [SerializeField] private float moveSpeed = 6f;
     [Tooltip("Layer chứa các vật cản (Đất, Tường...)")]
     [SerializeField] private LayerMask obstacleLayer;
-    [Tooltip("Khoảng cách quái bắt đầu phát hiện tường để né")]
+    [Tooltip("Khoảng cách tia quét tìm tường")]
     [SerializeField] private float avoidDistance = 1.5f;
-    [Tooltip("Độ mượt khi bẻ lái (Càng thấp cua càng gắt)")]
+    [Tooltip("Độ to của thân con quái (Để tính toán lách cho khỏi kẹt mép)")]
+    [SerializeField] private float enemyRadius = 0.4f;
+    [Tooltip("Độ mượt khi lượn (Càng thấp cua càng gắt)")]
     [SerializeField] private float turnSpeed = 5f;
 
     [Header("Detection")]
@@ -51,12 +55,10 @@ public class KamikazeEnemy : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        // Vẫn tìm Player sẵn để phòng trường hợp được Boss đẻ ra là có mục tiêu rượt luôn
         GameObject obj = GameObject.FindGameObjectWithTag("Player");
         if (obj != null) player = obj.transform;
     }
 
-    // Boss gọi hàm này để ép con quái rượt ngay lập tức
     public void ActivateBossMode()
     {
         isSpawnedByBoss = true;
@@ -67,40 +69,34 @@ public class KamikazeEnemy : MonoBehaviour, IDamageable
     {
         if (dead || exploding) return;
 
-        // 🔥 LOGIC: QUÉT VÙNG XUNG QUANH TÌM TAG "Player" HOẶC LAYER PLAYER
         if (!chasing)
         {
             if (isSpawnedByBoss)
             {
-                chasing = true; // Boss đẻ ra thì rượt thẳng
+                chasing = true;
             }
             else
             {
-                // Lấy TẤT CẢ các vật thể lọt vào trong vòng tròn quét
                 Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectionRange);
-
                 foreach (Collider2D hit in hits)
                 {
-                    // Kiểm tra: Nếu mang Tag "Player" HOẶC nằm trong Layer Player
                     if (hit.CompareTag("Player") || ((1 << hit.gameObject.layer) & playerLayer) != 0)
                     {
                         chasing = true;
-                        player = hit.transform; // Chốt mục tiêu
-                        break; // Tìm thấy Player rồi thì dừng quét luôn
+                        player = hit.transform;
+                        break;
                     }
                 }
             }
         }
 
-        // Nếu chưa phát hiện ai hoặc mục tiêu đã chết/biến mất thì đứng im
         if (!chasing || player == null) return;
 
-        // Bắt đầu tính khoảng cách để di chuyển hoặc nổ
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
         if (distanceToPlayer > explodeRange)
         {
-            MoveWithObstacleAvoidance();
+            MoveWithSmartAvoidance(); // 🔥 DÙNG HÀM TÌM ĐƯỜNG MỚI
             PlayMoveSound();
             FlipSprite();
         }
@@ -110,31 +106,88 @@ public class KamikazeEnemy : MonoBehaviour, IDamageable
         }
     }
 
-    private void MoveWithObstacleAvoidance()
+    // 🔥 HỆ THỐNG AI MỚI: QUÉT RẺ QUẠT VÀ TÌM ĐƯỜNG RỘNG NHẤT
+    // 🔥 HỆ THỐNG AI MỚI: CÓ CHỨC NĂNG CHỐNG KẸT TƯỜNG (ANTI-STUCK)
+    // 🔥 HỆ THỐNG AI MỚI NHẤT: CÓ TRÍ NHỚ VƯỢT TƯỜNG (ESCAPE TIMER)
+    private void MoveWithSmartAvoidance()
     {
-        Vector2 targetDir = (player.position - transform.position).normalized;
-        Vector2 optimalDir = targetDir;
-
-        // Bắn tia cảm biến thẳng
-        RaycastHit2D hitFront = Physics2D.Raycast(transform.position, targetDir, avoidDistance, obstacleLayer);
-
-        if (hitFront.collider != null)
+        // 0. TRẠNG THÁI VƯỢT TƯỜNG KHẨN CẤP (IGNORE RADAR)
+        if (escapeTimer > 0f)
         {
-            // Tường chắn phía trước -> Quét góc trên và dưới
-            Vector2 upDir = Quaternion.Euler(0, 0, 45) * targetDir;
-            RaycastHit2D hitUp = Physics2D.Raycast(transform.position, upDir, avoidDistance, obstacleLayer);
+            escapeTimer -= Time.deltaTime;
 
-            Vector2 downDir = Quaternion.Euler(0, 0, -45) * targetDir;
-            RaycastHit2D hitDown = Physics2D.Raycast(transform.position, downDir, avoidDistance, obstacleLayer);
+            // 🔥 FIX LỖI "CÀ TƯỜNG": Bay LÊN TRỜI và HƠI LÙI LẠI để tách khỏi mặt thùng
+            float dirX = Mathf.Sign(player.position.x - transform.position.x);
+            Vector2 escapeDir = new Vector2(-dirX * 0.3f, 1f).normalized;
 
-            if (hitUp.collider == null) optimalDir = upDir;
-            else if (hitDown.collider == null) optimalDir = downDir;
-            else optimalDir = Vector2.Reflect(targetDir, hitFront.normal);
+            // Ép bẻ lái cực gắt (nhân 10) để thắng lực quán tính
+            currentMoveDirection = Vector2.Lerp(currentMoveDirection, escapeDir, turnSpeed * 10f * Time.deltaTime).normalized;
+            transform.position += (Vector3)currentMoveDirection * moveSpeed * Time.deltaTime;
+            return;
         }
 
-        // Làm mượt (Lerp) góc xoay để lách mượt mà qua tường
-        currentMoveDirection = Vector2.Lerp(currentMoveDirection, optimalDir, turnSpeed * Time.deltaTime).normalized;
-        transform.position += (Vector3)currentMoveDirection * moveSpeed * Time.deltaTime;
+        // 1. KIỂM TRA LÚN (SPAWN TRAP)
+        Collider2D insideWall = Physics2D.OverlapCircle(transform.position, enemyRadius, obstacleLayer);
+        if (insideWall != null)
+        {
+            escapeTimer = 0.6f; // Bật chế độ dội tường 0.6 giây
+            return;
+        }
+
+        // 2. RADAR TÌM ĐƯỜNG CHÍNH
+        Vector2 targetDir = (player.position - transform.position).normalized;
+        Vector2 bestDir = Vector2.up;
+        float bestScore = -Mathf.Infinity;
+        bool pathFound = false;
+
+        float[] checkAngles = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
+
+        foreach (float angle in checkAngles)
+        {
+            Vector2 checkDir = Quaternion.Euler(0, 0, angle) * targetDir;
+            RaycastHit2D hit = Physics2D.CircleCast(transform.position, enemyRadius, checkDir, avoidDistance, obstacleLayer);
+
+            if (hit.collider == null)
+            {
+                float score = Vector2.Dot(targetDir, checkDir);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestDir = checkDir;
+                    pathFound = true;
+                }
+            }
+        }
+
+        // 🔥 3. FIX LỖI RADAR "NHÌN XUỐNG ĐẤT"
+        // Nếu quét về phía Player mà vướng hết, bắt buộc phải ngẩng đầu nhìn lên trời!
+        if (!pathFound)
+        {
+            // Quét 3 hướng cố định: Thẳng đứng, Chéo lên Trái, Chéo lên Phải
+            Vector2[] skyDirs = { Vector2.up, new Vector2(-1, 1).normalized, new Vector2(1, 1).normalized };
+            foreach (Vector2 skyDir in skyDirs)
+            {
+                RaycastHit2D skyHit = Physics2D.CircleCast(transform.position, enemyRadius, skyDir, avoidDistance, obstacleLayer);
+                if (skyHit.collider == null)
+                {
+                    bestDir = skyDir;
+                    pathFound = true;
+                    break;
+                }
+            }
+        }
+
+        // 4. QUYẾT ĐỊNH CUỐI CÙNG
+        if (!pathFound)
+        {
+            // Tứ phía (kể cả trên trời) đều bị chặn (ví dụ kẹt trong 1 cái hộp kín) -> Dội tường!
+            escapeTimer = 0.6f;
+        }
+        else
+        {
+            currentMoveDirection = Vector2.Lerp(currentMoveDirection, bestDir, turnSpeed * Time.deltaTime).normalized;
+            transform.position += (Vector3)currentMoveDirection * moveSpeed * Time.deltaTime;
+        }
     }
 
     private void PlayMoveSound()
@@ -177,7 +230,6 @@ public class KamikazeEnemy : MonoBehaviour, IDamageable
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, blastRadius);
         foreach (Collider2D hit in hits)
         {
-            // Nổ trúng Player bằng Tag hoặc Layer
             if (hit.CompareTag("Player") || ((1 << hit.gameObject.layer) & playerLayer) != 0)
             {
                 IDamageable target = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
@@ -213,13 +265,19 @@ public class KamikazeEnemy : MonoBehaviour, IDamageable
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, blastRadius);
 
-        // Hiển thị râu cảm biến trong Editor kể cả khi ở chế độ Prefab Mode
         Vector2 targetDir = Vector2.right;
         if (Application.isPlaying && player != null) targetDir = (player.position - transform.position).normalized;
 
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(transform.position, transform.position + (Vector3)targetDir * avoidDistance);
-        Gizmos.DrawLine(transform.position, transform.position + (Vector3)(Quaternion.Euler(0, 0, 45) * targetDir) * avoidDistance);
-        Gizmos.DrawLine(transform.position, transform.position + (Vector3)(Quaternion.Euler(0, 0, -45) * targetDir) * avoidDistance);
+        float[] checkAngles = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
+
+        foreach (float angle in checkAngles)
+        {
+            Vector2 checkDir = Quaternion.Euler(0, 0, angle) * targetDir;
+            // Vẽ đường quét
+            Gizmos.DrawLine(transform.position, transform.position + (Vector3)checkDir * avoidDistance);
+            // Vẽ 1 vòng tròn ở đuôi để bạn hình dung độ bự của CircleCast
+            Gizmos.DrawWireSphere(transform.position + (Vector3)checkDir * avoidDistance, enemyRadius);
+        }
     }
 }
