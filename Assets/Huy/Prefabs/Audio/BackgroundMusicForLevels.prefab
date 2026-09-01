@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4794041092772305010
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3918919437049394090}
+  - component: {fileID: 621408612926104766}
+  m_Layer: 0
+  m_Name: BackgroundMusicForLevels
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3918919437049394090
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794041092772305010}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 910.4556, y: 425.2386, z: -5.6636243}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &621408612926104766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4794041092772305010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83eab2f5a1767334fb4ed5c7ddd36bd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioMixer: {fileID: 24100000, guid: 2c6235ab0ab416a4b855b3c7c0222d7c, type: 2}
+  defaultTrackName: DefaultBGM
+  defaultFadeDuration: 0.5
+  sceneMusicList:
+  - sceneName: mainMenu
+    trackName: MainMenuBGM
+    fadeDuration: 0.5
+  - sceneName: SelectLevel
+    trackName: SelectLevelBGM
+    fadeDuration: 0.5
+  - sceneName: LevelComplete
+    trackName: WinBGM
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level0-1
+    trackName: Tutorial
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level1-1
+    trackName: Level1-1
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level2-1
+    trackName: Level2-1
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level3-1
+    trackName: Level3-1
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level4-1
+    trackName: Level4-1
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level5-1
+    trackName: Level5-1
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level1-2
+    trackName: Level1-2
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level2-2
+    trackName: Level2-2
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level3-2
+    trackName: Level3-2
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level4-2
+    trackName: Level4-2
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level5-2
+    trackName: Level5-2
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level1-3
+    trackName: Level1-3
+    fadeDuration: 0.5
+  - sceneName: Khanh_Level2-3
+    trackName: Level2-3
+    fadeDuration: 0.5

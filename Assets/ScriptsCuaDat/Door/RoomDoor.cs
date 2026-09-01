@@ -65,10 +65,22 @@ public class RoomDoor : MonoBehaviour
 
     private string GetDoorSaveId()
     {
-        if (!string.IsNullOrEmpty(doorSaveId))
-            return doorSaveId;
+        string scene = gameObject.scene.name;
+        if (string.IsNullOrEmpty(scene))
+            scene = SceneManager.GetActiveScene().name;
+        if (string.IsNullOrEmpty(scene))
+            scene = "UnknownScene";
 
-        return SceneManager.GetActiveScene().name + "_" + gameObject.name;
+        if (!string.IsNullOrEmpty(doorSaveId))
+        {
+            // Id gõ tay phải gắn scene: id trần ("Blue") thì cửa scene khác mở theo,
+            // và chơi lại màn cũng không đóng lại được.
+            return HeartOfTheNight.Hung.GameData.IdBelongsToScene(doorSaveId, scene)
+                ? doorSaveId
+                : scene + "_" + doorSaveId;
+        }
+
+        return scene + "_" + gameObject.name;
     }
 
     /// <summary>

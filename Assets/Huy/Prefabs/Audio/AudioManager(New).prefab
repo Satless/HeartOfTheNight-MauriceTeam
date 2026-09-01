@@ -50,8 +50,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tracks:
-  - trackName: 
-    clip: {fileID: 0}
+  - trackName: DefaultBGM
+    clip: {fileID: 8300000, guid: 1484121cecfb4cb4a9c13a00f052f60c, type: 3}
+  - trackName: MainMenuBGM
+    clip: {fileID: 8300000, guid: c6b4d668525a506439f41d04527cbbe5, type: 3}
+  - trackName: SelectLevelBGM
+    clip: {fileID: 8300000, guid: c80f716f652e41844a7135353794ee6b, type: 3}
+  - trackName: PauseBGM
+    clip: {fileID: 8300000, guid: e23c1017ee3f85243bd4c2ca32c463e8, type: 3}
+  - trackName: WinBGM
+    clip: {fileID: 8300000, guid: 42460163f32c9ce459ea68eb9a21cae8, type: 3}
+  - trackName: GameOver
+    clip: {fileID: 8300000, guid: 28c92559180cd174a8630b9d26e98bad, type: 3}
+  - trackName: Tutorial
+    clip: {fileID: 8300000, guid: 37bd29bcc1dde3b4989ad8824fee4049, type: 3}
+  - trackName: Level1-1
+    clip: {fileID: 8300000, guid: 7effea3e2eca01047878d5f8043b3284, type: 3}
+  - trackName: Level2-1
+    clip: {fileID: 8300000, guid: 55020d96864e32e44afd97f1ea43138e, type: 3}
+  - trackName: Level3-1
+    clip: {fileID: 8300000, guid: efd6de938197b1b4bbed335b212157cb, type: 3}
+  - trackName: Level4-1
+    clip: {fileID: 8300000, guid: ceca6d638fda0304a9b0e2eaa9bebab7, type: 3}
+  - trackName: Level5-1
+    clip: {fileID: 8300000, guid: 5d42f7575c1a8364599448d958a8ab9a, type: 3}
+  - trackName: Level1-2
+    clip: {fileID: 8300000, guid: fcc38839b1e0d834cbef6ae1d3ddf850, type: 3}
+  - trackName: Level2-2
+    clip: {fileID: 8300000, guid: 13c16990fee90ae49baaa4ab0beb28e3, type: 3}
+  - trackName: Level3-2
+    clip: {fileID: 8300000, guid: 0b06f0173a88b674681b241df63409b5, type: 3}
+  - trackName: Level4-2
+    clip: {fileID: 8300000, guid: 49f9e19267e40244291f45985507a51a, type: 3}
+  - trackName: Level5-2
+    clip: {fileID: 8300000, guid: e177f6c0d2f7bd24a95e2f99412f11ce, type: 3}
+  - trackName: Level1-3
+    clip: {fileID: 8300000, guid: 7376e30560b382a4d8c74affccadae43, type: 3}
+  - trackName: Level2-3
+    clip: {fileID: 8300000, guid: 652748c8b4c15474b8e4dbb7d9bf1159, type: 3}
 --- !u!114 &5944829389066682039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +169,8 @@ MonoBehaviour:
       actions:
       - actionID: n
         clips:
-        - {fileID: 8300000, guid: 590341818be55674b81baad4192df565, type: 3}
+        - {fileID: 8300000, guid: fd915ff348928ca45a951dedabb4f132, type: 3}
+        - {fileID: 8300000, guid: 5a307ef0896554b40a27407b3e17ce52, type: 3}
     - subCategoryID: Land
       actions:
       - actionID: n
@@ -204,6 +241,8 @@ MonoBehaviour:
         clips: []
       - actionID: Die
         clips: []
+      - actionID: LootDrop
+        clips: []
     - subCategoryID: BigCorpse
       actions:
       - actionID: Idle
@@ -262,18 +301,34 @@ MonoBehaviour:
       - actionID: Die
         clips:
         - {fileID: 8300000, guid: 93a8a68bbe0ef0245b6a38963ad7d378, type: 3}
-    - subCategoryID: Demon
+    - subCategoryID: EyeOfNight
       actions:
       - actionID: Idle
         clips: []
-      - actionID: Move
-        clips: []
-      - actionID: Attack
-        clips: []
+      - actionID: ShieldActivate
+        clips:
+        - {fileID: 8300000, guid: f07e92dbd275a3c448e49ed5e7813bde, type: 3}
+        - {fileID: 8300000, guid: b6e775ca91b06e54ab06d71dc1222441, type: 3}
+      - actionID: ShieldDeactivate
+        clips:
+        - {fileID: 8300000, guid: 503dbee3cdbb9e1478c7867a81a26cea, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: e3bf04f89e2f2ab4d8838d7bd8c010c2, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 553e4f3863801374aa172333bead38e9, type: 3}
+    - subCategoryID: Demon
+      actions:
+      - actionID: Warning
+        clips:
+        - {fileID: 8300000, guid: 5db5d0edb7d843a499ecbdf3eb00d7e0, type: 3}
+      - actionID: Explode
+        clips:
+        - {fileID: 8300000, guid: 57927bd595a6acd49b54f2b8b26ebeda, type: 3}
+      - actionID: Disappear
+        clips:
+        - {fileID: 8300000, guid: 1963d293f27bd384d995758f6ed2b8bd, type: 3}
     - subCategoryID: LivingFurnace
       actions:
       - actionID: Idle
@@ -293,15 +348,25 @@ MonoBehaviour:
     - subCategoryID: Husk
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: a1795722f43ebd147a01fcf4ba836d1d, type: 3}
+        - {fileID: 8300000, guid: 39a1b0f7d8536dd4094878b4f29d1cba, type: 3}
       - actionID: Move
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 9c8db61554a034949b22d832e5bc0a89, type: 3}
+        - {fileID: 8300000, guid: d360266dc6e6f9f4ca6adbe0fb5755ed, type: 3}
       - actionID: Attack
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 80eded04ec01b0943b56180061b08923, type: 3}
+        - {fileID: 8300000, guid: 3ec14b4a443a3434c9177205343f1a7d, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 696171b6402717844a9dd718c19ecaba, type: 3}
+        - {fileID: 8300000, guid: 52ce86dd94a6045448eb324f77298e93, type: 3}
+        - {fileID: 8300000, guid: ce167c796fdf3434395b92e789f75492, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 503e2c83709cccd4ca559095d4e52fd7, type: 3}
     - subCategoryID: Inquisitor
       actions:
       - actionID: Idle
@@ -356,23 +421,37 @@ MonoBehaviour:
     - subCategoryID: Automation
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: da6eb7ab5381e0747a60216396203882, type: 3}
+        - {fileID: 8300000, guid: bd9222ac5227fe64381f32e29f4b285f, type: 3}
       - actionID: Move
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 80a57cbec1df03244a89363c0fccebf1, type: 3}
+      - actionID: Dash
+        clips:
+        - {fileID: 8300000, guid: 6bcb61b017c1dd745bf9cd0d9f8cd893, type: 3}
+        - {fileID: 8300000, guid: 722f9a42a9ddeb24db1410665d3bab40, type: 3}
       - actionID: Attack
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 635f4f4c1ced9dd4aa5ed56d5b076b73, type: 3}
+        - {fileID: 8300000, guid: 4886586825a45714691ffbb16a594c5f, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: db2985226b8a00049b1da70ffe7224dd, type: 3}
+        - {fileID: 8300000, guid: 27664db15369d2040885e0eed4a3c11b, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 8575e26061f70bb44bc606a6f4af6bf4, type: 3}
     - subCategoryID: Doombringer
       actions:
       - actionID: Idle
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 4935f994f554ac84f8eacf6232666a9e, type: 3}
       - actionID: Move
         clips: []
       - actionID: Barrage
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 7ba08ce3068203248bc228ed4a62f63f, type: 3}
       - actionID: Laser
         clips:
         - {fileID: 8300000, guid: 635f4f4c1ced9dd4aa5ed56d5b076b73, type: 3}
@@ -410,6 +489,14 @@ MonoBehaviour:
       - actionID: MaxHealthDecrease
         clips:
         - {fileID: 8300000, guid: fe0c1f9b97c0e674ba6fad361c1da365, type: 3}
+    - subCategoryID: Fire
+      actions:
+      - actionID: ApplyEffect
+        clips:
+        - {fileID: 8300000, guid: f887c81494064a64eb63cf0ec3085d6e, type: 3}
+      - actionID: TickDmg
+        clips:
+        - {fileID: 8300000, guid: 580d61b5c3c7281478e57efb18570d86, type: 3}
   - categoryID: Weapons
     subCategories:
     - subCategoryID: Pistol
@@ -452,8 +539,7 @@ MonoBehaviour:
         - {fileID: 8300000, guid: ca319ae43c3ba2a40adc2c5648db68d9, type: 3}
       - actionID: Off
         clips:
-        - {fileID: 8300000, guid: bbd347bc48f21264c94a3f0c2cbaa44d, type: 3}
-        - {fileID: 8300000, guid: 5413db4f9e0d331418d3c50c4eb9c2b2, type: 3}
+        - {fileID: 8300000, guid: d8594025c3f492442a7dd8e537a82d1b, type: 3}
     - subCategoryID: Action
       actions:
       - actionID: Equip
@@ -492,8 +578,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sfxLibrary: {fileID: 5067380971107506713}
   sfxSource: {fileID: 8948161869996854376}
-  defaultCooldown: 0
-  audioMixer: {fileID: 24100000, guid: 2c6235ab0ab416a4b855b3c7c0222d7c, type: 2}
 --- !u!1 &5560072483489250521
 GameObject:
   m_ObjectHideFlags: 0

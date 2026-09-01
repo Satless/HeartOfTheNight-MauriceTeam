@@ -43,8 +43,9 @@ GameObject:
   - component: {fileID: 6463731281556513350}
   - component: {fileID: 1100431403190574925}
   - component: {fileID: 1126824805650037879}
-  - component: {fileID: 2701073587441707772}
   - component: {fileID: 7892184262299229532}
+  - component: {fileID: 7110234075211430788}
+  - component: {fileID: 1442407939130469810}
   m_Layer: 10
   m_Name: Automaton
   m_TagString: Enemy
@@ -168,13 +169,15 @@ MonoBehaviour:
   isDead: 0
   anim: {fileID: 7892184262299229532}
   sr: {fileID: 6463731281556513350}
-  dashAttackSprite: {fileID: -645322797, guid: 361944f99599388428776ecf701b4bc4, type: 3}
-  moveSpeed: 3
-  detectionRangeX: 12
-  detectionRangeY: 3
+  dashAttackSprite: {fileID: 792988338, guid: 361944f99599388428776ecf701b4bc4, type: 3}
+  moveSpeed: 4
+  detectionRangeX: 10
+  detectionRangeY: 4
   dashRange: 9
   attackRange: 1
   attackOffset: {x: 0.75, y: 0.77}
+  patrolSpeed: 3
+  patrolDistance: 10
   groundCheck: {fileID: 7062365615419886083}
   groundCheckRadius: 0.2
   groundLayer:
@@ -186,14 +189,69 @@ MonoBehaviour:
   postTeleportDelay: 0.6
   teleportYOffset: 0
   meleeDamage: 10
-  dashDamage: 10
+  dashDamage: 15
   dashSpeed: 20
   dashDuration: 0.5
   dashCooldown: 5
   meleeCooldown: 2
   stuckTimeLimit: 1.2
---- !u!61 &2701073587441707772
-BoxCollider2D:
+--- !u!95 &7892184262299229532
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036838522198258641}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 919fa2d74e94c424dba4353eb7b3907d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7110234075211430788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036838522198258641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+--- !u!70 &1442407939130469810
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -226,40 +284,9 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.26020217, y: 0.7674978}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.625, y: 1.6875}
-    newSize: {x: 1.625, y: 1.6875}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.61246586, y: 1.519815}
-  m_EdgeRadius: 0.02
---- !u!95 &7892184262299229532
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6036838522198258641}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 919fa2d74e94c424dba4353eb7b3907d, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
+  m_Offset: {x: 0.27292788, y: 0.87156796}
+  m_Size: {x: 0.82525754, y: 1.7431359}
+  m_Direction: 0
 --- !u!1001 &9100000000000000031
 PrefabInstance:
   m_ObjectHideFlags: 0

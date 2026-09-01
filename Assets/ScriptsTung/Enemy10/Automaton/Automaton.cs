@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using HeartOfTheNight.Common;
-using HeartOfTheNight.Enemy;
+// Xóa luôn thư viện EnemyCombatRules lằng nhằng, lấy máu trực tiếp cho an toàn!
 
 public class Automaton : MonoBehaviour, IDamageable
 {
@@ -18,10 +18,17 @@ public class Automaton : MonoBehaviour, IDamageable
     [Header("Tầm nhìn & Di chuyển")]
     public float moveSpeed = 4f;
     public float detectionRangeX = 12f;
-    public float detectionRangeY = 8f; // 🔥 ĐÃ TĂNG LÊN 8F ĐỂ NHÌN THẤY PLAYER DƯỚI HỐ SÂU
+    public float detectionRangeY = 8f;
     public float dashRange = 5.5f;
     public float attackRange = 2f;
     public Vector2 attackOffset = new Vector2(0f, 1f);
+
+    [Header("Tuần tra (Patrol)")]
+    public float patrolSpeed = 2f;
+    public float patrolDistance = 5f;
+    private float startX;
+    private float flipCooldown = 0.5f;
+    private float flipTimer = 0f;
 
     [Header("Kiểm tra Mặt đất (Dùng Layer)")]
     public Transform groundCheck;
@@ -61,6 +68,8 @@ public class Automaton : MonoBehaviour, IDamageable
     private float nextMeleeTime = 0f;
     private float teleportTimer = 0f;
 
+
+    private float idleTimer;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -77,6 +86,8 @@ public class Automaton : MonoBehaviour, IDamageable
         if (currentHealth <= 0 || currentHealth > maxHealth)
             currentHealth = maxHealth;
 
+        startX = transform.position.x;
+
         CachePlayerRefs();
         SetupXuyenThau();
     }
@@ -84,19 +95,16 @@ public class Automaton : MonoBehaviour, IDamageable
     void CachePlayerRefs()
     {
         if (player == null) return;
-
         playerDamageable = player.GetComponent<IDamageable>();
         if (playerDamageable == null)
             playerDamageable = player.GetComponentInChildren<IDamageable>();
-
         playerBodyCol = ResolvePlayerBodyCollider(player);
     }
 
     static Collider2D ResolvePlayerBodyCollider(Transform playerRoot)
     {
         Collider2D onRoot = playerRoot.GetComponent<Collider2D>();
-        if (onRoot != null && !onRoot.isTrigger)
-            return onRoot;
+        if (onRoot != null && !onRoot.isTrigger) return onRoot;
 
         Collider2D[] cols = playerRoot.GetComponentsInChildren<Collider2D>();
         Collider2D fallbackTrigger = null;
@@ -107,21 +115,18 @@ public class Automaton : MonoBehaviour, IDamageable
             if (!col.isTrigger) return col;
             if (fallbackTrigger == null) fallbackTrigger = col;
         }
-
         return onRoot != null ? onRoot : fallbackTrigger;
     }
 
     void SetupXuyenThau()
     {
         if (myCol == null) return;
-
         if (player != null)
         {
             Collider2D[] playerCols = player.GetComponentsInChildren<Collider2D>();
             for (int i = 0; i < playerCols.Length; i++)
             {
-                if (playerCols[i] != null)
-                    Physics2D.IgnoreCollision(myCol, playerCols[i], true);
+                if (playerCols[i] != null) Physics2D.IgnoreCollision(myCol, playerCols[i], true);
             }
         }
 
@@ -138,9 +143,10 @@ public class Automaton : MonoBehaviour, IDamageable
 
     void Update()
     {
-        if (isDead || player == null || myCol == null) return;
+        if (isDead || myCol == null) return;
 
         CheckGroundStatus();
+        if (flipTimer > 0) flipTimer -= Time.deltaTime;
 
         if (anim != null && !dangBanRaDon && anim.enabled)
         {
@@ -155,70 +161,120 @@ public class Automaton : MonoBehaviour, IDamageable
             return;
         }
 
-        if (playerBodyCol == null)
-            CachePlayerRefs();
-        if (playerBodyCol == null) return;
-
-        float myFeetY = myCol.bounds.min.y;
-        float playerFeetY = playerBodyCol.bounds.min.y;
-
-        float distanceX = Mathf.Abs(player.position.x - transform.position.x);
-        float distanceY = Mathf.Abs(playerFeetY - myFeetY);
-
-        if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
+        if (player != null)
         {
-            if (distanceY > platformHeightDiff || (distanceX <= attackRange && distanceY > 0.8f))
+            if (playerBodyCol == null) CachePlayerRefs();
+
+            if (playerBodyCol != null)
             {
-                StopMoving();
-                teleportTimer += Time.deltaTime;
-                if (teleportTimer >= teleportDelay)
+                float myFeetY = myCol.bounds.min.y;
+                float playerFeetY = playerBodyCol.bounds.min.y;
+                float distanceX = Mathf.Abs(player.position.x - transform.position.x);
+                float distanceY = Mathf.Abs(playerFeetY - myFeetY);
+
+                if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
                 {
-                    StartCoroutine(ThucHienTeleport());
-                    teleportTimer = 0f;
+                    ChasePlayerLogic(distanceX, distanceY);
+                    return;
                 }
             }
-            else
+        }
+
+        Patrol();
+    }
+
+    void ChasePlayerLogic(float distanceX, float distanceY)
+    {
+        if (distanceY > platformHeightDiff || (distanceX <= attackRange && distanceY > 0.8f))
+        {
+            StopMoving();
+            teleportTimer += Time.deltaTime;
+            if (teleportTimer >= teleportDelay)
             {
+                StartCoroutine(ThucHienTeleport());
                 teleportTimer = 0f;
-
-                if (distanceX <= attackRange)
-                {
-                    StopMoving();
-                    if (Time.time >= nextMeleeTime)
-                    {
-                        StartCoroutine(ThucHienDanhThuong());
-                    }
-                }
-                else if (distanceX <= dashRange && distanceX > attackRange && Time.time >= nextDashTime)
-                {
-                    StopMoving();
-                    StartCoroutine(ThucHienLuot());
-                }
-                else
-                {
-                    Move();
-
-                    if (Mathf.Abs(transform.position.x - lastXPos) < 0.01f)
-                    {
-                        stuckTimer += Time.deltaTime;
-                        if (stuckTimer >= stuckTimeLimit)
-                        {
-                            StartCoroutine(ThucHienTeleport());
-                            stuckTimer = 0f;
-                        }
-                    }
-                    else
-                    {
-                        stuckTimer = 0f;
-                    }
-                    lastXPos = transform.position.x;
-                }
             }
         }
         else
         {
-            StopMoving();
+            teleportTimer = 0f;
+
+            if (distanceX <= attackRange)
+            {
+                StopMoving();
+                if (Time.time >= nextMeleeTime) StartCoroutine(ThucHienDanhThuong());
+            }
+            else if (distanceX <= dashRange && distanceX > attackRange && Time.time >= nextDashTime)
+            {
+                StopMoving();
+                StartCoroutine(ThucHienLuot());
+            }
+            else
+            {
+                Move();
+
+                if (Mathf.Abs(transform.position.x - lastXPos) < 0.01f)
+                {
+                    stuckTimer += Time.deltaTime;
+                    if (stuckTimer >= stuckTimeLimit)
+                    {
+                        StartCoroutine(ThucHienTeleport());
+                        stuckTimer = 0f;
+                    }
+                }
+                else
+                {
+                    stuckTimer = 0f;
+                }
+                lastXPos = transform.position.x;
+            }
         }
+    }
+
+    void Patrol()
+    {
+        float distanceFromStart = Mathf.Abs(transform.position.x - startX);
+        float currentDir = Mathf.Sign(transform.localScale.x);
+        float dirToStart = Mathf.Sign(startX - transform.position.x);
+
+        if (flipTimer <= 0f)
+        {
+            if (IsHittingWallOrPit() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                if (distanceFromStart >= patrolDistance) startX = transform.position.x;
+                flipTimer = flipCooldown;
+            }
+        }
+
+        rb.linearVelocity = new Vector2(currentDir * patrolSpeed, rb.linearVelocity.y);
+
+ 
+        idleTimer -= Time.deltaTime;
+        if (idleTimer <= 0f)
+        {
+            //SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+
+            AudioEvents.TriggerSound3D("Enemy", "Automation", "Idle", transform.position);
+            idleTimer = 2f;
+        }
+    }
+
+    bool IsHittingWallOrPit()
+    {
+        float huong = Mathf.Sign(transform.localScale.x);
+        Vector2 origin = myCol.bounds.center;
+        float doRongQuai = myCol.bounds.extents.x;
+        Vector2 bottomFront = new Vector2(origin.x + (huong * doRongQuai), myCol.bounds.min.y);
+
+        RaycastHit2D wallHit = Physics2D.Raycast(origin, Vector2.right * huong, doRongQuai + 0.5f, groundLayer);
+        RaycastHit2D pitHit = Physics2D.Raycast(bottomFront + new Vector2(huong * 0.2f, 0), Vector2.down, 1.5f, groundLayer);
+
+        return (wallHit.collider != null) || (pitHit.collider == null);
     }
 
     void CheckGroundStatus()
@@ -230,17 +286,19 @@ public class Automaton : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         if (isDead) return;
-
         currentHealth -= damage;
         Debug.Log("Automaton nhận " + damage + " sát thương! Máu: " + currentHealth + "/" + maxHealth);
-
         if (currentHealth <= 0) Die();
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Hurt", transform.position);
     }
 
     void Die()
     {
         isDead = true;
         dangBanRaDon = true;
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Die", transform.position);
 
         if (rb == null) rb = GetComponent<Rigidbody2D>();
         if (myCol == null) myCol = GetComponent<Collider2D>();
@@ -267,6 +325,8 @@ public class Automaton : MonoBehaviour, IDamageable
         LookAtPlayer();
         float huong = (player.position.x > transform.position.x) ? 1f : -1f;
         rb.linearVelocity = new Vector2(huong * moveSpeed, rb.linearVelocity.y);
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Move", transform.position);
     }
 
     void StopMoving()
@@ -312,12 +372,10 @@ public class Automaton : MonoBehaviour, IDamageable
     bool ThuTimDat(float xPos, out float groundY)
     {
         groundY = 0f;
-        // 🔥 ĐÃ SỬA: Bắn tia trực tiếp xuống mặt đất GroundLayer, độ dài 15f để với tới đáy hố sâu
         RaycastHit2D hit = Physics2D.Raycast(new Vector2(xPos, player.position.y + 2f), Vector2.down, 15f, groundLayer);
 
         if (hit.collider != null)
         {
-            // Tự tính toán khoảng cách từ center của quái đến chân (Bounds)
             float distToFeet = transform.position.y - myCol.bounds.min.y;
             groundY = hit.point.y + distToFeet + teleportYOffset;
             return true;
@@ -333,6 +391,8 @@ public class Automaton : MonoBehaviour, IDamageable
 
         rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         if (anim != null) anim.SetTrigger("Attack");
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Attack", transform.position);
 
         yield return new WaitForSeconds(1.5f);
 
@@ -350,10 +410,13 @@ public class Automaton : MonoBehaviour, IDamageable
         LookAtPlayer();
 
         float huongLuot = Mathf.Sign(transform.localScale.x);
-        rb.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
-        rb.linearVelocity = new Vector2(huongLuot * dashSpeed, 0f);
+
+        // 🔥 ĐÃ FIX 2: Bỏ đóng băng trục Y. Lướt ra mép vực là trọng lực sẽ tự kéo nó rớt xuống!
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         if (anim != null) anim.SetFloat("Speed", dashSpeed);
+
+        AudioEvents.TriggerSound3D("Enemy", "Automation", "Dash", transform.position);
 
         float thoiGianDaLuot = 0f;
         bool daTrungDon = false;
@@ -363,18 +426,15 @@ public class Automaton : MonoBehaviour, IDamageable
         {
             if (isDead) break;
 
+            // Vẫn cấp lực đẩy ngang, nhưng giữ nguyên vận tốc rơi (Y)
+            rb.linearVelocity = new Vector2(huongLuot * dashSpeed, rb.linearVelocity.y);
+
             Vector2 origin = myCol.bounds.center;
-            Vector2 bottomFront = new Vector2(origin.x + (huongLuot * doRongQuai), myCol.bounds.min.y);
 
-            RaycastHit2D wallHit = Physics2D.Raycast(origin, Vector2.right * huongLuot, doRongQuai + 0.5f);
-            RaycastHit2D pitHit = Physics2D.Raycast(bottomFront + new Vector2(huongLuot * 0.2f, 0), Vector2.down, 1.5f);
+            // 🔥 ĐÃ FIX: Chỉ kiểm tra đụng tường, bỏ cái kiểm tra hố sâu đi để nó tự do rơi
+            RaycastHit2D wallHit = Physics2D.Raycast(origin, Vector2.right * huongLuot, doRongQuai + 0.5f, groundLayer);
+            if (wallHit.collider != null && !wallHit.collider.isTrigger) break;
 
-            bool thayTuong = (wallHit.collider != null && !wallHit.collider.isTrigger && !wallHit.collider.CompareTag("Player") && !wallHit.collider.CompareTag("Enemy"));
-            bool truotChan = (pitHit.collider == null);
-
-            if (thayTuong || truotChan) break;
-
-            // 🔥 ĐÃ SỬA LỖI XUYÊN NGƯỜI: Dùng OverlapCircle quét quét vệt lướt!
             if (!daTrungDon)
             {
                 float dashHitRadius = doRongQuai + 0.6f;
@@ -384,36 +444,52 @@ public class Automaton : MonoBehaviour, IDamageable
                 {
                     if (p.CompareTag("Enemy") || !p.isTrigger) continue;
 
-                    if (EnemyCombatRules.TryGetPlayerDamageable(p, out IDamageable target))
+                    // 🔥 ĐÃ FIX 1: Dùng lệnh thuần túy để tránh lỗi ngầm từ thư viện ngoài gây đứng máy
+                    IDamageable target = p.GetComponent<IDamageable>();
+                    if (target == null) target = p.GetComponentInParent<IDamageable>();
+
+                    if (target != null)
                     {
                         daTrungDon = true;
                         target.TakeDamage(dashDamage);
-                        Debug.Log("Automaton lướt trúng HURTBOX của Player!");
+
+                        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Thắng gấp
 
                         if (anim != null) anim.enabled = false;
                         if (sr != null && dashAttackSprite != null) sr.sprite = dashAttackSprite;
+
                         break;
                     }
                 }
             }
 
+            if (daTrungDon) break;
+
             thoiGianDaLuot += Time.deltaTime;
             yield return null;
         }
 
+        if (daTrungDon && !isDead)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            yield return new WaitForSeconds(0.5f);
+        }
+
         if (!isDead)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
             if (anim != null)
             {
                 anim.enabled = true;
                 anim.SetFloat("Speed", 0f);
+                // 🔥 ĐÃ FIX 1: Ép Animator tỉnh lại ngay lập tức, không bị kẹt lướt đứng im
+                try { anim.Play("Idle", -1, 0f); } catch { }
             }
 
             nextDashTime = Time.time + dashCooldown;
-            dangBanRaDon = false;
+            dangBanRaDon = false; // Nhả khóa để AI hoạt động tiếp
         }
     }
 
@@ -432,10 +508,13 @@ public class Automaton : MonoBehaviour, IDamageable
         {
             if (p.CompareTag("Enemy") || !p.isTrigger) continue;
 
-            if (EnemyCombatRules.TryGetPlayerDamageable(p, out IDamageable target))
+            // 🔥 ĐÃ FIX: Lấy Component thuần túy y như phần lướt
+            IDamageable target = p.GetComponent<IDamageable>();
+            if (target == null) target = p.GetComponentInParent<IDamageable>();
+
+            if (target != null)
             {
                 target.TakeDamage(meleeDamage);
-                Debug.Log("Automaton chém trúng HURTBOX của Player!");
                 break;
             }
         }
@@ -449,7 +528,6 @@ public class Automaton : MonoBehaviour, IDamageable
         Gizmos.color = Color.red;
         float facingDirection = Mathf.Sign(transform.localScale.x);
         Vector2 adjustedOffset = new Vector2(attackOffset.x * facingDirection, attackOffset.y);
-
         Vector2 finalAttackPos = (Vector2)transform.position + adjustedOffset;
         float hitRadius = Mathf.Max(0.6f, attackOffset.magnitude + 0.35f);
         Gizmos.DrawWireSphere(finalAttackPos, hitRadius);

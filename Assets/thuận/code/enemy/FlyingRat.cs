@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
+using HeartOfTheNight.Common;
 
-public class FlyingRat : MonoBehaviour
+public class FlyingRat : MonoBehaviour, IDamageable
 {
     [Header("Movement")]
     public float speed = 4f;
@@ -55,12 +56,12 @@ public class FlyingRat : MonoBehaviour
     {
         attacking = true;
 
-        PlayerHealth1 health = player.GetComponent<PlayerHealth1>();
+        IDamageable health = player.GetComponent<IDamageable>();
+        if (health == null)
+            health = player.GetComponentInChildren<IDamageable>();
 
         if (health != null)
-        {
             health.TakeDamage(damage);
-        }
 
         yield return new WaitForSeconds(attackCooldown);
 
@@ -84,6 +85,9 @@ public class FlyingRat : MonoBehaviour
 
     public void TakeDamage(int dmg)
     {
+        if (hp <= 0)
+            return;
+
         hp -= dmg;
 
         if (hp <= 0)

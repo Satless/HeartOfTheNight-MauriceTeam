@@ -25,8 +25,10 @@ public class RoomTransition : MonoBehaviour
     [SerializeField] private bool countsAsSecret;
 
     [Header("Checkpoint")]
-    [Tooltip("Bật = đi qua cửa này lưu điểm hồi sinh. Chết sẽ về phía bên kia cửa.")]
+    [Tooltip("Next Level: bật = lưu checkpoint khi sang map. Same Scene không dùng ô này.")]
     [SerializeField] private bool saveAsCheckpoint;
+    [Tooltip("Same Scene: mặc định luôn lưu checkpoint lúc qua cửa. Bật = không lưu (cửa giả / trap).")]
+    [SerializeField] private bool skipCheckpoint;
     [Tooltip("Same Scene: ID LevelEntrance bên kia cửa (nếu có). Để trống = hồi sinh đúng nextRoomSpawnPoint.")]
     [SerializeField] private string checkpointSpawnID;
 
@@ -90,11 +92,14 @@ public class RoomTransition : MonoBehaviour
 
             RegisterSecretIfNeeded();
 
-            TrySaveCheckpoint(
-                playerObj,
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
-                checkpointSpawnID,
-                nextRoomSpawnPoint.position);
+            if (!skipCheckpoint)
+            {
+                TrySaveCheckpoint(
+                    playerObj,
+                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                    checkpointSpawnID,
+                    nextRoomSpawnPoint.position);
+            }
 
             yield return new WaitForSeconds(0.2f);
             yield return ScreenFader.Instance.FadeIn(fadeDuration);
@@ -118,7 +123,8 @@ public class RoomTransition : MonoBehaviour
             if (hp != null && !saveAsCheckpoint)
                 hp.HealToFull();
 
-            ChapterProgress.UnlockIfChapterScene(next);
+            ChapterProgress.UnlockOnLeavingLevel(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             RegisterSecretIfNeeded();
 
             var pending = new LevelCompletePending
@@ -140,9 +146,6 @@ public class RoomTransition : MonoBehaviour
 
             if (HeartOfTheNight.Hung.DataManager.Instance != null)
             {
-                if (nextLevelIndex > HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel)
-                    HeartOfTheNight.Hung.DataManager.Instance.Data.maxUnlockedLevel = nextLevelIndex;
-
                 HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
                 HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
 
@@ -164,13 +167,13 @@ public class RoomTransition : MonoBehaviour
 
         var current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
         var idx = ChapterProgress.IndexOf(current);
-        if (idx >= 0 && idx < ChapterProgress.Chapter1Scenes.Length - 1)
-            return ChapterProgress.Chapter1Scenes[idx + 1];
+        if (idx < 0)
+            return nextSceneName;
 
-        if (idx >= 0 && idx == ChapterProgress.Chapter1Scenes.Length - 1)
-            return HeartOfTheNight.Hung.DataManager.SelectLevelScene;
+        if (idx + 1 < ChapterProgress.TotalSceneCount)
+            return ChapterProgress.GetSceneAt(idx + 1);
 
-        return nextSceneName;
+        return HeartOfTheNight.Hung.DataManager.SelectLevelScene;
     }
 
     private void RegisterSecretIfNeeded()
@@ -183,7 +186,6 @@ public class RoomTransition : MonoBehaviour
 
     private void TrySaveCheckpoint(GameObject playerObj, string sceneName, string spawnId, Vector3 worldPosition)
     {
-        if (!saveAsCheckpoint) return;
         if (HeartOfTheNight.Hung.DataManager.Instance == null) return;
 
         var hp = playerObj != null ? playerObj.GetComponent<HeartOfTheNight.Player.PlayerHealth>() : null;

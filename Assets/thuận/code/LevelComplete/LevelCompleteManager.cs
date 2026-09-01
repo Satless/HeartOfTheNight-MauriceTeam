@@ -1,6 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using HeartOfTheNight.Hung;
 
 public class LevelCompleteManager : MonoBehaviour
 {
@@ -49,7 +50,7 @@ public class LevelCompleteManager : MonoBehaviour
 
         if (!string.IsNullOrEmpty(nextLevelScene))
         {
-            LoadScene(nextLevelScene);
+            PrepareAndLoadNextLevel(nextLevelScene);
             return;
         }
 
@@ -65,7 +66,23 @@ public class LevelCompleteManager : MonoBehaviour
         }
 
         string scene = string.IsNullOrEmpty(homeScene) ? "mainMenu" : homeScene;
+        if (DataManager.Instance != null)
+            DataManager.Instance.CommitFinishedLevelAndLeave();
+        LevelEntrance.ClearPendingSpawn();
         LoadScene(scene);
+    }
+
+    private static void PrepareAndLoadNextLevel(string next)
+    {
+        if (DataManager.Instance != null && DataManager.Instance.Data != null)
+        {
+            DataManager.Instance.Data.currentScene = next;
+            DataManager.Instance.PrepareForNewScene(next);
+            DataManager.Instance.ClearCheckpointAfterLeavingLevel();
+        }
+
+        LevelEntrance.SetPendingSpawn("");
+        LoadScene(next);
     }
 
     private static void LoadScene(string sceneName)

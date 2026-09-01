@@ -64,8 +64,9 @@ public class MinimapManager : MonoBehaviour
 
         if (mapUIContainer != null)
         {
-            // Đảo ngược trạng thái: Nếu đang tắt thì bật, đang bật thì tắt
-            mapUIContainer.SetActive(!mapUIContainer.activeSelf);
+            bool open = !mapUIContainer.activeSelf;
+            mapUIContainer.SetActive(open);
+            AudioEvents.TriggerSound2D("UI", "Map", open ? "Open" : "Close");
         }
     }
 

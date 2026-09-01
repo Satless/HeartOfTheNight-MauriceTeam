@@ -435,6 +435,19 @@ MonoBehaviour:
   showStateColor: 1
   normalColor: {r: 1, g: 0.9792453, b: 0.9792453, a: 1}
   enrageColor: {r: 1, g: 1, b: 1, a: 1}
+  deathShakeAmplitude: 0.38
+  deathDuration: 5
+  deathShakeHold: 0.85
+  deathEndingStart: 1.5833334
+  deathVfxPrefab: {fileID: 8107031208782475583, guid: 5e36947a1d749cb42a91964b7af514ba, type: 3}
+  deathVfxCount: 8
+  deathVfxScatter: 0.75
+  deathVfxSpeed: 7
+  deathVfxSpeedJitter: 3
+  deathVfxLifetime: 3.5
+  bodySprite: {fileID: 4116628575069481522}
+  destroyAfterBurstDelay: 1.2
+  deathRingSizeMul: 1
 --- !u!95 &6120374570562086116
 Animator:
   serializedVersion: 7
@@ -469,6 +482,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 009c6646b4f63f04bb6973d2aa6771fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _activeStatuses:
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
+  - data: {fileID: 0}
+    durationLeft: 0
+    tickTimer: 0
+    vfxInstance: {fileID: 0}
+    isActive: 0
 --- !u!1 &8873590827413842907
 GameObject:
   m_ObjectHideFlags: 0

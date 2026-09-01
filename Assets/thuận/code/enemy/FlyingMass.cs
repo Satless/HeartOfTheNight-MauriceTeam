@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using HeartOfTheNight.Common;
 
-public class FlyingMass : MonoBehaviour
+public class FlyingMass : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     // Máu của Flying Mass
@@ -44,7 +45,9 @@ public class FlyingMass : MonoBehaviour
     void Start()
     {
         // Tìm Player theo Tag
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        GameObject obj = GameObject.FindGameObjectWithTag("Player");
+        if (obj != null)
+            player = obj.transform;
 
         // Lấy Rigidbody
         rb = GetComponent<Rigidbody2D>();
@@ -160,6 +163,9 @@ public class FlyingMass : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (hp <= 0)
+            return;
+
         hp -= damage;
 
         if (hp <= 0)

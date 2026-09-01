@@ -1,9 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using HeartOfTheNight.Common; // 1. GỌI BỘ LUẬT CHUNG CỦA TEAM VÀO ĐÂY
+using HeartOfTheNight.Common;
 
-// 2. KẾT NỐI VỚI INTERFACE IDamageable
 public class EyeOfNightImg : MonoBehaviour, IDamageable
 {
     [Header("Hoạt ảnh")]
@@ -18,7 +17,15 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
     public float shieldDuration = 5f;
     public float cooldown = 10f;
 
-    // Lưu trữ khiên và danh tính (Tag) gốc của quái
+    [Range(0f, 1f)]
+    public float shieldOpacity = 0.5f;
+
+    [Header("Cài đặt Chết")]
+    [Tooltip("Chỉnh số này bằng đúng thời gian chạy của Animation Dead")]
+    public float deathAnimDuration = 2f;
+    [Tooltip("Kéo vị trí của Animation chết (nhập số âm để kéo tụt xuống đất)")]
+    public float deathYOffset = 0f; // 🔥 Đã thêm biến kéo vị trí chết
+
     private List<GameObject> activeShields = new List<GameObject>();
     private Dictionary<GameObject, string> originalTags = new Dictionary<GameObject, string>();
     private bool isDead = false;
@@ -39,9 +46,7 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
             if (isDead) break;
 
             ActivateShield();
-
             yield return new WaitForSeconds(shieldDuration);
-
             DeactivateShield();
         }
     }
@@ -50,9 +55,10 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
     {
         Debug.Log("Mắt Đêm: Bắt đầu Buff Khiên!");
 
-        // Dọn dẹp dữ liệu cũ cho an toàn
         originalTags.Clear();
         activeShields.Clear();
+
+        AudioEvents.TriggerSound3D("Enemy", "EyeOfNight", "ShieldActivate", transform.position);
 
         List<GameObject> allTargets = new List<GameObject>();
         allTargets.AddRange(GameObject.FindGameObjectsWithTag("Enemy"));
@@ -62,46 +68,41 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
         {
             if (target != null && target != this.gameObject)
             {
-                // Cất Tag cũ đi và đổi thành Untagged
                 originalTags.Add(target, target.tag);
                 target.tag = "Untagged";
 
                 if (shieldPrefab != null)
                 {
-                    // Sinh khiên ra ngoài không gian tự do
                     GameObject shieldClone = Instantiate(shieldPrefab, Vector3.zero, Quaternion.identity);
 
-                    // CHÌA KHÓA Ở ĐÂY: Dùng InChildren để lục tìm chắc chắn có hình ảnh
                     SpriteRenderer targetSr = target.GetComponentInChildren<SpriteRenderer>();
                     SpriteRenderer shieldSr = shieldClone.GetComponentInChildren<SpriteRenderer>();
-                    Collider2D targetCol = target.GetComponentInChildren<Collider2D>(); // Lấy thêm Collider để canh tâm
+                    Collider2D targetCol = target.GetComponentInChildren<Collider2D>();
 
                     if (targetSr != null && shieldSr != null && targetCol != null)
                     {
-                        // 1. CHỈNH TÂM TUYỆT ĐỐI (Dùng Collider để tránh bị lệch xuống bóng dưới chân)
+                        Color shieldColor = shieldSr.color;
+                        shieldColor.a = shieldOpacity;
+                        shieldSr.color = shieldColor;
+
                         shieldClone.transform.position = targetCol.bounds.center;
 
-                        // 2. KÍCH THƯỚC: Đo theo ảnh thật của quái
                         float chieuRongQuai = targetSr.bounds.size.x;
                         float chieuCaoQuai = targetSr.bounds.size.y;
                         float maxKichThuocQuai = Mathf.Max(chieuRongQuai, chieuCaoQuai);
 
-                        // Lấy kích thước gốc của bức ảnh khiên
                         float kichThuocGocKhien = shieldSr.sprite.bounds.size.x;
 
-                        // Ép Scale (Nhân thêm 1.3f để tạo khoảng hở bọc ngoài)
                         if (kichThuocGocKhien > 0)
                         {
                             float worldScale = (maxKichThuocQuai / kichThuocGocKhien) * 1.3f;
                             shieldClone.transform.localScale = new Vector3(worldScale, worldScale, 1f);
                         }
 
-                        // 3. NHÉT VÀO LÀM CON CỦA QUÁI
                         shieldClone.transform.SetParent(target.transform, true);
                     }
                     else
                     {
-                        // Nếu lỡ prefab bị lỗi thiếu cái gì đó, gắn tạm vào gót chân
                         shieldClone.transform.position = target.transform.position;
                         shieldClone.transform.SetParent(target.transform, true);
                     }
@@ -116,7 +117,8 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
     {
         Debug.Log("Mắt Đêm: Thu hồi Khiên!");
 
-        // Trả lại Tag gốc cho quái để Player chém trúng lại
+        AudioEvents.TriggerSound3D("Enemy", "EyeOfNight", "ShieldDeactivate", transform.position);
+
         foreach (var kvp in originalTags)
         {
             if (kvp.Key != null)
@@ -126,7 +128,6 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
         }
         originalTags.Clear();
 
-        // Xóa sổ hình ảnh khiên
         foreach (GameObject shield in activeShields)
         {
             if (shield != null) Destroy(shield);
@@ -134,7 +135,6 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
         activeShields.Clear();
     }
 
-    // 3. HÀM NÀY ĐÃ CHUẨN ĐỂ NHẬN SÁT THƯƠNG TỪ PLAYER
     public void TakeDamage(int damage)
     {
         if (isDead) return;
@@ -147,10 +147,14 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
     void Die()
     {
         isDead = true;
-
         DeactivateShield();
-
         Debug.Log("Eye of the Night đã bị tiêu diệt!");
+
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
+        // 🔥 CẬP NHẬT: Dịch chuyển vị trí chết theo trục Y
+        transform.position = new Vector3(transform.position.x, transform.position.y + deathYOffset, transform.position.z);
 
         if (anim != null)
         {
@@ -158,6 +162,22 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
 
-        Destroy(gameObject, 2f);
+        StartCoroutine(XuLyXoaXac());
+    }
+
+    IEnumerator XuLyXoaXac()
+    {
+        // Đợi theo đúng số bác chỉnh ở inspector (ví dụ 2 giây)
+        yield return new WaitForSeconds(deathAnimDuration);
+
+        // 🔥 FIX: Quét sạch sành sanh TẤT CẢ các ảnh con (mắt, bóng đổ, hiệu ứng...)
+        SpriteRenderer[] srs = GetComponentsInChildren<SpriteRenderer>();
+        foreach (SpriteRenderer sr in srs)
+        {
+            if (sr != null) sr.enabled = false;
+        }
+
+        // Xóa hoàn toàn object sau nửa giây
+        Destroy(gameObject);
     }
 }

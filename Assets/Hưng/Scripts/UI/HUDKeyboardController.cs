@@ -52,27 +52,33 @@ namespace HeartOfTheNight.UI
 
         private void OnEnable()
         {
-            _inputActions.Enable();
-            
-            // Tắt sáng nút ESC khi game hết Pause
-            if (_o0Pause != null)
-            {
-                _o0Pause.color = _normalColor;
-            }
+            GameplayEvents.OnGameplayInputEnabled += HandleGameplayInputEnabled;
+            HandleGameplayInputEnabled(GameplayEvents.InputEnabled);
         }
 
         private void OnDisable()
         {
+            GameplayEvents.OnGameplayInputEnabled -= HandleGameplayInputEnabled;
             if (_inputActions != null)
+                _inputActions.Disable();
+        }
+
+        private void HandleGameplayInputEnabled(bool inputEnabled)
+        {
+            if (_inputActions == null)
+                return;
+
+            if (inputEnabled)
+            {
+                _inputActions.Enable();
+                if (_o0Pause != null)
+                    _o0Pause.color = _normalColor;
+            }
+            else
             {
                 _inputActions.Disable();
-            }
-            
-            // [TÍNH NĂNG ESC] Khi script này bị PauseUI tắt đi (FreezeGameplay), lập tức thắp sáng nút ESC 
-            // và nó sẽ giữ nguyên trạng thái sáng này cho tới khi Unpause (OnEnable chạy lại).
-            if (PauseUI.IsPaused && _o0Pause != null)
-            {
-                _o0Pause.color = _pressedColor;
+                if (_o0Pause != null)
+                    _o0Pause.color = _pressedColor;
             }
         }
 
@@ -115,8 +121,28 @@ namespace HeartOfTheNight.UI
             text.color = c;
         }
 
+        public void SetWeaponKeyVisibility(int slotIndex, bool isVisible)
+        {
+            TMP_Text targetText = slotIndex == 1 ? _gun1 : (slotIndex == 2 ? _gun2 : (slotIndex == 3 ? _gun3 : _gun4));
+            if (targetText != null)
+            {
+                // Thường Text sẽ nằm trong một Image (khung viền nút bấm), nên ta tắt parent luôn cho sạch
+                if (targetText.transform.parent != null && targetText.transform.parent.GetComponent<Image>() != null)
+                {
+                    targetText.transform.parent.gameObject.SetActive(isVisible);
+                }
+                else
+                {
+                    targetText.gameObject.SetActive(isVisible);
+                }
+            }
+        }
+
         private void Update()
         {
+            if (!GameplayEvents.InputEnabled)
+                return;
+
             // Bắt phím số 4 cứng vì chưa có trong Input Map
             if (Keyboard.current != null)
             {

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8132584821374579365}
   - component: {fileID: 6675185881526428438}
   - component: {fileID: 6569079313455679950}
+  - component: {fileID: -1057247613789060207}
   m_Layer: 13
   m_Name: ShieldP
   m_TagString: Untagged
@@ -31,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.818568, y: -2.1309075, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -80,8 +81,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0, g: 0.115719795, b: 1, a: 1}
+  m_Sprite: {fileID: 4243337852175698468, guid: 79a63da6991508045b6d697ac1bffda3, type: 3}
+  m_Color: {r: 0.70952654, g: 0.73661965, b: 0.85660374, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -129,7 +130,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.5625, y: 1.5}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -202,7 +203,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1.5625, y: 1.5}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -229,3 +230,21 @@ MonoBehaviour:
   jumpMultiplier: 1.5
   pickupVFX: {fileID: 0}
   shieldVisualPrefab: {fileID: 118813027983608198, guid: c0f725d66f67941418c15cf5c20b6314, type: 3}
+--- !u!114 &-1057247613789060207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7281742956343847639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3ffaa0ed11b54743a4b5bdd17466a88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minForceX: -6
+  maxForceX: 6
+  minForceY: 3
+  maxForceY: 6
+  floatSpeed: 5
+  floatAmplitude: 0.25

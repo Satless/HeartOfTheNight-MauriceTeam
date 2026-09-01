@@ -23,7 +23,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     public float detectionRangeX = 12f;
     public float detectionRangeY = 3f;
     public float attackRange = 2f;
-    public float attackRangeY = 1.5f; // Chống lỗi chém không khí
+    public float attackRangeY = 1.5f;
     public float attackRadius = 1.2f;
 
     [Header("Kiểm tra Mặt đất & Mép vực")]
@@ -37,6 +37,11 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     public Transform wallCheck;
     public float edgeCheckDistance = 1.5f;
     public float wallCheckDistance = 0.5f;
+    public float wallCheckHeight = 1.5f;
+
+    [Header("Fix Bug Lật Liên Tục")]
+    public float flipCooldown = 0.5f;
+    private float flipTimer = 0f;
 
     [Header("Sát thương & Hiệu ứng Cháy")]
     public int attackDamage = 10;
@@ -52,9 +57,9 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     private float nextAttackTime = 0f;
     private bool isBusy = false;
 
-
     private float idleSoundTimer;
     private float moveSoundTimer;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -71,6 +76,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         if (isBusy || isDead) return;
 
         CheckGroundStatus();
+        if (flipTimer > 0) flipTimer -= Time.deltaTime;
 
         if (player != null)
         {
@@ -79,7 +85,6 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
             if (distanceX <= detectionRangeX && distanceY <= detectionRangeY)
             {
-                // Thêm check Y
                 if (distanceX <= attackRange && distanceY <= attackRangeY)
                 {
                     rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -94,7 +99,6 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
                 return;
             }
         }
-
         Patrol();
     }
 
@@ -115,7 +119,11 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     {
         if (wallCheck == null) return false;
         float dir = Mathf.Sign(transform.localScale.x);
-        RaycastHit2D hit = Physics2D.Raycast(wallCheck.position, Vector2.right * dir, wallCheckDistance, groundLayer);
+
+        Vector2 boxCenter = (Vector2)wallCheck.position + new Vector2(0f, (wallCheckHeight / 2f) + 0.1f);
+        Vector2 boxSize = new Vector2(0.1f, wallCheckHeight);
+
+        RaycastHit2D hit = Physics2D.BoxCast(boxCenter, boxSize, 0f, Vector2.right * dir, wallCheckDistance, groundLayer);
         return hit.collider != null && !hit.collider.isTrigger;
     }
 
@@ -125,24 +133,37 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         float currentDir = Mathf.Sign(transform.localScale.x);
         float dirToStart = Mathf.Sign(startX - transform.position.x);
 
-        if (IsNearEdge() || IsHittingWall() || (distanceFromStart >= patrolDistance && currentDir != dirToStart))
+        if (flipTimer <= 0f)
         {
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
+            if (IsNearEdge() || IsHittingWall())
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+                startX = transform.position.x; // FIX
+            }
+            else if (distanceFromStart >= patrolDistance && currentDir != dirToStart)
+            {
+                Vector3 scale = transform.localScale;
+                scale.x *= -1;
+                transform.localScale = scale;
+                currentDir = Mathf.Sign(transform.localScale.x);
+
+                flipTimer = flipCooldown;
+            }
         }
 
-        float dir = Mathf.Sign(transform.localScale.x);
-        rb.linearVelocity = new Vector2(dir * patrolSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(currentDir * patrolSpeed, rb.linearVelocity.y);
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
-
 
         idleSoundTimer -= Time.fixedDeltaTime;
         if (idleSoundTimer <= 0f)
         {
-            //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
             AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Idle", transform.position);
-            idleSoundTimer = 1.5f; // Phát lại sau mỗi 10s
+            idleSoundTimer = 1.5f;
         }
     }
 
@@ -164,17 +185,21 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             moveSoundTimer -= Time.fixedDeltaTime;
             if (moveSoundTimer <= 0f)
             {
-                //SoundManager.Instance.PlaySound3D("Player", "Slide", transform.position);
-                AudioEvents.TriggerSound3D("Enemy", "BigCorpse", "Move", transform.position);
-                moveSoundTimer = 0.3f; // Phát lại sau mỗi 0.3s
+                AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Move", transform.position);
+                moveSoundTimer = 0.3f;
             }
         }
     }
 
     void LookAtPlayer()
     {
+        if (flipTimer > 0) return;
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
-        transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+        if (Mathf.Sign(transform.localScale.x) != dir)
+        {
+            transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+            flipTimer = flipCooldown;
+        }
     }
 
     IEnumerator AttackRoutine()
@@ -252,13 +277,13 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     {
         if (isDead) return;
         currentHealth -= damage;
+        AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Hurt", transform.position);
         if (currentHealth <= 0) Die();
     }
 
     void Die()
     {
         isDead = true;
-
         AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Die", transform.position);
 
         rb.linearVelocity = Vector2.zero;
@@ -272,5 +297,16 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             anim.SetTrigger("Dead");
         }
         Destroy(gameObject, 2f);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (wallCheck != null)
+        {
+            Gizmos.color = Color.cyan;
+            float dir = Mathf.Sign(transform.localScale.x);
+            Vector3 center = wallCheck.position + new Vector3(dir * (wallCheckDistance / 2f), (wallCheckHeight / 2f) + 0.1f, 0);
+            Gizmos.DrawWireCube(center, new Vector3(wallCheckDistance, wallCheckHeight, 0));
+        }
     }
 }

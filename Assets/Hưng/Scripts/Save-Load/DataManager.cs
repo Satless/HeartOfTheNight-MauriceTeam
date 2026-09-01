@@ -293,6 +293,7 @@ namespace HeartOfTheNight.Hung
                 unlockedDoors = new List<string>(),
                 collectedKeyPickupIds = new List<string>(),
                 foundSecrets = new List<string>(),
+                unlockedWeapons = new bool[] { true, false, false, false },
                 checkpointClearedRooms = new List<string>(),
                 checkpointUnlockedDoors = new List<string>(),
                 checkpointCollectedKeyPickupIds = new List<string>(),
@@ -330,10 +331,10 @@ namespace HeartOfTheNight.Hung
             DeleteCloudSlot(slotIndex);
             ClearCloudSlotCache(slotIndex);
 
+            ChapterProgress.ResetForSlot(slotIndex);
             if (ActiveSlotIndex == slotIndex)
             {
                 Data = new GameData { slotIndex = slotIndex, hasSave = false };
-                ChapterProgress.ResetForNewSave();
             }
 
             Debug.Log($"[Save System] Đã xóa Slot {slotIndex}.");
@@ -571,6 +572,8 @@ namespace HeartOfTheNight.Hung
             if (!string.IsNullOrEmpty(destinationSceneName))
                 Data.ClearSceneLocalProgress(destinationSceneName);
             Data.CaptureCheckpointWorldState();
+            if (Data.hasSave)
+                SaveGame();
         }
 
         /// <summary>Cửa qua màn không phải checkpoint — xóa in-progress màn cũ rồi ghi slot.</summary>

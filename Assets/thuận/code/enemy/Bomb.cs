@@ -1,4 +1,6 @@
 using UnityEngine;
+using HeartOfTheNight.Common;
+using HeartOfTheNight.Enemy;
 
 public class Bomb : MonoBehaviour
 {
@@ -13,14 +15,11 @@ public class Bomb : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (EnemyCombatRules.TryGetPlayerDamageable(other, out var hp))
         {
-            PlayerHealth1 hp = other.GetComponent<PlayerHealth1>();
-
-            if (hp != null)
-                hp.TakeDamage(damage);
-
+            hp.TakeDamage(damage);
             Destroy(gameObject);
+            return;
         }
 
         if (other.CompareTag("Ground"))

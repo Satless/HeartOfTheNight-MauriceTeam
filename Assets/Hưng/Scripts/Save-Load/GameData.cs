@@ -34,6 +34,11 @@ namespace HeartOfTheNight.Hung
 
         public int maxUnlockedLevel = 1;
 
+        /// <summary>
+        /// Ô súng 1–4. Ô 1 luôn mở. Slot-wide: không xóa khi PrepareForNewScene / chết.
+        /// </summary>
+        public bool[] unlockedWeapons = new bool[] { true, false, false, false };
+
         public int blueKeys;
         public int redKeys;
         public bool collectedBlueKey;
@@ -71,6 +76,47 @@ namespace HeartOfTheNight.Hung
             if (checkpointUnlockedDoors == null) checkpointUnlockedDoors = new List<string>();
             if (checkpointCollectedKeyPickupIds == null) checkpointCollectedKeyPickupIds = new List<string>();
             if (checkpointFoundSecrets == null) checkpointFoundSecrets = new List<string>();
+            EnsureUnlockedWeapons();
+        }
+
+        public void EnsureUnlockedWeapons()
+        {
+            const int slotCount = 4;
+            if (unlockedWeapons == null || unlockedWeapons.Length != slotCount)
+            {
+                bool[] next = new bool[slotCount];
+                next[0] = true;
+                if (unlockedWeapons != null)
+                {
+                    int copy = unlockedWeapons.Length < slotCount ? unlockedWeapons.Length : slotCount;
+                    for (int i = 0; i < copy; i++)
+                        next[i] = unlockedWeapons[i];
+                }
+                unlockedWeapons = next;
+            }
+
+            unlockedWeapons[0] = true;
+        }
+
+        public bool IsWeaponUnlocked(int slotIndex)
+        {
+            EnsureUnlockedWeapons();
+            if (slotIndex < 1 || slotIndex > unlockedWeapons.Length)
+                return false;
+            return unlockedWeapons[slotIndex - 1];
+        }
+
+        /// <summary>Ghi RAM slot. Không đụng chìa/phòng. File ghi lúc checkpoint / rời màn.</summary>
+        public bool UnlockWeapon(int slotIndex)
+        {
+            EnsureUnlockedWeapons();
+            if (slotIndex < 1 || slotIndex > unlockedWeapons.Length)
+                return false;
+            if (unlockedWeapons[slotIndex - 1])
+                return false;
+
+            unlockedWeapons[slotIndex - 1] = true;
+            return true;
         }
 
         public bool IsRoomCleared(string roomId)
@@ -195,7 +241,7 @@ namespace HeartOfTheNight.Hung
         {
             if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(sceneName))
                 return false;
-            return id.StartsWith(sceneName + "_", StringComparison.Ordinal);
+            return id.StartsWith(sceneName + "_", StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
