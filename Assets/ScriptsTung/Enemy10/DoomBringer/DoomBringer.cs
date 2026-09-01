@@ -71,7 +71,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
 
-        // Tắt hoàn toàn trọng lực để Boss bay lơ lửng, không bị rơi
+        // Đảm bảo Body Type của Boss phải là Kinematic ngoài Inspector để ủi Player
         if (rb != null)
         {
             rb.gravityScale = 0f;
@@ -96,13 +96,20 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         if (player == null || isDead) return;
 
-        MoveRelentlessly();
-
+        // Xử lý các đòn đánh, chuyển state (Không xử lý vật lý ở đây)
         if (!isTransitioning)
         {
             HandleStateSwitching();
             ExecuteCurrentState();
         }
+    }
+
+    // 🔥 DI CHUYỂN VẬT LÝ PHẢI ĐẶT TRONG FIXED UPDATE
+    void FixedUpdate()
+    {
+        if (player == null || isDead) return;
+
+        MoveRelentlessly();
     }
 
     public void TakeDamage(int damage)
@@ -170,11 +177,11 @@ public class DoomBringer : MonoBehaviour, IDamageable
     // --- Các hàm di chuyển & tấn công ---
     void MoveRelentlessly()
     {
-        // Wall of Flesh mode thì nó đi thẳng 1 hướng. Còn false thì rượt theo player.
         float dir = isWallOfFleshMode ? fixedDirection : Mathf.Sign(player.position.x - transform.position.x);
 
-        // Set thẳng trục Y = 0 để nó bay ngang đâm xuyên mọi thứ, không trồi sụt
-        rb.linearVelocity = new Vector2(dir * moveSpeed, 0f);
+        // 🔥 Dùng MovePosition để ép không gian, tạo lực đẩy tuyệt đối ủi Player văng đi
+        Vector2 newPosition = rb.position + new Vector2(dir * moveSpeed, 0f) * Time.fixedDeltaTime;
+        rb.MovePosition(newPosition);
 
         // Xoay mặt Boss
         transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
@@ -249,10 +256,8 @@ public class DoomBringer : MonoBehaviour, IDamageable
         {
             Vector2 spawnPos = new Vector2(firePoint.position.x, firePoint.position.y + (i * 0.5f));
 
-            // Lấy reference của con quái vừa đẻ ra
             GameObject kami = Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
 
-            // 🔥 THÊM ĐOẠN NÀY ĐỂ KÍCH NỘ: Ép nó rượt Player ngay lập tức
             KamikazeEnemy kamiScript = kami.GetComponent<KamikazeEnemy>();
             if (kamiScript != null)
             {
