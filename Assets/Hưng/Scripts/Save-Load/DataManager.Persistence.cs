@@ -86,13 +86,37 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        internal void DeleteCloudSlot(int slotIndex)
+        internal void DeleteCloudSlot(int slotIndex, Action<bool> onComplete)
         {
             if (!UsesGoogleCloudSaves())
+            {
+                onComplete?.Invoke(true);
                 return;
+            }
 
-            _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(slotIndex.ToString())
-                .RemoveValueAsync();
+            DatabaseReference userRef = _dbRef.Child("users").Child(_user.UserId);
+            int remaining = slotIndex == 1 ? 2 : 1;
+            bool failed = false;
+
+            void OnOneDone(System.Threading.Tasks.Task task)
+            {
+                if (task == null || task.IsFaulted || task.IsCanceled)
+                    failed = true;
+
+                remaining--;
+                if (remaining > 0)
+                    return;
+
+                if (failed)
+                    Debug.LogError($"[Firebase] Không xóa được Slot {slotIndex} trên Cloud.");
+                onComplete?.Invoke(!failed);
+            }
+
+            userRef.Child("slots").Child(slotIndex.ToString()).RemoveValueAsync()
+                .ContinueWithOnMainThread(OnOneDone);
+
+            if (slotIndex == 1)
+                userRef.Child("GameData").RemoveValueAsync().ContinueWithOnMainThread(OnOneDone);
         }
 
         private DatabaseReference GetSlotDbRef()
@@ -259,7 +283,9 @@ namespace HeartOfTheNight.Hung
                     Data.hasSave = true;
                     Data.EnsureLists();
                     KeepBetterLocalPlayTime();
-                    SaveGameLocal();
+                    SaveGame();
+                    if (UsesGoogleCloudSaves())
+                        _dbRef.Child("users").Child(_user.UserId).Child("GameData").RemoveValueAsync();
                     RememberCloudSlot(1, Data);
                     Debug.Log("[Firebase] Đã migrate GameData cũ → Slot 1.");
                 }
@@ -363,23 +389,6 @@ namespace HeartOfTheNight.Hung
             Data = new GameData();
             Data.EnsureLists();
             HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
-        }
-
-        private void ApplyEditorKeyResetIfNeeded()
-        {
-#if UNITY_EDITOR
-            if (keepSavedKeysWhenPlayInEditor || Data == null) return;
-
-            Data.blueKeys = 0;
-            Data.redKeys = 0;
-            Data.collectedBlueKey = false;
-            Data.collectedRedKey = false;
-            if (Data.collectedKeyPickupIds == null)
-                Data.collectedKeyPickupIds = new List<string>();
-            else
-                Data.collectedKeyPickupIds.Clear();
-            Debug.Log("[DataManager] Editor: reset chìa về 0 cho session Play này.");
-#endif
         }
 
         internal bool UsesGoogleCloudSaves()

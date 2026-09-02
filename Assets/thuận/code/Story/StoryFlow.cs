@@ -67,7 +67,7 @@ public static class StoryFlow
     /// <summary>
     /// Scene gameplay cần PrepareForNewScene khi đi tới destination.
     /// Story2 → 1-2. EndScene → rỗng (không phải màn chơi).
-    /// Prepare thật sự chỉ lúc ContinueFromStory / Select Level, không lúc vừa hiện story.
+    /// Prepare lúc ContinueFromStory, hoặc lúc Select Level load thẳng gameplay (không có intro).
     /// </summary>
     public static string GameplaySceneForDestination(string destination)
     {
