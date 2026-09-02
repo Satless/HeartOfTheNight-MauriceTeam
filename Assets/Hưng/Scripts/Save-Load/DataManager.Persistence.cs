@@ -86,18 +86,37 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        internal void DeleteCloudSlot(int slotIndex)
+        internal void DeleteCloudSlot(int slotIndex, Action<bool> onComplete)
         {
             if (!UsesGoogleCloudSaves())
+            {
+                onComplete?.Invoke(true);
                 return;
+            }
 
             DatabaseReference userRef = _dbRef.Child("users").Child(_user.UserId);
-            userRef.Child("slots").Child(slotIndex.ToString()).RemoveValueAsync();
+            int remaining = slotIndex == 1 ? 2 : 1;
+            bool failed = false;
 
-            // Save cũ nằm ở users/{uid}/GameData (trước khi có 4 slot). Xóa Slot 1 mà để node này
-            // thì LoadGameCloud / index slot sẽ migrate lại save đã xóa.
+            void OnOneDone(System.Threading.Tasks.Task task)
+            {
+                if (task == null || task.IsFaulted || task.IsCanceled)
+                    failed = true;
+
+                remaining--;
+                if (remaining > 0)
+                    return;
+
+                if (failed)
+                    Debug.LogError($"[Firebase] Không xóa được Slot {slotIndex} trên Cloud.");
+                onComplete?.Invoke(!failed);
+            }
+
+            userRef.Child("slots").Child(slotIndex.ToString()).RemoveValueAsync()
+                .ContinueWithOnMainThread(OnOneDone);
+
             if (slotIndex == 1)
-                userRef.Child("GameData").RemoveValueAsync();
+                userRef.Child("GameData").RemoveValueAsync().ContinueWithOnMainThread(OnOneDone);
         }
 
         private DatabaseReference GetSlotDbRef()

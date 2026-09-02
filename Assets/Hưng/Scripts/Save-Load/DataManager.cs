@@ -35,6 +35,7 @@ namespace HeartOfTheNight.Hung
         private bool _playTimeDirty;
         private float _playTimeSaveTimer;
         private bool _slotEnterBusy;
+        private bool _slotDeleteBusy;
         private string _activeSceneName;
 
         /// <summary>Scene.name cấp phát string mới mỗi lần gọi — cache lại để Update không sinh rác.</summary>
@@ -50,6 +51,8 @@ namespace HeartOfTheNight.Hung
 
         /// <summary>Scene mới đang hồi sinh / Continue — PlayerHealth không được ghi đè máu save bằng max.</summary>
         public bool IsApplyingSpawnRestore => _pendingRespawnApply;
+
+        public bool IsDeletingSave => _slotDeleteBusy;
 
         internal Firebase.Auth.FirebaseUser FirebaseUser => _user;
 
@@ -336,18 +339,46 @@ namespace HeartOfTheNight.Hung
             });
         }
 
-        public void DeleteSave(int slotIndex)
+        public void DeleteSave(int slotIndex, Action<bool> onComplete = null)
         {
             slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
-            SaveSlotStorage.DeleteLocalSlot(slotIndex);
-            DeleteCloudSlot(slotIndex);
-            ClearCloudSlotCache(slotIndex);
+            if (_slotDeleteBusy)
+            {
+                onComplete?.Invoke(false);
+                return;
+            }
 
+            if (!UsesGoogleCloudSaves())
+            {
+                ApplyLocalDelete(slotIndex);
+                onComplete?.Invoke(true);
+                return;
+            }
+
+            _slotDeleteBusy = true;
+            int pending = slotIndex;
+            DeleteCloudSlot(pending, ok =>
+            {
+                _slotDeleteBusy = false;
+                if (!ok)
+                {
+                    Debug.LogError($"[Save System] Xóa Slot {pending} trên Cloud thất bại — giữ bản máy để save không bị kéo lại.");
+                    onComplete?.Invoke(false);
+                    return;
+                }
+
+                ApplyLocalDelete(pending);
+                onComplete?.Invoke(true);
+            });
+        }
+
+        private void ApplyLocalDelete(int slotIndex)
+        {
+            SaveSlotStorage.DeleteLocalSlot(slotIndex);
+            ClearCloudSlotCache(slotIndex);
             ChapterProgress.ResetForSlot(slotIndex);
             if (ActiveSlotIndex == slotIndex)
-            {
                 Data = new GameData { slotIndex = slotIndex, hasSave = false };
-            }
 
             Debug.Log($"[Save System] Đã xóa Slot {slotIndex}.");
         }
