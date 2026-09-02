@@ -98,7 +98,9 @@ namespace HeartOfTheNight.Hung
         {
             if (!TryGetPlainJson(stored, out string json))
                 return null;
-            return JsonUtility.FromJson<GameData>(json);
+            GameData data = JsonUtility.FromJson<GameData>(json);
+            data?.EnsureLists();
+            return data;
         }
 
         public static void OverwriteGameData(string stored, GameData target)
@@ -108,6 +110,7 @@ namespace HeartOfTheNight.Hung
             if (!TryGetPlainJson(stored, out string json))
                 throw new InvalidDataException("Save is corrupt, tampered, or not a Heart Of The Night save.");
             JsonUtility.FromJsonOverwrite(json, target);
+            target.EnsureLists();
         }
 
         private static bool TryOpenSealed(string sealedText, out string json)

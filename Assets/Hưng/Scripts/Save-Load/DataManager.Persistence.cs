@@ -38,6 +38,7 @@ namespace HeartOfTheNight.Hung
         public void SaveGame()
         {
             if (Data == null) Data = new GameData();
+            Data.EnsureLists();
             Data.hasSave = true;
             Data.slotIndex = ActiveSlotIndex;
             Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
@@ -46,7 +47,7 @@ namespace HeartOfTheNight.Hung
 
             SaveGameLocal();
 
-            if (_isFirebaseReady && _user != null && _dbRef != null)
+            if (UsesGoogleCloudSaves())
             {
                 string json = JsonUtility.ToJson(Data, true);
                 GetSlotDbRef().SetRawJsonValueAsync(SaveCrypto.WrapForCloud(json)).ContinueWithOnMainThread(task =>
@@ -69,11 +70,11 @@ namespace HeartOfTheNight.Hung
             }
 
             _lastCloudLoadFailed = false;
-            if (_isFirebaseReady && _user != null && _dbRef != null)
+            if (UsesGoogleCloudSaves())
             {
                 LoadGameCloud(onLoaded);
             }
-            else if (_isFirebaseInitializing)
+            else if (_isFirebaseInitializing && !AuthSession.IsGuest)
             {
                 Debug.LogWarning("[Firebase] Hệ thống mạng đang khởi tạo, xin vui lòng đợi...");
                 StartCoroutine(WaitAndLoadCloud(onLoaded));
@@ -87,7 +88,7 @@ namespace HeartOfTheNight.Hung
 
         internal void DeleteCloudSlot(int slotIndex)
         {
-            if (!_isFirebaseReady || _user == null || _dbRef == null)
+            if (!UsesGoogleCloudSaves())
                 return;
 
             _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(slotIndex.ToString())

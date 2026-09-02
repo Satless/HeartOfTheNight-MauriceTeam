@@ -77,6 +77,117 @@ namespace HeartOfTheNight.Hung
             if (checkpointCollectedKeyPickupIds == null) checkpointCollectedKeyPickupIds = new List<string>();
             if (checkpointFoundSecrets == null) checkpointFoundSecrets = new List<string>();
             EnsureUnlockedWeapons();
+            Sanitize();
+        }
+
+        /// <summary>
+        /// Chặn save sửa tay / cloud lạ: máu, chìa, list ID. Không thay gameplay bình thường.
+        /// </summary>
+        public void Sanitize()
+        {
+            slotIndex = Mathf.Clamp(slotIndex, 1, 4);
+            playerHealth = Mathf.Clamp(playerHealth, 0, 999);
+            checkpointPlayerHealth = Mathf.Clamp(checkpointPlayerHealth, 0, 999);
+            playerCoin = Mathf.Clamp(playerCoin, 0, 999999);
+            blueKeys = Mathf.Clamp(blueKeys, 0, 99);
+            redKeys = Mathf.Clamp(redKeys, 0, 99);
+            checkpointBlueKeys = Mathf.Clamp(checkpointBlueKeys, 0, 99);
+            checkpointRedKeys = Mathf.Clamp(checkpointRedKeys, 0, 99);
+
+            int levelCap = 32;
+            int total = ChapterProgress.TotalSceneCount;
+            if (total > 0)
+                levelCap = total;
+            maxUnlockedLevel = Mathf.Clamp(maxUnlockedLevel, 1, levelCap);
+
+            totalPlayTimeSeconds = SanitizeTime(totalPlayTimeSeconds);
+            currentScene = ClampText(currentScene, 128);
+            targetSpawnID = ClampText(targetSpawnID, 160);
+            checkpointScene = ClampText(checkpointScene, 128);
+            checkpointSpawnID = ClampText(checkpointSpawnID, 160);
+            createdAtUtc = ClampText(createdAtUtc, 64);
+            lastPlayedAtUtc = ClampText(lastPlayedAtUtc, 64);
+            playerPosition = SanitizePos(playerPosition);
+            checkpointPosition = SanitizePos(checkpointPosition);
+
+            SanitizeIdList(clearedRooms);
+            SanitizeIdList(unlockedDoors);
+            SanitizeIdList(collectedKeyPickupIds);
+            SanitizeIdList(foundSecrets);
+            SanitizeIdList(checkpointClearedRooms);
+            SanitizeIdList(checkpointUnlockedDoors);
+            SanitizeIdList(checkpointCollectedKeyPickupIds);
+            SanitizeIdList(checkpointFoundSecrets);
+            SanitizeSceneTimers(scenePlayTimes);
+        }
+
+        private static float SanitizeTime(float seconds)
+        {
+            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < 0f)
+                return 0f;
+            const float maxSeconds = 86400f * 365f * 10f;
+            return seconds > maxSeconds ? maxSeconds : seconds;
+        }
+
+        private static Vector3 SanitizePos(Vector3 pos)
+        {
+            if (float.IsNaN(pos.x) || float.IsNaN(pos.y) || float.IsNaN(pos.z) ||
+                float.IsInfinity(pos.x) || float.IsInfinity(pos.y) || float.IsInfinity(pos.z))
+                return Vector3.zero;
+            return new Vector3(
+                Mathf.Clamp(pos.x, -100000f, 100000f),
+                Mathf.Clamp(pos.y, -100000f, 100000f),
+                Mathf.Clamp(pos.z, -100000f, 100000f));
+        }
+
+        private static string ClampText(string value, int maxLen)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+            if (value.IndexOf('\0') >= 0)
+                return "";
+            return value.Length <= maxLen ? value : value.Substring(0, maxLen);
+        }
+
+        private static void SanitizeIdList(List<string> list)
+        {
+            if (list == null)
+                return;
+
+            const int maxItems = 2048;
+            const int maxLen = 160;
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                string id = list[i];
+                if (string.IsNullOrEmpty(id) || id.Length > maxLen || id.IndexOf('\0') >= 0)
+                    list.RemoveAt(i);
+            }
+
+            while (list.Count > maxItems)
+                list.RemoveAt(list.Count - 1);
+        }
+
+        private static void SanitizeSceneTimers(List<ScenePlayTimeEntry> list)
+        {
+            if (list == null)
+                return;
+
+            const int maxItems = 64;
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                ScenePlayTimeEntry entry = list[i];
+                if (entry == null || string.IsNullOrEmpty(entry.sceneName))
+                {
+                    list.RemoveAt(i);
+                    continue;
+                }
+
+                entry.sceneName = ClampText(entry.sceneName, 128);
+                entry.playSeconds = SanitizeTime(entry.playSeconds);
+            }
+
+            while (list.Count > maxItems)
+                list.RemoveAt(list.Count - 1);
         }
 
         public void EnsureUnlockedWeapons()

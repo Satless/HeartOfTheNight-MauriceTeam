@@ -33,7 +33,9 @@ namespace HeartOfTheNight.Hung
                 {
                     _auth = FirebaseAuth.DefaultInstance;
                     _dbRef = FirebaseDatabase.DefaultInstance.RootReference;
-                    SignInAnonymously();
+                    _isFirebaseReady = true;
+                    _isFirebaseInitializing = false;
+                    RestorePersistedGoogleUser();
                 }
                 else
                 {
@@ -45,34 +47,30 @@ namespace HeartOfTheNight.Hung
             });
         }
 
-        private void SignInAnonymously()
+        /// <summary>
+        /// Chỉ khôi phục Google. Guest = local. Không tạo Anonymous (tránh mở RTDB nếu rules chỉ cần auth != null).
+        /// </summary>
+        private void RestorePersistedGoogleUser()
         {
-            if (_auth.CurrentUser != null)
+            var current = _auth != null ? _auth.CurrentUser : null;
+            if (current != null && current.IsAnonymous)
             {
-                _user = _auth.CurrentUser;
-                _isFirebaseReady = true;
-                _isFirebaseInitializing = false;
-                Debug.Log($"[Firebase] Đã nhớ tài khoản cũ! UID: {_user.UserId}");
-                LoadGameCloud();
+                _auth.SignOut();
+                current = null;
+            }
+
+            if (current != null && !current.IsAnonymous)
+            {
+                BindFirebaseUser(current);
+                LogAuthDev("Restored Google session.");
+                if (!ShouldPreserveLiveRamSave())
+                    LoadGameCloud();
                 return;
             }
 
-            _auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(task =>
-            {
-                _isFirebaseInitializing = false;
-                if (task.IsCanceled || task.IsFaulted)
-                {
-                    Debug.LogError("[Firebase] Đăng nhập ẩn danh thất bại! Fallback sang Local Load.");
-                    if (!ShouldPreserveLiveRamSave())
-                        LoadGameLocal();
-                    return;
-                }
-
-                _user = _auth.CurrentUser;
-                _isFirebaseReady = true;
-                Debug.Log($"[Firebase] Đăng nhập ẩn danh thành công! UID: {_user.UserId}");
-                LoadGameCloud();
-            });
+            _user = null;
+            if (!ShouldPreserveLiveRamSave())
+                LoadGameLocal();
         }
 
         public void SignInWithGoogle(Action<bool, string> onComplete)
@@ -160,7 +158,8 @@ namespace HeartOfTheNight.Hung
                 }
 
                 BindFirebaseUser(_auth.CurrentUser);
-                LoadGameCloud();
+                if (!ShouldPreserveLiveRamSave())
+                    LoadGameLocal();
                 onComplete?.Invoke(true, null);
             });
         }
@@ -173,7 +172,6 @@ namespace HeartOfTheNight.Hung
 
             _auth.SignOut();
             _user = null;
-            _isFirebaseReady = false;
             InvalidateCloudSlotIndex();
             CompleteCloudSlotIndex();
             Debug.Log("[Firebase] Signed out.");
@@ -332,7 +330,7 @@ namespace HeartOfTheNight.Hung
             BindFirebaseUser(user);
             LoadGameCloud();
             string label = ResolveAccountLabel(user);
-            Debug.Log($"[Firebase] Google sign-in OK. UID={user.UserId} email={label}");
+            LogAuthDev("Google sign-in OK.");
             CompleteGoogleAuth(serial, true, label);
         }
 
@@ -428,7 +426,7 @@ namespace HeartOfTheNight.Hung
                     LoadGameCloud();
                     message = ResolveAccountLabel(user);
                     ok = true;
-                    Debug.Log($"[Firebase] Google sign-in OK. UID={user.UserId} email={message}");
+                    LogAuthDev("Google sign-in OK.");
                 }
             }
 
@@ -443,7 +441,6 @@ namespace HeartOfTheNight.Hung
             string oldId = _user != null ? _user.UserId : null;
             string newId = user != null ? user.UserId : null;
             _user = user;
-            _isFirebaseReady = user != null;
             if (oldId != newId)
             {
                 Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
@@ -550,6 +547,13 @@ namespace HeartOfTheNight.Hung
 
             Exception baseEx = exception.GetBaseException();
             return baseEx != null ? baseEx.Message : exception.Message;
+        }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        private static void LogAuthDev(string message)
+        {
+            Debug.Log("[Firebase] " + message);
         }
     }
 }
