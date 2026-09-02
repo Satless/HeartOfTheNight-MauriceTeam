@@ -112,12 +112,15 @@ public class ItemPickupPlayer : MonoBehaviour
                     {
                         shieldInstance = Instantiate(shieldVisualPrefab, player.transform.position, Quaternion.identity, player.transform);
                     }
-
+                    AudioEvents.TriggerSound3D("Effects", "Shield", "ApplyEffect", transform.position);
                     Debug.Log("🛡️ Bật Khiên!");
+
                     yield return new WaitForSeconds(buffDuration);
+
 
                     shieldScript.hasShield = false;
                     if (shieldInstance != null) Destroy(shieldInstance);
+                    AudioEvents.TriggerSound3D("Effects", "Shield", "Off", transform.position);
                     Debug.Log("Hết Khiên!");
                 }
                 break;
@@ -127,11 +130,13 @@ public class ItemPickupPlayer : MonoBehaviour
                 if (speedScript != null)
                 {
                     speedScript.moveSpeedMultiplier = speedMultiplier;
+                    AudioEvents.TriggerSound3D("Effects", "Speed", "ApplyEffect", transform.position);
                     Debug.Log("⚡ Tăng tốc độ chạy!");
 
                     yield return new WaitForSeconds(buffDuration);
 
                     speedScript.moveSpeedMultiplier = 1f;
+                    AudioEvents.TriggerSound3D("Effects", "Speed", "Off", transform.position);
                     Debug.Log("Hết buff tốc độ.");
                 }
                 break;
@@ -141,11 +146,13 @@ public class ItemPickupPlayer : MonoBehaviour
                 if (jumpScript != null)
                 {
                     jumpScript.jumpForceMultiplier = jumpMultiplier;
+                    AudioEvents.TriggerSound3D("Effects", "Jump", "ApplyEffect", transform.position);
                     Debug.Log("🦘 Tăng lực nhảy!");
 
                     yield return new WaitForSeconds(buffDuration);
 
                     jumpScript.jumpForceMultiplier = 1f;
+                    AudioEvents.TriggerSound3D("Effects", "Jump", "Off", transform.position);
                     Debug.Log("Hết buff lực nhảy.");
                 }
                 break;

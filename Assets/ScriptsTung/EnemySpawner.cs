@@ -46,6 +46,7 @@ public class EnemySpawner : MonoBehaviour
         }
 
         Debug.Log("Player dẫm bẫy! Đã gọi hội quái ra!");
+        AudioEvents.TriggerSound3D("Enemy", "General", "Spawn", transform.position);
     }
 }
 ////da

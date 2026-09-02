@@ -48,6 +48,7 @@ namespace HeartOfTheNight.Enemy
         private readonly HashSet<EnemyStrengthModifier> _buffInRange = new();
         private static readonly Collider2D[] _buffHitBuffer = new Collider2D[24];
 
+        private float _footstepTimer;
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -219,6 +220,8 @@ namespace HeartOfTheNight.Enemy
             int hitCount = Physics2D.OverlapCircleNonAlloc(
                 transform.position, stats.buffRadius, _buffHitBuffer, enemyLayer);
 
+            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Buff", transform.position);
+
             for (int i = 0; i < hitCount; i++)
             {
                 var mod = _buffHitBuffer[i].GetComponentInParent<EnemyStrengthModifier>();
@@ -256,6 +259,8 @@ namespace HeartOfTheNight.Enemy
                     buffedAllies[i].ClearBuff();
             }
             buffedAllies.Clear();
+
+            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "RemoveBuff", transform.position);
         }
 
         private void ApplyHorizontalMove(int moveDir, float speed)
@@ -270,6 +275,15 @@ namespace HeartOfTheNight.Enemy
             float newX = Mathf.MoveTowards(rb.linearVelocity.x, target,
                                            stats.groundAccel * Time.fixedDeltaTime);
             rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+
+            _footstepTimer -= Time.deltaTime;
+            if (_footstepTimer <= 0f)
+            {
+                //SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+
+                AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Move", transform.position);
+                _footstepTimer = 0.2f;
+            }
         }
 
         private void Decelerate()
@@ -304,6 +318,8 @@ namespace HeartOfTheNight.Enemy
         private void Fire()
         {
             if (anim != null) anim.SetTrigger("Attack");
+
+            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Attack", transform.position);
         }
 
         public void ExecuteFire()
@@ -316,7 +332,6 @@ namespace HeartOfTheNight.Enemy
             bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
                           stats.homingStopDistance, stats.homingLockPlayerSpeed,
                           stats.bulletDamage, stats.bulletLifetime, groundLayer);
-
         }
 
         public void TakeDamage(int amount)
@@ -324,6 +339,8 @@ namespace HeartOfTheNight.Enemy
             if (isDead) return;
 
             currentHealth -= amount;
+
+            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Hurt", transform.position);
 
             // Flash TRƯỚC khi xử lý chết. Đừng check currentHealth > 0 —
             // súng thường one-shot (dmg >= 35) sẽ bỏ qua flash.
@@ -352,6 +369,7 @@ namespace HeartOfTheNight.Enemy
 
                 // if (SoundManager.Instance != null)
                 //     SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
+                AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Die", transform.position);
 
                 Destroy(gameObject, 1.5f);
             }
