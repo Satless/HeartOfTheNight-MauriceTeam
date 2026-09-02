@@ -211,6 +211,7 @@ GameObject:
   - component: {fileID: 218490290}
   - component: {fileID: 218490289}
   - component: {fileID: 218490292}
+  - component: {fileID: 218490293}
   m_Layer: 5
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -349,6 +350,22 @@ MonoBehaviour:
   animationSpeed: 8
   normalColor: {r: 1, g: 0.92559093, b: 0.0056602955, a: 1}
   hoverColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &218490293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218490287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad1b832ab595c4c4891de3c021094b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  categoryID: UI
+  subCategoryID: Buttons
+  hoverAction: Continue
+  clickAction: Continue_Click
 --- !u!1 &240765324
 GameObject:
   m_ObjectHideFlags: 0
@@ -666,6 +683,7 @@ GameObject:
   - component: {fileID: 1200077648}
   - component: {fileID: 1200077647}
   - component: {fileID: 1200077651}
+  - component: {fileID: 1200077652}
   m_Layer: 5
   m_Name: BackToMenuButton
   m_TagString: Untagged
@@ -804,6 +822,22 @@ MonoBehaviour:
   animationSpeed: 8
   normalColor: {r: 1, g: 0.94968677, b: 0, a: 1}
   hoverColor: {r: 1, g: 0, b: 0, a: 1}
+--- !u!114 &1200077652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1200077646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad1b832ab595c4c4891de3c021094b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  categoryID: UI
+  subCategoryID: Buttons
+  hoverAction: Return
+  clickAction: Return_Click
 --- !u!1 &1340378166
 GameObject:
   m_ObjectHideFlags: 0
