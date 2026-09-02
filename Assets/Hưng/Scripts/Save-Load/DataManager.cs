@@ -186,9 +186,13 @@ namespace HeartOfTheNight.Hung
                 return;
 
             var live = Data.CopyLiveWorld();
+            var liveTimers = Data.CopyLiveScenePlayTimes();
             Data.RestoreCheckpointWorldState();
+            Data.RestoreCheckpointScenePlayTimes();
             SaveGame();
             Data.ApplyLiveWorld(live);
+            Data.ApplyLiveScenePlayTimes(liveTimers);
+            RebindLevelTimerAfterListReplace();
         }
 
         private void FlushPlayTimeIfNeeded()
@@ -368,6 +372,7 @@ namespace HeartOfTheNight.Hung
             if (Data.hasCheckpointWorldState)
             {
                 Data.RestoreCheckpointWorldState();
+                Data.RestoreCheckpointScenePlayTimes();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                 SaveGame();
                 return;

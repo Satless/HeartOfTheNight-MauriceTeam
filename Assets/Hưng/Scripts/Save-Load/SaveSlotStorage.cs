@@ -71,6 +71,8 @@ namespace HeartOfTheNight.Hung
             slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
             if (File.Exists(GetSlotSavePath(slotIndex)))
                 return true;
+            if (File.Exists(GetSlotBackupPath(slotIndex)))
+                return true;
 
             if (UsesSharedGuestFolder()
                 && slotIndex == 1
@@ -121,16 +123,19 @@ namespace HeartOfTheNight.Hung
             peek = null;
             slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
 
-            TryLoadGameDataFile(GetSlotSavePath(slotIndex), ref peek);
-            TryLoadGameDataFile(GetSlotBackupPath(slotIndex), ref peek);
+            if (TryLoadGameDataFile(GetSlotSavePath(slotIndex), out peek))
+                return true;
+            if (TryLoadGameDataFile(GetSlotBackupPath(slotIndex), out peek))
+                return true;
 
             if (UsesSharedGuestFolder() && slotIndex == 1)
             {
                 string legacy = Path.Combine(Application.persistentDataPath, "save_data.json");
-                TryLoadGameDataFile(legacy, ref peek);
+                if (TryLoadGameDataFile(legacy, out peek))
+                    return true;
             }
 
-            return peek != null;
+            return false;
         }
 
         public static void DeleteLocalSlot(int slotIndex)
@@ -157,7 +162,8 @@ namespace HeartOfTheNight.Hung
 
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(tempPath, SaveCrypto.Seal(json));
-            if (File.Exists(savePath))
+            bool hadMain = File.Exists(savePath);
+            if (hadMain)
             {
                 if (File.Exists(backupPath))
                     File.Delete(backupPath);
@@ -165,6 +171,10 @@ namespace HeartOfTheNight.Hung
             }
 
             File.Move(tempPath, savePath);
+
+            // Không có file chính: .bak còn lại là save đời trước, không phải backup của bản vừa ghi.
+            if (!hadMain)
+                TryDeleteFile(backupPath);
         }
 
         public static bool TryLoadSlotFile(int slotIndex, GameData target)
@@ -213,29 +223,25 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        private static void TryLoadGameDataFile(string path, ref GameData peek)
+        private static bool TryLoadGameDataFile(string path, out GameData peek)
         {
+            peek = null;
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
-                return;
+                return false;
 
             try
             {
                 GameData loaded = SaveCrypto.ParseGameData(File.ReadAllText(path));
                 if (loaded == null)
-                    return;
+                    return false;
 
-                if (peek == null)
-                {
-                    peek = loaded;
-                    return;
-                }
-
-                if (loaded.totalPlayTimeSeconds > peek.totalPlayTimeSeconds)
-                    peek.totalPlayTimeSeconds = loaded.totalPlayTimeSeconds;
+                peek = loaded;
+                return true;
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"[Save System] Không đọc được {path}: {e.Message}");
+                return false;
             }
         }
     }
