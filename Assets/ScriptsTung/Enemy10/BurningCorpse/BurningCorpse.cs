@@ -43,6 +43,11 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     public float flipCooldown = 0.5f;
     private float flipTimer = 0f;
 
+    [Header("Hệ thống chống kẹt (Dành cho Tuần tra)")]
+    public float stuckTimeLimit = 0.8f;
+    private float stuckTimer = 0f;
+    private float lastXPos = 0f;
+
     [Header("Sát thương & Hiệu ứng Cháy")]
     public int attackDamage = 10;
     public float attackCooldown = 2f;
@@ -50,6 +55,12 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     public int burnTicks = 3;
     public float timeBetweenTicks = 1f;
     public float dashSpeedThreshold = 12f;
+
+    [Tooltip("Kéo Prefab hình ngọn lửa vào đây để nó bám lên người Player")]
+    public GameObject burnEffectPrefab;
+
+    [Tooltip("Điều chỉnh vị trí ngọn lửa (X, Y) bù trừ so với Player. Ví dụ Y=0.5 để đẩy lửa lên cao")]
+    public Vector2 burnEffectOffset = new Vector2(0f, 0.5f);
 
     private Transform player;
     private Rigidbody2D rb;
@@ -69,6 +80,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
         currentHealth = maxHealth;
         startX = transform.position.x;
+        lastXPos = transform.position.x;
     }
 
     void Update()
@@ -78,6 +90,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         CheckGroundStatus();
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
 
+        // 1. NẾU THẤY PLAYER -> ƯU TIÊN SỐ 1 LÀ ĐUỔI HOẶC CHÉM
         if (player != null)
         {
             float distanceX = Mathf.Abs(player.position.x - transform.position.x);
@@ -96,10 +109,29 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
                 {
                     ChasePlayer();
                 }
-                return;
+                return; // Đã xử lý xong việc đuổi Player, thoát Update() luôn, không chạy xuống Patrol nữa!
             }
         }
+
+        // 2. KHÔNG THẤY PLAYER -> ĐI TUẦN TRA VÀ CHỐNG KẸT
         Patrol();
+
+        // Chống kẹt chỉ áp dụng khi đi tuần tra (Tránh việc đuổi theo ép góc tường bị lật mặt)
+        if (Mathf.Abs(transform.position.x - lastXPos) < 0.01f)
+        {
+            stuckTimer += Time.deltaTime;
+            if (stuckTimer >= stuckTimeLimit)
+            {
+                if (flipTimer <= 0f) Flip();
+                startX = transform.position.x;
+                stuckTimer = 0f;
+            }
+        }
+        else
+        {
+            stuckTimer = 0f;
+        }
+        lastXPos = transform.position.x;
     }
 
     void CheckGroundStatus()
@@ -137,29 +169,19 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         {
             if (IsNearEdge() || IsHittingWall())
             {
-                Vector3 scale = transform.localScale;
-                scale.x *= -1;
-                transform.localScale = scale;
-                currentDir = Mathf.Sign(transform.localScale.x);
-
-                flipTimer = flipCooldown;
-                startX = transform.position.x; // FIX
+                Flip();
+                startX = transform.position.x;
             }
             else if (distanceFromStart >= patrolDistance && currentDir != dirToStart)
             {
-                Vector3 scale = transform.localScale;
-                scale.x *= -1;
-                transform.localScale = scale;
-                currentDir = Mathf.Sign(transform.localScale.x);
-
-                flipTimer = flipCooldown;
+                Flip();
             }
         }
 
         rb.linearVelocity = new Vector2(currentDir * patrolSpeed, rb.linearVelocity.y);
         if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
 
-        idleSoundTimer -= Time.fixedDeltaTime;
+        idleSoundTimer -= Time.deltaTime;
         if (idleSoundTimer <= 0f)
         {
             AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Idle", transform.position);
@@ -171,7 +193,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     {
         LookAtPlayer();
 
-        if (IsNearEdge() || IsHittingWall())
+        // 🔥 FIX TRỌNG ĐIỂM: Đang đuổi thì mặc kệ mép vực (lao xuống luôn), chỉ đứng lại khi đụng tường!
+        if (IsHittingWall())
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", 0);
@@ -182,7 +205,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
             rb.linearVelocity = new Vector2(dir * moveSpeed, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
 
-            moveSoundTimer -= Time.fixedDeltaTime;
+            moveSoundTimer -= Time.deltaTime;
             if (moveSoundTimer <= 0f)
             {
                 AudioEvents.TriggerSound3D("Enemy", "BurningCorpse", "Move", transform.position);
@@ -197,9 +220,16 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         float dir = (player.position.x > transform.position.x) ? 1 : -1;
         if (Mathf.Sign(transform.localScale.x) != dir)
         {
-            transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-            flipTimer = flipCooldown;
+            Flip();
         }
+    }
+
+    void Flip()
+    {
+        Vector3 scale = transform.localScale;
+        scale.x *= -1;
+        transform.localScale = scale;
+        flipTimer = flipCooldown;
     }
 
     IEnumerator AttackRoutine()
@@ -253,18 +283,73 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     IEnumerator GayHieuUngChay(Collider2D playerCol, IDamageable target)
     {
         Rigidbody2D playerRb = playerCol.GetComponentInParent<Rigidbody2D>();
+
+        GameObject ngonLuaDangChay = null;
+        if (burnEffectPrefab != null && playerCol != null)
+        {
+            Transform playerRoot = playerCol.transform.root;
+            ngonLuaDangChay = Instantiate(burnEffectPrefab, playerRoot);
+            ngonLuaDangChay.transform.localPosition = new Vector3(burnEffectOffset.x, burnEffectOffset.y, -1f);
+
+            SpriteRenderer fireSr = ngonLuaDangChay.GetComponent<SpriteRenderer>();
+            if (fireSr == null) fireSr = ngonLuaDangChay.GetComponentInChildren<SpriteRenderer>();
+
+            if (fireSr != null)
+            {
+                SpriteRenderer[] allPlayerSrs = playerRoot.GetComponentsInChildren<SpriteRenderer>();
+
+                if (allPlayerSrs.Length > 0)
+                {
+                    int maxOrder = -99999;
+                    string targetLayerName = allPlayerSrs[0].sortingLayerName;
+
+                    foreach (SpriteRenderer sr in allPlayerSrs)
+                    {
+                        if (sr.gameObject == ngonLuaDangChay) continue;
+
+                        if (sr.sortingOrder > maxOrder)
+                        {
+                            maxOrder = sr.sortingOrder;
+                            targetLayerName = sr.sortingLayerName;
+                        }
+                    }
+
+                    fireSr.sortingLayerName = targetLayerName;
+                    fireSr.sortingOrder = maxOrder + 50;
+                }
+                else
+                {
+                    fireSr.sortingOrder = 32000;
+                }
+            }
+        }
+
         for (int i = 0; i < burnTicks; i++)
         {
             float thoiGianDaCho = 0f;
             while (thoiGianDaCho < timeBetweenTicks)
             {
-                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold) yield break;
+                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold)
+                {
+                    if (ngonLuaDangChay != null) Destroy(ngonLuaDangChay);
+                    yield break;
+                }
                 thoiGianDaCho += Time.deltaTime;
                 yield return null;
             }
-            if (target != null) target.TakeDamage(burnDamagePerTick);
-            else yield break;
+
+            if (target != null)
+            {
+                target.TakeDamage(burnDamagePerTick);
+            }
+            else
+            {
+                if (ngonLuaDangChay != null) Destroy(ngonLuaDangChay);
+                yield break;
+            }
         }
+
+        if (ngonLuaDangChay != null) Destroy(ngonLuaDangChay);
     }
 
     public void DisableHitbox()
