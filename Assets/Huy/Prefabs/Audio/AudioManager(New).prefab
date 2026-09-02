@@ -62,6 +62,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 42460163f32c9ce459ea68eb9a21cae8, type: 3}
   - trackName: GameOver
     clip: {fileID: 8300000, guid: 28c92559180cd174a8630b9d26e98bad, type: 3}
+  - trackName: Intro_Level1
+    clip: {fileID: 8300000, guid: a38918f2cd1f41146abf1f8b6325d236, type: 3}
   - trackName: Tutorial
     clip: {fileID: 8300000, guid: 37bd29bcc1dde3b4989ad8824fee4049, type: 3}
   - trackName: Level1-1
@@ -74,6 +76,8 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: ceca6d638fda0304a9b0e2eaa9bebab7, type: 3}
   - trackName: Level5-1
     clip: {fileID: 8300000, guid: 5d42f7575c1a8364599448d958a8ab9a, type: 3}
+  - trackName: Intro_Level2
+    clip: {fileID: 8300000, guid: a1407cc2dea7d704dbaff6251e9e09e2, type: 3}
   - trackName: Level1-2
     clip: {fileID: 8300000, guid: fcc38839b1e0d834cbef6ae1d3ddf850, type: 3}
   - trackName: Level2-2
@@ -84,10 +88,14 @@ MonoBehaviour:
     clip: {fileID: 8300000, guid: 49f9e19267e40244291f45985507a51a, type: 3}
   - trackName: Level5-2
     clip: {fileID: 8300000, guid: e177f6c0d2f7bd24a95e2f99412f11ce, type: 3}
+  - trackName: Intro_Level3
+    clip: {fileID: 8300000, guid: e5dfbc94a6765d241bd14338bf3b2723, type: 3}
   - trackName: Level1-3
     clip: {fileID: 8300000, guid: 7376e30560b382a4d8c74affccadae43, type: 3}
   - trackName: Level2-3
     clip: {fileID: 8300000, guid: 652748c8b4c15474b8e4dbb7d9bf1159, type: 3}
+  - trackName: End
+    clip: {fileID: 8300000, guid: 28733d251f742c64f987cb6d093800b2, type: 3}
 --- !u!114 &5944829389066682039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,6 +144,18 @@ MonoBehaviour:
       - actionID: ToggleOff
         clips:
         - {fileID: 8300000, guid: e99ceda480813d54f9a778d0d39ac18b, type: 3}
+      - actionID: Continue
+        clips:
+        - {fileID: 8300000, guid: 83994fd2a8a264943864fa2bdf3cd4c9, type: 3}
+      - actionID: Continue_Click
+        clips:
+        - {fileID: 8300000, guid: 7fc19b9121c78e046b70fd99249a9c96, type: 3}
+      - actionID: Return
+        clips:
+        - {fileID: 8300000, guid: 676c37cfec8bf32468eea560189a3b83, type: 3}
+      - actionID: Return_Click
+        clips:
+        - {fileID: 8300000, guid: 0ffa0eed54bae904184d6db3ed664fd8, type: 3}
     - subCategoryID: Slider
       actions:
       - actionID: Drag
@@ -242,7 +262,11 @@ MonoBehaviour:
       - actionID: Die
         clips: []
       - actionID: LootDrop
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 8bb55e051ed55fe41aec06c7a5c9bbb5, type: 3}
+      - actionID: Spawn
+        clips:
+        - {fileID: 8300000, guid: 601c6b92437bea842ab451f01680ad29, type: 3}
     - subCategoryID: BigCorpse
       actions:
       - actionID: Idle
@@ -374,11 +398,25 @@ MonoBehaviour:
       - actionID: Move
         clips: []
       - actionID: Attack
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: a9b5d4ffe7cc125429697561e3f1e30d, type: 3}
+        - {fileID: 8300000, guid: d87868f4b22335b4290d504a8e5e37a2, type: 3}
+      - actionID: Buff
+        clips:
+        - {fileID: 8300000, guid: 0aa714da1383a1d44bf9f9aa0a45ea17, type: 3}
+      - actionID: RemoveBuff
+        clips:
+        - {fileID: 8300000, guid: b777ee93359ce2b41acdf6c8e633f417, type: 3}
       - actionID: Hurt
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 06428ab0b6c16434d929df8c0f6a72cf, type: 3}
+        - {fileID: 8300000, guid: 004cf2ea37fd25d4185b6786a5ad0a29, type: 3}
+        - {fileID: 8300000, guid: 461df1931a8b3d34b9c9d6f2f652f32f, type: 3}
       - actionID: Die
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 36d0ab87185b8954c9c65db5c9b4ba49, type: 3}
+        - {fileID: 8300000, guid: 7d3ae92ad7683de45ae68e5a5abc5ad7, type: 3}
+        - {fileID: 8300000, guid: 4d0837c906c0fb242ad6624dbba5ebb7, type: 3}
     - subCategoryID: Kamikaze
       actions:
       - actionID: Idle
@@ -497,6 +535,30 @@ MonoBehaviour:
       - actionID: TickDmg
         clips:
         - {fileID: 8300000, guid: 580d61b5c3c7281478e57efb18570d86, type: 3}
+    - subCategoryID: Shield
+      actions:
+      - actionID: ApplyEffect
+        clips:
+        - {fileID: 8300000, guid: 5598fc5b296e66241b92100902916313, type: 3}
+      - actionID: Off
+        clips:
+        - {fileID: 8300000, guid: 6547ec8d5f1bd6d48b80726134945a0b, type: 3}
+    - subCategoryID: Speed
+      actions:
+      - actionID: ApplyEffect
+        clips:
+        - {fileID: 8300000, guid: 6ba40ca93c85e534d90826c2fa6b857c, type: 3}
+      - actionID: Off
+        clips:
+        - {fileID: 8300000, guid: f30da53da3d671f4eb9c19a257f8c483, type: 3}
+    - subCategoryID: Jump
+      actions:
+      - actionID: ApplyEffect
+        clips:
+        - {fileID: 8300000, guid: e220a7d9ce2ac3a47bed755c1e49a583, type: 3}
+      - actionID: Off
+        clips:
+        - {fileID: 8300000, guid: 3aa6fc43754fa544a9d968f4b1912d1b, type: 3}
   - categoryID: Weapons
     subCategories:
     - subCategoryID: Pistol

@@ -1,11 +1,18 @@
+using HeartOfTheNight.Hung;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("SelectLevel");
+        var dm = DataManager.EnsureExists();
+        if (dm == null)
+        {
+            Debug.LogError("[MainMenu] Không tạo được DataManager.");
+            return;
+        }
+
+        dm.SelectSlotAndEnter(DataManager.GetActiveSlotIndex());
     }
 
     public void QuitGame()

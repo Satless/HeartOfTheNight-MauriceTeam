@@ -5,6 +5,7 @@ using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
 using Firebase.Extensions;
+using HeartOfTheNight.UI;
 using UnityEngine;
 
 namespace HeartOfTheNight.Hung
@@ -48,7 +49,8 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
-        /// Chỉ khôi phục Google. Guest = local. Không tạo Anonymous (tránh mở RTDB nếu rules chỉ cần auth != null).
+        /// Chỉ khôi phục Google khi AuthSession không phải Guest.
+        /// Guest = local. Không tạo Anonymous (tránh mở RTDB nếu rules chỉ cần auth != null).
         /// </summary>
         private void RestorePersistedGoogleUser()
         {
@@ -57,6 +59,16 @@ namespace HeartOfTheNight.Hung
             {
                 _auth.SignOut();
                 current = null;
+            }
+
+            if (AuthSession.IsGuest)
+            {
+                if (current != null && _auth != null)
+                    _auth.SignOut();
+                BindFirebaseUser(null);
+                if (!ShouldPreserveLiveRamSave())
+                    LoadGameLocal();
+                return;
             }
 
             if (current != null && !current.IsAnonymous)
@@ -167,13 +179,17 @@ namespace HeartOfTheNight.Hung
         public void SignOutFirebase()
         {
             CancelGoogleSignIn();
-            if (_auth == null)
-                return;
+            _playTimeDirty = false;
+            _playTimeSaveTimer = 0f;
 
-            _auth.SignOut();
-            _user = null;
-            InvalidateCloudSlotIndex();
+            if (_auth != null)
+                _auth.SignOut();
+
+            BindFirebaseUser(null);
+            // Bind no-ops if đã unsigned; vẫn bỏ RAM Google để SaveGameLocal không ghi vào folder guest.
+            Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
             CompleteCloudSlotIndex();
+            HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
             Debug.Log("[Firebase] Signed out.");
         }
 
@@ -441,10 +457,16 @@ namespace HeartOfTheNight.Hung
             string oldId = _user != null ? _user.UserId : null;
             string newId = user != null ? user.UserId : null;
             _user = user;
+            if (user != null && !user.IsAnonymous)
+                AuthSession.SignInWithGoogle(ResolveAccountLabel(user));
             if (oldId != newId)
             {
+                _cloudLoadSerial++;
+                AbortSlotEnter();
+                CancelPendingCloudSave();
                 Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
                 _playTimeDirty = false;
+                _playTimeSaveTimer = 0f;
                 InvalidateCloudSlotIndex();
                 if (user != null && !user.IsAnonymous)
                     RefreshCloudSlotIndex(null);

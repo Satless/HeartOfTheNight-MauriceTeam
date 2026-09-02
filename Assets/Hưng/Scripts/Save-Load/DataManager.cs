@@ -18,10 +18,6 @@ namespace HeartOfTheNight.Hung
         public GameData Data = new GameData();
         public int ActiveSlotIndex { get; private set; } = 1;
 
-        [Header("Debug / Test")]
-        [Tooltip("Chi Editor: bat = giu chìa từ save khi Play. Tat (mac dinh) = moi lan Play chìa ve 0.")]
-        [SerializeField] private bool keepSavedKeysWhenPlayInEditor = false;
-
         [Header("Checkpoint")]
         [Tooltip("Cho anim chết chạy trước khi fade + load lại scene.")]
         [SerializeField] private float respawnDelay = 1.2f;
@@ -39,6 +35,8 @@ namespace HeartOfTheNight.Hung
         private bool _playTimeDirty;
         private float _playTimeSaveTimer;
         private bool _slotEnterBusy;
+        private int _slotEnterSerial;
+        private bool _slotDeleteBusy;
         private string _activeSceneName;
 
         /// <summary>Scene.name cấp phát string mới mỗi lần gọi — cache lại để Update không sinh rác.</summary>
@@ -54,6 +52,8 @@ namespace HeartOfTheNight.Hung
 
         /// <summary>Scene mới đang hồi sinh / Continue — PlayerHealth không được ghi đè máu save bằng max.</summary>
         public bool IsApplyingSpawnRestore => _pendingRespawnApply;
+
+        public bool IsDeletingSave => _slotDeleteBusy;
 
         internal Firebase.Auth.FirebaseUser FirebaseUser => _user;
 
@@ -151,9 +151,7 @@ namespace HeartOfTheNight.Hung
             if (!Application.isPlaying || Data == null || !Data.hasSave)
                 return false;
 
-            return ActiveSceneName != "mainMenu"
-                && ActiveSceneName != SelectLevelScene
-                && !StoryFlow.IsCinematic(ActiveSceneName);
+            return IsLevelScene(ActiveSceneName);
         }
 
         /// <summary>
@@ -171,14 +169,11 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
-        /// Đang trong màn: RAM có chìa/phòng chưa commit — không được LoadGame đè.
+        /// Đang trong màn: RAM đang chơi — không được LoadGame đè, kể cả khi hasSave còn false.
         /// </summary>
         internal bool ShouldPreserveLiveRamSave()
         {
-            return Application.isPlaying
-                && Data != null
-                && Data.hasSave
-                && IsLevelScene(ActiveSceneName);
+            return Application.isPlaying && IsLevelScene(ActiveSceneName);
         }
 
         /// <summary>
@@ -192,9 +187,13 @@ namespace HeartOfTheNight.Hung
                 return;
 
             var live = Data.CopyLiveWorld();
+            var liveTimers = Data.CopyLiveScenePlayTimes();
             Data.RestoreCheckpointWorldState();
+            Data.RestoreCheckpointScenePlayTimes();
             SaveGame();
             Data.ApplyLiveWorld(live);
+            Data.ApplyLiveScenePlayTimes(liveTimers);
+            RebindLevelTimerAfterListReplace();
         }
 
         private void FlushPlayTimeIfNeeded()
@@ -244,12 +243,15 @@ namespace HeartOfTheNight.Hung
             if (_slotEnterBusy)
                 return;
 
+            int enterGen = ++_slotEnterSerial;
             _slotEnterBusy = true;
             if (IsWaitingForCloudSlots)
             {
                 int pendingSlot = slotIndex;
                 RefreshCloudSlotIndex(() =>
                 {
+                    if (enterGen != _slotEnterSerial)
+                        return;
                     _slotEnterBusy = false;
                     SelectSlotAndEnter(pendingSlot);
                 });
@@ -261,13 +263,15 @@ namespace HeartOfTheNight.Hung
 
             LoadSlot(slotIndex, () =>
             {
+                if (enterGen != _slotEnterSerial)
+                    return;
+
                 _slotEnterBusy = false;
                 if (Data != null && Data.hasSave)
                 {
                     ApplyChapterProgressFromLoadedData();
                     TouchLastPlayed();
                     SaveGame();
-                    ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     LoadSceneSafe(SelectLevelScene);
                     return;
@@ -282,6 +286,12 @@ namespace HeartOfTheNight.Hung
                 CreateNewSave(slotIndex);
                 LoadSceneSafe(StoryFlow.Story1);
             });
+        }
+
+        private void AbortSlotEnter()
+        {
+            _slotEnterSerial++;
+            _slotEnterBusy = false;
         }
 
         public void CreateNewSave(int slotIndex)
@@ -339,20 +349,80 @@ namespace HeartOfTheNight.Hung
             });
         }
 
-        public void DeleteSave(int slotIndex)
+        public void DeleteSave(int slotIndex, Action<bool> onComplete = null)
         {
             slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
-            SaveSlotStorage.DeleteLocalSlot(slotIndex);
-            DeleteCloudSlot(slotIndex);
-            ClearCloudSlotCache(slotIndex);
-
-            ChapterProgress.ResetForSlot(slotIndex);
-            if (ActiveSlotIndex == slotIndex)
+            if (_slotDeleteBusy)
             {
-                Data = new GameData { slotIndex = slotIndex, hasSave = false };
+                onComplete?.Invoke(false);
+                return;
             }
 
-            Debug.Log($"[Save System] Đã xóa Slot {slotIndex}.");
+            string accountKey = SaveSlotStorage.GetAccountSaveKey();
+            string userId = CurrentCloudUserId();
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                ApplyLocalDelete(slotIndex, accountKey);
+                onComplete?.Invoke(true);
+                return;
+            }
+
+            if (ShouldDeferCloudDelete(slotIndex))
+            {
+                _slotDeleteBusy = true;
+                _deleteWhenIdleSlot = slotIndex;
+                _deleteWhenIdleAccountKey = accountKey;
+                _deleteWhenIdleUserId = userId;
+                _deleteWhenIdleCallback = onComplete;
+                return;
+            }
+
+            BeginCloudDelete(slotIndex, userId, accountKey, onComplete);
+        }
+
+        private string CurrentCloudUserId()
+        {
+            return _user != null && !_user.IsAnonymous ? _user.UserId : null;
+        }
+
+        private void BeginCloudDelete(int slotIndex, string userId, string accountKey, Action<bool> onComplete)
+        {
+            _slotDeleteBusy = true;
+            int pending = slotIndex;
+            string key = string.IsNullOrEmpty(accountKey) ? SaveSlotStorage.GetAccountSaveKey() : accountKey;
+            DeleteCloudSlot(pending, userId, ok =>
+            {
+                _slotDeleteBusy = false;
+                if (!ok)
+                {
+                    Debug.LogError($"[Save System] Xóa Slot {pending} trên Cloud thất bại — giữ bản máy để save không bị kéo lại.");
+                    onComplete?.Invoke(false);
+                    return;
+                }
+
+                ApplyLocalDelete(pending, key);
+                onComplete?.Invoke(true);
+            });
+        }
+
+        private void ApplyLocalDelete(int slotIndex, string accountKey)
+        {
+            if (string.IsNullOrEmpty(accountKey))
+                accountKey = SaveSlotStorage.GetAccountSaveKey();
+
+            SaveSlotStorage.DeleteLocalSlot(slotIndex, accountKey);
+
+            bool sameAccount = accountKey == SaveSlotStorage.GetAccountSaveKey();
+            if (sameAccount)
+            {
+                ClearCloudSlotCache(slotIndex);
+                ChapterProgress.ResetForSlot(slotIndex);
+                if (ActiveSlotIndex == slotIndex)
+                    Data = new GameData { slotIndex = slotIndex, hasSave = false };
+            }
+
+            Debug.Log($"[Save System] Đã xóa Slot {slotIndex} ({accountKey}).");
         }
 
         public void AbandonInProgress()
@@ -375,6 +445,7 @@ namespace HeartOfTheNight.Hung
             if (Data.hasCheckpointWorldState)
             {
                 Data.RestoreCheckpointWorldState();
+                Data.RestoreCheckpointScenePlayTimes();
                 HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                 SaveGame();
                 return;

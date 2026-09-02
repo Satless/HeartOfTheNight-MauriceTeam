@@ -70,6 +70,7 @@ public class Automaton : MonoBehaviour, IDamageable
 
 
     private float idleTimer;
+    private float _footstepTimer;
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -326,7 +327,14 @@ public class Automaton : MonoBehaviour, IDamageable
         float huong = (player.position.x > transform.position.x) ? 1f : -1f;
         rb.linearVelocity = new Vector2(huong * moveSpeed, rb.linearVelocity.y);
 
-        AudioEvents.TriggerSound3D("Enemy", "Automation", "Move", transform.position);
+        _footstepTimer -= Time.deltaTime;
+        if (_footstepTimer <= 0f)
+        {
+            //SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
+
+            AudioEvents.TriggerSound3D("Enemy", "Automation", "Move", transform.position);
+            _footstepTimer = 0.2f;
+        }
     }
 
     void StopMoving()

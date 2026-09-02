@@ -97,6 +97,19 @@ namespace HeartOfTheNight.Hung
                 _levelTimerEntry.playSeconds = 0f;
         }
 
+        /// <summary>
+        /// scenePlayTimes vừa bị thay list — _levelTimerEntry có thể trỏ object cũ.
+        /// </summary>
+        private void RebindLevelTimerAfterListReplace()
+        {
+            if (Data == null || !IsLevelScene(ActiveSceneName))
+                return;
+
+            _levelTimerEntry = Data.GetOrCreateScenePlayTime(ActiveSceneName);
+            _levelTimerOwner = Data;
+            _levelTimerScene = ActiveSceneName;
+        }
+
         private void ClearLevelTimer()
         {
             _levelTimerEntry = null;

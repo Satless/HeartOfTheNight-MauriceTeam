@@ -65,6 +65,14 @@ namespace HeartOfTheNight.Hung
         public bool checkpointCollectedRedKey;
         public int checkpointPlayerHealth;
 
+        /// <summary>
+        /// Đồng hồ màn lúc qua cửa. Home / ghi file khi thoát app rollback về đây.
+        /// Chết / Continue không restore — giữ giây đang treo.
+        /// false = save cũ, chưa từng snapshot timer.
+        /// </summary>
+        public bool hasCheckpointScenePlayTimes;
+        public List<ScenePlayTimeEntry> checkpointScenePlayTimes = new List<ScenePlayTimeEntry>();
+
         public void EnsureLists()
         {
             if (clearedRooms == null) clearedRooms = new List<string>();
@@ -76,6 +84,7 @@ namespace HeartOfTheNight.Hung
             if (checkpointUnlockedDoors == null) checkpointUnlockedDoors = new List<string>();
             if (checkpointCollectedKeyPickupIds == null) checkpointCollectedKeyPickupIds = new List<string>();
             if (checkpointFoundSecrets == null) checkpointFoundSecrets = new List<string>();
+            if (checkpointScenePlayTimes == null) checkpointScenePlayTimes = new List<ScenePlayTimeEntry>();
             EnsureUnlockedWeapons();
             Sanitize();
         }
@@ -119,6 +128,7 @@ namespace HeartOfTheNight.Hung
             SanitizeIdList(checkpointCollectedKeyPickupIds);
             SanitizeIdList(checkpointFoundSecrets);
             SanitizeSceneTimers(scenePlayTimes);
+            SanitizeSceneTimers(checkpointScenePlayTimes);
         }
 
         private static float SanitizeTime(float seconds)
@@ -285,6 +295,8 @@ namespace HeartOfTheNight.Hung
             checkpointCollectedBlueKey = collectedBlueKey;
             checkpointCollectedRedKey = collectedRedKey;
             checkpointPlayerHealth = playerHealth;
+            hasCheckpointScenePlayTimes = true;
+            checkpointScenePlayTimes = CloneScenePlayTimes(scenePlayTimes);
         }
 
         /// <summary>
@@ -346,6 +358,50 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
+        /// Home / ghi committed xuống đĩa. Không gọi lúc chết — đồng hồ vẫn chạy tiếp từ chỗ treo.
+        /// </summary>
+        public void RestoreCheckpointScenePlayTimes()
+        {
+            EnsureLists();
+            if (!hasCheckpointWorldState || !hasCheckpointScenePlayTimes)
+                return;
+
+            scenePlayTimes = CloneScenePlayTimes(checkpointScenePlayTimes);
+        }
+
+        public List<ScenePlayTimeEntry> CopyLiveScenePlayTimes()
+        {
+            EnsureLists();
+            return CloneScenePlayTimes(scenePlayTimes);
+        }
+
+        public void ApplyLiveScenePlayTimes(List<ScenePlayTimeEntry> live)
+        {
+            scenePlayTimes = CloneScenePlayTimes(live);
+        }
+
+        private static List<ScenePlayTimeEntry> CloneScenePlayTimes(List<ScenePlayTimeEntry> source)
+        {
+            var result = new List<ScenePlayTimeEntry>();
+            if (source == null)
+                return result;
+
+            for (int i = 0; i < source.Count; i++)
+            {
+                ScenePlayTimeEntry entry = source[i];
+                if (entry == null || string.IsNullOrEmpty(entry.sceneName))
+                    continue;
+                result.Add(new ScenePlayTimeEntry
+                {
+                    sceneName = entry.sceneName,
+                    playSeconds = entry.playSeconds
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// ID mặc định: SceneName_ObjectName. Dùng khi replay / vào màn từ Select Level.
         /// </summary>
         public static bool IdBelongsToScene(string id, string sceneName)
@@ -395,7 +451,10 @@ namespace HeartOfTheNight.Hung
         {
             EnsureLists();
             if (hasCheckpointWorldState)
+            {
                 RestoreCheckpointWorldState();
+                RestoreCheckpointScenePlayTimes();
+            }
 
             hasCheckpoint = false;
             checkpointScene = "";

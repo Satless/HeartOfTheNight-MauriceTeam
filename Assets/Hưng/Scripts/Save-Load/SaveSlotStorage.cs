@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Firebase.Auth;
+using HeartOfTheNight.UI;
 using UnityEngine;
 
 namespace HeartOfTheNight.Hung
@@ -30,11 +31,15 @@ namespace HeartOfTheNight.Hung
 
         public static string GetAccountSaveFolder(bool create)
         {
-            string key = GetAccountSaveKey();
-            if (key == "guest")
+            return GetAccountSaveFolder(GetAccountSaveKey(), create);
+        }
+
+        public static string GetAccountSaveFolder(string accountKey, bool create)
+        {
+            if (string.IsNullOrEmpty(accountKey) || accountKey == "guest")
                 return Application.persistentDataPath;
 
-            string folder = Path.Combine(Application.persistentDataPath, "saves", key);
+            string folder = Path.Combine(Application.persistentDataPath, "saves", accountKey);
             if (create && !Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
             return folder;
@@ -42,6 +47,9 @@ namespace HeartOfTheNight.Hung
 
         public static string GetAccountSaveKey()
         {
+            if (AuthSession.IsGuest)
+                return "guest";
+
             FirebaseUser user = DataManager.Instance != null ? DataManager.Instance.FirebaseUser : null;
             if (user == null)
             {
@@ -70,6 +78,8 @@ namespace HeartOfTheNight.Hung
         {
             slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
             if (File.Exists(GetSlotSavePath(slotIndex)))
+                return true;
+            if (File.Exists(GetSlotBackupPath(slotIndex)))
                 return true;
 
             if (UsesSharedGuestFolder()
@@ -121,26 +131,42 @@ namespace HeartOfTheNight.Hung
             peek = null;
             slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
 
-            TryLoadGameDataFile(GetSlotSavePath(slotIndex), ref peek);
-            TryLoadGameDataFile(GetSlotBackupPath(slotIndex), ref peek);
+            if (TryLoadGameDataFile(GetSlotSavePath(slotIndex), out peek))
+                return true;
+            if (TryLoadGameDataFile(GetSlotBackupPath(slotIndex), out peek))
+                return true;
 
             if (UsesSharedGuestFolder() && slotIndex == 1)
             {
                 string legacy = Path.Combine(Application.persistentDataPath, "save_data.json");
-                TryLoadGameDataFile(legacy, ref peek);
+                if (TryLoadGameDataFile(legacy, out peek))
+                    return true;
             }
 
-            return peek != null;
+            return false;
         }
 
         public static void DeleteLocalSlot(int slotIndex)
         {
-            slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
-            TryDeleteFile(GetSlotSavePath(slotIndex));
-            TryDeleteFile(GetSlotBackupPath(slotIndex));
-            TryDeleteFile(GetSlotTempPath(slotIndex));
+            DeleteLocalSlot(slotIndex, GetAccountSaveKey());
+        }
 
-            if (UsesSharedGuestFolder() && slotIndex == 1)
+        /// <summary>
+        /// Xóa file slot của đúng tài khoản. accountKey phải bắt lúc bấm xóa —
+        /// sau Sign Out GetAccountSaveKey() đã là guest.
+        /// </summary>
+        public static void DeleteLocalSlot(int slotIndex, string accountKey)
+        {
+            if (string.IsNullOrEmpty(accountKey))
+                accountKey = GetAccountSaveKey();
+
+            slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
+            string folder = GetAccountSaveFolder(accountKey, create: false);
+            TryDeleteFile(Path.Combine(folder, $"save_slot_{slotIndex}.json"));
+            TryDeleteFile(Path.Combine(folder, $"save_slot_{slotIndex}.bak"));
+            TryDeleteFile(Path.Combine(folder, $"save_slot_{slotIndex}.tmp"));
+
+            if (accountKey == "guest" && slotIndex == 1)
             {
                 TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.json"));
                 TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.bak"));
@@ -157,7 +183,8 @@ namespace HeartOfTheNight.Hung
 
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(tempPath, SaveCrypto.Seal(json));
-            if (File.Exists(savePath))
+            bool hadMain = File.Exists(savePath);
+            if (hadMain)
             {
                 if (File.Exists(backupPath))
                     File.Delete(backupPath);
@@ -165,6 +192,10 @@ namespace HeartOfTheNight.Hung
             }
 
             File.Move(tempPath, savePath);
+
+            // Không có file chính: .bak còn lại là save đời trước, không phải backup của bản vừa ghi.
+            if (!hadMain)
+                TryDeleteFile(backupPath);
         }
 
         public static bool TryLoadSlotFile(int slotIndex, GameData target)
@@ -213,29 +244,25 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        private static void TryLoadGameDataFile(string path, ref GameData peek)
+        private static bool TryLoadGameDataFile(string path, out GameData peek)
         {
+            peek = null;
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
-                return;
+                return false;
 
             try
             {
                 GameData loaded = SaveCrypto.ParseGameData(File.ReadAllText(path));
                 if (loaded == null)
-                    return;
+                    return false;
 
-                if (peek == null)
-                {
-                    peek = loaded;
-                    return;
-                }
-
-                if (loaded.totalPlayTimeSeconds > peek.totalPlayTimeSeconds)
-                    peek.totalPlayTimeSeconds = loaded.totalPlayTimeSeconds;
+                peek = loaded;
+                return true;
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"[Save System] Không đọc được {path}: {e.Message}");
+                return false;
             }
         }
     }

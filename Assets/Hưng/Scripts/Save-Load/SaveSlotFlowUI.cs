@@ -100,6 +100,9 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
+            if (dm.IsDeletingSave)
+                return;
+
             if (IsDeleteConfirmOpen())
                 return;
 
@@ -111,6 +114,8 @@ namespace HeartOfTheNight.Hung
         {
             var dm = DataManager.Instance;
             if (dm != null && dm.IsWaitingForCloudSlots)
+                return;
+            if (dm != null && dm.IsDeletingSave)
                 return;
             if (!DataManager.HasSave(slotIndex))
                 return;
@@ -131,6 +136,8 @@ namespace HeartOfTheNight.Hung
             int activeSlot = DataManager.GetActiveSlotIndex();
             var dm = DataManager.Instance;
             bool waitingCloud = dm != null && dm.IsWaitingForCloudSlots;
+            bool deleting = dm != null && dm.IsDeletingSave;
+            bool blockActions = waitingCloud || deleting;
 
             for (int i = 0; i < DataManager.SlotCount; i++)
             {
@@ -161,7 +168,7 @@ namespace HeartOfTheNight.Hung
 
                 if (_selectLabels != null && i < _selectLabels.Length && _selectLabels[i] != null)
                 {
-                    if (waitingCloud)
+                    if (blockActions)
                         _selectLabels[i].text = "wait";
                     else if (isCurrent)
                         _selectLabels[i].text = "selected";
@@ -171,10 +178,10 @@ namespace HeartOfTheNight.Hung
                 }
 
                 if (selectButtons != null && i < selectButtons.Length && selectButtons[i] != null)
-                    selectButtons[i].interactable = !waitingCloud;
+                    selectButtons[i].interactable = !blockActions;
 
                 if (deleteButtons != null && i < deleteButtons.Length && deleteButtons[i] != null)
-                    deleteButtons[i].interactable = hasSave && !waitingCloud;
+                    deleteButtons[i].interactable = hasSave && !blockActions;
 
                 if (_deleteLabels != null && i < _deleteLabels.Length && _deleteLabels[i] != null)
                     _deleteLabels[i].color = hasSave ? TextNormal : TextMuted;
@@ -439,7 +446,12 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
-            dm.DeleteSave(slot);
+            dm.DeleteSave(slot, _ =>
+            {
+                if (this == null)
+                    return;
+                RefreshSlotLabels();
+            });
             RefreshSlotLabels();
         }
 
