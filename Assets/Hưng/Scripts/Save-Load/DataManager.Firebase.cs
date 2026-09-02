@@ -462,6 +462,7 @@ namespace HeartOfTheNight.Hung
             if (oldId != newId)
             {
                 _cloudLoadSerial++;
+                CancelPendingCloudSave();
                 Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
                 _playTimeDirty = false;
                 _playTimeSaveTimer = 0f;

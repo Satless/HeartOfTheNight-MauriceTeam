@@ -168,14 +168,11 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
-        /// Đang trong màn: RAM có chìa/phòng chưa commit — không được LoadGame đè.
+        /// Đang trong màn: RAM đang chơi — không được LoadGame đè, kể cả khi hasSave còn false.
         /// </summary>
         internal bool ShouldPreserveLiveRamSave()
         {
-            return Application.isPlaying
-                && Data != null
-                && Data.hasSave
-                && IsLevelScene(ActiveSceneName);
+            return Application.isPlaying && IsLevelScene(ActiveSceneName);
         }
 
         /// <summary>
