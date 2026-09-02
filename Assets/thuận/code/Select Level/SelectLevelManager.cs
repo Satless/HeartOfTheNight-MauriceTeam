@@ -32,18 +32,73 @@ public class SelectLevelManager : MonoBehaviour
     [SerializeField] private string level5Scene = "Khanh_Level4-1";
     [SerializeField] private string level6Scene = "Khanh_Level5-1";
 
+    private bool _slotReady;
+
     private void Start()
     {
-        var dm = DataManager.EnsureExists();
-        if (dm != null && dm.Data != null && dm.Data.hasSave)
-            ChapterProgress.ApplyFromSave(dm.Data);
-
         BindChapterButtons(chapter1MissionsRoot, ChapterProgress.Chapter1Scenes);
         BindChapterButtons(chapter2MissionsRoot, ChapterProgress.Chapter2Scenes);
         BindChapterButtons(chapter3MissionsRoot, ChapterProgress.Chapter3Scenes);
+
+        var dm = DataManager.EnsureExists();
+        if (dm != null && dm.IsWaitingForCloudSlots)
+        {
+            dm.RefreshCloudSlotIndex(() =>
+            {
+                if (this == null)
+                    return;
+                EnsureSlotLoadedThenApply();
+            });
+            return;
+        }
+
+        EnsureSlotLoadedThenApply();
+    }
+
+    private void EnsureSlotLoadedThenApply()
+    {
+        var dm = DataManager.Instance;
+        int slot = DataManager.GetActiveSlotIndex();
+        if (dm != null && (dm.Data == null || !dm.Data.hasSave) && DataManager.HasSave(slot))
+        {
+            dm.LoadSlot(slot, ApplyLoadedSaveToUi);
+            return;
+        }
+
+        ApplyLoadedSaveToUi();
+    }
+
+    private void ApplyLoadedSaveToUi()
+    {
+        var dm = DataManager.Instance;
+        if (dm != null && dm.Data != null && dm.Data.hasSave)
+            ChapterProgress.ApplyFromSave(dm.Data);
+
+        RefreshChapterButtonUnlocks();
         RefreshUnlocks();
         ApplyChapterMenuLocks();
+        _slotReady = true;
         EnsureContinuePopup().TryShowIfInProgress();
+    }
+
+    private void RefreshChapterButtonUnlocks()
+    {
+        ApplyUnlocksToPanel(chapter1MissionsRoot, ChapterProgress.Chapter1Scenes);
+        ApplyUnlocksToPanel(chapter2MissionsRoot, ChapterProgress.Chapter2Scenes);
+        ApplyUnlocksToPanel(chapter3MissionsRoot, ChapterProgress.Chapter3Scenes);
+    }
+
+    private static void ApplyUnlocksToPanel(Transform panel, string[] scenes)
+    {
+        if (panel == null || scenes == null)
+            return;
+
+        var buttons = CollectLevelButtons(panel);
+        for (int i = 0; i < buttons.Count && i < scenes.Length; i++)
+        {
+            if (buttons[i] != null)
+                buttons[i].interactable = ChapterProgress.IsUnlocked(scenes[i]);
+        }
     }
 
     private ContinueInProgressUI EnsureContinuePopup()
@@ -249,6 +304,12 @@ public class SelectLevelManager : MonoBehaviour
 
     private void Load(string sceneName)
     {
+        if (!_slotReady)
+        {
+            Debug.Log("[SelectLevel] Đang đồng bộ save — chưa cho vào màn.");
+            return;
+        }
+
         if (string.IsNullOrEmpty(sceneName))
         {
             Debug.LogWarning("[SelectLevel] Scene name trống.");

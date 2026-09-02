@@ -19,6 +19,15 @@ namespace HeartOfTheNight.Hung
         private int _cloudSlotIndexSerial;
         private int _cloudLoadSerial;
         private bool _lastCloudLoadFailed;
+        private int _cloudSaveSerial;
+        private bool _cloudSaveInFlight;
+        private string _pendingCloudJson;
+        private int _pendingCloudSlot;
+        private int _cloudSaveFlushSlot;
+        private int _deleteWhenIdleSlot;
+        private string _deleteWhenIdleAccountKey;
+        private string _deleteWhenIdleUserId;
+        private Action<bool> _deleteWhenIdleCallback;
 
         public bool IsWaitingForCloudSlots
         {
@@ -51,16 +60,84 @@ namespace HeartOfTheNight.Hung
             SaveGameLocal();
 
             if (UsesGoogleCloudSaves())
+                EnqueueCloudSave();
+        }
+
+        private void EnqueueCloudSave()
+        {
+            Data.EnsureLists();
+            _pendingCloudJson = SaveCrypto.WrapForCloud(JsonUtility.ToJson(Data, true));
+            _pendingCloudSlot = ActiveSlotIndex;
+            _cloudSaveSerial++;
+            if (!_cloudSaveInFlight)
+                FlushCloudSave();
+        }
+
+        private void FlushCloudSave()
+        {
+            if (!UsesGoogleCloudSaves() || string.IsNullOrEmpty(_pendingCloudJson))
             {
-                string json = JsonUtility.ToJson(Data, true);
-                GetSlotDbRef().SetRawJsonValueAsync(SaveCrypto.WrapForCloud(json)).ContinueWithOnMainThread(task =>
-                {
-                    if (task.IsFaulted || task.IsCanceled)
-                        Debug.LogError("[Firebase] Lỗi khi lưu lên Cloud.");
-                    else
-                        Debug.Log($"[Firebase] Đã đồng bộ Slot {ActiveSlotIndex} lên Cloud thành công!");
-                });
+                _cloudSaveInFlight = false;
+                _cloudSaveFlushSlot = 0;
+                TryRunDeferredCloudDelete();
+                return;
             }
+
+            _cloudSaveInFlight = true;
+            int serial = _cloudSaveSerial;
+            int slot = _pendingCloudSlot;
+            _cloudSaveFlushSlot = slot;
+            string payload = _pendingCloudJson;
+            GetSlotDbRef(slot).SetRawJsonValueAsync(payload).ContinueWithOnMainThread(task =>
+            {
+                if (serial != _cloudSaveSerial)
+                {
+                    FlushCloudSave();
+                    return;
+                }
+
+                _cloudSaveInFlight = false;
+                _cloudSaveFlushSlot = 0;
+                if (task.IsFaulted || task.IsCanceled)
+                    Debug.LogError("[Firebase] Lỗi khi lưu lên Cloud.");
+                else
+                    Debug.Log($"[Firebase] Đã đồng bộ Slot {slot} lên Cloud thành công!");
+
+                TryRunDeferredCloudDelete();
+            });
+        }
+
+        private bool ShouldDeferCloudDelete(int slotIndex)
+        {
+            if (_pendingCloudSlot == slotIndex)
+                CancelPendingCloudSave();
+
+            return _cloudSaveInFlight && _cloudSaveFlushSlot == slotIndex;
+        }
+
+        private void TryRunDeferredCloudDelete()
+        {
+            if (_deleteWhenIdleSlot < 1)
+                return;
+            if (_cloudSaveInFlight)
+                return;
+
+            int slot = _deleteWhenIdleSlot;
+            string accountKey = _deleteWhenIdleAccountKey;
+            string userId = _deleteWhenIdleUserId;
+            Action<bool> callback = _deleteWhenIdleCallback;
+            _deleteWhenIdleSlot = 0;
+            _deleteWhenIdleAccountKey = null;
+            _deleteWhenIdleUserId = null;
+            _deleteWhenIdleCallback = null;
+            BeginCloudDelete(slot, userId, accountKey, callback);
+        }
+
+        private void CancelPendingCloudSave()
+        {
+            _cloudSaveSerial++;
+            _pendingCloudJson = null;
+            _pendingCloudSlot = 0;
         }
 
         public void LoadGame(Action onLoaded = null)
@@ -89,15 +166,22 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        internal void DeleteCloudSlot(int slotIndex, Action<bool> onComplete)
+        internal void DeleteCloudSlot(int slotIndex, string userId, Action<bool> onComplete)
         {
-            if (!UsesGoogleCloudSaves())
+            if (string.IsNullOrEmpty(userId))
             {
                 onComplete?.Invoke(true);
                 return;
             }
 
-            DatabaseReference userRef = _dbRef.Child("users").Child(_user.UserId);
+            if (_dbRef == null)
+            {
+                Debug.LogError($"[Firebase] Không xóa được Slot {slotIndex} trên Cloud — Database chưa sẵn.");
+                onComplete?.Invoke(false);
+                return;
+            }
+
+            DatabaseReference userRef = _dbRef.Child("users").Child(userId);
             int remaining = slotIndex == 1 ? 2 : 1;
             bool failed = false;
 
@@ -212,7 +296,10 @@ namespace HeartOfTheNight.Hung
             GetSlotDbRef(slot).GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (IsStaleCloudLoad(serial))
+                {
+                    onLoaded?.Invoke();
                     return;
+                }
 
                 if (ShouldPreserveLiveRamSave())
                 {
@@ -242,7 +329,9 @@ namespace HeartOfTheNight.Hung
                         }
                         catch (Exception e)
                         {
-                            _lastCloudLoadFailed = true;
+                            // Blob đọc được nhưng không giải mã — không phải lỗi mạng. Local trống thì cho tạo save mới.
+                            _lastCloudLoadFailed = false;
+                            ClearCloudSlotCache(slot);
                             Debug.LogError("[Firebase] Cloud save không giải mã được. Fallback sang Local. " + e.Message);
                             LoadGameLocal();
                             onLoaded?.Invoke();
@@ -295,7 +384,10 @@ namespace HeartOfTheNight.Hung
             _dbRef.Child("users").Child(_user.UserId).Child("GameData").GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (IsStaleCloudLoad(serial))
+                {
+                    onLoaded?.Invoke();
                     return;
+                }
 
                 if (ShouldPreserveLiveRamSave())
                 {
@@ -595,7 +687,7 @@ namespace HeartOfTheNight.Hung
                 GameData data = SaveCrypto.ParseGameData(json);
                 if (data == null)
                 {
-                    _cloudSlotExists[slotIndex - 1] = true;
+                    Debug.LogWarning($"[Firebase] Slot {slotIndex} cloud không giải mã được — không đánh dấu đang có save.");
                     return;
                 }
 
@@ -606,7 +698,6 @@ namespace HeartOfTheNight.Hung
             }
             catch (Exception e)
             {
-                _cloudSlotExists[slotIndex - 1] = true;
                 Debug.LogWarning($"[Firebase] Slot {slotIndex} cloud JSON lỗi: {e.Message}");
             }
         }
