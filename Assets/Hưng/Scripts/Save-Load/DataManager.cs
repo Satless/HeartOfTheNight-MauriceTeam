@@ -358,9 +358,12 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
-            if (!UsesGoogleCloudSaves())
+            string accountKey = SaveSlotStorage.GetAccountSaveKey();
+            string userId = CurrentCloudUserId();
+
+            if (string.IsNullOrEmpty(userId))
             {
-                ApplyLocalDelete(slotIndex);
+                ApplyLocalDelete(slotIndex, accountKey);
                 onComplete?.Invoke(true);
                 return;
             }
@@ -369,18 +372,26 @@ namespace HeartOfTheNight.Hung
             {
                 _slotDeleteBusy = true;
                 _deleteWhenIdleSlot = slotIndex;
+                _deleteWhenIdleAccountKey = accountKey;
+                _deleteWhenIdleUserId = userId;
                 _deleteWhenIdleCallback = onComplete;
                 return;
             }
 
-            BeginCloudDelete(slotIndex, onComplete);
+            BeginCloudDelete(slotIndex, userId, accountKey, onComplete);
         }
 
-        private void BeginCloudDelete(int slotIndex, Action<bool> onComplete)
+        private string CurrentCloudUserId()
+        {
+            return _user != null && !_user.IsAnonymous ? _user.UserId : null;
+        }
+
+        private void BeginCloudDelete(int slotIndex, string userId, string accountKey, Action<bool> onComplete)
         {
             _slotDeleteBusy = true;
             int pending = slotIndex;
-            DeleteCloudSlot(pending, ok =>
+            string key = string.IsNullOrEmpty(accountKey) ? SaveSlotStorage.GetAccountSaveKey() : accountKey;
+            DeleteCloudSlot(pending, userId, ok =>
             {
                 _slotDeleteBusy = false;
                 if (!ok)
@@ -390,20 +401,28 @@ namespace HeartOfTheNight.Hung
                     return;
                 }
 
-                ApplyLocalDelete(pending);
+                ApplyLocalDelete(pending, key);
                 onComplete?.Invoke(true);
             });
         }
 
-        private void ApplyLocalDelete(int slotIndex)
+        private void ApplyLocalDelete(int slotIndex, string accountKey)
         {
-            SaveSlotStorage.DeleteLocalSlot(slotIndex);
-            ClearCloudSlotCache(slotIndex);
-            ChapterProgress.ResetForSlot(slotIndex);
-            if (ActiveSlotIndex == slotIndex)
-                Data = new GameData { slotIndex = slotIndex, hasSave = false };
+            if (string.IsNullOrEmpty(accountKey))
+                accountKey = SaveSlotStorage.GetAccountSaveKey();
 
-            Debug.Log($"[Save System] Đã xóa Slot {slotIndex}.");
+            SaveSlotStorage.DeleteLocalSlot(slotIndex, accountKey);
+
+            bool sameAccount = accountKey == SaveSlotStorage.GetAccountSaveKey();
+            if (sameAccount)
+            {
+                ClearCloudSlotCache(slotIndex);
+                ChapterProgress.ResetForSlot(slotIndex);
+                if (ActiveSlotIndex == slotIndex)
+                    Data = new GameData { slotIndex = slotIndex, hasSave = false };
+            }
+
+            Debug.Log($"[Save System] Đã xóa Slot {slotIndex} ({accountKey}).");
         }
 
         public void AbandonInProgress()

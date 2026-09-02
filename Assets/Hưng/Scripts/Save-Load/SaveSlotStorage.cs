@@ -31,11 +31,15 @@ namespace HeartOfTheNight.Hung
 
         public static string GetAccountSaveFolder(bool create)
         {
-            string key = GetAccountSaveKey();
-            if (key == "guest")
+            return GetAccountSaveFolder(GetAccountSaveKey(), create);
+        }
+
+        public static string GetAccountSaveFolder(string accountKey, bool create)
+        {
+            if (string.IsNullOrEmpty(accountKey) || accountKey == "guest")
                 return Application.persistentDataPath;
 
-            string folder = Path.Combine(Application.persistentDataPath, "saves", key);
+            string folder = Path.Combine(Application.persistentDataPath, "saves", accountKey);
             if (create && !Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
             return folder;
@@ -144,12 +148,25 @@ namespace HeartOfTheNight.Hung
 
         public static void DeleteLocalSlot(int slotIndex)
         {
-            slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
-            TryDeleteFile(GetSlotSavePath(slotIndex));
-            TryDeleteFile(GetSlotBackupPath(slotIndex));
-            TryDeleteFile(GetSlotTempPath(slotIndex));
+            DeleteLocalSlot(slotIndex, GetAccountSaveKey());
+        }
 
-            if (UsesSharedGuestFolder() && slotIndex == 1)
+        /// <summary>
+        /// Xóa file slot của đúng tài khoản. accountKey phải bắt lúc bấm xóa —
+        /// sau Sign Out GetAccountSaveKey() đã là guest.
+        /// </summary>
+        public static void DeleteLocalSlot(int slotIndex, string accountKey)
+        {
+            if (string.IsNullOrEmpty(accountKey))
+                accountKey = GetAccountSaveKey();
+
+            slotIndex = Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
+            string folder = GetAccountSaveFolder(accountKey, create: false);
+            TryDeleteFile(Path.Combine(folder, $"save_slot_{slotIndex}.json"));
+            TryDeleteFile(Path.Combine(folder, $"save_slot_{slotIndex}.bak"));
+            TryDeleteFile(Path.Combine(folder, $"save_slot_{slotIndex}.tmp"));
+
+            if (accountKey == "guest" && slotIndex == 1)
             {
                 TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.json"));
                 TryDeleteFile(Path.Combine(Application.persistentDataPath, "save_data.bak"));

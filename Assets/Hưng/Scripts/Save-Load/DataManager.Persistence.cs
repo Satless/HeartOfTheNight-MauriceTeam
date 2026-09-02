@@ -25,6 +25,8 @@ namespace HeartOfTheNight.Hung
         private int _pendingCloudSlot;
         private int _cloudSaveFlushSlot;
         private int _deleteWhenIdleSlot;
+        private string _deleteWhenIdleAccountKey;
+        private string _deleteWhenIdleUserId;
         private Action<bool> _deleteWhenIdleCallback;
 
         public bool IsWaitingForCloudSlots
@@ -121,10 +123,14 @@ namespace HeartOfTheNight.Hung
                 return;
 
             int slot = _deleteWhenIdleSlot;
+            string accountKey = _deleteWhenIdleAccountKey;
+            string userId = _deleteWhenIdleUserId;
             Action<bool> callback = _deleteWhenIdleCallback;
             _deleteWhenIdleSlot = 0;
+            _deleteWhenIdleAccountKey = null;
+            _deleteWhenIdleUserId = null;
             _deleteWhenIdleCallback = null;
-            BeginCloudDelete(slot, callback);
+            BeginCloudDelete(slot, userId, accountKey, callback);
         }
 
         private void CancelPendingCloudSave()
@@ -160,15 +166,22 @@ namespace HeartOfTheNight.Hung
             }
         }
 
-        internal void DeleteCloudSlot(int slotIndex, Action<bool> onComplete)
+        internal void DeleteCloudSlot(int slotIndex, string userId, Action<bool> onComplete)
         {
-            if (!UsesGoogleCloudSaves())
+            if (string.IsNullOrEmpty(userId))
             {
                 onComplete?.Invoke(true);
                 return;
             }
 
-            DatabaseReference userRef = _dbRef.Child("users").Child(_user.UserId);
+            if (_dbRef == null)
+            {
+                Debug.LogError($"[Firebase] Không xóa được Slot {slotIndex} trên Cloud — Database chưa sẵn.");
+                onComplete?.Invoke(false);
+                return;
+            }
+
+            DatabaseReference userRef = _dbRef.Child("users").Child(userId);
             int remaining = slotIndex == 1 ? 2 : 1;
             bool failed = false;
 
