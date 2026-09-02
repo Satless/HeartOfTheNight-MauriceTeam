@@ -372,23 +372,6 @@ namespace HeartOfTheNight.Hung
             HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
         }
 
-        private void ApplyEditorKeyResetIfNeeded()
-        {
-#if UNITY_EDITOR
-            if (keepSavedKeysWhenPlayInEditor || Data == null) return;
-
-            Data.blueKeys = 0;
-            Data.redKeys = 0;
-            Data.collectedBlueKey = false;
-            Data.collectedRedKey = false;
-            if (Data.collectedKeyPickupIds == null)
-                Data.collectedKeyPickupIds = new List<string>();
-            else
-                Data.collectedKeyPickupIds.Clear();
-            Debug.Log("[DataManager] Editor: reset chìa về 0 cho session Play này.");
-#endif
-        }
-
         internal bool UsesGoogleCloudSaves()
         {
             return _user != null && !_user.IsAnonymous && _dbRef != null;

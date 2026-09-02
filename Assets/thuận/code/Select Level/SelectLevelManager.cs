@@ -263,16 +263,16 @@ public class SelectLevelManager : MonoBehaviour
             return;
         }
 
-        string loadScene = sceneName;
         string intro = StoryFlow.IntroForEnteringLevel(sceneName);
-        if (!string.IsNullOrEmpty(intro))
-            loadScene = intro;
+        string loadScene = string.IsNullOrEmpty(intro) ? sceneName : intro;
 
         if (dm != null)
         {
             if (dm.Data != null)
                 dm.Data.currentScene = sceneName;
-            dm.PrepareForNewScene(sceneName);
+            // Intro story: chưa vào gameplay — Back không được wipe màn. ContinueFromStory mới Prepare.
+            if (string.IsNullOrEmpty(intro))
+                dm.PrepareForNewScene(sceneName);
             LevelEntrance.ClearPendingSpawn();
         }
 

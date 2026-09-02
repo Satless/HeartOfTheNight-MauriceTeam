@@ -95,20 +95,19 @@ public class MissionHover : MonoBehaviour,
             return;
         }
 
+        string intro = StoryFlow.IntroForEnteringLevel(sceneName);
+        string loadScene = string.IsNullOrEmpty(intro) ? sceneName : intro;
+
         var dm = HeartOfTheNight.Hung.DataManager.EnsureExists();
         if (dm != null)
         {
             dm.AbandonInProgress();
             if (dm.Data != null)
                 dm.Data.currentScene = sceneName;
-            dm.PrepareForNewScene(sceneName);
+            if (string.IsNullOrEmpty(intro))
+                dm.PrepareForNewScene(sceneName);
             LevelEntrance.ClearPendingSpawn();
         }
-
-        string loadScene = sceneName;
-        string intro = StoryFlow.IntroForEnteringLevel(sceneName);
-        if (!string.IsNullOrEmpty(intro))
-            loadScene = intro;
         StoryFlow.RememberSpawnForNextLevel("");
         StoryFlow.LoadScene(loadScene);
     }

@@ -18,10 +18,6 @@ namespace HeartOfTheNight.Hung
         public GameData Data = new GameData();
         public int ActiveSlotIndex { get; private set; } = 1;
 
-        [Header("Debug / Test")]
-        [Tooltip("Chi Editor: bat = giu chìa từ save khi Play. Tat (mac dinh) = moi lan Play chìa ve 0.")]
-        [SerializeField] private bool keepSavedKeysWhenPlayInEditor = false;
-
         [Header("Checkpoint")]
         [Tooltip("Cho anim chết chạy trước khi fade + load lại scene.")]
         [SerializeField] private float respawnDelay = 1.2f;
@@ -265,7 +261,6 @@ namespace HeartOfTheNight.Hung
                     ApplyChapterProgressFromLoadedData();
                     TouchLastPlayed();
                     SaveGame();
-                    ApplyEditorKeyResetIfNeeded();
                     HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     LoadSceneSafe(SelectLevelScene);
                     return;
