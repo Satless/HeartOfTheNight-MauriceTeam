@@ -48,15 +48,15 @@ public class SceneTransition : MonoBehaviour
 
         yield return ScreenFader.Instance.FadeOut(fadeDuration);
 
-        bool leavingLevel = HeartOfTheNight.Hung.DataManager.IsLevelScene(
-            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        string current = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string loadScene = StoryFlow.ResolveLoadAfterLevel(current, nextSceneName);
+        bool leavingLevel = HeartOfTheNight.Hung.DataManager.IsLevelScene(current);
         if (leavingLevel)
         {
-            ChapterProgress.UnlockOnLeavingLevel(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            ChapterProgress.UnlockOnLeavingLevel(current);
             var pending = new LevelCompletePending
             {
-                nextSceneName = nextSceneName,
+                nextSceneName = loadScene,
                 fadeDuration = fadeDuration,
                 delayBeforeFadeIn = delayBeforeFadeIn
             };
@@ -68,15 +68,9 @@ public class SceneTransition : MonoBehaviour
             }
         }
 
-        if (HeartOfTheNight.Hung.DataManager.Instance != null
-            && HeartOfTheNight.Hung.DataManager.Instance.Data != null)
-        {
-            HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = nextSceneName;
-            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(nextSceneName);
-            HeartOfTheNight.Hung.DataManager.Instance.ClearCheckpointAfterLeavingLevel();
-        }
+        StoryFlow.ApplyDestinationSave(loadScene, "", false, -1);
 
         // Continuation on ScreenFader so loading + FadeIn survive scene unload.
-        ScreenFader.Instance.LoadSceneWithLoading(nextSceneName, fadeDuration, delayBeforeFadeIn);
+        ScreenFader.Instance.LoadSceneWithLoading(loadScene, fadeDuration, delayBeforeFadeIn);
     }
 }

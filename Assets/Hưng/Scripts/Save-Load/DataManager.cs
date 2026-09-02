@@ -138,7 +138,9 @@ namespace HeartOfTheNight.Hung
         {
             _activeSceneName = SceneManager.GetActiveScene().name;
 
-            if (_activeSceneName == "mainMenu" || _activeSceneName == SelectLevelScene)
+            if (_activeSceneName == "mainMenu"
+                || _activeSceneName == SelectLevelScene
+                || StoryFlow.IsCinematic(_activeSceneName))
                 FlushPlayTimeIfNeeded();
 
             SyncLevelTimerToLoadedScene(_activeSceneName);
@@ -149,7 +151,9 @@ namespace HeartOfTheNight.Hung
             if (!Application.isPlaying || Data == null || !Data.hasSave)
                 return false;
 
-            return ActiveSceneName != "mainMenu" && ActiveSceneName != SelectLevelScene;
+            return ActiveSceneName != "mainMenu"
+                && ActiveSceneName != SelectLevelScene
+                && !StoryFlow.IsCinematic(ActiveSceneName);
         }
 
         /// <summary>
@@ -265,7 +269,7 @@ namespace HeartOfTheNight.Hung
                 }
 
                 CreateNewSave(slotIndex);
-                LoadSceneSafe(NewGameTutorialScene);
+                LoadSceneSafe(StoryFlow.Story1);
             });
         }
 

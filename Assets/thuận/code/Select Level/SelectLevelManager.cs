@@ -263,15 +263,24 @@ public class SelectLevelManager : MonoBehaviour
             return;
         }
 
+        string loadScene = sceneName;
+        string intro = StoryFlow.IntroForEnteringLevel(sceneName);
+        if (!string.IsNullOrEmpty(intro))
+            loadScene = intro;
+
         if (dm != null)
         {
+            if (dm.Data != null)
+                dm.Data.currentScene = sceneName;
             dm.PrepareForNewScene(sceneName);
             LevelEntrance.ClearPendingSpawn();
         }
 
+        StoryFlow.RememberSpawnForNextLevel("");
+
         if (ScreenFader.Instance != null)
-            ScreenFader.Instance.LoadSceneWithLoading(sceneName);
+            ScreenFader.Instance.LoadSceneWithLoading(loadScene);
         else
-            SceneManager.LoadScene(sceneName);
+            SceneManager.LoadScene(loadScene);
     }
 }

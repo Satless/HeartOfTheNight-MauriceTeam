@@ -39,7 +39,8 @@ public class PauseUI : MonoBehaviour
     private static readonly string[] MenuScenes =
     {
         "mainMenu", "SelectLevel", "AuthScene", "LevelComplete",
-        "SceneStory", "stoty", "deadscreen", "MenuDat", "SelectLvDat", "Pause"
+        "SceneStory", "stoty", "deadscreen", "MenuDat", "SelectLvDat", "Pause",
+        StoryFlow.Story1, StoryFlow.Story2, StoryFlow.Story3, StoryFlow.EndScene
     };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
