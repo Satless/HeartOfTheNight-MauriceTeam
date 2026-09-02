@@ -25,7 +25,7 @@ public class EndGameStory : MonoBehaviour
     [SerializeField] private float fadeDuration = 1.5f;
 
     [Header("Scene")]
-    [SerializeField] private string mainMenuScene = "MainMenu";
+    [SerializeField] private string mainMenuScene = "mainMenu";
 
     // ==============================
     // STORY 1
@@ -259,7 +259,8 @@ public class EndGameStory : MonoBehaviour
 
     public void BackToMenu()
     {
-        SceneManager.LoadScene("mainMenu");
+        string scene = string.IsNullOrEmpty(mainMenuScene) ? "mainMenu" : mainMenuScene;
+        StoryFlow.LoadScene(scene);
     }
 
 

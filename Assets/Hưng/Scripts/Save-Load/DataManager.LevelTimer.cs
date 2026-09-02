@@ -13,6 +13,7 @@ namespace HeartOfTheNight.Hung
         {
             "mainMenu", SelectLevelScene, "AuthScene", "LevelComplete",
             "SceneStory", "stoty", "deadscreen", "MenuDat", "SelectLvDat",
+            StoryFlow.Story1, StoryFlow.Story2, StoryFlow.Story3, StoryFlow.EndScene,
         };
 
         private ScenePlayTimeEntry _levelTimerEntry;
@@ -107,6 +108,9 @@ namespace HeartOfTheNight.Hung
         public static bool IsLevelScene(string sceneName)
         {
             if (string.IsNullOrEmpty(sceneName))
+                return false;
+
+            if (StoryFlow.IsCinematic(sceneName))
                 return false;
 
             for (int i = 0; i < NonLevelScenes.Length; i++)
