@@ -207,12 +207,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6849655546906877434, guid: 0b10c2b06c713b647ab85c03eb3550b4, type: 3}
+      propertyPath: m_ShadowIntensity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6849655546906877434, guid: 0b10c2b06c713b647ab85c03eb3550b4, type: 3}
       propertyPath: m_PointLightInnerRadius
-      value: 0.73
+      value: 1.27
       objectReference: {fileID: 0}
     - target: {fileID: 6849655546906877434, guid: 0b10c2b06c713b647ab85c03eb3550b4, type: 3}
       propertyPath: m_PointLightOuterRadius
-      value: 1.27
+      value: 1.6
       objectReference: {fileID: 0}
     - target: {fileID: 6849655546906877434, guid: 0b10c2b06c713b647ab85c03eb3550b4, type: 3}
       propertyPath: m_ShadowSoftnessFalloffIntensity
