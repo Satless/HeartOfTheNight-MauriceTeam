@@ -156,7 +156,7 @@ namespace HeartOfTheNight.Hung
             string tempPath = GetSlotTempPath(slotIndex);
 
             string json = JsonUtility.ToJson(data, true);
-            File.WriteAllText(tempPath, json);
+            File.WriteAllText(tempPath, SaveCrypto.Seal(json));
             if (File.Exists(savePath))
             {
                 if (File.Exists(backupPath))
@@ -173,7 +173,7 @@ namespace HeartOfTheNight.Hung
             if (!File.Exists(savePath))
                 return false;
 
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(savePath), target);
+            SaveCrypto.OverwriteGameData(File.ReadAllText(savePath), target);
             return true;
         }
 
@@ -183,7 +183,7 @@ namespace HeartOfTheNight.Hung
             if (!File.Exists(backupPath))
                 return false;
 
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(backupPath), target);
+            SaveCrypto.OverwriteGameData(File.ReadAllText(backupPath), target);
             return true;
         }
 
@@ -196,7 +196,7 @@ namespace HeartOfTheNight.Hung
             if (!File.Exists(legacy))
                 return false;
 
-            JsonUtility.FromJsonOverwrite(File.ReadAllText(legacy), target);
+            SaveCrypto.OverwriteGameData(File.ReadAllText(legacy), target);
             return true;
         }
 
@@ -220,7 +220,7 @@ namespace HeartOfTheNight.Hung
 
             try
             {
-                GameData loaded = JsonUtility.FromJson<GameData>(File.ReadAllText(path));
+                GameData loaded = SaveCrypto.ParseGameData(File.ReadAllText(path));
                 if (loaded == null)
                     return;
 
