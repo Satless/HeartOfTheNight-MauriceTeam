@@ -225,37 +225,9 @@ namespace HeartOfTheNight.UI
 
         private IEnumerator GuestContinueRoutine()
         {
-            var dataManager = DataManager.EnsureExists();
-            float timeout = 25f;
-            while (dataManager.IsFirebaseInitializing && timeout > 0f)
-            {
-                timeout -= Time.unscaledDeltaTime;
-                yield return null;
-            }
-
-            bool done = false;
-            dataManager.EnsureAnonymousAuth((ok, error) =>
-            {
-                if (!ok)
-                    Debug.LogWarning("[AuthLoginUI] Guest Firebase failed, local save only. " + error);
-                done = true;
-            });
-
-            float guestWait = 20f;
-            while (!done && guestWait > 0f)
-            {
-                guestWait -= Time.unscaledDeltaTime;
-                yield return null;
-            }
-
-            if (!done)
-                Debug.LogWarning("[AuthLoginUI] Guest Firebase timeout — vào game bằng save local.");
-
-            if (this == null)
-                yield break;
-
             AuthSession.SignInAsGuest();
             GoNext();
+            yield break;
         }
 
         private void ShowGoogleWaitingPanel()

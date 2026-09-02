@@ -130,7 +130,10 @@ public static class ChapterProgress
 
         var dm = HeartOfTheNight.Hung.DataManager.Instance;
         if (dm?.Data != null && index + 1 > dm.Data.maxUnlockedLevel)
+        {
             dm.Data.maxUnlockedLevel = index + 1;
+            dm.PersistUnlockProgress();
+        }
     }
 
     public static void UnlockIfChapterScene(string sceneName)

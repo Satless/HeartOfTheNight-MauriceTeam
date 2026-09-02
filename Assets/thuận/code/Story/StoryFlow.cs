@@ -67,6 +67,7 @@ public static class StoryFlow
     /// <summary>
     /// Scene gameplay cần PrepareForNewScene khi đi tới destination.
     /// Story2 → 1-2. EndScene → rỗng (không phải màn chơi).
+    /// Prepare thật sự chỉ lúc ContinueFromStory / Select Level, không lúc vừa hiện story.
     /// </summary>
     public static string GameplaySceneForDestination(string destination)
     {
@@ -100,9 +101,10 @@ public static class StoryFlow
 
         if (goingToStory)
         {
+            // Chốt màn vừa thắng, chưa wipe màn kế — Back khỏi story không được xóa 1-2.
+            // ContinueFromStory mới PrepareForNewScene khi thật sự vào gameplay.
             dm.Data.currentScene = gameplay;
-            dm.PrepareForNewScene(gameplay);
-            dm.ClearCheckpointAfterLeavingLevel();
+            dm.CommitFinishedLevelAndLeave();
             RememberSpawnForNextLevel(spawnId);
             LevelEntrance.ClearPendingSpawn();
             return;
@@ -144,6 +146,7 @@ public static class StoryFlow
         if (dm != null && dm.Data != null)
         {
             dm.Data.currentScene = next;
+            // Điểm wipe màn đích: replay/speedrun khi thật sự vào gameplay sau story.
             dm.PrepareForNewScene(next);
             dm.ClearCheckpointAfterLeavingLevel();
         }

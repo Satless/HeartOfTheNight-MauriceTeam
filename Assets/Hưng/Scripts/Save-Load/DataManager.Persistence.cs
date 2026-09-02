@@ -38,6 +38,7 @@ namespace HeartOfTheNight.Hung
         public void SaveGame()
         {
             if (Data == null) Data = new GameData();
+            Data.EnsureLists();
             Data.hasSave = true;
             Data.slotIndex = ActiveSlotIndex;
             Data.lastPlayedAtUtc = DateTime.UtcNow.ToString("o");
@@ -46,10 +47,10 @@ namespace HeartOfTheNight.Hung
 
             SaveGameLocal();
 
-            if (_isFirebaseReady && _user != null && _dbRef != null)
+            if (UsesGoogleCloudSaves())
             {
                 string json = JsonUtility.ToJson(Data, true);
-                GetSlotDbRef().SetRawJsonValueAsync(json).ContinueWithOnMainThread(task =>
+                GetSlotDbRef().SetRawJsonValueAsync(SaveCrypto.WrapForCloud(json)).ContinueWithOnMainThread(task =>
                 {
                     if (task.IsFaulted || task.IsCanceled)
                         Debug.LogError("[Firebase] Lỗi khi lưu lên Cloud.");
@@ -61,12 +62,19 @@ namespace HeartOfTheNight.Hung
 
         public void LoadGame(Action onLoaded = null)
         {
+            if (ShouldPreserveLiveRamSave())
+            {
+                Debug.LogWarning("[Save System] Đang trong màn chơi — bỏ LoadGame để không đè chìa/phòng trên RAM.");
+                onLoaded?.Invoke();
+                return;
+            }
+
             _lastCloudLoadFailed = false;
-            if (_isFirebaseReady && _user != null && _dbRef != null)
+            if (UsesGoogleCloudSaves())
             {
                 LoadGameCloud(onLoaded);
             }
-            else if (_isFirebaseInitializing)
+            else if (_isFirebaseInitializing && !AuthSession.IsGuest)
             {
                 Debug.LogWarning("[Firebase] Hệ thống mạng đang khởi tạo, xin vui lòng đợi...");
                 StartCoroutine(WaitAndLoadCloud(onLoaded));
@@ -80,7 +88,7 @@ namespace HeartOfTheNight.Hung
 
         internal void DeleteCloudSlot(int slotIndex)
         {
-            if (!_isFirebaseReady || _user == null || _dbRef == null)
+            if (!UsesGoogleCloudSaves())
                 return;
 
             _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(slotIndex.ToString())
@@ -156,6 +164,13 @@ namespace HeartOfTheNight.Hung
 
         private void LoadGameCloud(Action onLoaded = null)
         {
+            if (ShouldPreserveLiveRamSave())
+            {
+                Debug.LogWarning("[Firebase] Đang trong màn chơi — bỏ LoadGameCloud để không đè RAM.");
+                onLoaded?.Invoke();
+                return;
+            }
+
             Debug.Log($"[Firebase] Đang tải Slot {ActiveSlotIndex} từ Cloud...");
             GetSlotDbRef().GetValueAsync().ContinueWithOnMainThread(task =>
             {
@@ -174,7 +189,19 @@ namespace HeartOfTheNight.Hung
                         string json = snapshot.GetRawJsonValue();
 
                         var cloud = new GameData();
-                        JsonUtility.FromJsonOverwrite(json, cloud);
+                        try
+                        {
+                            SaveCrypto.OverwriteGameData(json, cloud);
+                        }
+                        catch (Exception e)
+                        {
+                            _lastCloudLoadFailed = true;
+                            Debug.LogError("[Firebase] Cloud save không giải mã được. Fallback sang Local. " + e.Message);
+                            LoadGameLocal();
+                            onLoaded?.Invoke();
+                            HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                            return;
+                        }
                         cloud.hasSave = true;
                         cloud.slotIndex = ActiveSlotIndex;
                         cloud.EnsureLists();
@@ -216,7 +243,18 @@ namespace HeartOfTheNight.Hung
                 {
                     _lastCloudLoadFailed = false;
                     Data = new GameData();
-                    JsonUtility.FromJsonOverwrite(task.Result.GetRawJsonValue(), Data);
+                    try
+                    {
+                        SaveCrypto.OverwriteGameData(task.Result.GetRawJsonValue(), Data);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning("[Firebase] Legacy cloud save không giải mã được: " + e.Message);
+                        LoadGameLocal();
+                        onLoaded?.Invoke();
+                        HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                        return;
+                    }
                     Data.slotIndex = 1;
                     Data.hasSave = true;
                     Data.EnsureLists();
@@ -503,7 +541,7 @@ namespace HeartOfTheNight.Hung
 
             try
             {
-                GameData data = JsonUtility.FromJson<GameData>(json);
+                GameData data = SaveCrypto.ParseGameData(json);
                 if (data == null)
                 {
                     _cloudSlotExists[slotIndex - 1] = true;

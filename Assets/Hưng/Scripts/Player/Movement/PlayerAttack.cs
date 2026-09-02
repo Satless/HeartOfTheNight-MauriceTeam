@@ -135,7 +135,11 @@ public class PlayerAttack : MonoBehaviour
         if (_unlockedWeapons[slotIndex - 1]) return;
 
         _unlockedWeapons[slotIndex - 1] = true;
-        DataManager.Instance?.Data?.UnlockWeapon(slotIndex);
+        if (DataManager.Instance != null && DataManager.Instance.Data != null)
+        {
+            DataManager.Instance.Data.UnlockWeapon(slotIndex);
+            DataManager.Instance.PersistUnlockProgress();
+        }
         OnWeaponUnlocked?.Invoke(slotIndex);
         EquipSlot(slotIndex);
     }
