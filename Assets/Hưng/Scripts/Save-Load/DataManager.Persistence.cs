@@ -61,6 +61,13 @@ namespace HeartOfTheNight.Hung
 
         public void LoadGame(Action onLoaded = null)
         {
+            if (ShouldPreserveLiveRamSave())
+            {
+                Debug.LogWarning("[Save System] Đang trong màn chơi — bỏ LoadGame để không đè chìa/phòng trên RAM.");
+                onLoaded?.Invoke();
+                return;
+            }
+
             _lastCloudLoadFailed = false;
             if (_isFirebaseReady && _user != null && _dbRef != null)
             {
@@ -156,6 +163,13 @@ namespace HeartOfTheNight.Hung
 
         private void LoadGameCloud(Action onLoaded = null)
         {
+            if (ShouldPreserveLiveRamSave())
+            {
+                Debug.LogWarning("[Firebase] Đang trong màn chơi — bỏ LoadGameCloud để không đè RAM.");
+                onLoaded?.Invoke();
+                return;
+            }
+
             Debug.Log($"[Firebase] Đang tải Slot {ActiveSlotIndex} từ Cloud...");
             GetSlotDbRef().GetValueAsync().ContinueWithOnMainThread(task =>
             {
