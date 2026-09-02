@@ -151,9 +151,7 @@ namespace HeartOfTheNight.Hung
             if (!Application.isPlaying || Data == null || !Data.hasSave)
                 return false;
 
-            return ActiveSceneName != "mainMenu"
-                && ActiveSceneName != SelectLevelScene
-                && !StoryFlow.IsCinematic(ActiveSceneName);
+            return IsLevelScene(ActiveSceneName);
         }
 
         /// <summary>

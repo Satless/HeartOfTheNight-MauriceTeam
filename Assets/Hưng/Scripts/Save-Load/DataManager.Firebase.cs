@@ -167,13 +167,17 @@ namespace HeartOfTheNight.Hung
         public void SignOutFirebase()
         {
             CancelGoogleSignIn();
-            if (_auth == null)
-                return;
+            _playTimeDirty = false;
+            _playTimeSaveTimer = 0f;
 
-            _auth.SignOut();
-            _user = null;
-            InvalidateCloudSlotIndex();
+            if (_auth != null)
+                _auth.SignOut();
+
+            BindFirebaseUser(null);
+            // Bind no-ops if đã unsigned; vẫn bỏ RAM Google để SaveGameLocal không ghi vào folder guest.
+            Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
             CompleteCloudSlotIndex();
+            HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
             Debug.Log("[Firebase] Signed out.");
         }
 
@@ -445,6 +449,7 @@ namespace HeartOfTheNight.Hung
             {
                 Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
                 _playTimeDirty = false;
+                _playTimeSaveTimer = 0f;
                 InvalidateCloudSlotIndex();
                 if (user != null && !user.IsAnonymous)
                     RefreshCloudSlotIndex(null);

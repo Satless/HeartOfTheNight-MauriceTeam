@@ -91,8 +91,13 @@ namespace HeartOfTheNight.Hung
             if (!UsesGoogleCloudSaves())
                 return;
 
-            _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(slotIndex.ToString())
-                .RemoveValueAsync();
+            DatabaseReference userRef = _dbRef.Child("users").Child(_user.UserId);
+            userRef.Child("slots").Child(slotIndex.ToString()).RemoveValueAsync();
+
+            // Save cũ nằm ở users/{uid}/GameData (trước khi có 4 slot). Xóa Slot 1 mà để node này
+            // thì LoadGameCloud / index slot sẽ migrate lại save đã xóa.
+            if (slotIndex == 1)
+                userRef.Child("GameData").RemoveValueAsync();
         }
 
         private DatabaseReference GetSlotDbRef()
@@ -259,7 +264,9 @@ namespace HeartOfTheNight.Hung
                     Data.hasSave = true;
                     Data.EnsureLists();
                     KeepBetterLocalPlayTime();
-                    SaveGameLocal();
+                    SaveGame();
+                    if (UsesGoogleCloudSaves())
+                        _dbRef.Child("users").Child(_user.UserId).Child("GameData").RemoveValueAsync();
                     RememberCloudSlot(1, Data);
                     Debug.Log("[Firebase] Đã migrate GameData cũ → Slot 1.");
                 }
