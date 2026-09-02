@@ -17,16 +17,19 @@ namespace HeartOfTheNight.Hung
         private bool _cloudSlotIndexReady;
         private bool _cloudSlotIndexLoading;
         private int _cloudSlotIndexSerial;
+        private int _cloudLoadSerial;
         private bool _lastCloudLoadFailed;
 
         public bool IsWaitingForCloudSlots
         {
             get
             {
+                if (AuthSession.IsGuest)
+                    return false;
                 if (_cloudSlotIndexLoading)
                     return true;
                 if (_isFirebaseInitializing)
-                    return !AuthSession.IsGuest;
+                    return true;
                 return UsesGoogleCloudSaves() && !_cloudSlotIndexReady;
             }
         }
@@ -119,17 +122,20 @@ namespace HeartOfTheNight.Hung
                 userRef.Child("GameData").RemoveValueAsync().ContinueWithOnMainThread(OnOneDone);
         }
 
-        private DatabaseReference GetSlotDbRef()
+        private DatabaseReference GetSlotDbRef() => GetSlotDbRef(ActiveSlotIndex);
+
+        private DatabaseReference GetSlotDbRef(int slotIndex)
         {
-            return _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(ActiveSlotIndex.ToString()).Child("GameData");
+            slotIndex = Mathf.Clamp(slotIndex, 1, SlotCount);
+            return _dbRef.Child("users").Child(_user.UserId).Child("slots").Child(slotIndex.ToString()).Child("GameData");
         }
 
-        private void KeepBetterLocalPlayTime()
+        private void KeepBetterLocalPlayTime(int slotIndex)
         {
             if (Data == null)
                 return;
 
-            if (!SaveSlotStorage.TryReadSlotFromDisk(ActiveSlotIndex, out GameData local) || local == null)
+            if (!SaveSlotStorage.TryReadSlotFromDisk(slotIndex, out GameData local) || local == null)
                 return;
 
             if (local.totalPlayTimeSeconds > Data.totalPlayTimeSeconds)
@@ -139,9 +145,9 @@ namespace HeartOfTheNight.Hung
         /// <summary>
         /// Cloud đè local sẽ mất tiến trình vừa chơi offline. Chọn bản lastPlayed mới hơn.
         /// </summary>
-        private GameData PreferNewerSave(GameData cloud)
+        private GameData PreferNewerSave(GameData cloud, int slotIndex)
         {
-            if (!SaveSlotStorage.TryReadSlotFromDisk(ActiveSlotIndex, out GameData local) || local == null || !local.hasSave)
+            if (!SaveSlotStorage.TryReadSlotFromDisk(slotIndex, out GameData local) || local == null || !local.hasSave)
                 return cloud ?? new GameData();
 
             local.EnsureLists();
@@ -186,6 +192,11 @@ namespace HeartOfTheNight.Hung
             LoadGame(onLoaded);
         }
 
+        private bool IsStaleCloudLoad(int serial)
+        {
+            return serial != _cloudLoadSerial;
+        }
+
         private void LoadGameCloud(Action onLoaded = null)
         {
             if (ShouldPreserveLiveRamSave())
@@ -195,9 +206,21 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
-            Debug.Log($"[Firebase] Đang tải Slot {ActiveSlotIndex} từ Cloud...");
-            GetSlotDbRef().GetValueAsync().ContinueWithOnMainThread(task =>
+            int slot = ActiveSlotIndex;
+            int serial = ++_cloudLoadSerial;
+            Debug.Log($"[Firebase] Đang tải Slot {slot} từ Cloud...");
+            GetSlotDbRef(slot).GetValueAsync().ContinueWithOnMainThread(task =>
             {
+                if (IsStaleCloudLoad(serial))
+                    return;
+
+                if (ShouldPreserveLiveRamSave())
+                {
+                    Debug.LogWarning("[Firebase] Đang trong màn chơi — bỏ callback LoadGameCloud để không đè RAM.");
+                    onLoaded?.Invoke();
+                    return;
+                }
+
                 if (task.IsFaulted || task.IsCanceled)
                 {
                     _lastCloudLoadFailed = true;
@@ -227,29 +250,29 @@ namespace HeartOfTheNight.Hung
                             return;
                         }
                         cloud.hasSave = true;
-                        cloud.slotIndex = ActiveSlotIndex;
+                        cloud.slotIndex = slot;
                         cloud.EnsureLists();
 
-                        Data = PreferNewerSave(cloud);
+                        Data = PreferNewerSave(cloud, slot);
                         Data.hasSave = true;
-                        Data.slotIndex = ActiveSlotIndex;
+                        Data.slotIndex = slot;
                         Data.EnsureLists();
-                        KeepBetterLocalPlayTime();
+                        KeepBetterLocalPlayTime(slot);
 
                         Debug.Log($"[Firebase] Tải Cloud thành công. Kiểm tra RAM: playerHealth={Data.playerHealth}");
 
                         SaveGameLocal();
-                        RememberCloudSlot(ActiveSlotIndex, Data);
+                        RememberCloudSlot(slot, Data);
                         HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
                     }
-                    else if (ActiveSlotIndex == 1)
+                    else if (slot == 1)
                     {
-                        TryLoadLegacyCloudThenLocal(onLoaded);
+                        TryLoadLegacyCloudThenLocal(onLoaded, serial);
                         return;
                     }
                     else
                     {
-                        Debug.Log($"[Firebase] Slot {ActiveSlotIndex} chưa có trên Cloud. Đang tải Local...");
+                        Debug.Log($"[Firebase] Slot {slot} chưa có trên Cloud. Đang tải Local...");
                         LoadGameLocal();
                     }
                 }
@@ -259,10 +282,27 @@ namespace HeartOfTheNight.Hung
             });
         }
 
-        private void TryLoadLegacyCloudThenLocal(Action onLoaded)
+        private void TryLoadLegacyCloudThenLocal(Action onLoaded, int serial)
         {
+            if (_dbRef == null || _user == null)
+            {
+                LoadGameLocal();
+                onLoaded?.Invoke();
+                HeartOfTheNight.Rooms.PlayerKeyInventory.NotifyChanged();
+                return;
+            }
+
             _dbRef.Child("users").Child(_user.UserId).Child("GameData").GetValueAsync().ContinueWithOnMainThread(task =>
             {
+                if (IsStaleCloudLoad(serial))
+                    return;
+
+                if (ShouldPreserveLiveRamSave())
+                {
+                    onLoaded?.Invoke();
+                    return;
+                }
+
                 if (task.IsCompleted && !task.IsFaulted && task.Result != null && task.Result.Exists)
                 {
                     _lastCloudLoadFailed = false;
@@ -282,7 +322,7 @@ namespace HeartOfTheNight.Hung
                     Data.slotIndex = 1;
                     Data.hasSave = true;
                     Data.EnsureLists();
-                    KeepBetterLocalPlayTime();
+                    KeepBetterLocalPlayTime(1);
                     SaveGame();
                     if (UsesGoogleCloudSaves())
                         _dbRef.Child("users").Child(_user.UserId).Child("GameData").RemoveValueAsync();
@@ -393,6 +433,8 @@ namespace HeartOfTheNight.Hung
 
         internal bool UsesGoogleCloudSaves()
         {
+            if (AuthSession.IsGuest)
+                return false;
             return _user != null && !_user.IsAnonymous && _dbRef != null;
         }
 

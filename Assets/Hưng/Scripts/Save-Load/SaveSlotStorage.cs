@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Firebase.Auth;
+using HeartOfTheNight.UI;
 using UnityEngine;
 
 namespace HeartOfTheNight.Hung
@@ -42,6 +43,9 @@ namespace HeartOfTheNight.Hung
 
         public static string GetAccountSaveKey()
         {
+            if (AuthSession.IsGuest)
+                return "guest";
+
             FirebaseUser user = DataManager.Instance != null ? DataManager.Instance.FirebaseUser : null;
             if (user == null)
             {

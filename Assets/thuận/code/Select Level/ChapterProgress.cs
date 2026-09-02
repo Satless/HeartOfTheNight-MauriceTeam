@@ -132,7 +132,10 @@ public static class ChapterProgress
         if (dm?.Data != null && index + 1 > dm.Data.maxUnlockedLevel)
         {
             dm.Data.maxUnlockedLevel = index + 1;
-            dm.PersistUnlockProgress();
+            // Trong màn: YOU WIN sẽ CommitFinishedLevelAndLeave. Ghi disk ngay lúc này
+            // chỉ persist snapshot checkpoint + maxUnlocked → crash overlay hỏi Continue màn cũ.
+            if (!HeartOfTheNight.Hung.DataManager.IsLevelScene(SceneManager.GetActiveScene().name))
+                dm.PersistUnlockProgress();
         }
     }
 

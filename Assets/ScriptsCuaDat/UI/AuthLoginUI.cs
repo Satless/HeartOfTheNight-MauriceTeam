@@ -226,6 +226,9 @@ namespace HeartOfTheNight.UI
         private IEnumerator GuestContinueRoutine()
         {
             AuthSession.SignInAsGuest();
+            var dataManager = DataManager.EnsureExists();
+            if (dataManager != null)
+                dataManager.SignOutFirebase();
             GoNext();
             yield break;
         }
