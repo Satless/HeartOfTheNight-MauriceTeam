@@ -119,7 +119,10 @@ public class LevelCompleteUI : MonoBehaviour
             PauseUI.Instance.DismissForExternalFlow();
 
         if (DataManager.Instance != null)
+        {
             DataManager.Instance.PauseLevelTimer();
+            DataManager.Instance.CommitFinishedLevelAndLeave();
+        }
 
         IsShowing = true;
         _panel.SetActive(true);
