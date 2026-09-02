@@ -371,6 +371,13 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
+        // Dừng cập nhật hướng ngắm và laser khi game đang Pause hoặc bị khóa Input (Cutscene)
+        if (Time.timeScale == 0f || !GameplayEvents.InputEnabled)
+        {
+            HandleOverheatCooldown(); // Vẫn cho phép súng tản nhiệt nếu timeScale > 0 (như trong cutscene)
+            return;
+        }
+
         HandleFacing();
 
         _isFiringThisFrame = false;
