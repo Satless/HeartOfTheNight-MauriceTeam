@@ -23,6 +23,9 @@ namespace HeartOfTheNight.Hung
         private bool _cloudSaveInFlight;
         private string _pendingCloudJson;
         private int _pendingCloudSlot;
+        private int _cloudSaveFlushSlot;
+        private int _deleteWhenIdleSlot;
+        private Action<bool> _deleteWhenIdleCallback;
 
         public bool IsWaitingForCloudSlots
         {
@@ -73,12 +76,15 @@ namespace HeartOfTheNight.Hung
             if (!UsesGoogleCloudSaves() || string.IsNullOrEmpty(_pendingCloudJson))
             {
                 _cloudSaveInFlight = false;
+                _cloudSaveFlushSlot = 0;
+                TryRunDeferredCloudDelete();
                 return;
             }
 
             _cloudSaveInFlight = true;
             int serial = _cloudSaveSerial;
             int slot = _pendingCloudSlot;
+            _cloudSaveFlushSlot = slot;
             string payload = _pendingCloudJson;
             GetSlotDbRef(slot).SetRawJsonValueAsync(payload).ContinueWithOnMainThread(task =>
             {
@@ -89,11 +95,36 @@ namespace HeartOfTheNight.Hung
                 }
 
                 _cloudSaveInFlight = false;
+                _cloudSaveFlushSlot = 0;
                 if (task.IsFaulted || task.IsCanceled)
                     Debug.LogError("[Firebase] Lỗi khi lưu lên Cloud.");
                 else
                     Debug.Log($"[Firebase] Đã đồng bộ Slot {slot} lên Cloud thành công!");
+
+                TryRunDeferredCloudDelete();
             });
+        }
+
+        private bool ShouldDeferCloudDelete(int slotIndex)
+        {
+            if (_pendingCloudSlot == slotIndex)
+                CancelPendingCloudSave();
+
+            return _cloudSaveInFlight && _cloudSaveFlushSlot == slotIndex;
+        }
+
+        private void TryRunDeferredCloudDelete()
+        {
+            if (_deleteWhenIdleSlot < 1)
+                return;
+            if (_cloudSaveInFlight)
+                return;
+
+            int slot = _deleteWhenIdleSlot;
+            Action<bool> callback = _deleteWhenIdleCallback;
+            _deleteWhenIdleSlot = 0;
+            _deleteWhenIdleCallback = null;
+            BeginCloudDelete(slot, callback);
         }
 
         private void CancelPendingCloudSave()
@@ -252,7 +283,10 @@ namespace HeartOfTheNight.Hung
             GetSlotDbRef(slot).GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (IsStaleCloudLoad(serial))
+                {
+                    onLoaded?.Invoke();
                     return;
+                }
 
                 if (ShouldPreserveLiveRamSave())
                 {
@@ -337,7 +371,10 @@ namespace HeartOfTheNight.Hung
             _dbRef.Child("users").Child(_user.UserId).Child("GameData").GetValueAsync().ContinueWithOnMainThread(task =>
             {
                 if (IsStaleCloudLoad(serial))
+                {
+                    onLoaded?.Invoke();
                     return;
+                }
 
                 if (ShouldPreserveLiveRamSave())
                 {

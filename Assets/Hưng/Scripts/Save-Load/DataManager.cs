@@ -35,6 +35,7 @@ namespace HeartOfTheNight.Hung
         private bool _playTimeDirty;
         private float _playTimeSaveTimer;
         private bool _slotEnterBusy;
+        private int _slotEnterSerial;
         private bool _slotDeleteBusy;
         private string _activeSceneName;
 
@@ -242,12 +243,15 @@ namespace HeartOfTheNight.Hung
             if (_slotEnterBusy)
                 return;
 
+            int enterGen = ++_slotEnterSerial;
             _slotEnterBusy = true;
             if (IsWaitingForCloudSlots)
             {
                 int pendingSlot = slotIndex;
                 RefreshCloudSlotIndex(() =>
                 {
+                    if (enterGen != _slotEnterSerial)
+                        return;
                     _slotEnterBusy = false;
                     SelectSlotAndEnter(pendingSlot);
                 });
@@ -259,6 +263,9 @@ namespace HeartOfTheNight.Hung
 
             LoadSlot(slotIndex, () =>
             {
+                if (enterGen != _slotEnterSerial)
+                    return;
+
                 _slotEnterBusy = false;
                 if (Data != null && Data.hasSave)
                 {
@@ -279,6 +286,12 @@ namespace HeartOfTheNight.Hung
                 CreateNewSave(slotIndex);
                 LoadSceneSafe(StoryFlow.Story1);
             });
+        }
+
+        private void AbortSlotEnter()
+        {
+            _slotEnterSerial++;
+            _slotEnterBusy = false;
         }
 
         public void CreateNewSave(int slotIndex)
@@ -352,6 +365,19 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
+            if (ShouldDeferCloudDelete(slotIndex))
+            {
+                _slotDeleteBusy = true;
+                _deleteWhenIdleSlot = slotIndex;
+                _deleteWhenIdleCallback = onComplete;
+                return;
+            }
+
+            BeginCloudDelete(slotIndex, onComplete);
+        }
+
+        private void BeginCloudDelete(int slotIndex, Action<bool> onComplete)
+        {
             _slotDeleteBusy = true;
             int pending = slotIndex;
             DeleteCloudSlot(pending, ok =>
