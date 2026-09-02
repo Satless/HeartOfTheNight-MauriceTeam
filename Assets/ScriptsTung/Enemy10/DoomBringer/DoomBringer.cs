@@ -36,8 +36,6 @@ public class DoomBringer : MonoBehaviour, IDamageable
     [Header("Di chuyển")]
     public float moveSpeed = 3.5f;
 
-    // 🔥 LƯU Ý Ở ĐÂY: Nếu bật True, Boss chỉ đi thẳng 1 đường. 
-    // Nếu muốn Boss quay đầu rượt Player, hãy ra ngoài Inspector bỏ tích biến này (thành False).
     public bool isWallOfFleshMode = true;
     private float fixedDirection = 1f;
 
@@ -62,16 +60,21 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public GameObject kamikazePrefab;
     private bool hasSummoned = false;
 
+    [Header("Chống Kẹt Spawn Cực Mạnh")]
+    [Tooltip("BẮT BUỘC PHẢI KÉO LAYER GROUND/MAP VÀO ĐÂY NHÉ BÁC!")]
+    public LayerMask obstacleLayer;
+
     private Transform player;
     private Rigidbody2D rb;
+    private Collider2D myCol;
     private float attackTimer = 0f;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        myCol = GetComponent<Collider2D>();
 
-        // Đảm bảo Body Type của Boss phải là Kinematic ngoài Inspector để ủi Player
         if (rb != null)
         {
             rb.gravityScale = 0f;
@@ -96,7 +99,6 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         if (player == null || isDead) return;
 
-        // Xử lý các đòn đánh, chuyển state (Không xử lý vật lý ở đây)
         if (!isTransitioning)
         {
             HandleStateSwitching();
@@ -104,7 +106,6 @@ public class DoomBringer : MonoBehaviour, IDamageable
         }
     }
 
-    // 🔥 DI CHUYỂN VẬT LÝ PHẢI ĐẶT TRONG FIXED UPDATE
     void FixedUpdate()
     {
         if (player == null || isDead) return;
@@ -174,16 +175,13 @@ public class DoomBringer : MonoBehaviour, IDamageable
         Destroy(gameObject, deadDuration);
     }
 
-    // --- Các hàm di chuyển & tấn công ---
     void MoveRelentlessly()
     {
         float dir = isWallOfFleshMode ? fixedDirection : Mathf.Sign(player.position.x - transform.position.x);
 
-        // 🔥 Dùng MovePosition để ép không gian, tạo lực đẩy tuyệt đối ủi Player văng đi
         Vector2 newPosition = rb.position + new Vector2(dir * moveSpeed, 0f) * Time.fixedDeltaTime;
         rb.MovePosition(newPosition);
 
-        // Xoay mặt Boss
         transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
     }
 
@@ -218,15 +216,39 @@ public class DoomBringer : MonoBehaviour, IDamageable
         }
     }
 
+    // 🔥 TIA QUÉT NGƯỢC (REVERSE RAYCAST)
+    Vector2 GetSafeSpawnPosition(Vector2 intendedPos)
+    {
+        if (player == null) return intendedPos;
+
+        Vector2 playerPos = new Vector2(player.position.x, player.position.y + 0.5f); // Nhắm vào giữa ngực Player
+        Vector2 dirToTarget = (intendedPos - playerPos).normalized;
+        float distance = Vector2.Distance(playerPos, intendedPos);
+
+        // Bắn tia từ Player ngược về phía điểm định đẻ
+        RaycastHit2D hit = Physics2D.Raycast(playerPos, dirToTarget, distance, obstacleLayer);
+
+        if (hit.collider != null)
+        {
+            // Tia đụng trúng tường che chắn! Dời điểm đẻ ra sát MẶT NGOÀI bức tường
+            return hit.point - (dirToTarget * 0.4f);
+        }
+
+        return intendedPos;
+    }
+
     void ShootBomb()
     {
         if (bombPrefab == null || firePoint == null) return;
-        GameObject bomb = Instantiate(bombPrefab, firePoint.position, Quaternion.identity);
+
+        Vector2 safePos = GetSafeSpawnPosition(firePoint.position);
+        GameObject bomb = Instantiate(bombPrefab, safePos, Quaternion.identity);
+
         Rigidbody2D bombRb = bomb.GetComponent<Rigidbody2D>();
         if (bombRb != null)
         {
             Vector2 targetPos = new Vector2(player.position.x, player.position.y + 0.5f);
-            Vector2 distance = targetPos - (Vector2)firePoint.position;
+            Vector2 distance = targetPos - safePos;
             float gravity = Mathf.Abs(Physics2D.gravity.y * bombRb.gravityScale);
             float velocityX = distance.x / bombFlightTime;
             float velocityY = (distance.y / bombFlightTime) + (0.5f * gravity * bombFlightTime);
@@ -237,11 +259,14 @@ public class DoomBringer : MonoBehaviour, IDamageable
     void ShootLaser()
     {
         if (laserPrefab == null || firePoint == null) return;
-        GameObject laser = Instantiate(laserPrefab, firePoint.position, Quaternion.identity);
+
+        Vector2 safePos = GetSafeSpawnPosition(firePoint.position);
+        GameObject laser = Instantiate(laserPrefab, safePos, Quaternion.identity);
+
         Rigidbody2D laserRb = laser.GetComponent<Rigidbody2D>();
         if (laserRb != null)
         {
-            Vector2 direction = (player.position - firePoint.position).normalized;
+            Vector2 direction = ((Vector2)player.position - safePos).normalized;
             laserRb.linearVelocity = direction * laserSpeed;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             laser.transform.rotation = Quaternion.Euler(0, 0, angle);
@@ -254,9 +279,11 @@ public class DoomBringer : MonoBehaviour, IDamageable
         int soLuongDe = isPhase2 ? 5 : 3;
         for (int i = 0; i < soLuongDe; i++)
         {
-            Vector2 spawnPos = new Vector2(firePoint.position.x, firePoint.position.y + (i * 0.5f));
+            // 🔥 FIX MAP HẸP: Không cộng thêm trục Y nữa!
+            // Đẻ tất cả quái ngay tại 1 tọa độ an toàn, tụi nó sẽ tự tách nhau ra
+            Vector2 safePos = GetSafeSpawnPosition(firePoint.position);
 
-            GameObject kami = Instantiate(kamikazePrefab, spawnPos, Quaternion.identity);
+            GameObject kami = Instantiate(kamikazePrefab, safePos, Quaternion.identity);
 
             KamikazeEnemy kamiScript = kami.GetComponent<KamikazeEnemy>();
             if (kamiScript != null)
@@ -264,7 +291,8 @@ public class DoomBringer : MonoBehaviour, IDamageable
                 kamiScript.ActivateBossMode();
             }
 
-            yield return new WaitForSeconds(0.3f);
+            // Giãn thời gian đẻ ra một tí để con trước bay đi chỗ khác, nhường chỗ cho con sau
+            yield return new WaitForSeconds(0.6f);
         }
     }
 }
