@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 2190859530692109581}
   - component: {fileID: 7184892493570917175}
   - component: {fileID: 8759969596922785053}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Kamikaze
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -201,6 +201,7 @@ MonoBehaviour:
     m_Bits: 128
   detectionRange: 6
   explodeRange: 1.5
+  blastRadius: 2.5
   explodeDelay: 1
   flashInterval: 0.1
   maxHP: 1

@@ -335,12 +335,15 @@ MonoBehaviour:
   wallCheckDistance: 0
   wallCheckHeight: 1.84
   flipCooldown: 0.5
+  stuckTimeLimit: 0.1
   attackDamage: 10
   attackCooldown: 2
   burnDamagePerTick: 2
   burnTicks: 6
   timeBetweenTicks: 1
   dashSpeedThreshold: 12
+  burnEffectPrefab: {fileID: 1494355379300379783, guid: 1f7b18a78ddafd1409ad7e7a4e81565c, type: 3}
+  burnEffectOffset: {x: 0, y: 0.5}
 --- !u!95 &1545656820512012261
 Animator:
   serializedVersion: 7
