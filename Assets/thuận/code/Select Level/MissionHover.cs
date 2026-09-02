@@ -99,11 +99,18 @@ public class MissionHover : MonoBehaviour,
         if (dm != null)
         {
             dm.AbandonInProgress();
+            if (dm.Data != null)
+                dm.Data.currentScene = sceneName;
             dm.PrepareForNewScene(sceneName);
             LevelEntrance.ClearPendingSpawn();
         }
 
-        SceneManager.LoadScene(sceneName);
+        string loadScene = sceneName;
+        string intro = StoryFlow.IntroForEnteringLevel(sceneName);
+        if (!string.IsNullOrEmpty(intro))
+            loadScene = intro;
+        StoryFlow.RememberSpawnForNextLevel("");
+        StoryFlow.LoadScene(loadScene);
     }
 
     private void StripDuplicateButtonClicks()

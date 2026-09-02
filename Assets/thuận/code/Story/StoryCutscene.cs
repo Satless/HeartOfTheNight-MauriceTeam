@@ -18,31 +18,46 @@ public class StoryCutscene : MonoBehaviour
     [SerializeField] private float typingSpeed = 0.03f;
     [SerializeField] private float delayBetweenLines = 1.2f;
 
+    [Header("Scene")]
+    [Tooltip("Trống = tự theo tên scene (Story1→0-1, Story2→1-2, Story3→1-3).")]
+    [SerializeField] private string nextLevelScene;
+    [SerializeField] private string backSceneName = "mainMenu";
+
     private void Start()
     {
-        continueButton.SetActive(false);
-        backButton.SetActive(false);
+        if (continueButton != null)
+            continueButton.SetActive(false);
+        if (backButton != null)
+            backButton.SetActive(false);
 
-        storyText.text = "";
+        if (storyText != null)
+            storyText.text = "";
 
         StartCoroutine(PlayStory());
     }
 
     private IEnumerator PlayStory()
     {
-        foreach (string line in storyLines)
+        if (storyLines != null)
         {
-            yield return StartCoroutine(TypeLine(line));
-
-            yield return new WaitForSeconds(delayBetweenLines);
+            foreach (string line in storyLines)
+            {
+                yield return StartCoroutine(TypeLine(line));
+                yield return new WaitForSeconds(delayBetweenLines);
+            }
         }
 
-        continueButton.SetActive(true);
-        backButton.SetActive(true);
+        if (continueButton != null)
+            continueButton.SetActive(true);
+        if (backButton != null)
+            backButton.SetActive(true);
     }
 
     private IEnumerator TypeLine(string line)
     {
+        if (storyText == null || string.IsNullOrEmpty(line))
+            yield break;
+
         foreach (char c in line)
         {
             storyText.text += c;
@@ -54,21 +69,13 @@ public class StoryCutscene : MonoBehaviour
 
     public void Continue()
     {
-        const string next = "khanh_level1-2";
-        ChapterProgress.UnlockIfChapterScene(next);
-        if (HeartOfTheNight.Hung.DataManager.Instance != null
-            && HeartOfTheNight.Hung.DataManager.Instance.Data != null)
-        {
-            HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
-            HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
-            HeartOfTheNight.Hung.DataManager.Instance.ClearCheckpointAfterLeavingLevel();
-        }
-
-        SceneManager.LoadScene(next);
+        StoryFlow.ContinueFromStory(SceneManager.GetActiveScene().name, nextLevelScene);
     }
 
     public void BackToMenu()
     {
-        SceneManager.LoadScene("mainMenu");
+        StoryFlow.RememberSpawnForNextLevel("");
+        string scene = string.IsNullOrEmpty(backSceneName) ? "mainMenu" : backSceneName;
+        StoryFlow.LoadScene(scene);
     }
 }

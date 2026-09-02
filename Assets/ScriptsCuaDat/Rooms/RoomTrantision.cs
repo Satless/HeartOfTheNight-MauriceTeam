@@ -127,9 +127,12 @@ public class RoomTransition : MonoBehaviour
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
             RegisterSecretIfNeeded();
 
+            string loadScene = StoryFlow.ResolveLoadAfterLevel(
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, next);
+
             var pending = new LevelCompletePending
             {
-                nextSceneName = next,
+                nextSceneName = loadScene,
                 spawnIDInNextScene = spawnIDInNextScene,
                 fadeDuration = fadeDuration,
                 delayBeforeFadeIn = delayBeforeFadeIn,
@@ -144,19 +147,16 @@ public class RoomTransition : MonoBehaviour
                 yield break;
             }
 
-            if (HeartOfTheNight.Hung.DataManager.Instance != null)
-            {
-                HeartOfTheNight.Hung.DataManager.Instance.Data.currentScene = next;
-                HeartOfTheNight.Hung.DataManager.Instance.PrepareForNewScene(next);
+            StoryFlow.ApplyDestinationSave(
+                loadScene,
+                spawnIDInNextScene,
+                saveAsCheckpoint,
+                hp != null ? hp.GetCurrentHealth() : -1);
 
-                if (saveAsCheckpoint)
-                    TrySaveCheckpoint(playerObj, next, spawnIDInNextScene, Vector3.zero);
-                else
-                    HeartOfTheNight.Hung.DataManager.Instance.ClearCheckpointAfterLeavingLevel();
-            }
+            if (!StoryFlow.IsCinematic(loadScene))
+                LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
 
-            LevelEntrance.SetPendingSpawn(spawnIDInNextScene);
-            ScreenFader.Instance.LoadSceneWithLoading(next, fadeDuration, delayBeforeFadeIn);
+            ScreenFader.Instance.LoadSceneWithLoading(loadScene, fadeDuration, delayBeforeFadeIn);
         }
     }
 

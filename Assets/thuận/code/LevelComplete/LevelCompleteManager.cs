@@ -74,15 +74,11 @@ public class LevelCompleteManager : MonoBehaviour
 
     private static void PrepareAndLoadNextLevel(string next)
     {
-        if (DataManager.Instance != null && DataManager.Instance.Data != null)
-        {
-            DataManager.Instance.Data.currentScene = next;
-            DataManager.Instance.PrepareForNewScene(next);
-            DataManager.Instance.ClearCheckpointAfterLeavingLevel();
-        }
-
-        LevelEntrance.SetPendingSpawn("");
-        LoadScene(next);
+        string loadScene = StoryFlow.ResolveLoadAfterLevel(SceneManager.GetActiveScene().name, next);
+        StoryFlow.ApplyDestinationSave(loadScene, "", false, -1);
+        if (!StoryFlow.IsCinematic(loadScene))
+            LevelEntrance.SetPendingSpawn("");
+        LoadScene(loadScene);
     }
 
     private static void LoadScene(string sceneName)

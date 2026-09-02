@@ -138,6 +138,8 @@ public class LevelCompleteUI : MonoBehaviour
         if (string.IsNullOrEmpty(next) && DataManager.Instance != null)
             next = DataManager.Instance.Data != null ? DataManager.Instance.Data.currentScene : "";
 
+        next = StoryFlow.ResolveLoadAfterLevel(SceneManager.GetActiveScene().name, next);
+
         if (string.IsNullOrEmpty(next))
         {
             Debug.LogError("[LevelCompleteUI] Chưa có scene level tiếp theo.");
@@ -153,18 +155,10 @@ public class LevelCompleteUI : MonoBehaviour
         _hasPending = false;
         BeginLeaveOverlay();
 
-        if (DataManager.Instance != null)
-        {
-            DataManager.Instance.Data.currentScene = next;
-            DataManager.Instance.PrepareForNewScene(next);
+        StoryFlow.ApplyDestinationSave(next, spawnId, saveCheckpoint, health);
 
-            if (saveCheckpoint)
-                DataManager.Instance.SaveCheckpoint(next, spawnId, Vector3.zero, health);
-            else
-                DataManager.Instance.ClearCheckpointAfterLeavingLevel();
-        }
-
-        LevelEntrance.SetPendingSpawn(spawnId);
+        if (!StoryFlow.IsCinematic(next))
+            LevelEntrance.SetPendingSpawn(spawnId);
 
         if (ScreenFader.Instance != null)
             ScreenFader.Instance.LoadSceneWithLoading(next, fade, delay);
