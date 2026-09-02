@@ -143,6 +143,18 @@ public class CollectibleItem : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (!IsWeaponUnlockItem())
+            return;
+
+        if (TryHideIfWeaponAlreadyUnlocked())
+            return;
+
+        Invoke(nameof(RetryHideIfWeaponAlreadyUnlocked), 0.5f);
+        Invoke(nameof(RetryHideIfWeaponAlreadyUnlocked), 1.5f);
+    }
+
     private void OnEnable()
     {
         // Reset trạng thái khi được kích hoạt lại (phục vụ cho Object Pool)
@@ -160,6 +172,7 @@ public class CollectibleItem : MonoBehaviour
             _rb.bodyType = RigidbodyType2D.Dynamic;
 
         RestoreItemVisuals();
+        TryHideIfWeaponAlreadyUnlocked();
     }
 
     private void OnDisable()
@@ -324,6 +337,37 @@ public class CollectibleItem : MonoBehaviour
     }
 
     // ─── WEAPON UNLOCK ──────────────────────────────────────────────────────────
+
+    private bool IsWeaponUnlockItem()
+    {
+        return data != null && data.itemType == ItemData.ItemType.WeaponUnlock;
+    }
+
+    private void RetryHideIfWeaponAlreadyUnlocked()
+    {
+        TryHideIfWeaponAlreadyUnlocked();
+    }
+
+    /// <summary>
+    /// Súng unlock 1 lần / slot. Đã mở trong save thì không hiện lại khi chơi lại màn.
+    /// </summary>
+    private bool TryHideIfWeaponAlreadyUnlocked()
+    {
+        if (!IsWeaponUnlockItem() || IsCollected)
+            return false;
+
+        var save = HeartOfTheNight.Hung.DataManager.Instance != null
+            ? HeartOfTheNight.Hung.DataManager.Instance.Data
+            : null;
+        if (save == null || !save.hasSave)
+            return false;
+        if (!save.IsWeaponUnlocked(data.weaponSlotIndex))
+            return false;
+
+        IsCollected = true;
+        gameObject.SetActive(false);
+        return true;
+    }
 
     private void ApplyWeaponUnlock(PlayerAttack attack)
     {

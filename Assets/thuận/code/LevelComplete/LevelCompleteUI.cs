@@ -138,7 +138,9 @@ public class LevelCompleteUI : MonoBehaviour
         if (string.IsNullOrEmpty(next) && DataManager.Instance != null)
             next = DataManager.Instance.Data != null ? DataManager.Instance.Data.currentScene : "";
 
-        next = StoryFlow.ResolveLoadAfterLevel(SceneManager.GetActiveScene().name, next);
+        // Pending từ cửa đã Resolve (Story2/EndScene). Chỉ Resolve lại nếu còn tên màn chơi.
+        if (!StoryFlow.IsCinematic(next))
+            next = StoryFlow.ResolveLoadAfterLevel(SceneManager.GetActiveScene().name, next);
 
         if (string.IsNullOrEmpty(next))
         {

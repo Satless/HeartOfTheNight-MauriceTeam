@@ -171,6 +171,17 @@ namespace HeartOfTheNight.Hung
         }
 
         /// <summary>
+        /// Đang trong màn: RAM có chìa/phòng chưa commit — không được LoadGame đè.
+        /// </summary>
+        internal bool ShouldPreserveLiveRamSave()
+        {
+            return Application.isPlaying
+                && Data != null
+                && Data.hasSave
+                && IsLevelScene(ActiveSceneName);
+        }
+
+        /// <summary>
         /// Ghi chìa/phòng/cửa đã commit xuống đĩa. HUD và map giữ nguyên bản đang chơi.
         /// </summary>
         private void PersistCommittedWorldToDiskKeepLive()
@@ -586,6 +597,24 @@ namespace HeartOfTheNight.Hung
             if (Data == null) return;
             Data.ClearCheckpointFlags();
             Data.targetSpawnID = "";
+            SaveGame();
+        }
+
+        /// <summary>
+        /// Unlock Select Level: ghi maxUnlockedLevel xuống đĩa mà không dump chìa đang nhặt dở.
+        /// Tránh crash lúc YOU WIN làm ApplyFromSave khóa lại màn vừa mở.
+        /// </summary>
+        public void PersistUnlockProgress()
+        {
+            if (Data == null || !Data.hasSave)
+                return;
+
+            if (ShouldPreserveLiveRamSave() && Data.hasCheckpointWorldState)
+            {
+                PersistCommittedWorldToDiskKeepLive();
+                return;
+            }
+
             SaveGame();
         }
 

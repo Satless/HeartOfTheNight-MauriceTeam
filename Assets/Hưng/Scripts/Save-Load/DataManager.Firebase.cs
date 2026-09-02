@@ -39,7 +39,8 @@ namespace HeartOfTheNight.Hung
                 {
                     _isFirebaseInitializing = false;
                     Debug.LogError($"[Firebase] Không thể khởi tạo Firebase: {task.Result}. Fallback sang Local Load.");
-                    LoadGameLocal();
+                    if (!ShouldPreserveLiveRamSave())
+                        LoadGameLocal();
                 }
             });
         }
@@ -62,7 +63,8 @@ namespace HeartOfTheNight.Hung
                 if (task.IsCanceled || task.IsFaulted)
                 {
                     Debug.LogError("[Firebase] Đăng nhập ẩn danh thất bại! Fallback sang Local Load.");
-                    LoadGameLocal();
+                    if (!ShouldPreserveLiveRamSave())
+                        LoadGameLocal();
                     return;
                 }
 
