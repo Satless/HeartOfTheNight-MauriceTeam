@@ -179,7 +179,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Sprite: {fileID: -7051469675471283345, guid: 8c220ec2c5cde90419f778b14f7e612e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -249,7 +249,7 @@ MonoBehaviour:
   isGrounded: 0
   edgeCheck: {fileID: 3957343445911688697}
   wallCheck: {fileID: 2856499354676887440}
-  edgeCheckDistance: 3
+  edgeCheckDistance: 0
   wallCheckDistance: 0
   wallCheckHeight: 2.62
   flipCooldown: 0.5
