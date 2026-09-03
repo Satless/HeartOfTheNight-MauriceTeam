@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 7110234075211430788}
   - component: {fileID: 1442407939130469810}
   - component: {fileID: 672833954148347001}
+  - component: {fileID: 7020032605509679457}
   m_Layer: 10
   m_Name: Automaton
   m_TagString: Enemy
@@ -306,6 +307,33 @@ MonoBehaviour:
   _knockbackVelocity: {x: 0, y: 0}
   _isInKnockback: 0
   _stunEndTime: 0
+--- !u!114 &7020032605509679457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036838522198258641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: add6581f9d070f8418c0cb0bdf5806f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dropMultipleItems: 1
+  lootTable:
+  - itemName: HealthP
+    itemPrefab: {fileID: 5216420102608481259, guid: 1abb01393af01aa47bbea3e5a1b4bd79, type: 3}
+    dropChance: 30
+  - itemName: JumpBuffP
+    itemPrefab: {fileID: 7856878159730602905, guid: 2d18efdf82b1e6b45a679a8f92ebd003, type: 3}
+    dropChance: 15
+  - itemName: ShieldP
+    itemPrefab: {fileID: 7281742956343847639, guid: e815a6f508460b54889b1fafe31488b2, type: 3}
+    dropChance: 10
+  - itemName: SpeedBuffP
+    itemPrefab: {fileID: 2787408048170355484, guid: 5209ad2420dee4d49964ed24c0c0875c, type: 3}
+    dropChance: 15
+  customVariableName: 
 --- !u!1001 &9100000000000000031
 PrefabInstance:
   m_ObjectHideFlags: 0

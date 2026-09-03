@@ -83,8 +83,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private Transform _firePoint;
 
     [Header("Switching")]
-    [Tooltip("Thời gian delay (giây) không thể bắn sau khi đổi súng/biến thể")]
-    [SerializeField] private float _switchDelay;
+    [Tooltip("Thời gian delay (giây) không thể đổi sang ô súng khác")]
+    [SerializeField] private float _switchDelay = 0.75f;
     private float _switchEndTime;
 
     // Tái dùng PlayerMovement để đọc IsWallJumpLocked
@@ -582,7 +582,11 @@ public class PlayerAttack : MonoBehaviour
                     }
 
                     FlamethrowerLogic logic = _flamethrowerInstance.GetComponent<FlamethrowerLogic>();
-                    if (logic != null) logic.Activate(Data.statusEffect);
+                    if (logic != null)
+                    {
+                        float tick = Data.fireRate > 0.05f ? Data.fireRate : 0.2f;
+                        logic.Activate(Data.statusEffect, Data.damage, tick);
+                    }
                 }
                 
                 if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
   m_Name: MiniGunTest
   m_EditorClassIdentifier: 
-  fireRate: 0.5
-  bulletSpeed: 30
-  damage: 1
+  fireRate: 0.18
+  bulletSpeed: 36
+  damage: 7
   bulletLifetime: 3
   bulletsPerShot: 3
   spreadAngle: 0
@@ -35,10 +35,10 @@ MonoBehaviour:
   continuousVfxPrefab: {fileID: 0}
   knockbackForce: 1
   explosionKnockbackForce: 0
-  bulletPrewarmCount: 5
-  hitVfxPrewarmCount: 5
+  bulletPrewarmCount: 24
+  hitVfxPrewarmCount: 16
   canOverheat: 1
-  heatPerShot: 8
+  heatPerShot: 6
   audioCategoryID: Weapons
   audioSubCategoryID: MachineGun
   fireActionName: Shoot

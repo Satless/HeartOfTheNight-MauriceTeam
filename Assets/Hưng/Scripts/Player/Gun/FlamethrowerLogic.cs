@@ -1,3 +1,4 @@
+using HeartOfTheNight.Common;
 using UnityEngine;
 
 /// <summary>
@@ -28,13 +29,19 @@ public class FlamethrowerLogic : MonoBehaviour
     private const string LoopAction = "Shoot";
 
     private AudioSource _loopSource;
+    private int _directDamage;
+    private float _directTickInterval = 0.2f;
+    private float _directTickTimer;
 
     // Pre-allocated cho OverlapBoxNonAlloc (Zero-GC, giống PlayerMagnet / Bullet)
     private static readonly Collider2D[] _overlapBuffer = new Collider2D[20];
+    private static readonly int[] _directHitIds = new int[20];
 
-    public void Activate(StatusEffectData effectData)
+    public void Activate(StatusEffectData effectData, int directDamage = 0, float tickInterval = 0.2f)
     {
         _statusEffect = effectData;
+        _directDamage = Mathf.Max(0, directDamage);
+        _directTickInterval = Mathf.Max(0.05f, tickInterval);
         EnsureLoopSource();
         if (_loopSource != null && _loopSource.clip != null && !_loopSource.isPlaying)
             _loopSource.Play();
@@ -43,6 +50,7 @@ public class FlamethrowerLogic : MonoBehaviour
     private void OnEnable()
     {
         EnsureLoopSource();
+        _directTickTimer = 0f;
     }
 
     private void OnDisable()
@@ -78,19 +86,31 @@ public class FlamethrowerLogic : MonoBehaviour
 
     private void Update()
     {
-        if (_statusEffect == null) return;
+        if (_statusEffect == null && _directDamage <= 0) return;
 
-        // Tính tâm của Hitbox (hỗ trợ cả xoay Y 180 độ)
         Vector2 centerPos = (Vector2)transform.position + (Vector2)(transform.right * hitboxOffset.x) + (Vector2)(transform.up * hitboxOffset.y);
-
-        // Quét vùng lửa (NonAlloc = Zero-GC)
         int count = Physics2D.OverlapBoxNonAlloc(centerPos, hitboxSize, transform.eulerAngles.z, _overlapBuffer, targetLayer);
 
+        if (_statusEffect != null)
+            ApplyBurn(count);
+
+        if (_directDamage > 0)
+        {
+            _directTickTimer -= Time.deltaTime;
+            if (_directTickTimer <= 0f)
+            {
+                _directTickTimer = _directTickInterval;
+                ApplyDirectDamage(count);
+            }
+        }
+    }
+
+    private void ApplyBurn(int count)
+    {
         for (int i = 0; i < count; i++)
         {
             Collider2D col = _overlapBuffer[i];
-            // Lọc theo Tag trước khi xử lý
-            if (!HasTargetTag(col)) continue;
+            if (!HasTargetTag(col) || IsPlayer(col)) continue;
 
             StatusEffectReceiver receiver = col.GetComponent<StatusEffectReceiver>();
             if (receiver == null)
@@ -98,6 +118,44 @@ public class FlamethrowerLogic : MonoBehaviour
             if (receiver != null)
                 receiver.ApplyStatus(_statusEffect);
         }
+    }
+
+    private void ApplyDirectDamage(int count)
+    {
+        int hitCount = 0;
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D col = _overlapBuffer[i];
+            if (!HasTargetTag(col) || IsPlayer(col)) continue;
+
+            IDamageable target = col.GetComponent<IDamageable>();
+            if (target == null)
+                target = col.GetComponentInParent<IDamageable>();
+            if (target == null) continue;
+
+            Component host = target as Component;
+            int id = host != null ? host.GetInstanceID() : 0;
+            if (id != 0 && AlreadyHit(id, hitCount)) continue;
+            if (id != 0 && hitCount < _directHitIds.Length)
+                _directHitIds[hitCount++] = id;
+
+            target.TakeDamage(_directDamage);
+            HeartOfTheNight.UI.DamagePopup.Create(col.bounds.center, _directDamage);
+        }
+    }
+
+    private static bool AlreadyHit(int id, int hitCount)
+    {
+        for (int i = 0; i < hitCount; i++)
+        {
+            if (_directHitIds[i] == id) return true;
+        }
+        return false;
+    }
+
+    private static bool IsPlayer(Collider2D col)
+    {
+        return col.CompareTag("Player") || col.transform.root.CompareTag("Player");
     }
 
     /// <summary>
@@ -119,7 +177,7 @@ public class FlamethrowerLogic : MonoBehaviour
     {
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.5f);
         Vector2 centerPos = (Vector2)transform.position + (Vector2)(transform.right * hitboxOffset.x) + (Vector2)(transform.up * hitboxOffset.y);
-        
+
         Gizmos.matrix = Matrix4x4.TRS(centerPos, transform.rotation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, hitboxSize);
     }

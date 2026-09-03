@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36a1b4aafd7ee6a4cb1e2a6d89becd55, type: 3}
   m_Name: TestVukhi 2
   m_EditorClassIdentifier: 
-  fireRate: 0.5
-  bulletSpeed: 32
-  damage: 20
+  fireRate: 0.4
+  bulletSpeed: 36
+  damage: 32
   bulletLifetime: 3
   bulletsPerShot: 1
   spreadAngle: 1.6
@@ -30,7 +30,7 @@ MonoBehaviour:
   explosionRadius: 0
   explosionDamage: 0
   statusEffect: {fileID: 0}
-  pierceCount: 2
+  pierceCount: 3
   isContinuousFire: 0
   continuousVfxPrefab: {fileID: 0}
   knockbackForce: 0
@@ -38,7 +38,7 @@ MonoBehaviour:
   bulletPrewarmCount: 5
   hitVfxPrewarmCount: 5
   canOverheat: 1
-  heatPerShot: 10
+  heatPerShot: 7
   audioCategoryID: Weapons
   audioSubCategoryID: Pistol
   fireActionName: Shoot
