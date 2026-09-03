@@ -146,6 +146,32 @@ public static class ChapterProgress
     }
 
     /// <summary>
+    /// Demo hội đồng: mở hết scene Chapter 1–3 trên slot đang chọn.
+    /// </summary>
+    public static void UnlockAllForDemo()
+    {
+        var unlocked = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
+        for (int c = 0; c < Chapters.Length; c++)
+        {
+            var list = Chapters[c];
+            for (int i = 0; i < list.Length; i++)
+                unlocked.Add(list[i]);
+        }
+
+        Save(unlocked);
+
+        var dm = HeartOfTheNight.Hung.DataManager.EnsureExists();
+        if (dm?.Data == null)
+            return;
+
+        dm.Data.maxUnlockedLevel = TotalSceneCount;
+        dm.Data.UnlockAllWeapons();
+        dm.Data.demoArmed = true;
+        if (dm.Data.hasSave)
+            dm.PersistUnlockProgress();
+    }
+
+    /// <summary>
     /// Hết màn: mở scene hiện tại và scene kế trong chuỗi 6+5+2.
     /// Không phụ thuộc cửa ghi next = SelectLevel.
     /// </summary>
@@ -169,6 +195,7 @@ public static class ChapterProgress
     {
         PlayerPrefs.DeleteKey(PrefsKey);
         PlayerPrefs.DeleteKey(PrefsKeyForSlot(slotIndex));
+        DemoUnlock.DisarmForSlot(slotIndex);
         PlayerPrefs.Save();
     }
 
