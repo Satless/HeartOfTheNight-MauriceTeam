@@ -13,24 +13,24 @@ namespace HeartOfTheNight.Enemy
         public float kiteDuration = 1.75f;
 
         [Header("Movement")]
-        public float chaseSpeed = 3.25f;
-        public float retreatSpeed = 4f;
-        public float groundAccel = 28f;
+        public float chaseSpeed = 3.6f;
+        public float retreatSpeed = 4.4f;
+        public float groundAccel = 30f;
 
         [Header("Melee")]
         public float meleeRange = 1.4f;
-        public float meleeCooldown = 1.2f;
+        public float meleeCooldown = 1f;
         public int meleeDamage = 15;
 
         [Header("Shooting")]
-        public float fireCooldown = 1.8f;
-        public float bulletSpeed = 9f;
+        public float fireCooldown = 1.5f;
+        public float bulletSpeed = 10f;
         public int bulletDamage = 10;
         public float bulletLifetime = 4f;
 
         [Header("Teleport To Player Platform")]
         public bool canTeleportToPlayerPlatform = true;
-        public float teleportCooldown = 3f;
+        public float teleportCooldown = 2.5f;
         public float teleportSideOffset = 1.25f;
         public float teleportMinDistanceFromPlayer = 2.25f;
         public float teleportProbeHeight = 3f;

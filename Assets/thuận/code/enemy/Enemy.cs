@@ -4,7 +4,7 @@ using HeartOfTheNight.Common;
 public class Enemy : MonoBehaviour, IDamageable
 {
     [Header("HP")]
-    public int hp = 150;
+    public int hp = 140;
 
 
 [Header("Shield")]
@@ -14,7 +14,7 @@ public class Enemy : MonoBehaviour, IDamageable
     public bool isProtected;
 
     [Header("Patrol")]
-    public float moveSpeed = 2f;
+    public float moveSpeed = 2.5f;
     public float patrolDistance = 3f;
 
     private Rigidbody2D rb;

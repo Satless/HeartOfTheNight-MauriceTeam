@@ -5,7 +5,7 @@ using HeartOfTheNight.Common;
 public class BurningCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 60;
+    public int maxHealth = 45;
     public int currentHealth;
     public bool isDead = false;
 
@@ -15,8 +15,8 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
     public Vector2 attackOffset = new Vector2(0f, 1f);
 
     [Header("Tầm nhìn & Tầm Đánh")]
-    public float moveSpeed = 4f;
-    public float patrolSpeed = 2f;
+    public float moveSpeed = 4.5f;
+    public float patrolSpeed = 3.5f;
     public float patrolDistance = 5f;
     private float startX;
 
@@ -50,7 +50,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
 
     [Header("Sát thương & Hiệu ứng Cháy")]
     public int attackDamage = 10;
-    public float attackCooldown = 2f;
+    public float attackCooldown = 1.6f;
     public int burnDamagePerTick = 2;
     public int burnTicks = 3;
     public float timeBetweenTicks = 1f;

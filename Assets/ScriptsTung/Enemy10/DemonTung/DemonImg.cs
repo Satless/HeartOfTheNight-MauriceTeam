@@ -5,7 +5,7 @@ using HeartOfTheNight.Common;
 public class DemonImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 100;
+    public int maxHealth = 80;
     public int currentHealth;
     public bool isDead = false;
 
@@ -18,13 +18,13 @@ public class DemonImg : MonoBehaviour, IDamageable, IKnockbackGate
     private Color originalColor;
 
     [Header("Tầm nhìn & Tuần tra")]
-    public float detectionRange = 10f;
-    public float patrolSpeed = 2f;
+    public float detectionRange = 12f;
+    public float patrolSpeed = 2.5f;
     public float patrolDistance = 5f;
     private float startX;
 
     [Header("Di chuyển Bay (Thả diều)")]
-    public float runSpeed = 4f;
+    public float runSpeed = 4.8f;
     public float minimumDistance = 5f;
 
     [Header("Kiểm tra Vật cản (Tường)")]
@@ -38,7 +38,7 @@ public class DemonImg : MonoBehaviour, IDamageable, IKnockbackGate
     private float flipTimer = 0f;
 
     [Header("Kỹ năng Cột Lửa (Demon Skill Laser)")]
-    public float attackCooldown = 3f;
+    public float attackCooldown = 3.2f;
     public float chargeTime = 1.5f;
     [Tooltip("Thời gian đứng thở sau khi bay trước khi được tung chiêu")]
     public float delayAfterMove = 0.5f;

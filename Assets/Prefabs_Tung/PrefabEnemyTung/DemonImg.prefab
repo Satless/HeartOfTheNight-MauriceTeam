@@ -130,16 +130,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f9da0efccfbca4296b27a9c777cb50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 50
+  maxHealth: 80
   currentHealth: 0
   isDead: 0
   anim: {fileID: 4055525185896886748}
   sr: {fileID: 7001447468448450078}
   castColor: {r: 0.9169811, g: 0.8633464, b: 0.8633464, a: 1}
-  detectionRange: 10
-  patrolSpeed: 2
+  detectionRange: 12
+  patrolSpeed: 2.5
   patrolDistance: 10
-  runSpeed: 4
+  runSpeed: 4.8
   minimumDistance: 5
   wallCheck: {fileID: 7495683428084574895}
   wallCheckDistance: 0
@@ -148,7 +148,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   flipCooldown: 0.5
-  attackCooldown: 4
+  attackCooldown: 3.2
   chargeTime: 1
   delayAfterMove: 0.5
   fireHazardPrefab: {fileID: 2342528712879075001, guid: 66f7c0d63e5a97c498ece800ec0a30e9, type: 3}
