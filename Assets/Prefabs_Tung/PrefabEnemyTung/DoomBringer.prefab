@@ -428,7 +428,7 @@ MonoBehaviour:
   phase2SpeedMulti: 1.5
   phase2FireRateMulti: 0.5
   moveSpeed: 4.5
-  isWallOfFleshMode: 0
+  isWallOfFleshMode: 1
   timePerState: 5
   transitionDelay: 1
   firePoint: {fileID: 9025711773550881348}
@@ -681,7 +681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 396304618f6227d43aa1448c2807b160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageToDeal: 25
+  damageToDeal: 50
   dealDamageContinuously: 1
   damageInterval: 1
   destroyTrapOnHit: 0
