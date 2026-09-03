@@ -102,7 +102,13 @@ public class SelectLevelManager : MonoBehaviour
         }
 
         var dm = DataManager.EnsureExists();
-        if (dm != null && dm.HasInProgress())
+        if (dm == null || dm.Data == null || !dm.Data.hasSave)
+        {
+            DemoUnlock.ShowToast(this, "Cần vào một slot save trước khi bật DEMO.");
+            return;
+        }
+
+        if (dm.HasInProgress())
         {
             dm.AbandonInProgress();
             EnsureContinuePopup().Hide();

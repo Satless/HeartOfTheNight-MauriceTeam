@@ -166,6 +166,7 @@ public static class ChapterProgress
 
         dm.Data.maxUnlockedLevel = TotalSceneCount;
         dm.Data.UnlockAllWeapons();
+        dm.Data.demoArmed = true;
         if (dm.Data.hasSave)
             dm.PersistUnlockProgress();
     }

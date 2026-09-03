@@ -14,20 +14,33 @@ public static class DemoUnlock
     public const KeyCode Hotkey = KeyCode.F8;
     public const int DemoKeyCount = 9;
 
-    private const string ArmedPrefsPrefix = "DemoUnlock.Armed.";
+    private const string LegacyArmedPrefsPrefix = "DemoUnlock.Armed.";
 
-    public static bool IsArmed => PlayerPrefs.GetInt(ArmedKey(ActiveSlot()), 0) == 1;
+    public static bool IsArmed
+    {
+        get
+        {
+            var data = DataManager.Instance != null ? DataManager.Instance.Data : null;
+            return data != null && data.hasSave && data.demoArmed;
+        }
+    }
 
     public static void Arm()
     {
-        PlayerPrefs.SetInt(ArmedKey(ActiveSlot()), 1);
-        PlayerPrefs.Save();
+        var dm = DataManager.Instance;
+        if (dm?.Data == null)
+            return;
+
+        dm.Data.demoArmed = true;
+        ClearLegacyArmedPrefs(dm.ActiveSlotIndex);
     }
 
     public static void DisarmForSlot(int slotIndex)
     {
-        PlayerPrefs.DeleteKey(ArmedKey(slotIndex));
-        PlayerPrefs.Save();
+        ClearLegacyArmedPrefs(slotIndex);
+        var dm = DataManager.Instance;
+        if (dm != null && dm.ActiveSlotIndex == slotIndex && dm.Data != null)
+            dm.Data.demoArmed = false;
     }
 
     public static void EnsureDemoKeys()
@@ -136,17 +149,10 @@ public static class DemoUnlock
             PlayerKeyInventory.Add(type, count - have);
     }
 
-    private static int ActiveSlot()
+    private static void ClearLegacyArmedPrefs(int slotIndex)
     {
-        var dm = DataManager.Instance;
-        if (dm != null)
-            return dm.ActiveSlotIndex;
-        return SaveSlotStorage.GetActiveSlotIndex();
-    }
-
-    private static string ArmedKey(int slotIndex)
-    {
-        return ArmedPrefsPrefix + Mathf.Clamp(slotIndex, 1, DataManager.SlotCount);
+        PlayerPrefs.DeleteKey(LegacyArmedPrefsPrefix + Mathf.Clamp(slotIndex, 1, DataManager.SlotCount));
+        PlayerPrefs.Save();
     }
 
     private static System.Collections.IEnumerator FadeToast(CanvasGroup group)
