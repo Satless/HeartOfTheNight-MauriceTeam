@@ -270,18 +270,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1b06e39e33fb94b90bb0acdc9c5f8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 400
+  maxHealth: 600
   currentHealth: 0
   isDead: 0
   anim: {fileID: 7061925352586094923}
   sr: {fileID: 7264148323754199445}
   dashAttackSprite: {fileID: 792988338, guid: 361944f99599388428776ecf701b4bc4, type: 3}
-  moveSpeed: 4
-  detectionRangeX: 10
+  moveSpeed: 10
+  detectionRangeX: 17.69
   detectionRangeY: 4
-  dashRange: 9
-  attackRange: 1
-  attackOffset: {x: 0.75, y: 0.77}
+  dashRange: 18
+  attackRange: 6
+  attackOffset: {x: 2, y: 2.02}
   patrolSpeed: 3
   patrolDistance: 10
   groundCheck: {fileID: 4689597157089903482}
@@ -294,12 +294,12 @@ MonoBehaviour:
   teleportDelay: 0.5
   postTeleportDelay: 0.6
   teleportYOffset: 0
-  meleeDamage: 10
+  meleeDamage: 20
   dashDamage: 15
-  dashSpeed: 20
+  dashSpeed: 25
   dashDuration: 0.5
-  dashCooldown: 5
-  meleeCooldown: 2
+  dashCooldown: 3
+  meleeCooldown: 1
   stuckTimeLimit: 1.2
 --- !u!95 &7061925352586094923
 Animator:
