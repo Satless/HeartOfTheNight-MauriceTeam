@@ -33,12 +33,8 @@ namespace HeartOfTheNight.Player
     [Header("Cape Visuals")]
     [Tooltip("Kéo object Cape (chứa Animator áo choàng) vào đây")]
     [SerializeField] private GameObject _capeObject;
-    [Tooltip("Thời gian đứng im tối thiểu (giây) để bật áo choàng")]
-    [SerializeField] private float _idleTimeToShowCape;
     [Tooltip("Giữ áo choàng khi nhân vật chết (Tạo hiệu ứng giơ cờ đầu hàng)")]
     [SerializeField] private bool _keepCapeWhenDead = true;
-    
-    private float _idleTimer;
 
     private PlayerMovement _movement;
     private PlayerAttack _attack;
@@ -143,23 +139,12 @@ namespace HeartOfTheNight.Player
         }
 
         // -------------------------------------------------------------
-        // XỬ LÝ ÁO CHOÀNG (Chỉ bật khi đứng im hoàn toàn và không cầm súng)
+        // XỬ LÝ ÁO CHOÀNG (Yêu cầu Nhóm trưởng: Hiện mọi trạng thái trừ Lướt)
         // -------------------------------------------------------------
-        if (state == PlayerMovement.PlayerState.Grounded 
-            && Mathf.Abs(_movement.MoveInput.x) < 0.1f 
-            && Mathf.Abs(_movement.RB.linearVelocity.x) < 0.1f 
-            && !_isHoldingGun)
-        {
-            _idleTimer += Time.deltaTime;
-        }
-        else
-        {
-            _idleTimer = 0f;
-        }
-
         if (_capeObject != null)
         {
-            _capeObject.SetActive(_idleTimer >= _idleTimeToShowCape);
+            bool shouldShowCape = state != PlayerMovement.PlayerState.Dashing;
+            _capeObject.SetActive(shouldShowCape);
         }
 
         // -------------------------------------------------------------
