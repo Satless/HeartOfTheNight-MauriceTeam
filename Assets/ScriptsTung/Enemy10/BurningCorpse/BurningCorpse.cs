@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using HeartOfTheNight.Common;
 
-public class BurningCorpseImg : MonoBehaviour, IDamageable
+public class BurningCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 60;
@@ -67,14 +67,19 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     private Collider2D myCol;
     private float nextAttackTime = 0f;
     private bool isBusy = false;
+    private KnockbackReceiver knockback;
+    private float lastBurnHitTime = -999f;
 
     private float idleSoundTimer;
     private float moveSoundTimer;
+
+    public bool CanReceiveKnockback => !isDead && !isBusy;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        knockback = GetComponent<KnockbackReceiver>();
         myCol = GetComponent<Collider2D>();
         if (anim == null) anim = GetComponentInChildren<Animator>();
 
@@ -86,6 +91,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     void Update()
     {
         if (isBusy || isDead) return;
+        if (knockback != null && knockback.IsKnockedBack) return;
 
         CheckGroundStatus();
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
@@ -272,87 +278,30 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
     public void DealDamageAndBurn(Collider2D playerCol)
     {
-        if (isDead) return;
+        if (isDead || playerCol == null) return;
+        // Animation event + BurnHB OnTriggerEnter thường bắn cùng 1 nhát — chỉ nhận 1 lần.
+        if (Time.time - lastBurnHitTime < 0.15f) return;
+        lastBurnHitTime = Time.time;
+
         IDamageable target = playerCol.GetComponent<IDamageable>();
         if (target == null) target = playerCol.GetComponentInParent<IDamageable>();
+        if (target == null) return;
 
-        if (target != null)
-        {
-            target.TakeDamage(attackDamage);
-            StartCoroutine(GayHieuUngChay(playerCol, target));
-        }
-    }
+        target.TakeDamage(attackDamage);
 
-    IEnumerator GayHieuUngChay(Collider2D playerCol, IDamageable target)
-    {
         Rigidbody2D playerRb = playerCol.GetComponentInParent<Rigidbody2D>();
+        Transform host = playerRb != null ? playerRb.transform : playerCol.transform.root;
 
-        GameObject ngonLuaDangChay = null;
-        if (burnEffectPrefab != null && playerCol != null)
-        {
-            Transform playerRoot = playerCol.transform.root;
-            ngonLuaDangChay = Instantiate(burnEffectPrefab, playerRoot);
-            ngonLuaDangChay.transform.localPosition = new Vector3(burnEffectOffset.x, burnEffectOffset.y, -1f);
-
-            SpriteRenderer fireSr = ngonLuaDangChay.GetComponent<SpriteRenderer>();
-            if (fireSr == null) fireSr = ngonLuaDangChay.GetComponentInChildren<SpriteRenderer>();
-
-            if (fireSr != null)
-            {
-                SpriteRenderer[] allPlayerSrs = playerRoot.GetComponentsInChildren<SpriteRenderer>();
-
-                if (allPlayerSrs.Length > 0)
-                {
-                    int maxOrder = -99999;
-                    string targetLayerName = allPlayerSrs[0].sortingLayerName;
-
-                    foreach (SpriteRenderer sr in allPlayerSrs)
-                    {
-                        if (sr.gameObject == ngonLuaDangChay) continue;
-
-                        if (sr.sortingOrder > maxOrder)
-                        {
-                            maxOrder = sr.sortingOrder;
-                            targetLayerName = sr.sortingLayerName;
-                        }
-                    }
-
-                    fireSr.sortingLayerName = targetLayerName;
-                    fireSr.sortingOrder = maxOrder + 50;
-                }
-                else
-                {
-                    fireSr.sortingOrder = 32000;
-                }
-            }
-        }
-
-        for (int i = 0; i < burnTicks; i++)
-        {
-            float thoiGianDaCho = 0f;
-            while (thoiGianDaCho < timeBetweenTicks)
-            {
-                if (playerRb != null && Mathf.Abs(playerRb.linearVelocity.x) >= dashSpeedThreshold)
-                {
-                    if (ngonLuaDangChay != null) Destroy(ngonLuaDangChay);
-                    yield break;
-                }
-                thoiGianDaCho += Time.deltaTime;
-                yield return null;
-            }
-
-            if (target != null)
-            {
-                target.TakeDamage(burnDamagePerTick);
-            }
-            else
-            {
-                if (ngonLuaDangChay != null) Destroy(ngonLuaDangChay);
-                yield break;
-            }
-        }
-
-        if (ngonLuaDangChay != null) Destroy(ngonLuaDangChay);
+        BurnEffectLifetime.ApplyOn(
+            host,
+            burnEffectPrefab,
+            burnEffectOffset,
+            target,
+            playerRb,
+            burnTicks,
+            timeBetweenTicks,
+            burnDamagePerTick,
+            dashSpeedThreshold);
     }
 
     public void DisableHitbox()

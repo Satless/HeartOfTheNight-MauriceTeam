@@ -43,10 +43,12 @@ namespace HeartOfTheNight.Enemy
         private int   health;
         private int   facing = 1;
         private float moveSoundTimer;
+        private KnockbackReceiver knockback;
 
         private void Awake()
         {
             rb          = GetComponent<Rigidbody2D>();
+            knockback   = GetComponent<KnockbackReceiver>();
             sprite      = GetComponentInChildren<SpriteRenderer>();
             strengthMod = GetComponent<EnemyStrengthModifier>();
             health      = maxHealth;
@@ -102,6 +104,12 @@ namespace HeartOfTheNight.Enemy
         private void Update()
 {
     if (player == null || stats == null) return;
+    if (knockback != null && knockback.IsKnockedBack)
+    {
+        if (anim != null)
+            anim.SetBool("isMoving", Mathf.Abs(rb.linearVelocity.x) > 0.1f);
+        return;
+    }
 
     // FIX: Tính khoảng cách hình tròn 2D thực tế thay vì chỉ trục X
     float distance = Vector2.Distance(transform.position, player.position);
@@ -134,6 +142,7 @@ namespace HeartOfTheNight.Enemy
        private void FixedUpdate()
 {
     if (stats == null) return;
+    if (knockback != null && knockback.IsKnockedBack) return;
 
     if (current == State.Retreat) 
         ApplyVelocity(-facing); // Lùi ngược hướng nhìn

@@ -49,10 +49,12 @@ namespace HeartOfTheNight.Enemy
         private float nextStateSwitchTime;
         private int health;
         private int facing = 1;
+        private KnockbackReceiver knockback;
 
         private void Awake()
         {
             rb          = GetComponent<Rigidbody2D>();
+            knockback   = GetComponent<KnockbackReceiver>();
             col         = GetComponent<Collider2D>();
             sprite      = GetComponentInChildren<SpriteRenderer>();
             strengthMod = GetComponent<EnemyStrengthModifier>();
@@ -81,6 +83,7 @@ namespace HeartOfTheNight.Enemy
         private void Update()
         {
             if (player == null || stats == null) return;
+            if (knockback != null && knockback.IsKnockedBack) return;
 
             fireTimer -= Time.deltaTime;
             meleeTimer -= Time.deltaTime;
@@ -106,6 +109,7 @@ namespace HeartOfTheNight.Enemy
         private void FixedUpdate()
         {
             if (stats == null || player == null) return;
+            if (knockback != null && knockback.IsKnockedBack) return;
             float chaseSpeed = EffectiveSpeed(stats.chaseSpeed > 0f ? stats.chaseSpeed : 3.25f);
             float retreatSpeed = EffectiveSpeed(stats.retreatSpeed > 0f ? stats.retreatSpeed : 4f);
             float minKiteDistance = stats.kiteMinDistance > 0f ? stats.kiteMinDistance : 3.5f;
