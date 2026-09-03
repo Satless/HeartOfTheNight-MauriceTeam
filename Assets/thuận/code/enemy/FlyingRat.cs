@@ -5,16 +5,16 @@ using HeartOfTheNight.Common;
 public class FlyingRat : MonoBehaviour, IDamageable
 {
     [Header("Movement")]
-    public float speed = 4f;
-    public float detectionRange = 8f;
+    public float speed = 4.5f;
+    public float detectionRange = 6f;
 
     [Header("Attack")]
     public float attackRange = 1.2f;
     public int damage = 15;
-    public float attackCooldown = 1.2f;
+    public float attackCooldown = 1f;
 
     [Header("Health")]
-    public int hp = 40;
+    public int hp = 90;
 
     private Transform player;
     private bool attacking;

@@ -247,15 +247,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8ce0759e6f067545a623cecc20f7cb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 30
+  maxHealth: 50
   currentHealth: 0
   isDead: 0
   deathYOffset: -0.36
   anim: {fileID: 9189729926134698254}
   attackHitbox: {fileID: 8314471508327488015}
   attackOffset: {x: 0, y: 1}
-  moveSpeed: 4
-  patrolSpeed: 3
+  moveSpeed: 4.2
+  patrolSpeed: 3.5
   patrolDistance: 10
   detectionRangeX: 15
   detectionRangeY: 10
@@ -275,7 +275,7 @@ MonoBehaviour:
   wallCheckHeight: 1.5
   flipCooldown: 0.5
   attackDamage: 15
-  attackCooldown: 2.5
+  attackCooldown: 2
 --- !u!95 &9189729926134698254
 Animator:
   serializedVersion: 7

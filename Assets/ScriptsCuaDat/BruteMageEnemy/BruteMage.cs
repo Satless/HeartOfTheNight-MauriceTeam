@@ -28,7 +28,7 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private LayerMask groundLayer;
 
         [Header("Health")]
-        [SerializeField] private int maxHealth = 60;
+        [SerializeField] private int maxHealth = 110;
 
         [Header("Debug")]
         [SerializeField] private bool debugLogs = false;

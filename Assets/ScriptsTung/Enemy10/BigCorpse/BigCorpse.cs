@@ -5,7 +5,7 @@ using HeartOfTheNight.Common;
 public class BigCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 100;
+    public int maxHealth = 140;
     public int currentHealth;
     public bool isDead = false;
     public float deathYOffset = 0f;
@@ -16,8 +16,8 @@ public class BigCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
     public Vector2 attackOffset = new Vector2(0f, 1f);
 
     [Header("Tầm nhìn & Tầm Đánh")]
-    public float moveSpeed = 3f;
-    public float patrolSpeed = 1.5f;
+    public float moveSpeed = 4.5f;
+    public float patrolSpeed = 3.5f;
     public float patrolDistance = 5f;
     private float startX;
 
@@ -46,7 +46,7 @@ public class BigCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
 
     [Header("Tấn công")]
     public int attackDamage = 15;
-    public float attackCooldown = 2.5f;
+    public float attackCooldown = 1.7f;
 
     private Transform player;
     private Rigidbody2D rb;

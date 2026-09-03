@@ -24,7 +24,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public float deathShakeAmplitude = 0.5f;
 
     [Header("Chỉ số Sinh tồn & Giai đoạn")]
-    public int maxHealth = 1000;
+    public int maxHealth = 700;
     private int currentHealth;
     public bool isDead = false;
     private bool isPhase2 = false;
@@ -34,7 +34,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public float phase2FireRateMulti = 0.5f;
 
     [Header("Di chuyển")]
-    public float moveSpeed = 3.5f;
+    public float moveSpeed = 4.5f;
 
     public bool isWallOfFleshMode = true;
     private float fixedDirection = 1f;
@@ -50,7 +50,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public Transform firePoint;
     [Space]
     public GameObject bombPrefab;
-    public float bombFireRate = 1.5f;
+    public float bombFireRate = 1.2f;
     public float bombFlightTime = 1.2f;
     [Space]
     public GameObject laserPrefab;

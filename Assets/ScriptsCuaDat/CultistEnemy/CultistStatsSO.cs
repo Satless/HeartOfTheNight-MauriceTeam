@@ -12,12 +12,12 @@ namespace HeartOfTheNight.Enemy
         public float retreatReactionDelay = 1f;
 
         [Header("Movement")]
-        public float moveSpeed        = 3.5f;
-        public float groundAccel      = 25f;
+        public float moveSpeed        = 4f;
+        public float groundAccel      = 28f;
 
         [Header("Shooting")]
-        public float fireCooldown     = 2f;
-        public float bulletSpeed      = 9f;
+        public float fireCooldown     = 1.7f;
+        public float bulletSpeed      = 10f;
         public int   bulletDamage     = 10;
         public float bulletLifetime   = 4f;
 

@@ -9,13 +9,13 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable, IKnockbackGate
     public Animator anim;
 
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 150;
+    public int maxHealth = 55;
     private int currentHealth;
 
     [Header("Cài đặt Kỹ năng Khiên")]
     public GameObject shieldPrefab;
     public float shieldDuration = 5f;
-    public float cooldown = 10f;
+    public float cooldown = 8f;
 
     [Range(0f, 1f)]
     public float shieldOpacity = 0.5f;

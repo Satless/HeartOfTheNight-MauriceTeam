@@ -16,13 +16,13 @@ namespace HeartOfTheNight.Enemy
         public float panicReactionDelay = 1f;
 
         [Header("Movement")]
-        public float chaseSpeed   = 4f;
-        public float retreatSpeed = 5.5f;
-        public float groundAccel  = 28f;
+        public float chaseSpeed   = 4.5f;
+        public float retreatSpeed = 6f;
+        public float groundAccel  = 30f;
 
         [Header("Shooting")]
-        public float fireCooldown     = 1.4f;
-        public float bulletSpeed      = 10f;
+        public float fireCooldown     = 1.6f;
+        public float bulletSpeed      = 11f;
         public int   bulletDamage     = 10;
         public float bulletLifetime   = 4f;
         [Tooltip("Độ bám (độ/giây). ~85 bám kịp đi bộ (~11), không kịp lướt (35 trong 0.15s). 0 = bay thẳng.")]
