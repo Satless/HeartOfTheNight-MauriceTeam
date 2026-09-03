@@ -13,8 +13,8 @@ public class Wrath : MonoBehaviour, IDamageable, IKnockbackGate
     public Animator anim;
 
     [Header("Tầm nhìn & Tầm Húc")]
-    public float moveSpeed = 5f;
-    public float patrolSpeed = 2f;
+    public float moveSpeed = 4.8f;
+    public float patrolSpeed = 3.5f;
    public float patrolDistance = 5f;
   private float startX;
     public float detectionRangeX = 12f;

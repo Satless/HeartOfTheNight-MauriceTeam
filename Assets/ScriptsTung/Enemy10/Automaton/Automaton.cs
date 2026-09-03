@@ -6,7 +6,7 @@ using HeartOfTheNight.Enemy;
 public class Automaton : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
-    public int maxHealth = 150;
+    public int maxHealth = 550;
     public int currentHealth;
     public bool isDead = false;
 
@@ -16,7 +16,7 @@ public class Automaton : MonoBehaviour, IDamageable, IKnockbackGate
     public Sprite dashAttackSprite;
 
     [Header("Tầm nhìn & Di chuyển")]
-    public float moveSpeed = 4f;
+    public float moveSpeed = 4.5f;
     public float detectionRangeX = 12f;
     public float detectionRangeY = 8f;
     public float dashRange = 5.5f;
@@ -50,7 +50,7 @@ public class Automaton : MonoBehaviour, IDamageable, IKnockbackGate
     public float dashSpeed = 25f;
     public float dashDuration = 0.35f;
     public float dashCooldown = 4f;
-    public float meleeCooldown = 2f;
+    public float meleeCooldown = 1.6f;
 
     [Header("Hệ thống chống kẹt")]
     public float stuckTimeLimit = 1.2f;

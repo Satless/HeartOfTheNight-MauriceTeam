@@ -5,11 +5,11 @@ public class FlyingMass : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     // Máu của Flying Mass
-    public int hp = 100;
+    public int hp = 140;
 
     [Header("Movement")]
     // Tốc độ bay
-    public float speed = 3f;
+    public float speed = 3.6f;
 
     // Vòng đỏ: Player quá gần -> bay lùi
     public float retreatDistance = 3f;
@@ -28,7 +28,7 @@ public class FlyingMass : MonoBehaviour, IDamageable
     public Transform firePoint;
 
     // Thời gian hồi chiêu
-    public float attackCooldown = 4f;
+    public float attackCooldown = 3.2f;
 
     // Tốc độ bay của bom
     public float bombSpeed = 8f;

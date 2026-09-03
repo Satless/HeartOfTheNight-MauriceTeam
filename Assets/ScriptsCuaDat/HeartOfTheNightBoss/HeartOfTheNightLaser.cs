@@ -19,10 +19,24 @@ namespace HeartOfTheNight.Enemy
         private bool fireTriggered;
         private float nextDamageTime;
 
+        private const string OverlaySortingLayer = "freeLightLayer";
+        private const int OverlaySortingOrder = 20;
+
         private void Awake()
         {
             anim = GetComponent<Animator>();
             if (anim == null) anim = GetComponentInChildren<Animator>();
+            DrawInFrontOfPlayer();
+        }
+
+        private void DrawInFrontOfPlayer()
+        {
+            var renderers = GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                renderers[i].sortingLayerName = OverlaySortingLayer;
+                renderers[i].sortingOrder = OverlaySortingOrder;
+            }
         }
 
         public void Configure(Vector2 beamOrigin, Vector2 beamDirection, float beamLength, float beamWidth,

@@ -310,14 +310,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf6f55edab3f8974eb002de542c0eb6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 20
+  maxHealth: 45
   currentHealth: 0
   isDead: 0
   anim: {fileID: 1545656820512012261}
   attackHitbox: {fileID: 2668810523740595134}
   attackOffset: {x: 0, y: 1}
-  moveSpeed: 4
-  patrolSpeed: 3
+  moveSpeed: 4.5
+  patrolSpeed: 3.5
   patrolDistance: 10
   detectionRangeX: 20
   detectionRangeY: 3
@@ -338,7 +338,7 @@ MonoBehaviour:
   flipCooldown: 0.5
   stuckTimeLimit: 0.1
   attackDamage: 10
-  attackCooldown: 2
+  attackCooldown: 1.6
   burnDamagePerTick: 2
   burnTicks: 6
   timeBetweenTicks: 1

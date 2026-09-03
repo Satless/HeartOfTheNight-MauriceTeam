@@ -6,7 +6,7 @@ using HeartOfTheNight.Common;
 public class LivingFurnaceImg : MonoBehaviour, IDamageable
 {
     [Header("Sinh tồn & Hoạt ảnh")]
-    public int maxHealth = 200;
+    public int maxHealth = 120;
     private int currentHealth;
     private bool isDead = false;
     public Animator anim;
@@ -16,10 +16,10 @@ public class LivingFurnaceImg : MonoBehaviour, IDamageable
 
     public int maxMinions = 4;
     public float spawnRadius = 2f;
-    public float delayBetweenWaves = 2f;
+    public float delayBetweenWaves = 1.5f;
 
     [Header("Tầm phát hiện Player")]
-    public float detectionRangeX = 12f;
+    public float detectionRangeX = 14f;
     public float detectionRangeY = 5f;
 
     private List<GameObject> activeMinions = new List<GameObject>();

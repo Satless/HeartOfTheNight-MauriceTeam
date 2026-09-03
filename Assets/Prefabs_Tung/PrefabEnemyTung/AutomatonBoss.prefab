@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1b06e39e33fb94b90bb0acdc9c5f8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 600
+  maxHealth: 800
   currentHealth: 0
   isDead: 0
   anim: {fileID: 7061925352586094923}
@@ -298,7 +298,7 @@ MonoBehaviour:
   dashDamage: 15
   dashSpeed: 25
   dashDuration: 0.5
-  dashCooldown: 3
+  dashCooldown: 2.5
   meleeCooldown: 1
   stuckTimeLimit: 1.2
 --- !u!95 &7061925352586094923

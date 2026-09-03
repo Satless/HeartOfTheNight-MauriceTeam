@@ -20,16 +20,16 @@ public class KamikazeEnemy : MonoBehaviour, IDamageable
     [Header("Detection")]
     [Tooltip("Layer của mục tiêu (Player) để quái quét tìm")]
     [SerializeField] private LayerMask playerLayer;
-    [SerializeField] private float detectionRange = 6f;
+    [SerializeField] private float detectionRange = 7.5f;
     [SerializeField] private float explodeRange = 1.5f;
     [SerializeField] private float blastRadius = 2.5f;
 
     [Header("Explosion")]
-    [SerializeField] private float explodeDelay = 1.2f;
+    [SerializeField] private float explodeDelay = 0.85f;
     [SerializeField] private float flashInterval = 0.1f;
 
     [Header("Stats")]
-    [SerializeField] private int maxHP = 1;
+    [SerializeField] private int maxHP = 20;
     [SerializeField] private int damage = 30;
 
     private int currentHP;

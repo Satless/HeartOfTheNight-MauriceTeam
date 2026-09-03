@@ -165,13 +165,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf1b06e39e33fb94b90bb0acdc9c5f8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 400
+  maxHealth: 550
   currentHealth: 0
   isDead: 0
   anim: {fileID: 7892184262299229532}
   sr: {fileID: 6463731281556513350}
   dashAttackSprite: {fileID: 792988338, guid: 361944f99599388428776ecf701b4bc4, type: 3}
-  moveSpeed: 4
+  moveSpeed: 4.5
   detectionRangeX: 10
   detectionRangeY: 4
   dashRange: 9
@@ -193,8 +193,8 @@ MonoBehaviour:
   dashDamage: 15
   dashSpeed: 20
   dashDuration: 0.5
-  dashCooldown: 5
-  meleeCooldown: 2
+  dashCooldown: 4
+  meleeCooldown: 1.6
   stuckTimeLimit: 1.2
 --- !u!95 &7892184262299229532
 Animator:
