@@ -43,6 +43,9 @@ namespace HeartOfTheNight.Hung
         [SerializeField] private Button deleteConfirmNoButton;
         [SerializeField] private Button deleteConfirmCloseButton;
 
+        private GameObject _blockedPopup;
+        private TMP_Text _blockedMessage;
+
         private Transform[] _slotRows;
         private TMP_Text[] _selectLabels;
         private TMP_Text[] _deleteLabels;
@@ -72,6 +75,7 @@ namespace HeartOfTheNight.Hung
         private void OnEnable()
         {
             HideDeleteConfirm();
+            HideBlockedMessage();
             RefreshSlotLabels();
             var dm = DataManager.EnsureExists();
             if (dm == null)
@@ -108,6 +112,43 @@ namespace HeartOfTheNight.Hung
 
             Debug.Log($"[SaveSlotFlow] Selected Slot {slotIndex} | HasSave={DataManager.HasSave(slotIndex)}");
             dm.SelectSlotAndEnter(slotIndex);
+        }
+
+        public static void PresentBlockedMessage(string message)
+        {
+            var flow = FindFirstObjectByType<SaveSlotFlowUI>(FindObjectsInactive.Include);
+            if (flow == null || !flow.isActiveAndEnabled)
+            {
+                var codex = FindFirstObjectByType<CodexUI>(FindObjectsInactive.Include);
+                if (codex != null)
+                    codex.OpenSaveSlot();
+                flow = FindFirstObjectByType<SaveSlotFlowUI>(FindObjectsInactive.Include);
+            }
+
+            if (flow != null)
+                flow.ShowBlockedMessage(message);
+        }
+
+        public void ShowBlockedMessage(string message)
+        {
+            EnsureBlockedPopup();
+            if (_blockedPopup == null)
+            {
+                Debug.LogWarning("[SaveSlotFlow] " + message);
+                return;
+            }
+
+            if (_blockedMessage != null)
+                _blockedMessage.text = message;
+
+            _blockedPopup.transform.SetAsLastSibling();
+            _blockedPopup.SetActive(true);
+        }
+
+        public void HideBlockedMessage()
+        {
+            if (_blockedPopup != null)
+                _blockedPopup.SetActive(false);
         }
 
         public void OnDeleteClicked(int slotIndex)
@@ -397,6 +438,7 @@ namespace HeartOfTheNight.Hung
         private void OnDisable()
         {
             RestoreConfirmMessageTemplate();
+            HideBlockedMessage();
         }
 
         private void ShowDeleteConfirm(int slotIndex)
@@ -430,6 +472,49 @@ namespace HeartOfTheNight.Hung
             RestoreConfirmMessageTemplate();
             if (deleteConfirmPopup != null)
                 deleteConfirmPopup.SetActive(false);
+        }
+
+        private void EnsureBlockedPopup()
+        {
+            if (_blockedPopup != null)
+                return;
+
+            TMP_Text fontSource = (slotLabels != null && slotLabels.Length > 0) ? slotLabels[0] : null;
+            Transform canvasRoot = transform;
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null)
+                canvasRoot = canvas.transform;
+
+            var overlay = new GameObject("SlotEnterBlockedPopup", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            overlay.layer = gameObject.layer;
+            overlay.transform.SetParent(canvasRoot, false);
+            StretchFull(overlay.GetComponent<RectTransform>());
+            var dim = overlay.GetComponent<Image>();
+            dim.color = new Color(0.02f, 0f, 0f, 0.72f);
+            dim.raycastTarget = true;
+
+            var panel = new GameObject("Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            panel.layer = gameObject.layer;
+            panel.transform.SetParent(overlay.transform, false);
+            var panelRt = panel.GetComponent<RectTransform>();
+            panelRt.anchorMin = panelRt.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRt.pivot = new Vector2(0.5f, 0.5f);
+            panelRt.sizeDelta = new Vector2(560f, 280f);
+            panelRt.anchoredPosition = Vector2.zero;
+            panel.GetComponent<Image>().color = new Color(0.12f, 0.04f, 0.04f, 0.98f);
+
+            _blockedMessage = CreatePopupLabel(
+                panel.transform, "Message",
+                DataManager.SlotEnterBlockedMessage,
+                new Vector2(0f, 28f), new Vector2(500f, 160f), 24f, fontSource);
+
+            var ok = CreatePopupButton(
+                panel.transform, "ButtonOk", "OK",
+                new Vector2(0f, -88f), new Color(0.18f, 0.16f, 0.16f, 0.95f), fontSource);
+            ok.onClick.AddListener(HideBlockedMessage);
+
+            overlay.SetActive(false);
+            _blockedPopup = overlay;
         }
 
         private void ConfirmDelete()

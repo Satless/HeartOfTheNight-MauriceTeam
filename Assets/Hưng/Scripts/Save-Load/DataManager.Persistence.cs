@@ -28,6 +28,7 @@ namespace HeartOfTheNight.Hung
         private string _deleteWhenIdleAccountKey;
         private string _deleteWhenIdleUserId;
         private Action<bool> _deleteWhenIdleCallback;
+        private int _cloudDeleteSerial;
 
         public bool IsWaitingForCloudSlots
         {
@@ -113,6 +114,16 @@ namespace HeartOfTheNight.Hung
                 CancelPendingCloudSave();
 
             return _cloudSaveInFlight && _cloudSaveFlushSlot == slotIndex;
+        }
+
+        internal void CancelDeferredCloudDelete()
+        {
+            _cloudDeleteSerial++;
+            _deleteWhenIdleSlot = 0;
+            _deleteWhenIdleAccountKey = null;
+            _deleteWhenIdleUserId = null;
+            _deleteWhenIdleCallback = null;
+            _slotDeleteBusy = false;
         }
 
         private void TryRunDeferredCloudDelete()
