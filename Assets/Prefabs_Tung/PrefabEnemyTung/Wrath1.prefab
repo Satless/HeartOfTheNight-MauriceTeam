@@ -110,6 +110,7 @@ GameObject:
   - component: {fileID: 2371479968002192230}
   - component: {fileID: 3767875739035087487}
   - component: {fileID: 3528790794792474232}
+  - component: {fileID: 1204672242325179684}
   m_Layer: 10
   m_Name: Wrath1
   m_TagString: Enemy
@@ -387,6 +388,24 @@ CapsuleCollider2D:
   m_Offset: {x: 0.20177722, y: 0.03535533}
   m_Size: {x: 2.4985962, y: 2.7222314}
   m_Direction: 0
+--- !u!114 &1204672242325179684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8064944565031437488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4e4e5e0f1bafa4daa6c55852f65d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _resistance: 0
+  _deceleration: 0
+  _stunDuration: 0
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1001 &9100000000000000041
 PrefabInstance:
   m_ObjectHideFlags: 0

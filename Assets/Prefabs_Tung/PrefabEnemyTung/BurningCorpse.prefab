@@ -188,6 +188,7 @@ GameObject:
   - component: {fileID: 3808746206463335801}
   - component: {fileID: 5620567915181675913}
   - component: {fileID: 6681635117107946328}
+  - component: {fileID: 4204690506793409524}
   m_Layer: 10
   m_Name: BurningCorpse
   m_TagString: Enemy
@@ -471,6 +472,24 @@ CapsuleCollider2D:
   m_Offset: {x: 0.060364008, y: 1.0568001}
   m_Size: {x: 1.1919894, y: 2.1136003}
   m_Direction: 0
+--- !u!114 &4204690506793409524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8880767367151915262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4e4e5e0f1bafa4daa6c55852f65d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _resistance: 1
+  _deceleration: 14
+  _stunDuration: 0.12
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1001 &9100000000000000061
 PrefabInstance:
   m_ObjectHideFlags: 0
