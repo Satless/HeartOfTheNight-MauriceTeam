@@ -396,7 +396,9 @@ MonoBehaviour:
       - actionID: Idle
         clips: []
       - actionID: Move
-        clips: []
+        clips:
+        - {fileID: 8300000, guid: 9c8db61554a034949b22d832e5bc0a89, type: 3}
+        - {fileID: 8300000, guid: d360266dc6e6f9f4ca6adbe0fb5755ed, type: 3}
       - actionID: Attack
         clips:
         - {fileID: 8300000, guid: a9b5d4ffe7cc125429697561e3f1e30d, type: 3}

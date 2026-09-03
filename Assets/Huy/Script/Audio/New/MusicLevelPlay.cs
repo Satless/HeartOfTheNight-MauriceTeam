@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class MusicLevelPlay : MonoBehaviour
@@ -31,18 +30,20 @@ public class MusicLevelPlay : MonoBehaviour
     [SerializeField]
     private List<SceneMusicData> sceneMusicList = new List<SceneMusicData>
     {
-        //menu
         new SceneMusicData { sceneName = "mainMenu", trackName = "MainMenuBGM" },
         new SceneMusicData { sceneName = "SelectLevel", trackName = "SelectLevelBGM" },
         new SceneMusicData { sceneName = "LevelComplete", trackName = "WinBGM" },
     };
 
     private string currentPlayingTrack = "";
+    private bool _isDuplicate;
+    private Coroutine _volumeRoutine;
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
+            _isDuplicate = true;
             Destroy(gameObject);
             return;
         }
@@ -51,47 +52,55 @@ public class MusicLevelPlay : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     private void OnEnable()
     {
+        if (_isDuplicate)
+            return;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
+        if (_isDuplicate)
+            return;
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
     {
-        PlayMusicForScene(SceneManager.GetActiveScene().name);
+        if (_isDuplicate)
+            return;
+        if (string.IsNullOrEmpty(currentPlayingTrack))
+            PlayMusicForScene(SceneManager.GetActiveScene().name);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 1. Áp dụng ngay âm lượng từ PlayerPrefs vào AudioMixer khi Scene vừa load
         ApplySavedVolumes();
-
-        // 2. Phát nhạc cho Scene
         PlayMusicForScene(scene.name);
     }
 
-    /// <summary>
-    /// Đọc PlayerPrefs và ép giá trị trực tiếp vào AudioMixer
-    /// </summary>
     public void ApplySavedVolumes()
     {
-        StartCoroutine(ApplySavedVolumesRoutine());
+        if (_isDuplicate)
+            return;
+        if (_volumeRoutine != null)
+            StopCoroutine(_volumeRoutine);
+        _volumeRoutine = StartCoroutine(ApplySavedVolumesRoutine());
     }
 
     private System.Collections.IEnumerator ApplySavedVolumesRoutine()
     {
-        // Chờ 0.05 giây (dùng unscaledTime để không bị ảnh hưởng bởi Pause/Time.timeScale = 0)
         yield return new WaitForSecondsRealtime(0.05f);
 
         if (audioMixer == null)
-        {
             audioMixer = Resources.Load<UnityEngine.Audio.AudioMixer>("Settings");
-        }
 
         if (audioMixer != null)
         {
@@ -103,6 +112,8 @@ public class MusicLevelPlay : MonoBehaviour
             audioMixer.SetFloat("MusicVolume", Mathf.Log10(Mathf.Max(0.0001f, music)) * 20);
             audioMixer.SetFloat("SFXVolume", Mathf.Log10(Mathf.Max(0.0001f, sfx)) * 20);
         }
+
+        _volumeRoutine = null;
     }
 
     private void PlayMusicForScene(string sceneName)
@@ -112,33 +123,26 @@ public class MusicLevelPlay : MonoBehaviour
         if (data != null)
         {
             if (!string.IsNullOrEmpty(data.trackName) && data.trackName != currentPlayingTrack)
-            {
-                TriggerMusic(data.trackName, data.fadeDuration);
-                currentPlayingTrack = data.trackName;
-            }
+                TryPlaySceneTrack(data.trackName, data.fadeDuration);
         }
-        else
+        else if (!string.IsNullOrEmpty(defaultTrackName) && defaultTrackName != currentPlayingTrack)
         {
-            // Nếu Scene hiện tại KHÔNG có trong sceneMusicList -> Tự động phát nhạc Default
-            if (!string.IsNullOrEmpty(defaultTrackName) && defaultTrackName != currentPlayingTrack)
-            {
-                TriggerMusic(defaultTrackName, defaultFadeDuration);
-                currentPlayingTrack = defaultTrackName;
-            }
+            TryPlaySceneTrack(defaultTrackName, defaultFadeDuration);
         }
     }
 
-    private void TriggerMusic(string trackName, float fadeDuration)
+    private void TryPlaySceneTrack(string trackName, float fadeDuration)
     {
-        // Ưu tiên gọi qua MusicManager_New Instance hoặc AudioEvents
+        if (TriggerMusic(trackName, fadeDuration))
+            currentPlayingTrack = trackName;
+    }
+
+    private bool TriggerMusic(string trackName, float fadeDuration)
+    {
         if (MusicManager_New.Instance != null)
-        {
-            MusicManager_New.Instance.PlayMusic(trackName, fadeDuration);
-        }
-        else
-        {
-            // Nếu dùng Event Delegate thì gọi thông qua AudioEvents
-            AudioEvents.TriggerMusic(trackName, fadeDuration);
-        }
+            return MusicManager_New.Instance.PlayMusic(trackName, fadeDuration);
+
+        AudioEvents.TriggerMusic(trackName, fadeDuration);
+        return true;
     }
 }

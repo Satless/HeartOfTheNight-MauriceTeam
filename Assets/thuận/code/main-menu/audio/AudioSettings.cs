@@ -12,40 +12,52 @@ public class AudioSettings : MonoBehaviour
 
     private void Start()
     {
-        // Đọc dữ liệu đã lưu
-        masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
-        musicSlider.value = PlayerPrefs.GetFloat("Music", 1f);
-        sfxSlider.value = PlayerPrefs.GetFloat("SFX", 1f);
+        if (masterSlider != null)
+        {
+            masterSlider.value = PlayerPrefs.GetFloat("Master", 1f);
+            SetMaster(masterSlider.value);
+            masterSlider.onValueChanged.AddListener(SetMaster);
+        }
 
-        // Áp dụng ngay
-        SetMaster(masterSlider.value);
-        SetMusic(musicSlider.value);
-        SetSFX(sfxSlider.value);
+        if (musicSlider != null)
+        {
+            musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1f);
+            SetMusic(musicSlider.value);
+            musicSlider.onValueChanged.AddListener(SetMusic);
+        }
 
-        // Khi kéo Slider
-        masterSlider.onValueChanged.AddListener(SetMaster);
-        musicSlider.onValueChanged.AddListener(SetMusic);
-        sfxSlider.onValueChanged.AddListener(SetSFX);
+        if (sfxSlider != null)
+        {
+            sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 1f);
+            SetSFX(sfxSlider.value);
+            sfxSlider.onValueChanged.AddListener(SetSFX);
+        }
     }
 
     public void SetMaster(float value)
     {
+        if (mixer == null) return;
         value = Mathf.Clamp(value, 0.0001f, 1f);
-        mixer.SetFloat("MasterVolume", Mathf.Log10(value) * 20);
+        mixer.SetFloat("Master", Mathf.Log10(value) * 20);
         PlayerPrefs.SetFloat("Master", value);
+        PlayerPrefs.Save();
     }
 
     public void SetMusic(float value)
     {
+        if (mixer == null) return;
         value = Mathf.Clamp(value, 0.0001f, 1f);
         mixer.SetFloat("MusicVolume", Mathf.Log10(value) * 20);
-        PlayerPrefs.SetFloat("Music", value);
+        PlayerPrefs.SetFloat("MusicVolume", value);
+        PlayerPrefs.Save();
     }
 
     public void SetSFX(float value)
     {
+        if (mixer == null) return;
         value = Mathf.Clamp(value, 0.0001f, 1f);
         mixer.SetFloat("SFXVolume", Mathf.Log10(value) * 20);
-        PlayerPrefs.SetFloat("SFX", value);
+        PlayerPrefs.SetFloat("SFXVolume", value);
+        PlayerPrefs.Save();
     }
 }
