@@ -684,26 +684,17 @@ public class PlayerAttack : MonoBehaviour
         if (IsOverheated) return;
 
 
-        //sfx for weapons
-        // if (!string.IsNullOrEmpty(Data.fireSoundName))
-        // {
-        //         SoundManager.Instance.PlaySound3D("Weapons", Data.fireSoundName, _firePoint.position);
-        //}
+        if (!string.IsNullOrEmpty(Data.fireActionName))
+        {
+            Vector3 sfxPos = _firePoint != null ? _firePoint.position : transform.position;
+            AudioEvents.TriggerSound3D(
+                Data.audioCategoryID,
+                Data.audioSubCategoryID,
+                Data.fireActionName,
+                sfxPos);
+        }
 
-        if (_input.Player.Attack.IsPressed())
-            {
-                AudioEvents.TriggerSound3D(
-                    Data.audioCategoryID, 
-                    Data.audioSubCategoryID, 
-                    Data.fireActionName, 
-                    _firePoint.position
-                                   );
-            }
-
-
-
-
-            // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
+        // Hướng bắn độc lập với chân, tính theo hướng ngắm chuột
             float dirX = _isAimingRight ? 1f : -1f;
 
         // Số lượng đạn bắn ra (Pistol=1, Shotgun=5...)

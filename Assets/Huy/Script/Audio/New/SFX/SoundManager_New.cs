@@ -13,11 +13,22 @@ public class SoundManager_New : MonoBehaviour
     private AudioSource[] _voices;
     private bool[] _inUse;
     private float[] _startedAt;
+    private bool _isProxy;
 
-    public AudioMixerGroup SfxMixerGroup => sfxSource != null ? sfxSource.outputAudioMixerGroup : null;
+    public AudioMixerGroup SfxMixerGroup
+    {
+        get
+        {
+            if (_isProxy && Instance != null && Instance != this)
+                return Instance.SfxMixerGroup;
+            return sfxSource != null ? sfxSource.outputAudioMixerGroup : null;
+        }
+    }
 
     public AudioClip GetSfxClip(string categoryID, string subCategoryID, string actionName)
     {
+        if (_isProxy && Instance != null && Instance != this)
+            return Instance.GetSfxClip(categoryID, subCategoryID, actionName);
         if (sfxLibrary == null)
             return null;
         return sfxLibrary.GetClipFromName(categoryID, subCategoryID, actionName);
@@ -35,7 +46,8 @@ public class SoundManager_New : MonoBehaviour
         }
         else if (Instance != this)
         {
-            Destroy(gameObject);
+            // Giữ object scene để EventTrigger (mainMenu) không trỏ vào instance đã Destroy.
+            _isProxy = true;
         }
     }
 
@@ -47,19 +59,23 @@ public class SoundManager_New : MonoBehaviour
 
     private void OnEnable()
     {
+        if (_isProxy)
+            return;
         AudioEvents.OnPlaySound2D += PlaySound2D;
         AudioEvents.OnPlaySound3D += PlaySound3D;
     }
 
     private void OnDisable()
     {
+        if (_isProxy)
+            return;
         AudioEvents.OnPlaySound2D -= PlaySound2D;
         AudioEvents.OnPlaySound3D -= PlaySound3D;
     }
 
     private void Update()
     {
-        if (_voices == null)
+        if (_isProxy || _voices == null)
             return;
 
         for (int i = 0; i < _voices.Length; i++)
@@ -75,6 +91,13 @@ public class SoundManager_New : MonoBehaviour
 
     public void PlaySound3D(string categoryID, string subCategoryID, string actionName, Vector3 pos)
     {
+        if (_isProxy)
+        {
+            if (Instance != null && Instance != this)
+                Instance.PlaySound3D(categoryID, subCategoryID, actionName, pos);
+            return;
+        }
+
         if (sfxLibrary == null)
             return;
 
@@ -87,12 +110,20 @@ public class SoundManager_New : MonoBehaviour
             return;
 
         source.transform.position = pos;
+        source.spatialBlend = 1f;
         source.clip = clip;
         source.Play();
     }
 
     public void PlaySound2D(string categoryID, string subCategoryID, string actionName)
     {
+        if (_isProxy)
+        {
+            if (Instance != null && Instance != this)
+                Instance.PlaySound2D(categoryID, subCategoryID, actionName);
+            return;
+        }
+
         if (sfxLibrary == null || sfxSource == null)
             return;
 
@@ -103,6 +134,13 @@ public class SoundManager_New : MonoBehaviour
 
     public void PlaySound2DFromPath(string fullPath)
     {
+        if (_isProxy)
+        {
+            if (Instance != null && Instance != this)
+                Instance.PlaySound2DFromPath(fullPath);
+            return;
+        }
+
         string[] parts = fullPath.Split('/');
 
         if (parts.Length == 3)
@@ -129,6 +167,11 @@ public class SoundManager_New : MonoBehaviour
             voice.playOnAwake = false;
             voice.loop = false;
             voice.ignoreListenerPause = false;
+            voice.spatialBlend = 1f;
+            voice.dopplerLevel = 0f;
+            voice.minDistance = 15f;
+            voice.maxDistance = 50f;
+            voice.rolloffMode = AudioRolloffMode.Linear;
             voice.Stop();
             _voices[i] = voice;
         }

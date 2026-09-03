@@ -5,7 +5,6 @@ public class MusicManager_New : MonoBehaviour
 {
     public static MusicManager_New Instance;
 
-    // Property để các script khác (như UIMenuMusic) lấy được tên track đang phát
     public string CurrentTrackName => currentTrackName;
 
     [SerializeField] private MusicLibrary_New musicLibrary;
@@ -16,50 +15,83 @@ public class MusicManager_New : MonoBehaviour
     private Coroutine fadeCoroutine;
     private string currentTrackName = "";
     private float savedTrackTime = 0f;
+    private bool _isProxy;
 
     private void Awake()
     {
-        if (Instance != null) { Destroy(gameObject); }
-        else { Instance = this; DontDestroyOnLoad(gameObject); }
-
-        // Đảm bảo MusicSource không bị ảnh hưởng bởi AudioListener.pause
-        if (musicSource != null)
+        if (Instance != null && Instance != this)
         {
-            musicSource.ignoreListenerPause = true;
+            // Không Destroy cả GameObject — cùng prefab với SoundManager (EventTrigger mainMenu).
+            _isProxy = true;
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        if (musicSource != null)
+            musicSource.ignoreListenerPause = true;
     }
 
-    private void OnEnable() => AudioEvents.OnPlayMusic += PlayMusic;
-    private void OnDisable() => AudioEvents.OnPlayMusic -= PlayMusic;
-
-    // Phát nhạc mới (phát từ đầu)
-    public void PlayMusic(string trackName, float fadeDuration = 0.5f)
+    private void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
+    }
+
+    private void OnEnable()
+    {
+        if (_isProxy)
+            return;
+        AudioEvents.OnPlayMusic += OnPlayMusicEvent;
+    }
+
+    private void OnDisable()
+    {
+        if (_isProxy)
+            return;
+        AudioEvents.OnPlayMusic -= OnPlayMusicEvent;
+    }
+
+    private void OnPlayMusicEvent(string trackName, float fadeDuration)
+    {
+        PlayMusic(trackName, fadeDuration);
+    }
+
+    public bool PlayMusic(string trackName, float fadeDuration = 0.5f)
+    {
+        if (_isProxy)
+            return Instance != null && Instance != this && Instance.PlayMusic(trackName, fadeDuration);
+
         if (musicSource == null || musicLibrary == null)
-            return;
+            return false;
         if (currentTrackName == trackName && musicSource.isPlaying)
-            return;
+            return true;
 
         AudioClip nextClip = musicLibrary.GetClipFromName(trackName);
         if (nextClip == null)
-            return;
+            return false;
 
         currentTrackName = trackName;
         StartCrossfade(nextClip, fadeDuration, 0f);
+        return true;
     }
 
-    // Phát nhạc tiếp tục từ thời điểm đã dừng (dùng cho khi tắt Pause Menu)
-    public void PlayMusicResume(string trackName, float fadeDuration = 0.3f)
+    public bool PlayMusicResume(string trackName, float fadeDuration = 0.3f)
     {
+        if (_isProxy)
+            return Instance != null && Instance != this && Instance.PlayMusicResume(trackName, fadeDuration);
+
         if (musicSource == null || musicLibrary == null)
-            return;
+            return false;
 
         AudioClip nextClip = musicLibrary.GetClipFromName(trackName);
         if (nextClip == null)
-            return;
+            return false;
 
         currentTrackName = trackName;
         StartCrossfade(nextClip, fadeDuration, savedTrackTime);
+        return true;
     }
 
     private void StartCrossfade(AudioClip nextClip, float fadeDuration, float startTime)
@@ -69,13 +101,17 @@ public class MusicManager_New : MonoBehaviour
         fadeCoroutine = StartCoroutine(AnimateMusicCrossfade(nextClip, fadeDuration, startTime));
     }
 
-    // Lưu vị trí thời gian của bài nhạc hiện tại trước khi tạm dừng
     public void SaveCurrentMusicTime()
     {
-        if (musicSource != null && musicSource.isPlaying)
+        if (_isProxy)
         {
-            savedTrackTime = musicSource.time;
+            if (Instance != null && Instance != this)
+                Instance.SaveCurrentMusicTime();
+            return;
         }
+
+        if (musicSource != null && musicSource.isPlaying)
+            savedTrackTime = musicSource.time;
     }
 
     private IEnumerator AnimateMusicCrossfade(AudioClip nextTrack, float fadeDuration, float startTime)
