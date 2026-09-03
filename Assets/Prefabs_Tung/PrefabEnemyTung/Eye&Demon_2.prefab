@@ -177,7 +177,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropMultipleItems: 1
-  lootTable: []
+  lootTable:
+  - itemName: HealthHP
+    itemPrefab: {fileID: 5216420102608481259, guid: 1abb01393af01aa47bbea3e5a1b4bd79, type: 3}
+    dropChance: 30
+  - itemName: JumpBuffP
+    itemPrefab: {fileID: 7856878159730602905, guid: 2d18efdf82b1e6b45a679a8f92ebd003, type: 3}
+    dropChance: 15
+  - itemName: ShieldP
+    itemPrefab: {fileID: 7281742956343847639, guid: e815a6f508460b54889b1fafe31488b2, type: 3}
+    dropChance: 10
+  - itemName: SpeedBuffP
+    itemPrefab: {fileID: 2787408048170355484, guid: 5209ad2420dee4d49964ed24c0c0875c, type: 3}
+    dropChance: 15
   customVariableName: 
 --- !u!114 &1995911452591320730
 MonoBehaviour:
