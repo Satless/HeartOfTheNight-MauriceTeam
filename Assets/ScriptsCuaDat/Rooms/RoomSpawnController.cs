@@ -57,6 +57,8 @@ namespace HeartOfTheNight.Rooms
         private RoomState state = RoomState.Idle;
         private readonly List<GameObject> aliveEnemies = new();
         private int currentWaveIndex = -1;
+        private int spawnedThisActivation;
+        private bool statsCleared;
         private bool isSpawning;
         private string hierarchyKey;
         private string registeredId;
@@ -94,6 +96,22 @@ namespace HeartOfTheNight.Rooms
             }
 
             return count;
+        }
+
+        /// <summary>
+        /// Số quái đã hạ trong phòng này (phòng clear = đủ planned; đang đánh = spawn rồi chết).
+        /// </summary>
+        public int CountDefeatedEnemies()
+        {
+            int planned = CountPlannedEnemies();
+            if (planned <= 0)
+                return 0;
+
+            if (state == RoomState.Cleared || statsCleared)
+                return planned;
+
+            PruneDeadEnemies();
+            return Mathf.Clamp(spawnedThisActivation - aliveEnemies.Count, 0, planned);
         }
 
         private void Reset()
@@ -284,6 +302,7 @@ namespace HeartOfTheNight.Rooms
         private void ApplyClearedFromSave()
         {
             state = RoomState.Cleared;
+            statsCleared = true;
             SetDoorsClosed(false);
             if (debugLogs) Debug.Log($"[{name}] Phong da clear trong save ({GetRoomId()}) — khong spawn lai.", this);
         }
@@ -306,6 +325,8 @@ namespace HeartOfTheNight.Rooms
 
             state = RoomState.Fighting;
             currentWaveIndex = -1;
+            spawnedThisActivation = 0;
+            statsCleared = false;
 
             if (closeDoorsOnStart) SetDoorsClosed(true);
             if (debugLogs) Debug.Log($"[{name}] Phong bat dau!", this);
@@ -385,6 +406,7 @@ namespace HeartOfTheNight.Rooms
             GameObject enemy = Instantiate(entry.enemyPrefab, pos, rot);
             enemy.SetActive(true); // Thêm dòng này
             aliveEnemies.Add(enemy);
+            spawnedThisActivation++;
             LevelStatsTracker.BindSpawnedEnemy(enemy);
 
             if (spawnVfxPrefab != null)
@@ -460,6 +482,7 @@ namespace HeartOfTheNight.Rooms
             if (state == RoomState.Cleared) return;
 
             state = RoomState.Cleared;
+            statsCleared = true;
             SetDoorsClosed(false);
 
             onRoomCleared?.Invoke();

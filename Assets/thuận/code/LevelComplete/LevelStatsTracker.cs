@@ -102,7 +102,7 @@ public class LevelStatsTracker : MonoBehaviour
 
         CensusSecrets();
         SeedFoundSecretsFromSave();
-        CensusEnemies();
+        RecountEnemiesFromWorld();
         _censusRoutine = null;
     }
 
@@ -110,6 +110,9 @@ public class LevelStatsTracker : MonoBehaviour
     {
         EnsureExists();
         var tracker = Instance;
+        if (tracker != null)
+            tracker.RecountEnemiesFromWorld();
+
         float time = DataManager.Instance != null ? DataManager.Instance.LevelTimeSeconds : 0f;
 
         int total = tracker != null ? Mathf.Max(0, tracker._enemiesTotal) : 0;
@@ -151,11 +154,20 @@ public class LevelStatsTracker : MonoBehaviour
             return;
 
         // Chỉ tính kill của quái do room/spawner đẻ ra. Tag lúc Die có thể đã Untagged.
-        int id = enemy.transform.root.GetInstanceID();
-        if (!Instance._trackedEnemyIds.Contains(id))
+        if (!Instance.IsTrackedEnemy(enemy))
             return;
 
         Instance._enemiesKilled++;
+    }
+
+    private bool IsTrackedEnemy(GameObject enemy)
+    {
+        int id = enemy.GetInstanceID();
+        if (_trackedEnemyIds.Contains(id))
+            return true;
+
+        Transform root = enemy.transform != null ? enemy.transform.root : null;
+        return root != null && _trackedEnemyIds.Contains(root.GetInstanceID());
     }
 
     public static void DiscoverSecret(string secretId)
@@ -202,15 +214,20 @@ public class LevelStatsTracker : MonoBehaviour
             return;
 
         int id = root.GetInstanceID();
-        if (!_trackedEnemyIds.Add(id))
-            return;
+        _trackedEnemyIds.Add(id);
+        _trackedEnemyIds.Add(enemy.GetInstanceID());
 
         if (root.GetComponent<EnemyKillReporter>() == null)
             root.AddComponent<EnemyKillReporter>();
+        if (enemy != root && enemy.GetComponent<EnemyKillReporter>() == null)
+            enemy.AddComponent<EnemyKillReporter>();
     }
 
-    private void CensusEnemies()
+    private void RecountEnemiesFromWorld()
     {
+        int total = 0;
+        int killed = 0;
+
         var rooms = FindObjectsByType<RoomSpawnController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         for (int i = 0; i < rooms.Length; i++)
         {
@@ -219,9 +236,11 @@ public class LevelStatsTracker : MonoBehaviour
                 continue;
 
             int planned = room.CountPlannedEnemies();
-            _enemiesTotal += planned;
-            if (room.IsCleared)
-                _enemiesKilled += planned;
+            if (planned <= 0)
+                continue;
+
+            total += planned;
+            killed += room.CountDefeatedEnemies();
         }
 
         var spawners = FindObjectsByType<EnemySpawner>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
@@ -230,8 +249,17 @@ public class LevelStatsTracker : MonoBehaviour
             var spawner = spawners[i];
             if (spawner == null)
                 continue;
-            _enemiesTotal += spawner.CountPlannedEnemies();
+
+            int planned = spawner.CountPlannedEnemies();
+            if (planned <= 0)
+                continue;
+
+            total += planned;
+            killed += spawner.CountDefeatedEnemies();
         }
+
+        _enemiesTotal = total;
+        _enemiesKilled = Mathf.Clamp(killed, 0, total);
     }
 
     private void CensusSecrets()

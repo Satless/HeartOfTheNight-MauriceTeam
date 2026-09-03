@@ -230,8 +230,6 @@ namespace HeartOfTheNight.Enemy
             int hitCount = Physics2D.OverlapCircleNonAlloc(
                 transform.position, stats.buffRadius, _buffHitBuffer, enemyLayer);
 
-            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Buff", transform.position);
-
             for (int i = 0; i < hitCount; i++)
             {
                 var mod = _buffHitBuffer[i].GetComponentInParent<EnemyStrengthModifier>();
@@ -269,8 +267,6 @@ namespace HeartOfTheNight.Enemy
                     buffedAllies[i].ClearBuff();
             }
             buffedAllies.Clear();
-
-            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "RemoveBuff", transform.position);
         }
 
         private void ApplyHorizontalMove(int moveDir, float speed)
@@ -291,8 +287,8 @@ namespace HeartOfTheNight.Enemy
             {
                 //SoundManager.Instance.PlaySound3D("Player", "Run", transform.position);
 
-                AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Move", transform.position);
-                _footstepTimer = 0.2f;
+                AudioEvents.TriggerSound3D("Enemy", "Cultist", "Move", transform.position);
+                _footstepTimer = 0.35f;
             }
         }
 
@@ -329,7 +325,7 @@ namespace HeartOfTheNight.Enemy
         {
             if (anim != null) anim.SetTrigger("Attack");
 
-            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Attack", transform.position);
+            AudioEvents.TriggerSound3D("Enemy", "Cultist", "Attack", transform.position);
         }
 
         public void ExecuteFire()
@@ -337,11 +333,14 @@ namespace HeartOfTheNight.Enemy
             if (bulletPrefab == null || firePoint == null || player == null) return;
             if (!HasClearShot()) return;
 
-            Vector2 dir = (GetAimPoint() - (Vector2)firePoint.position).normalized;
-            var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+            Vector2 origin = firePoint.position;
+            Vector2 dir = (GetAimPoint() - origin).normalized;
+            Vector2 spawnPos = origin + dir * 0.2f;
+            var bullet = Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
             bullet.Launch(player, dir, stats.bulletSpeed, stats.homingTurnRate,
                           stats.homingStopDistance, stats.homingLockPlayerSpeed,
-                          stats.bulletDamage, stats.bulletLifetime, groundLayer);
+                          stats.bulletDamage, stats.bulletLifetime, groundLayer,
+                          GetComponent<Collider2D>());
         }
 
         public void TakeDamage(int amount)
@@ -350,7 +349,7 @@ namespace HeartOfTheNight.Enemy
 
             currentHealth -= amount;
 
-            AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Hurt", transform.position);
+            AudioEvents.TriggerSound3D("Enemy", "Cultist", "Hurt", transform.position);
 
             // Flash TRƯỚC khi xử lý chết. Đừng check currentHealth > 0 —
             // súng thường one-shot (dmg >= 35) sẽ bỏ qua flash.
@@ -379,7 +378,7 @@ namespace HeartOfTheNight.Enemy
 
                 // if (SoundManager.Instance != null)
                 //     SoundManager.Instance.PlaySound3D("Enemy", "DeathGeneral", transform.position);
-                AudioEvents.TriggerSound3D("Enemy", "Inquisitor", "Die", transform.position);
+                AudioEvents.TriggerSound3D("Enemy", "Cultist", "Die", transform.position);
 
                 Destroy(gameObject, 1.5f);
             }
@@ -412,9 +411,11 @@ namespace HeartOfTheNight.Enemy
             if (distance < 0.05f) return false;
 
             Vector2 dir   = delta / distance;
-            Vector2 start = origin + dir * 0.05f;
+            Vector2 start = origin + dir * 0.12f;
+            float castDist = Vector2.Distance(start, target);
+            if (castDist < 0.05f) return false;
 
-            RaycastHit2D hit = Physics2D.Linecast(start, target, groundLayer);
+            RaycastHit2D hit = Physics2D.CircleCast(start, 0.28f, dir, castDist, groundLayer);
             if (debugLogs)
                 Debug.DrawLine(start, hit.collider != null ? hit.point : target,
                                hit.collider != null ? Color.red : Color.green);
