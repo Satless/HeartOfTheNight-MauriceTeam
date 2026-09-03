@@ -426,33 +426,50 @@ namespace HeartOfTheNight.Enemy
 
         private IEnumerator DoBarrage()
         {
-            int count = Mathf.Max(1, stats.barrageBulletCount);
+            int waves = Mathf.Max(1, stats.barrageBulletCount);
+            if (enraged) waves += Mathf.Max(0, stats.enrageExtraBarrageWaves);
+
+            int perShot = Mathf.Max(1, stats.barrageProjectilesPerShot);
             float spread = stats.barrageSpreadAngle;
             float interval = stats.barrageBetweenShots * SpeedMul;
+            float speed = stats.bulletSpeed;
+            if (enraged && stats.enrageBulletSpeedMul > 0.01f)
+                speed *= stats.enrageBulletSpeedMul;
 
-            for (int i = 0; i < count; i++)
+            for (int w = 0; w < waves; w++)
             {
                 if (player == null) break;
                 Vector2 origin = FireOrigin;
                 Vector2 baseDir = ((Vector2)player.position - origin).normalized;
-                float angle = count > 1 ? Mathf.Lerp(-spread, spread, i / (float)(count - 1)) : 0f;
-                Vector2 dir = Rotate(baseDir, angle);
+                if (baseDir.sqrMagnitude < 0.0001f) baseDir = Vector2.right;
 
-                var bulletGo = Instantiate(stats.bulletPrefab, origin, Quaternion.identity);
-                if (bulletGo.TryGetComponent<HeartOfTheNightBullet>(out var bullet))
-                    bullet.Launch(dir, stats.bulletSpeed, stats.bulletDamage, stats.bulletLifetime);
+                for (int i = 0; i < perShot; i++)
+                {
+                    float angle = perShot > 1
+                        ? Mathf.Lerp(-spread, spread, i / (float)(perShot - 1))
+                        : 0f;
+                    Vector2 dir = Rotate(baseDir, angle);
 
-                if (interval > 0f && i < count - 1) yield return new WaitForSeconds(interval);
-            }          
+                    var bulletGo = Instantiate(stats.bulletPrefab, origin, Quaternion.identity);
+                    if (bulletGo.TryGetComponent<HeartOfTheNightBullet>(out var bullet))
+                        bullet.Launch(dir, speed, stats.bulletDamage, stats.bulletLifetime);
+                }
+
+                if (interval > 0f && w < waves - 1) yield return new WaitForSeconds(interval);
+            }
         }
 
         private IEnumerator DoEightDirLaser()
         {
             int dirs = Mathf.Max(2, stats.laserDirections);
             int volleys = Mathf.Max(1, stats.laserVolleys);
+            if (enraged) volleys += Mathf.Max(0, stats.enrageExtraLaserVolleys);
+
             float warn = stats.laserWarnTime * SpeedMul;
             float fire = stats.laserFireTime;
             float gap = 360f / dirs;
+            bool lockSafeGap = stats.laserSafeGapTowardPlayer
+                && !(enraged && stats.enrageDisableLaserSafeGap);
 
             AudioEvents.TriggerSound3D("Enemy", "Doombringer", "Laser", transform.position);
 
@@ -461,7 +478,8 @@ namespace HeartOfTheNight.Enemy
                 float baseOffset = stats.laserAngleOffset + v * stats.laserVolleyRotationStep;
                 Vector2 origin = FireOrigin;
 
-                if (stats.laserSafeGapTowardPlayer && player != null)
+                // Chi volley dau chua khe; volley sau xoay lap dung cho cho dung yen.
+                if (lockSafeGap && v == 0 && player != null)
                 {
                     Vector2 toPlayer = (Vector2)player.position - origin;
                     if (toPlayer.sqrMagnitude > 0.0001f)
@@ -487,48 +505,68 @@ namespace HeartOfTheNight.Enemy
         {
             if (player == null) yield break;
 
+            int pillarCount = 1 + (enraged ? Mathf.Max(0, stats.enrageExtraPillars) : 0);
             float charge = stats.pillarChargeTime * SpeedMul;
             float lockLead = Mathf.Clamp(stats.pillarLockLeadTime, 0f, charge * 0.9f);
             float followUntil = charge - lockLead;
-            Vector2 spot = player.position;
 
-            var telegraphGo = Instantiate(stats.telegraphPrefab, GroundUnder(spot), Quaternion.identity);
+            var telegraphs = new List<GameObject>(pillarCount);
 
             AudioEvents.TriggerSound3D("Enemy", "Doombringer", "FirePillar", transform.position);
 
-            if (telegraphGo.TryGetComponent<HeartOfTheNightTelegraph>(out var telegraph))
-                telegraph.Configure(stats.telegraphRadius, charge, stats.telegraphSpinStart, stats.telegraphSpinEnd);
+            for (int i = 0; i < pillarCount; i++)
+            {
+                Vector2 spawn = GroundUnder((Vector2)player.position + PillarOffset(i));
+                var go = Instantiate(stats.telegraphPrefab, spawn, Quaternion.identity);
+                telegraphs.Add(go);
+                if (go.TryGetComponent<HeartOfTheNightTelegraph>(out var telegraph))
+                    telegraph.Configure(stats.telegraphRadius, charge, stats.telegraphSpinStart, stats.telegraphSpinEnd);
+            }
 
             float timer = 0f;
             while (timer < charge)
             {
                 timer += Time.deltaTime;
-                if (telegraphGo != null && stats.pillarFollowPlayer && player != null && timer < followUntil)
-                    telegraphGo.transform.position = GroundUnder(player.position);
+                if (stats.pillarFollowPlayer && player != null && timer < followUntil)
+                {
+                    for (int i = 0; i < telegraphs.Count; i++)
+                    {
+                        if (telegraphs[i] == null) continue;
+                        telegraphs[i].transform.position = GroundUnder((Vector2)player.position + PillarOffset(i));
+                    }
+                }
 
                 yield return null;
             }
 
-            Vector2 pillarBase = telegraphGo != null
-                ? (Vector2)telegraphGo.transform.position
-                : GroundUnder(spot);
-
-            // Tắt ngay rồi Destroy — tránh vòng cảnh báo đứng frame cuối trên màn hình.
-            if (telegraphGo != null)
+            for (int i = 0; i < telegraphs.Count; i++)
             {
-                telegraphGo.SetActive(false);
-                Destroy(telegraphGo);
-            }
+                var go = telegraphs[i];
+                Vector2 pillarBase = go != null
+                    ? (Vector2)go.transform.position
+                    : GroundUnder((Vector2)player.position + PillarOffset(i));
 
-            if (stats.laserPrefab != null)
-            {
-                SpawnLaser(pillarBase, Vector2.up, stats.pillarHeight, stats.pillarWidth,
-                           stats.pillarDamage, 0f, stats.pillarFireTime, 0.1f);
+                if (go != null)
+                {
+                    go.SetActive(false);
+                    Destroy(go);
+                }
+
+                if (stats.laserPrefab != null)
+                {
+                    SpawnLaser(pillarBase, Vector2.up, stats.pillarHeight, stats.pillarWidth,
+                               stats.pillarDamage, 0f, stats.pillarFireTime, 0.1f);
+                }
             }
 
             yield return new WaitForSeconds(stats.pillarFireTime);
+        }
 
-
+        private static Vector2 PillarOffset(int index)
+        {
+            if (index <= 0) return Vector2.zero;
+            float dist = 2.6f * ((index + 1) / 2);
+            return new Vector2(index % 2 == 1 ? dist : -dist, 0f);
         }
 
         private IEnumerator DoSummon()
