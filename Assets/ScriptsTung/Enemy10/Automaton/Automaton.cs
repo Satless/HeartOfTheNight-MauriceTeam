@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using HeartOfTheNight.Common;
-// Xóa luôn thư viện EnemyCombatRules lằng nhằng, lấy máu trực tiếp cho an toàn!
+using HeartOfTheNight.Enemy;
 
 public class Automaton : MonoBehaviour, IDamageable
 {
@@ -82,7 +82,9 @@ public class Automaton : MonoBehaviour, IDamageable
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+            player = playerObj.transform.root;
 
         if (currentHealth <= 0 || currentHealth > maxHealth)
             currentHealth = maxHealth;
@@ -156,7 +158,10 @@ public class Automaton : MonoBehaviour, IDamageable
 
         if (dangBanRaDon) return;
 
-        if (!isGrounded)
+        // Chỉ khóa AI khi đang rơi. Đứng yên trên tilemap Default / composite outline
+        // thì OverlapCircle(Ground) thường miss — đừng vì thế đứng im cả đời.
+        bool falling = rb != null && rb.linearVelocity.y < -0.35f;
+        if (!isGrounded && falling)
         {
             StopMoving();
             return;
@@ -265,6 +270,35 @@ public class Automaton : MonoBehaviour, IDamageable
         }
     }
 
+    int GroundMask()
+    {
+        int mask = groundLayer.value;
+        mask |= LayerMask.GetMask("Default", "Ground", "Wall");
+        return mask == 0 ? Physics2D.AllLayers : mask;
+    }
+
+    bool IsSolidHit(RaycastHit2D hit)
+    {
+        Collider2D col = hit.collider;
+        if (col == null || !col.enabled || col.isTrigger) return false;
+        if (myCol != null && (col == myCol || col.transform.root == transform.root)) return false;
+        if (col.CompareTag("Player") || col.CompareTag("Enemy")) return false;
+        return true;
+    }
+
+    bool RaycastSolid(Vector2 origin, Vector2 direction, float distance, out RaycastHit2D solidHit)
+    {
+        solidHit = default;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, direction, distance, GroundMask());
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (!IsSolidHit(hits[i])) continue;
+            solidHit = hits[i];
+            return true;
+        }
+        return false;
+    }
+
     bool IsHittingWallOrPit()
     {
         float huong = Mathf.Sign(transform.localScale.x);
@@ -272,16 +306,24 @@ public class Automaton : MonoBehaviour, IDamageable
         float doRongQuai = myCol.bounds.extents.x;
         Vector2 bottomFront = new Vector2(origin.x + (huong * doRongQuai), myCol.bounds.min.y);
 
-        RaycastHit2D wallHit = Physics2D.Raycast(origin, Vector2.right * huong, doRongQuai + 0.5f, groundLayer);
-        RaycastHit2D pitHit = Physics2D.Raycast(bottomFront + new Vector2(huong * 0.2f, 0), Vector2.down, 1.5f, groundLayer);
-
-        return (wallHit.collider != null) || (pitHit.collider == null);
+        bool wall = RaycastSolid(origin, Vector2.right * huong, doRongQuai + 0.5f, out _);
+        bool hasFloor = RaycastSolid(bottomFront + new Vector2(huong * 0.2f, 0f), Vector2.down, 1.5f, out _);
+        return wall || !hasFloor;
     }
 
     void CheckGroundStatus()
     {
-        if (groundCheck == null) return;
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        Vector2 feet;
+        if (groundCheck != null)
+            feet = groundCheck.position;
+        else if (myCol != null)
+            feet = new Vector2(transform.position.x, myCol.bounds.min.y);
+        else
+            feet = transform.position;
+
+        Vector2 origin = feet + Vector2.up * 0.15f;
+        float dist = Mathf.Max(0.4f, groundCheckRadius + 0.25f);
+        isGrounded = RaycastSolid(origin, Vector2.down, dist, out _);
     }
 
     public void TakeDamage(int damage)
@@ -380,15 +422,12 @@ public class Automaton : MonoBehaviour, IDamageable
     bool ThuTimDat(float xPos, out float groundY)
     {
         groundY = 0f;
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(xPos, player.position.y + 2f), Vector2.down, 15f, groundLayer);
+        if (!RaycastSolid(new Vector2(xPos, player.position.y + 2f), Vector2.down, 15f, out RaycastHit2D hit))
+            return false;
 
-        if (hit.collider != null)
-        {
-            float distToFeet = transform.position.y - myCol.bounds.min.y;
-            groundY = hit.point.y + distToFeet + teleportYOffset;
-            return true;
-        }
-        return false;
+        float distToFeet = transform.position.y - myCol.bounds.min.y;
+        groundY = hit.point.y + distToFeet + teleportYOffset;
+        return true;
     }
 
     IEnumerator ThucHienDanhThuong()
@@ -440,8 +479,7 @@ public class Automaton : MonoBehaviour, IDamageable
             Vector2 origin = myCol.bounds.center;
 
             // 🔥 ĐÃ FIX: Chỉ kiểm tra đụng tường, bỏ cái kiểm tra hố sâu đi để nó tự do rơi
-            RaycastHit2D wallHit = Physics2D.Raycast(origin, Vector2.right * huongLuot, doRongQuai + 0.5f, groundLayer);
-            if (wallHit.collider != null && !wallHit.collider.isTrigger) break;
+            if (RaycastSolid(origin, Vector2.right * huongLuot, doRongQuai + 0.5f, out _)) break;
 
             if (!daTrungDon)
             {
@@ -450,24 +488,17 @@ public class Automaton : MonoBehaviour, IDamageable
 
                 foreach (Collider2D p in hitPlayers)
                 {
-                    if (p.CompareTag("Enemy") || !p.isTrigger) continue;
+                    if (!EnemyCombatRules.TryGetPlayerDamageable(p, out IDamageable target)) continue;
 
-                    // 🔥 ĐÃ FIX 1: Dùng lệnh thuần túy để tránh lỗi ngầm từ thư viện ngoài gây đứng máy
-                    IDamageable target = p.GetComponent<IDamageable>();
-                    if (target == null) target = p.GetComponentInParent<IDamageable>();
+                    daTrungDon = true;
+                    target.TakeDamage(dashDamage);
 
-                    if (target != null)
-                    {
-                        daTrungDon = true;
-                        target.TakeDamage(dashDamage);
+                    rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
 
-                        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Thắng gấp
+                    if (anim != null) anim.enabled = false;
+                    if (sr != null && dashAttackSprite != null) sr.sprite = dashAttackSprite;
 
-                        if (anim != null) anim.enabled = false;
-                        if (sr != null && dashAttackSprite != null) sr.sprite = dashAttackSprite;
-
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -493,7 +524,7 @@ public class Automaton : MonoBehaviour, IDamageable
                 anim.enabled = true;
                 anim.SetFloat("Speed", 0f);
                 // 🔥 ĐÃ FIX 1: Ép Animator tỉnh lại ngay lập tức, không bị kẹt lướt đứng im
-                try { anim.Play("Idle", -1, 0f); } catch { }
+                try { anim.Play("autoIdle", -1, 0f); } catch { }
             }
 
             nextDashTime = Time.time + dashCooldown;
@@ -514,17 +545,9 @@ public class Automaton : MonoBehaviour, IDamageable
 
         foreach (Collider2D p in hitPlayers)
         {
-            if (p.CompareTag("Enemy") || !p.isTrigger) continue;
-
-            // 🔥 ĐÃ FIX: Lấy Component thuần túy y như phần lướt
-            IDamageable target = p.GetComponent<IDamageable>();
-            if (target == null) target = p.GetComponentInParent<IDamageable>();
-
-            if (target != null)
-            {
-                target.TakeDamage(meleeDamage);
-                break;
-            }
+            if (!EnemyCombatRules.TryGetPlayerDamageable(p, out IDamageable target)) continue;
+            target.TakeDamage(meleeDamage);
+            break;
         }
     }
 
