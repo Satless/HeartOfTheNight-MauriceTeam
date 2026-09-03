@@ -83,6 +83,7 @@ namespace HeartOfTheNight.UI
 
                 AuthSession.SignInWithGoogle(emailOrError);
                 RefreshAccountRow();
+                RefreshSaveSlots();
             });
         }
 
@@ -103,6 +104,7 @@ namespace HeartOfTheNight.UI
 
                 AuthSession.SignInWithGoogle(emailOrError);
                 RefreshAccountRow();
+                RefreshSaveSlots();
             });
         }
 
@@ -111,6 +113,8 @@ namespace HeartOfTheNight.UI
             SetActiveSafe(switchGoogleConfirmPopup, false);
             if (DataManager.Instance != null)
                 DataManager.Instance.CancelSwitchToExistingGoogle();
+            RefreshAccountRow();
+            RefreshSaveSlots();
         }
 
         public void RefreshAccountRow()
@@ -122,6 +126,23 @@ namespace HeartOfTheNight.UI
 
             SetActiveSafe(signOutButton, !AuthSession.IsGuest);
             SetActiveSafe(linkGoogleButton, AuthSession.IsGuest);
+        }
+
+        private static void RefreshSaveSlots()
+        {
+            var dm = DataManager.Instance;
+            var flow = FindFirstObjectByType<SaveSlotFlowUI>(FindObjectsInactive.Include);
+            if (dm != null)
+            {
+                dm.RefreshCloudSlotIndex(() =>
+                {
+                    if (flow != null)
+                        flow.RefreshSlotLabels();
+                });
+            }
+
+            if (flow != null)
+                flow.RefreshSlotLabels();
         }
 
         private void ShowSwitchGoogleConfirm()

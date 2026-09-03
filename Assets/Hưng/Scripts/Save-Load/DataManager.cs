@@ -12,6 +12,10 @@ namespace HeartOfTheNight.Hung
         public const string SelectLevelScene = "SelectLevel";
         public const string NewGameTutorialScene = "Khanh_Level0-1";
         public const string ExistingGoogleAccountNotice = "EXISTING_GOOGLE_ACCOUNT";
+        public const string SlotEnterBlockedMessage =
+            "Không tạo save mới — cloud chưa chắc trống.\n\n" +
+            "Firebase chưa sẵn hoặc tải slot thất bại.\n" +
+            "Kiểm tra mạng rồi thử lại.";
 
         public static DataManager Instance { get; private set; }
 
@@ -279,7 +283,7 @@ namespace HeartOfTheNight.Hung
 
                 if (!AuthSession.IsGuest && (!_isFirebaseReady || _lastCloudLoadFailed || CloudSlotHasSave(slotIndex)))
                 {
-                    Debug.LogWarning("[Save System] Cloud chưa chắc trống — không tạo save mới để tránh đè dữ liệu Google.");
+                    NotifySlotEnterFailed(SlotEnterBlockedMessage);
                     return;
                 }
 
@@ -292,6 +296,12 @@ namespace HeartOfTheNight.Hung
         {
             _slotEnterSerial++;
             _slotEnterBusy = false;
+        }
+
+        private void NotifySlotEnterFailed(string message)
+        {
+            Debug.LogWarning("[Save System] " + message);
+            SaveSlotFlowUI.PresentBlockedMessage(message);
         }
 
         public void CreateNewSave(int slotIndex)
@@ -390,9 +400,13 @@ namespace HeartOfTheNight.Hung
         {
             _slotDeleteBusy = true;
             int pending = slotIndex;
+            int deleteGen = _cloudDeleteSerial;
             string key = string.IsNullOrEmpty(accountKey) ? SaveSlotStorage.GetAccountSaveKey() : accountKey;
             DeleteCloudSlot(pending, userId, ok =>
             {
+                if (deleteGen != _cloudDeleteSerial)
+                    return;
+
                 _slotDeleteBusy = false;
                 if (!ok)
                 {
