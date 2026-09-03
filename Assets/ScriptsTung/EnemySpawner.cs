@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class EnemySpawner : MonoBehaviour
     public Transform[] spawnPoints;
 
     private bool hasSpawned = false; // Biến đánh dấu để chỉ gọi quái 1 lần
+    private readonly List<GameObject> spawnedEnemies = new();
 
     public bool HasSpawned => hasSpawned;
 
@@ -24,6 +26,22 @@ public class EnemySpawner : MonoBehaviour
                 count++;
         }
         return count;
+    }
+
+    public int CountDefeatedEnemies()
+    {
+        int planned = CountPlannedEnemies();
+        if (planned <= 0 || !hasSpawned)
+            return 0;
+
+        int dead = 0;
+        for (int i = 0; i < spawnedEnemies.Count; i++)
+        {
+            if (spawnedEnemies[i] == null)
+                dead++;
+        }
+
+        return Mathf.Clamp(dead, 0, planned);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -53,6 +71,7 @@ public class EnemySpawner : MonoBehaviour
                 continue;
 
             GameObject spawned = Instantiate(quaiMuonGoi, point.position, Quaternion.identity);
+            spawnedEnemies.Add(spawned);
             LevelStatsTracker.BindSpawnedEnemy(spawned);
         }
 

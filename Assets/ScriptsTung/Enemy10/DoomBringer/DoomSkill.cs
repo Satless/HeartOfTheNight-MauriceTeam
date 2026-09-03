@@ -5,7 +5,7 @@ using HeartOfTheNight.Enemy;
 public class DoomSkill : MonoBehaviour
 {
     [Header("Cài đặt Sát thương")]
-    public int damage = 15;
+    public int damage = 8;
 
     [Header("Dọn rác")]
     public float lifeTime = 5f;

@@ -50,12 +50,12 @@ public class DoomBringer : MonoBehaviour, IDamageable
     public Transform firePoint;
     [Space]
     public GameObject bombPrefab;
-    public float bombFireRate = 1.2f;
+    public float bombFireRate = 1.45f;
     public float bombFlightTime = 1.2f;
     [Space]
     public GameObject laserPrefab;
-    public float laserFireRate = 0.5f;
-    public float laserSpeed = 20f;
+    public float laserFireRate = 0.65f;
+    public float laserSpeed = 16f;
     [Space]
     public GameObject kamikazePrefab;
     private bool hasSummoned = false;
