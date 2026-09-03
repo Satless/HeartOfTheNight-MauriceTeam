@@ -70,6 +70,9 @@ namespace HeartOfTheNight.Rooms
         /// </summary>
         private bool HasEnemiesToSpawn => CountPlannedEnemies() > 0;
 
+        /// <summary>
+        /// Số quái sẽ đẻ ra: mỗi spawn point (kèm prefab) trong waves = 1 quái.
+        /// </summary>
         public int CountPlannedEnemies()
         {
             int count = 0;
@@ -84,7 +87,8 @@ namespace HeartOfTheNight.Rooms
 
                 for (int i = 0; i < wave.enemies.Count; i++)
                 {
-                    if (wave.enemies[i] != null && wave.enemies[i].enemyPrefab != null)
+                    var entry = wave.enemies[i];
+                    if (entry != null && entry.enemyPrefab != null)
                         count++;
                 }
             }
