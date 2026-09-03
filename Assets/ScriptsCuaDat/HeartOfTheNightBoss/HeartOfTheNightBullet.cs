@@ -8,20 +8,33 @@ namespace HeartOfTheNight.Enemy
     public class HeartOfTheNightBullet : MonoBehaviour
     {
         [Header("VFX")]
-        [Tooltip("Prefab hiệu ứng nổ khi đạn trúng mục tiêu hoặc hết thời gian sống")]
+        [Tooltip("Prefab hiệu ứng nổ khi đạn trúng Player hoặc hết thời gian sống")]
         [SerializeField] private GameObject hitVfxPrefab;
+
+        [Header("Chống lọt hurtbox (sweep)")]
+        [SerializeField] private float sweepRadius = 0.45f;
 
         private Rigidbody2D rb;
         private int damage;
         private float lifetime;
+        private Vector2 lastPos;
+        private bool consumed;
+        private int playerMask;
+        private static readonly RaycastHit2D[] SweepHits = new RaycastHit2D[12];
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             rb.gravityScale = 0f;
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
             var col = GetComponent<Collider2D>();
-            col.isTrigger = true; // Đảm bảo đạn là Trigger để xuyên qua nhau
+            col.isTrigger = true;
+
+            if (col is CircleCollider2D circle && circle.radius > sweepRadius)
+                sweepRadius = circle.radius;
+
+            playerMask = LayerMask.GetMask("Player");
         }
 
         public void Launch(Vector2 direction, float speed, int bulletDamage, float life)
@@ -30,45 +43,78 @@ namespace HeartOfTheNight.Enemy
             lifetime = life;
             rb.linearVelocity = direction.normalized * speed;
 
-            // Xoay đạn theo hướng bắn. 
-            // Lưu ý: Nếu sprite viên đạn gốc vẽ hướng lên trên (thay vì mũi nhọn chỉ sang phải), 
-            // hãy đổi thành: angle - 90f
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
 
+        private void Start()
+        {
+            lastPos = transform.position;
+        }
+
         private void Update()
         {
+            if (consumed) return;
+
             lifetime -= Time.deltaTime;
             if (lifetime <= 0f)
+                Consume(playVfx: true);
+        }
+
+        private void FixedUpdate()
+        {
+            if (consumed) return;
+
+            Vector2 now = transform.position;
+            Vector2 delta = now - lastPos;
+            float dist = delta.magnitude;
+            if (dist > 0.001f)
             {
-                SpawnVFX();
-                Destroy(gameObject);
+                int count = Physics2D.CircleCastNonAlloc(
+                    lastPos, sweepRadius, delta / dist, SweepHits, dist, playerMask);
+
+                for (int i = 0; i < count; i++)
+                {
+                    if (TryHitPlayer(SweepHits[i].collider))
+                        return;
+                }
             }
+
+            lastPos = now;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            // Bỏ qua nếu chạm phải Boss hoặc quái khác
-            if (EnemyCombatRules.IsEnemyCollider(other)) return;
+            TryHitPlayer(other);
+        }
 
-            // Nếu chạm Player, gây sát thương
-            if (EnemyCombatRules.TryGetPlayerDamageable(other, out var target))
-            {
-                target.TakeDamage(damage);
-            }
+        private bool TryHitPlayer(Collider2D other)
+        {
+            if (consumed || other == null) return false;
+            if (EnemyCombatRules.IsEnemyCollider(other)) return false;
+            if (!EnemyCombatRules.TryGetPlayerDamageable(other, out var target))
+                return false;
 
-            // Chạm vào Player hoặc môi trường (tường, đất) thì sinh VFX và tự hủy
-            SpawnVFX();
+            target.TakeDamage(damage);
+            Consume(playVfx: true);
+            return true;
+        }
+
+        private void Consume(bool playVfx)
+        {
+            if (consumed) return;
+            consumed = true;
+
+            if (playVfx)
+                SpawnVFX();
+
             Destroy(gameObject);
         }
 
         private void SpawnVFX()
         {
             if (hitVfxPrefab != null)
-            {
                 Instantiate(hitVfxPrefab, transform.position, Quaternion.identity);
-            }
         }
     }
 }
