@@ -249,16 +249,16 @@ MonoBehaviour:
   maxHealth: 30
   currentHealth: 0
   isDead: 0
-  deathYOffset: 0
+  deathYOffset: -0.36
   anim: {fileID: 9189729926134698254}
   attackHitbox: {fileID: 8314471508327488015}
   attackOffset: {x: 0, y: 1}
   moveSpeed: 4
   patrolSpeed: 3
   patrolDistance: 10
-  detectionRangeX: 10
-  detectionRangeY: 3
-  attackRange: 1
+  detectionRangeX: 15
+  detectionRangeY: 10
+  attackRange: 2
   attackRangeY: 1.5
   attackRadius: 1.5
   groundCheck: {fileID: 1602724155770441899}
@@ -327,7 +327,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dropMultipleItems: 1
-  lootTable: []
+  lootTable:
+  - itemName: HealthHP
+    itemPrefab: {fileID: 5216420102608481259, guid: 1abb01393af01aa47bbea3e5a1b4bd79, type: 3}
+    dropChance: 50
   customVariableName: 
 --- !u!114 &5976753065464727290
 MonoBehaviour:
@@ -378,7 +381,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5806837763972723283
 Transform:
   m_ObjectHideFlags: 0
