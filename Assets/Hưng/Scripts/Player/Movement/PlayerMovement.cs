@@ -223,7 +223,8 @@ namespace HeartOfTheNight.Player
 	private Collider2D _ignoredPlatform;
 	private Collider2D[] _overlapResults = new Collider2D[10];
 	private ContactFilter2D _groundFilter;
-		#endregion
+	private Collider2D _hurtboxCollider; // Cache Hurtbox để tắt bật khi lướt
+	#endregion
 			
 	#region SFX - Huy
 	private float _footstepTimer;
@@ -240,6 +241,16 @@ namespace HeartOfTheNight.Player
 			RB = GetComponent<Rigidbody2D>();
 			_animation = GetComponent<PlayerAnimation>();
 			_playerColliders = GetComponentsInChildren<Collider2D>();
+
+			// Tự động tìm Hurtbox (để làm cơ chế bất tử khi lướt)
+			foreach (var col in _playerColliders)
+			{
+				if (col.isTrigger && col.gameObject.name == "Hurtbox")
+				{
+					_hurtboxCollider = col;
+					break;
+				}
+			}
 
 			// Cache coroutine wait — Zero GC Alloc
 			_dashRefillWait = new WaitForSeconds(Data.dashRefillTime);
@@ -830,6 +841,9 @@ namespace HeartOfTheNight.Player
 		_isDashAttacking = true;
 		SetGravityScale(0);
 
+		// [I-FRAMES] Tắt Hurtbox ở Giai đoạn 1 (Lướt tốc độ cao)
+		if (_hurtboxCollider != null) _hurtboxCollider.enabled = false;
+
 		// Phase 1 — dash attack: giữ vận tốc cố định (tham khảo Celeste)
 		while (Time.time - startTime <= Data.dashAttackTime)
 		{
@@ -839,6 +853,9 @@ namespace HeartOfTheNight.Player
 
 		startTime = Time.time; // Thời gian bắt đầu giai đoạn 2
 		_isDashAttacking = false;
+
+		// [I-FRAMES] Bật lại Hurtbox ở Giai đoạn 2 (Hãm phanh)
+		if (_hurtboxCollider != null) _hurtboxCollider.enabled = true;
 
 		// Phase 2 — dash end: Hãm phanh
 		SetGravityScale(Data.gravityScale);
