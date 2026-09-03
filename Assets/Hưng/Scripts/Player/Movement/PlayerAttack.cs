@@ -582,7 +582,11 @@ public class PlayerAttack : MonoBehaviour
                     }
 
                     FlamethrowerLogic logic = _flamethrowerInstance.GetComponent<FlamethrowerLogic>();
-                    if (logic != null) logic.Activate(Data.statusEffect);
+                    if (logic != null)
+                    {
+                        float tick = Data.fireRate > 0.05f ? Data.fireRate : 0.2f;
+                        logic.Activate(Data.statusEffect, Data.damage, tick);
+                    }
                 }
                 
                 if (_flamethrowerInstance != null && _flamethrowerInstance.activeSelf)
