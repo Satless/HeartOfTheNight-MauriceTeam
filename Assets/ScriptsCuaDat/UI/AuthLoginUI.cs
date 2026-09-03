@@ -48,6 +48,7 @@ namespace HeartOfTheNight.UI
         private bool googleCancelled;
         private Coroutine googleRoutine;
         private Coroutine guestRoutine;
+        private Coroutine resumeRoutine;
         private Button googlePrimaryButton;
         private Button googleSecondaryButton;
 
@@ -60,6 +61,29 @@ namespace HeartOfTheNight.UI
             SetActiveSafe(loginTitle, false);
             EnsureGoogleAuthPopup();
             SetActiveSafe(googleAuthPopup, false);
+            waitingForClick = false;
+            resumeRoutine = StartCoroutine(TryResumeGoogleSession());
+        }
+
+        private IEnumerator TryResumeGoogleSession()
+        {
+            var dataManager = DataManager.EnsureExists();
+            float timeout = 25f;
+            while (dataManager != null && dataManager.IsFirebaseInitializing && timeout > 0f)
+            {
+                timeout -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (this == null)
+                yield break;
+
+            if (dataManager != null && dataManager.HasRestoredGoogleSession)
+            {
+                GoNext();
+                yield break;
+            }
+
             waitingForClick = true;
         }
 
@@ -361,6 +385,12 @@ namespace HeartOfTheNight.UI
             {
                 StopCoroutine(guestRoutine);
                 guestRoutine = null;
+            }
+
+            if (resumeRoutine != null)
+            {
+                StopCoroutine(resumeRoutine);
+                resumeRoutine = null;
             }
         }
 
