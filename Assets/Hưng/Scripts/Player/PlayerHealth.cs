@@ -97,8 +97,11 @@ namespace HeartOfTheNight.Player
         public void TakeDamage(int amount)
         {
             if (hasShield) return;
-
             if (_currentHealth <= 0) return;
+
+            // [I-FRAMES] Double-guard: Lỡ như có sát thương nào không dùng Hurtbox (ví dụ bẫy gai) thì vẫn bị chặn
+            PlayerMovement movement = GetComponent<PlayerMovement>();
+            if (movement != null && movement.IsDashing) return;
 
             _currentHealth -= amount;
             _currentHealth = Mathf.Max(_currentHealth, 0);
