@@ -46,6 +46,7 @@ namespace HeartOfTheNight.Enemy
         [SerializeField] private float verticalTolerance = 1.0f;
 
         private Rigidbody2D rb;
+        private KnockbackReceiver knockback;
         private Collider2D[] solidColliders;
         private bool playerCollisionIgnored;
 
@@ -63,6 +64,7 @@ namespace HeartOfTheNight.Enemy
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            knockback = GetComponent<KnockbackReceiver>();
             solidColliders = CollectSolidColliders(transform);
 
             // Khoi luong lon => contact solver gan nhu khong dich chuyen quai khi
@@ -94,6 +96,8 @@ namespace HeartOfTheNight.Enemy
         {
             // Player co the duoc spawn sau quai => thu lai cho den khi bo qua duoc.
             if (ignorePlayerCollision && !playerCollisionIgnored) TryIgnorePlayer();
+
+            if (knockback != null && knockback.IsKnockedBack) return;
 
             if (enableSeparation) ApplySeparation();
         }

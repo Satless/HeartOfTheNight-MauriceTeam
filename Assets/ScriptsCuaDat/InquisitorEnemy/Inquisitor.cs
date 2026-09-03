@@ -49,9 +49,12 @@ namespace HeartOfTheNight.Enemy
         private static readonly Collider2D[] _buffHitBuffer = new Collider2D[24];
 
         private float _footstepTimer;
+        private KnockbackReceiver knockback;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            knockback = GetComponent<KnockbackReceiver>();
             sprite = GetComponentInChildren<SpriteRenderer>();
             hitEffect = GetComponent<HitEffectVFX>();
             currentHealth = maxHealth;
@@ -90,6 +93,12 @@ namespace HeartOfTheNight.Enemy
         private void Update()
         {
             if (isDead || player == null || stats == null) return;
+            if (knockback != null && knockback.IsKnockedBack)
+            {
+                if (anim != null)
+                    anim.SetBool("isMoving", Mathf.Abs(rb.linearVelocity.x) > 0.1f);
+                return;
+            }
 
             float dx = player.position.x - transform.position.x;
             float distance = Vector2.Distance(transform.position, player.position);
@@ -120,6 +129,7 @@ namespace HeartOfTheNight.Enemy
         private void FixedUpdate()
         {
             if (isDead || stats == null || player == null) return;
+            if (knockback != null && knockback.IsKnockedBack) return;
 
             float distance = Vector2.Distance(transform.position, player.position);
 

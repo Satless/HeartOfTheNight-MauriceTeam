@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using HeartOfTheNight.Common;
 
-public class Husk : MonoBehaviour, IDamageable
+public class Husk : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 100;
@@ -53,14 +53,18 @@ public class Husk : MonoBehaviour, IDamageable
     private Collider2D myCol;
     private float nextAttackTime = 0f;
     private bool isBusy = false;
+    private KnockbackReceiver knockback;
 
     private float idleSoundTimer;
     private float moveSoundTimer;
+
+    public bool CanReceiveKnockback => !isDead && !isBusy;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        knockback = GetComponent<KnockbackReceiver>();
         myCol = GetComponent<Collider2D>();
         if (anim == null) anim = GetComponentInChildren<Animator>();
 
@@ -71,6 +75,7 @@ public class Husk : MonoBehaviour, IDamageable
     void Update()
     {
         if (isBusy || isDead) return;
+        if (knockback != null && knockback.IsKnockedBack) return;
 
         CheckGroundStatus();
 

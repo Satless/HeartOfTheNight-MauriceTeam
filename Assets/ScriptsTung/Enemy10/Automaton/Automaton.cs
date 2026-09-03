@@ -3,7 +3,7 @@ using System.Collections;
 using HeartOfTheNight.Common;
 using HeartOfTheNight.Enemy;
 
-public class Automaton : MonoBehaviour, IDamageable
+public class Automaton : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 150;
@@ -71,9 +71,14 @@ public class Automaton : MonoBehaviour, IDamageable
 
     private float idleTimer;
     private float _footstepTimer;
+    private KnockbackReceiver knockback;
+
+    public bool CanReceiveKnockback => !isDead && !dangBanRaDon;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        knockback = GetComponent<KnockbackReceiver>();
         myCol = GetComponent<Collider2D>();
         if (anim == null) anim = GetComponent<Animator>();
         if (sr == null) sr = GetComponent<SpriteRenderer>();
@@ -157,6 +162,7 @@ public class Automaton : MonoBehaviour, IDamageable
         }
 
         if (dangBanRaDon) return;
+        if (knockback != null && knockback.IsKnockedBack) return;
 
         // Chỉ khóa AI khi đang rơi. Đứng yên trên tilemap Default / composite outline
         // thì OverlapCircle(Ground) thường miss — đừng vì thế đứng im cả đời.

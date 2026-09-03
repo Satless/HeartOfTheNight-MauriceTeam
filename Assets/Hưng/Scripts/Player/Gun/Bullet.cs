@@ -196,7 +196,11 @@ public class Bullet : MonoBehaviour
                     knockback = other.GetComponentInParent<INhanKnockback>();
                 if (knockback != null)
                 {
-                    Vector2 knockDir = RB.linearVelocity.normalized;
+                    Vector2 knockDir = RB.linearVelocity;
+                    if (knockDir.sqrMagnitude < 0.0001f)
+                        knockDir = transform.right;
+                    else
+                        knockDir.Normalize();
                     knockback.ApplyKnockback(knockDir, _data.knockbackForce);
                 }
             }

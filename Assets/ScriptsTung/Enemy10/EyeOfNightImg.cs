@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using HeartOfTheNight.Common;
 
-public class EyeOfNightImg : MonoBehaviour, IDamageable
+public class EyeOfNightImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Hoạt ảnh")]
     public Animator anim;
@@ -29,6 +29,8 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
     private List<GameObject> activeShields = new List<GameObject>();
     private Dictionary<GameObject, string> originalTags = new Dictionary<GameObject, string>();
     private bool isDead = false;
+
+    public bool CanReceiveKnockback => !isDead;
 
     void Start()
     {
@@ -152,6 +154,12 @@ public class EyeOfNightImg : MonoBehaviour, IDamageable
 
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.simulated = false;
+        }
 
         // 🔥 CẬP NHẬT: Dịch chuyển vị trí chết theo trục Y
         transform.position = new Vector3(transform.position.x, transform.position.y + deathYOffset, transform.position.z);
