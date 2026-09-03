@@ -308,7 +308,7 @@ MonoBehaviour:
   lootTable:
   - itemName: HealthHP
     itemPrefab: {fileID: 5216420102608481259, guid: 1abb01393af01aa47bbea3e5a1b4bd79, type: 3}
-    dropChance: 30
+    dropChance: 70
   - itemName: JumpBuffP
     itemPrefab: {fileID: 7856878159730602905, guid: 2d18efdf82b1e6b45a679a8f92ebd003, type: 3}
     dropChance: 15
@@ -318,6 +318,9 @@ MonoBehaviour:
   - itemName: SpeedBuffP
     itemPrefab: {fileID: 2787408048170355484, guid: 5209ad2420dee4d49964ed24c0c0875c, type: 3}
     dropChance: 15
+  - itemName: MachineBullet
+    itemPrefab: {fileID: 8649769291385259906, guid: b77a0143161053b41aefe7017592d8e8, type: 3}
+    dropChance: 30
   customVariableName: 
 --- !u!1 &8906717375758690915
 GameObject:
