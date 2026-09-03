@@ -39,6 +39,8 @@ namespace HeartOfTheNight.Player
     private PlayerMovement _movement;
     private PlayerAttack _attack;
     private PlayerHealth _health;
+    private Transform _upperBodyTransform;
+    private Vector3 _upperBodyRestLocalPos;
 
     // Cache lại các parameter hash để tối ưu hiệu năng (Zero GC)
     private static readonly int VelocityYKey = Animator.StringToHash("VelocityY");
@@ -60,27 +62,41 @@ namespace HeartOfTheNight.Player
         _movement = GetComponent<PlayerMovement>();
         _attack = GetComponent<PlayerAttack>();
         _health = GetComponent<PlayerHealth>();
+
+        if (_upperBodyObject != null)
+        {
+            _upperBodyTransform = _upperBodyObject.transform;
+            _upperBodyRestLocalPos = _upperBodyTransform.localPosition;
+        }
     }
 
     private void OnEnable()
     {
         if (_attack != null) _attack.OnRecoil += HandleRecoil;
+        ResetUpperBodyToRest();
     }
 
     private void OnDisable()
     {
         if (_attack != null) _attack.OnRecoil -= HandleRecoil;
+        ResetUpperBodyToRest();
     }
 
     private void HandleRecoil(float dirX, float fireRate)
     {
-        if (_upperBodyObject != null)
-        {
-            _upperBodyObject.transform.DOKill();
-            float recoilDuration = Mathf.Min(0.1f, fireRate * 0.8f);
-            Vector3 recoilForce = new Vector3(-dirX * 0.15f, 0.03f, 0f);
-            _upperBodyObject.transform.DOPunchPosition(recoilForce, recoilDuration, 1, 0.5f).SetRelative(true);
-        }
+        if (_upperBodyTransform == null || !_upperBodyObject.activeInHierarchy) return;
+
+        ResetUpperBodyToRest();
+        float recoilDuration = Mathf.Min(0.1f, fireRate * 0.8f);
+        Vector3 recoilForce = new Vector3(-dirX * 0.15f, 0.03f, 0f);
+        _upperBodyTransform.DOPunchPosition(recoilForce, recoilDuration, 1, 0.5f);
+    }
+
+    private void ResetUpperBodyToRest()
+    {
+        if (_upperBodyTransform == null) return;
+        _upperBodyTransform.DOKill();
+        _upperBodyTransform.localPosition = _upperBodyRestLocalPos;
     }
 
     private void Start()
@@ -135,6 +151,7 @@ namespace HeartOfTheNight.Player
         bool shouldShowUpperBody = _isHoldingGun && !isDoingFullBodyAction;
         if (_upperBodyObject.activeSelf != shouldShowUpperBody)
         {
+            ResetUpperBodyToRest();
             _upperBodyObject.SetActive(shouldShowUpperBody);
         }
 
@@ -378,6 +395,7 @@ namespace HeartOfTheNight.Player
     {
         if (_upperBodyObject != null && !_upperBodyObject.activeSelf)
         {
+            ResetUpperBodyToRest();
             _upperBodyObject.SetActive(true);
         }
     }
@@ -496,7 +514,11 @@ namespace HeartOfTheNight.Player
     public void TriggerDeath()
     {
         // Ẩn thân trên (súng)
-        if (_upperBodyObject != null) _upperBodyObject.SetActive(false);
+        if (_upperBodyObject != null)
+        {
+            ResetUpperBodyToRest();
+            _upperBodyObject.SetActive(false);
+        }
         
         // Ẩn áo choàng nếu không bật tính năng "Giơ cờ"
         if (!_keepCapeWhenDead && _capeObject != null) 

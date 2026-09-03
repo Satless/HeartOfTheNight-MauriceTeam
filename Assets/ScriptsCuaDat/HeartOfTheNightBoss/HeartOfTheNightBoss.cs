@@ -465,7 +465,7 @@ namespace HeartOfTheNight.Enemy
             int volleys = Mathf.Max(1, stats.laserVolleys);
             if (enraged) volleys += Mathf.Max(0, stats.enrageExtraLaserVolleys);
 
-            float warn = stats.laserWarnTime * SpeedMul;
+            float warn = Mathf.Max(1.15f, stats.laserWarnTime);
             float fire = stats.laserFireTime;
             float gap = 360f / dirs;
             bool lockSafeGap = stats.laserSafeGapTowardPlayer
@@ -635,7 +635,8 @@ namespace HeartOfTheNight.Enemy
         }
 
         private void SpawnLaser(Vector2 origin, Vector2 dir, float length, float width,
-                                int damage, float warn, float fire, float tick = 0.12f)
+                                int damage, float warn, float fire, float tick = 0.12f,
+                                bool scaleVisualToStats = false)
         {
             float angleZ = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             Quaternion rot = Quaternion.Euler(0f, 0f, angleZ - 90f);
@@ -644,7 +645,7 @@ namespace HeartOfTheNight.Enemy
             var laser = laserGo.GetComponent<HeartOfTheNightLaser>()
                         ?? laserGo.GetComponentInChildren<HeartOfTheNightLaser>();
             if (laser != null)
-                laser.Configure(origin, dir, length, width, damage, warn, fire, tick);
+                laser.Configure(origin, dir, length, width, damage, warn, fire, tick, scaleVisualToStats);
         }
 
         private Vector2 GroundUnder(Vector2 from)

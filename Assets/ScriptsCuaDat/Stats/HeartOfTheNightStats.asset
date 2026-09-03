@@ -12,33 +12,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceddd35cee35c6d4298e5e2e6be3d36c, type: 3}
   m_Name: HeartOfTheNightStats
   m_EditorClassIdentifier: 
-  maxHealth: 1600
-  enrageHealthFraction: 0.45
-  enrageSpeedMultiplier: 0.55
-  enrageExtraBarrageWaves: 2
-  enrageExtraLaserVolleys: 1
+  maxHealth: 1400
+  enrageHealthFraction: 0.5
+  enrageSpeedMultiplier: 0.65
+  enrageExtraBarrageWaves: 1
+  enrageExtraLaserVolleys: 0
   enrageDisableLaserSafeGap: 1
-  enrageExtraPillars: 1
-  enrageBulletSpeedMul: 1.25
+  enrageExtraPillars: 0
+  enrageBulletSpeedMul: 1.15
   detectRange: 0
   fightStartDelay: 1.5
-  timeBetweenAttacks: 1.35
+  timeBetweenAttacks: 1.8
   skillCastDelay: 0.78
   attackEndDuration: 0.6
   attackWeights:
   - 1
-  - 1.35
-  - 1.25
-  - 0.8
+  - 1.2
+  - 1.1
+  - 0.7
   bulletPrefab: {fileID: 8107031208782475583, guid: 0360d68402de09a46903e6a722853256, type: 3}
-  barrageBulletCount: 6
+  barrageBulletCount: 5
   barrageProjectilesPerShot: 3
-  barrageBetweenShots: 0.12
-  barrageSpreadAngle: 14
-  bulletSpeed: 13
-  bulletDamage: 14
+  barrageBetweenShots: 0.15
+  barrageSpreadAngle: 16
+  bulletSpeed: 11
+  bulletDamage: 11
   bulletLifetime: 5
-  barrageCooldown: 2.5
+  barrageCooldown: 3.2
   laserPrefab: {fileID: 2657676262953193284, guid: 91ef91da58c3d4540b5c9c4788a95322, type: 3}
   telegraphPrefab: {fileID: 3524000206605549690, guid: 9e6dc159506f5de4ab8e31ec15b58477, type: 3}
   laserDirections: 8
@@ -46,31 +46,31 @@ MonoBehaviour:
   laserVolleyRotationStep: 22.5
   laserAngleOffset: 0
   laserSafeGapTowardPlayer: 1
-  laserWarnTime: 0.7
-  laserFireTime: 0.4
+  laserWarnTime: 1.2
+  laserFireTime: 0.35
   laserLength: 30
   laserWidth: 0.8
-  laserDamage: 14
-  eightDirCooldown: 4.5
-  pillarCooldown: 3.5
-  pillarChargeTime: 1.15
+  laserDamage: 11
+  eightDirCooldown: 5.5
+  pillarCooldown: 4.5
+  pillarChargeTime: 1.35
   pillarFollowPlayer: 1
-  pillarLockLeadTime: 0.38
-  pillarFireTime: 0.7
+  pillarLockLeadTime: 0.5
+  pillarFireTime: 0.65
   pillarWidth: 1.85
   pillarHeight: 18
-  pillarDamage: 28
+  pillarDamage: 22
   telegraphRadius: 1.45
   telegraphSpinStart: 120
   telegraphSpinEnd: 1440
   summons:
   - prefab: {fileID: 6691004467952687102, guid: c60a4f14974efd146baf24f687899a69, type: 3}
-    count: 3
+    count: 2
   - prefab: {fileID: 7965682724504148304, guid: d72f9e07f98cd5d4ab58eb0fa397723f, type: 3}
     count: 2
-  maxActiveSummons: 8
+  maxActiveSummons: 6
   summonScatterRadius: 4
-  summonCooldown: 7.5
+  summonCooldown: 10
   summonSpawnVfxPrefab: {fileID: 4328365533006917027, guid: 7f405a30c8ef2694c82e5c2845189070, type: 3}
   groundLayer:
     serializedVersion: 2

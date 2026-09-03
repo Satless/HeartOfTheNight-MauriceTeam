@@ -83,8 +83,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private Transform _firePoint;
 
     [Header("Switching")]
-    [Tooltip("Thời gian delay (giây) không thể bắn sau khi đổi súng/biến thể")]
-    [SerializeField] private float _switchDelay;
+    [Tooltip("Thời gian delay (giây) không thể đổi sang ô súng khác")]
+    [SerializeField] private float _switchDelay = 0.75f;
     private float _switchEndTime;
 
     // Tái dùng PlayerMovement để đọc IsWallJumpLocked
