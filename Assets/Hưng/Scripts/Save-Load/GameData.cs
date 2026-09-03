@@ -35,6 +35,11 @@ namespace HeartOfTheNight.Hung
         public int maxUnlockedLevel = 1;
 
         /// <summary>
+        /// Slot đang bật DEMO. Đi theo file save (Guest / Google / cloud), không dùng PlayerPrefs chung máy.
+        /// </summary>
+        public bool demoArmed;
+
+        /// <summary>
         /// Ô súng 1–4. Ô 1 luôn mở. Slot-wide: không xóa khi PrepareForNewScene / chết.
         /// </summary>
         public bool[] unlockedWeapons = new bool[] { true, false, false, false };
@@ -238,6 +243,14 @@ namespace HeartOfTheNight.Hung
 
             unlockedWeapons[slotIndex - 1] = true;
             return true;
+        }
+
+        /// <summary>Demo hội đồng: mở hết 4 ô súng trên slot hiện tại.</summary>
+        public void UnlockAllWeapons()
+        {
+            EnsureUnlockedWeapons();
+            for (int i = 0; i < unlockedWeapons.Length; i++)
+                unlockedWeapons[i] = true;
         }
 
         public bool IsRoomCleared(string roomId)

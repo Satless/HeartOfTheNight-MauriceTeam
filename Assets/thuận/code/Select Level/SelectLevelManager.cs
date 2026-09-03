@@ -39,6 +39,7 @@ public class SelectLevelManager : MonoBehaviour
         BindChapterButtons(chapter1MissionsRoot, ChapterProgress.Chapter1Scenes);
         BindChapterButtons(chapter2MissionsRoot, ChapterProgress.Chapter2Scenes);
         BindChapterButtons(chapter3MissionsRoot, ChapterProgress.Chapter3Scenes);
+        DemoUnlock.EnsureSelectLevelButton(this);
 
         var dm = DataManager.EnsureExists();
         if (dm != null && dm.IsWaitingForCloudSlots)
@@ -78,7 +79,52 @@ public class SelectLevelManager : MonoBehaviour
         RefreshUnlocks();
         ApplyChapterMenuLocks();
         _slotReady = true;
+        DemoUnlock.EnsureSelectLevelButton(this);
         EnsureContinuePopup().TryShowIfInProgress();
+    }
+
+    private void Update()
+    {
+        if (!_slotReady)
+            return;
+
+        if (Input.GetKeyDown(DemoUnlock.Hotkey))
+            UnlockAllForDemo();
+    }
+
+    /// <summary>Hội đồng / demo: mở hết màn + súng trên slot đang chọn.</summary>
+    public void UnlockAllForDemo()
+    {
+        if (!_slotReady)
+        {
+            DemoUnlock.ShowToast(this, "Đang tải save — thử lại sau.");
+            return;
+        }
+
+        var dm = DataManager.EnsureExists();
+        if (dm == null || dm.Data == null || !dm.Data.hasSave)
+        {
+            DemoUnlock.ShowToast(this, "Cần vào một slot save trước khi bật DEMO.");
+            return;
+        }
+
+        if (dm.HasInProgress())
+        {
+            dm.AbandonInProgress();
+            EnsureContinuePopup().Hide();
+        }
+
+        ChapterProgress.UnlockAllForDemo();
+        DemoUnlock.Arm();
+        DemoUnlock.ApplyLiveWeapons();
+
+        RefreshChapterButtonUnlocks();
+        RefreshUnlocks();
+        ApplyChapterMenuLocks();
+        RefreshMissionHoverVisuals();
+
+        DemoUnlock.ShowToast(this, "Đã mở hết màn + súng. Chọn scene để demo.");
+        Debug.Log("[SelectLevel] Demo: đã mở hết Chapter 1–3 và tất cả súng.");
     }
 
     private void RefreshChapterButtonUnlocks()
@@ -98,6 +144,26 @@ public class SelectLevelManager : MonoBehaviour
         {
             if (buttons[i] != null)
                 buttons[i].interactable = ChapterProgress.IsUnlocked(scenes[i]);
+        }
+    }
+
+    private void RefreshMissionHoverVisuals()
+    {
+        RefreshMissionHovers(chapter1MissionsRoot);
+        RefreshMissionHovers(chapter2MissionsRoot);
+        RefreshMissionHovers(chapter3MissionsRoot);
+    }
+
+    private static void RefreshMissionHovers(Transform panel)
+    {
+        if (panel == null)
+            return;
+
+        var hovers = panel.GetComponentsInChildren<MissionHover>(true);
+        for (int i = 0; i < hovers.Length; i++)
+        {
+            if (hovers[i] != null)
+                hovers[i].RefreshVisualAfterUnlock();
         }
     }
 
