@@ -18,3 +18,12 @@ public interface INhanKnockback
     /// <param name="force">Lực đẩy (đơn vị Unity). 0 = không đẩy.</param>
     void ApplyKnockback(Vector2 direction, float force);
 }
+
+/// <summary>
+/// Gắn cùng GameObject với KnockbackReceiver.
+/// false = hyper armor (đang dash, charge, cast, chết...) — đạn vẫn trừ máu, không đẩy.
+/// </summary>
+public interface IKnockbackGate
+{
+    bool CanReceiveKnockback { get; }
+}

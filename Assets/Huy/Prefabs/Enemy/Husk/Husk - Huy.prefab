@@ -79,6 +79,7 @@ GameObject:
   - component: {fileID: 3641384330369384795}
   - component: {fileID: -3340504792106145302}
   - component: {fileID: 5976753065464727290}
+  - component: {fileID: 306195043999481658}
   m_Layer: 10
   m_Name: Husk - Huy
   m_TagString: Enemy
@@ -365,6 +366,24 @@ MonoBehaviour:
     tickTimer: 0
     vfxInstance: {fileID: 0}
     isActive: 0
+--- !u!114 &306195043999481658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7965682724504148304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4e4e5e0f1bafa4daa6c55852f65d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _resistance: 0
+  _deceleration: 14
+  _stunDuration: 0.12
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1 &8314471508327488015
 GameObject:
   m_ObjectHideFlags: 0

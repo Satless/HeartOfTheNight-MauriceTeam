@@ -2,7 +2,7 @@
 using System.Collections;
 using HeartOfTheNight.Common;
 
-public class Wrath : MonoBehaviour, IDamageable
+public class Wrath : MonoBehaviour, IDamageable, IKnockbackGate
 
 {
     [Header("Chỉ số Sinh tồn")]
@@ -59,11 +59,16 @@ public class Wrath : MonoBehaviour, IDamageable
     private Collider2D myCol;
     private float nextAttackTime = 0f;
     private bool isBusy = false;
+    private KnockbackReceiver knockback;
     private float idleSoundTimer;
+
+    public bool CanReceiveKnockback => !isDead && !isBusy;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        knockback = GetComponent<KnockbackReceiver>();
         myCol = GetComponent<Collider2D>();
         if (anim == null) anim = GetComponentInChildren<Animator>();
         currentHealth = maxHealth;
@@ -72,6 +77,7 @@ public class Wrath : MonoBehaviour, IDamageable
     void Update()
     {
        if (isBusy || isDead) return;
+        if (knockback != null && knockback.IsKnockedBack) return;
         CheckGroundStatus();
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
         if (player == null)

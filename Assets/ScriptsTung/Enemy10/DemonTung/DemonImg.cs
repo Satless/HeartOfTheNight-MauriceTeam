@@ -2,7 +2,7 @@
 using System.Collections;
 using HeartOfTheNight.Common;
 
-public class DemonImg : MonoBehaviour, IDamageable
+public class DemonImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 100;
@@ -49,10 +49,14 @@ public class DemonImg : MonoBehaviour, IDamageable
     private Collider2D myCol;
     private float nextAttackTime = 0f;
     private bool isCasting = false;
+    private KnockbackReceiver knockback;
+
+    public bool CanReceiveKnockback => !isDead && !isCasting;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        knockback = GetComponent<KnockbackReceiver>();
         myCol = GetComponent<Collider2D>();
         if (anim == null) anim = GetComponent<Animator>();
         if (sr == null) sr = GetComponent<SpriteRenderer>();
@@ -87,6 +91,7 @@ public class DemonImg : MonoBehaviour, IDamageable
     {
         if (isDead || player == null) return;
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
+        if (knockback != null && knockback.IsKnockedBack) return;
 
         if (isCasting)
         {

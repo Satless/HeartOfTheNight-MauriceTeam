@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using HeartOfTheNight.Common;
 
-public class BurningCorpseImg : MonoBehaviour, IDamageable
+public class BurningCorpseImg : MonoBehaviour, IDamageable, IKnockbackGate
 {
     [Header("Chỉ số Sinh tồn")]
     public int maxHealth = 60;
@@ -67,15 +67,19 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     private Collider2D myCol;
     private float nextAttackTime = 0f;
     private bool isBusy = false;
+    private KnockbackReceiver knockback;
     private float lastBurnHitTime = -999f;
 
     private float idleSoundTimer;
     private float moveSoundTimer;
 
+    public bool CanReceiveKnockback => !isDead && !isBusy;
+
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         rb = GetComponent<Rigidbody2D>();
+        knockback = GetComponent<KnockbackReceiver>();
         myCol = GetComponent<Collider2D>();
         if (anim == null) anim = GetComponentInChildren<Animator>();
 
@@ -87,6 +91,7 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
     void Update()
     {
         if (isBusy || isDead) return;
+        if (knockback != null && knockback.IsKnockedBack) return;
 
         CheckGroundStatus();
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
