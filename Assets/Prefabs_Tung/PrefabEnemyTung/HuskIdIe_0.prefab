@@ -85,7 +85,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1921258111785348702
 Transform:
   m_ObjectHideFlags: 0
@@ -260,15 +260,15 @@ MonoBehaviour:
   maxHealth: 25
   currentHealth: 0
   isDead: 0
-  deathYOffset: 0
-  anim: {fileID: 9189729926134698254}
-  attackHitbox: {fileID: 8314471508327488015}
+  deathYOffset: -0.36
+  anim: {fileID: 0}
+  attackHitbox: {fileID: 0}
   attackOffset: {x: 0, y: 1}
   moveSpeed: 3
   patrolSpeed: 2
   patrolDistance: 6
-  detectionRangeX: 10
-  detectionRangeY: 1
+  detectionRangeX: 15
+  detectionRangeY: 10
   attackRange: 2
   attackRangeY: 1.5
   attackRadius: 1.5
