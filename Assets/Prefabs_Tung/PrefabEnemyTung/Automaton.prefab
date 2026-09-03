@@ -46,6 +46,7 @@ GameObject:
   - component: {fileID: 7892184262299229532}
   - component: {fileID: 7110234075211430788}
   - component: {fileID: 1442407939130469810}
+  - component: {fileID: 672833954148347001}
   m_Layer: 10
   m_Name: Automaton
   m_TagString: Enemy
@@ -287,6 +288,24 @@ CapsuleCollider2D:
   m_Offset: {x: 0.27292788, y: 0.87156796}
   m_Size: {x: 0.82525754, y: 1.7431359}
   m_Direction: 0
+--- !u!114 &672833954148347001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036838522198258641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d4e4e5e0f1bafa4daa6c55852f65d88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _resistance: 0.25
+  _deceleration: 14
+  _stunDuration: 0.12
+  _knockbackVelocity: {x: 0, y: 0}
+  _isInKnockback: 0
+  _stunEndTime: 0
 --- !u!1001 &9100000000000000031
 PrefabInstance:
   m_ObjectHideFlags: 0
