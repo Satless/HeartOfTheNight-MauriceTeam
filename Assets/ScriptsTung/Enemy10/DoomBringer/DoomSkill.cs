@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using HeartOfTheNight.Common; // THÊM THƯ VIỆN CHỨA BỘ LUẬT
+using HeartOfTheNight.Common;
+using HeartOfTheNight.Enemy;
 
 public class DoomSkill : MonoBehaviour
 {
@@ -12,45 +13,79 @@ public class DoomSkill : MonoBehaviour
     [Header("Hiệu ứng (Tùy chọn)")]
     public GameObject hitEffect;
 
+    [Header("Chống lọt hurtbox (sweep)")]
+    [SerializeField] private float sweepRadius = 0.45f;
+
+    private Vector2 lastPos;
+    private bool consumed;
+    private int playerMask;
+    private static readonly RaycastHit2D[] SweepHits = new RaycastHit2D[12];
+
+    void Awake()
+    {
+        playerMask = LayerMask.GetMask("Player");
+    }
+
     void Start()
     {
+        lastPos = transform.position;
         Destroy(gameObject, lifeTime);
+    }
+
+    void FixedUpdate()
+    {
+        if (consumed) return;
+
+        Vector2 now = transform.position;
+        Vector2 delta = now - lastPos;
+        float dist = delta.magnitude;
+        if (dist > 0.001f)
+        {
+            int count = Physics2D.CircleCastNonAlloc(
+                lastPos, sweepRadius, delta / dist, SweepHits, dist, playerMask);
+
+            if (TryHitPlayerInSweep(count))
+                return;
+        }
+
+        lastPos = now;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // 1. NẾU BẮN TRÚNG PLAYER
-        if (collision.CompareTag("Player") || collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+        TryHitPlayer(collision);
+    }
+
+    private bool TryHitPlayerInSweep(int count)
+    {
+        for (int i = 0; i < count; i++)
         {
-            // LỌC: Bỏ qua va chạm cứng, chỉ xét Hurtbox mềm (isTrigger = true)
-            if (!collision.isTrigger) return;
-
-            // TÌM IDamageable TỪ HURTBOX HOẶC TỪ OBJECT CHA
-            IDamageable target = collision.GetComponent<IDamageable>();
-            if (target == null) target = collision.GetComponentInParent<IDamageable>();
-
-            if (target != null)
-            {
-                target.TakeDamage(damage);
-                Debug.Log("Đạn DoomBringer trúng HURTBOX Player qua IDamageable! Trừ " + damage + " máu.");
-            }
-
-            // Trúng người là nổ/biến mất luôn
-            TuHuy();
+            if (TryHitPlayer(SweepHits[i].collider))
+                return true;
         }
-        // 2. NẾU RỚT XUỐNG ĐẤT / ĐẬP VÀO TƯỜNG (Check bằng Layer Ground)
-        else if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-        {
-            TuHuy();
-        }
+
+        return false;
+    }
+
+    private bool TryHitPlayer(Collider2D collision)
+    {
+        if (consumed || collision == null) return false;
+        if (EnemyCombatRules.IsEnemyCollider(collision)) return false;
+        if (!EnemyCombatRules.TryGetPlayerDamageable(collision, out IDamageable target))
+            return false;
+
+        target.TakeDamage(damage);
+        TuHuy();
+        return true;
     }
 
     void TuHuy()
     {
+        if (consumed) return;
+        consumed = true;
+
         if (hitEffect != null)
-        {
             Instantiate(hitEffect, transform.position, Quaternion.identity);
-        }
 
         Destroy(gameObject);
     }

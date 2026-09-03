@@ -140,7 +140,9 @@ public class DoomBringer : MonoBehaviour, IDamageable
 
     void Die()
     {
+        if (isDead) return;
         isDead = true;
+        StopAllCoroutines();
         if (bossUIContainer != null) bossUIContainer.SetActive(false);
 
         if (rb != null)
@@ -149,7 +151,7 @@ public class DoomBringer : MonoBehaviour, IDamageable
             rb.simulated = false;
         }
         gameObject.tag = "Untagged";
-        Collider2D[] cols = GetComponents<Collider2D>();
+        Collider2D[] cols = GetComponentsInChildren<Collider2D>(true);
         foreach (Collider2D c in cols) c.enabled = false;
 
         StartCoroutine(DeathSequenceRoutine());
@@ -241,14 +243,14 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         if (bombPrefab == null || firePoint == null) return;
 
-        Vector2 safePos = GetSafeSpawnPosition(firePoint.position);
-        GameObject bomb = Instantiate(bombPrefab, safePos, Quaternion.identity);
+        Vector2 spawnPos = firePoint.position;
+        GameObject bomb = Instantiate(bombPrefab, spawnPos, Quaternion.identity);
 
         Rigidbody2D bombRb = bomb.GetComponent<Rigidbody2D>();
         if (bombRb != null)
         {
             Vector2 targetPos = new Vector2(player.position.x, player.position.y + 0.5f);
-            Vector2 distance = targetPos - safePos;
+            Vector2 distance = targetPos - spawnPos;
             float gravity = Mathf.Abs(Physics2D.gravity.y * bombRb.gravityScale);
             float velocityX = distance.x / bombFlightTime;
             float velocityY = (distance.y / bombFlightTime) + (0.5f * gravity * bombFlightTime);
@@ -260,13 +262,14 @@ public class DoomBringer : MonoBehaviour, IDamageable
     {
         if (laserPrefab == null || firePoint == null) return;
 
-        Vector2 safePos = GetSafeSpawnPosition(firePoint.position);
-        GameObject laser = Instantiate(laserPrefab, safePos, Quaternion.identity);
+        Vector2 spawnPos = firePoint.position;
+        GameObject laser = Instantiate(laserPrefab, spawnPos, Quaternion.identity);
 
         Rigidbody2D laserRb = laser.GetComponent<Rigidbody2D>();
         if (laserRb != null)
         {
-            Vector2 direction = ((Vector2)player.position - safePos).normalized;
+            Vector2 targetPos = new Vector2(player.position.x, player.position.y + 0.5f);
+            Vector2 direction = (targetPos - spawnPos).normalized;
             laserRb.linearVelocity = direction * laserSpeed;
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             laser.transform.rotation = Quaternion.Euler(0, 0, angle);
@@ -279,8 +282,8 @@ public class DoomBringer : MonoBehaviour, IDamageable
         int soLuongDe = isPhase2 ? 5 : 3;
         for (int i = 0; i < soLuongDe; i++)
         {
-            // 🔥 FIX MAP HẸP: Không cộng thêm trục Y nữa!
-            // Đẻ tất cả quái ngay tại 1 tọa độ an toàn, tụi nó sẽ tự tách nhau ra
+            if (isDead) yield break;
+
             Vector2 safePos = GetSafeSpawnPosition(firePoint.position);
 
             GameObject kami = Instantiate(kamikazePrefab, safePos, Quaternion.identity);

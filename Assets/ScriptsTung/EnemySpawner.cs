@@ -14,7 +14,16 @@ public class EnemySpawner : MonoBehaviour
 
     public int CountPlannedEnemies()
     {
-        return spawnPoints != null ? spawnPoints.Length : 0;
+        if (enemyPrefabs == null || enemyPrefabs.Length == 0 || spawnPoints == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < spawnPoints.Length; i++)
+        {
+            if (spawnPoints[i] != null)
+                count++;
+        }
+        return count;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -30,19 +39,21 @@ public class EnemySpawner : MonoBehaviour
     void SpawnEnemies()
     {
         // Duyệt qua từng vị trí trong danh sách Spawn Points
+        if (spawnPoints == null || enemyPrefabs == null || enemyPrefabs.Length == 0)
+            return;
+
         foreach (Transform point in spawnPoints)
         {
-            // Trừ khi bạn quên không bỏ quái vào danh sách
-            if (enemyPrefabs.Length > 0)
-            {
-                // Chọn ngẫu nhiên 1 loại quái (Big Corpse hoặc Burning Corpse)
-                int randomIndex = Random.Range(0, enemyPrefabs.Length);
-                GameObject quaiMuonGoi = enemyPrefabs[randomIndex];
+            if (point == null)
+                continue;
 
-                // Lệnh Instantiate dùng để đẻ (clone) quái ra màn hình ngay tại vị trí của point
-                GameObject spawned = Instantiate(quaiMuonGoi, point.position, Quaternion.identity);
-                LevelStatsTracker.BindSpawnedEnemy(spawned);
-            }
+            int randomIndex = Random.Range(0, enemyPrefabs.Length);
+            GameObject quaiMuonGoi = enemyPrefabs[randomIndex];
+            if (quaiMuonGoi == null)
+                continue;
+
+            GameObject spawned = Instantiate(quaiMuonGoi, point.position, Quaternion.identity);
+            LevelStatsTracker.BindSpawnedEnemy(spawned);
         }
 
         Debug.Log("Player dẫm bẫy! Đã gọi hội quái ra!");

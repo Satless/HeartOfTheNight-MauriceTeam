@@ -21,9 +21,13 @@ namespace HeartOfTheNight.Hung
         private int _googleFlowSerial;
         private readonly List<Action<bool, string>> _googleCallbacks = new List<Action<bool, string>>();
         private Credential _pendingExistingGoogleCredential;
+        private bool _googleConfirmIfExistingSaves;
+        private bool _pendingGuestGoogleRevert;
 
         public bool IsFirebaseInitializing => _isFirebaseInitializing;
         public bool IsFirebaseReady => _isFirebaseReady;
+        public bool HasRestoredGoogleSession =>
+            !AuthSession.IsGuest && _user != null && !_user.IsAnonymous;
 
         private void InitializeFirebase()
         {
@@ -87,7 +91,7 @@ namespace HeartOfTheNight.Hung
 
         public void SignInWithGoogle(Action<bool, string> onComplete)
         {
-            BeginGoogleAuth(preferLink: false, onComplete);
+            BeginGoogleAuth(preferLink: false, confirmIfExistingSaves: false, onComplete);
         }
 
         public void LinkGoogleAccount(Action<bool, string> onComplete)
@@ -98,15 +102,36 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
-            var current = _auth.CurrentUser;
-            if (current != null && !current.IsAnonymous)
+            if (_pendingGuestGoogleRevert)
             {
-                BindFirebaseUser(current);
-                onComplete?.Invoke(true, ResolveAccountLabel(current));
+                onComplete?.Invoke(false, ExistingGoogleAccountNotice);
                 return;
             }
 
-            BeginGoogleAuth(preferLink: current != null && current.IsAnonymous, onComplete);
+            var current = _auth.CurrentUser;
+            if (current != null && !current.IsAnonymous)
+            {
+                if (!AuthSession.IsGuest)
+                {
+                    BindFirebaseUser(current);
+                    onComplete?.Invoke(true, ResolveAccountLabel(current));
+                    return;
+                }
+
+                if (onComplete != null)
+                    _googleCallbacks.Add(onComplete);
+
+                _googleAuthBusy = true;
+                _googleConfirmIfExistingSaves = true;
+                int serial = ++_googleFlowSerial;
+                FinishSuccessfulGoogleSignIn(current, serial);
+                return;
+            }
+
+            BeginGoogleAuth(
+                preferLink: current != null && current.IsAnonymous,
+                confirmIfExistingSaves: true,
+                onComplete);
         }
 
         public void CancelGoogleSignIn()
@@ -115,13 +140,33 @@ namespace HeartOfTheNight.Hung
             _googleAuthBusy = false;
             _googleCallbacks.Clear();
             _pendingExistingGoogleCredential = null;
+            _googleConfirmIfExistingSaves = false;
             GoogleDesktopOAuth.Cancel();
+            DiscardCancelledGoogleUser();
         }
 
         public void ConfirmSwitchToExistingGoogle(Action<bool, string> onComplete)
         {
             var credential = _pendingExistingGoogleCredential;
             _pendingExistingGoogleCredential = null;
+            _googleConfirmIfExistingSaves = false;
+
+            if (_pendingGuestGoogleRevert)
+            {
+                _pendingGuestGoogleRevert = false;
+                FirebaseUser user = _auth != null ? _auth.CurrentUser : null;
+                if (user == null || user.IsAnonymous)
+                {
+                    onComplete?.Invoke(false, "No pending Google account switch.");
+                    return;
+                }
+
+                BindFirebaseUser(user);
+                LoadGameCloud();
+                onComplete?.Invoke(true, ResolveAccountLabel(user));
+                return;
+            }
+
             if (credential == null || _auth == null)
             {
                 onComplete?.Invoke(false, "No pending Google account switch.");
@@ -139,6 +184,11 @@ namespace HeartOfTheNight.Hung
         public void CancelSwitchToExistingGoogle()
         {
             _pendingExistingGoogleCredential = null;
+            if (!_pendingGuestGoogleRevert)
+                return;
+
+            _pendingGuestGoogleRevert = false;
+            RevertLinkedGoogleToGuest();
         }
 
         public void EnsureAnonymousAuth(Action<bool, string> onComplete)
@@ -178,9 +228,11 @@ namespace HeartOfTheNight.Hung
 
         public void SignOutFirebase()
         {
+            _pendingGuestGoogleRevert = false;
             CancelGoogleSignIn();
             _playTimeDirty = false;
             _playTimeSaveTimer = 0f;
+            CancelDeferredCloudDelete();
 
             if (_auth != null)
                 _auth.SignOut();
@@ -193,7 +245,15 @@ namespace HeartOfTheNight.Hung
             Debug.Log("[Firebase] Signed out.");
         }
 
-        private void BeginGoogleAuth(bool preferLink, Action<bool, string> onComplete)
+        private void RevertLinkedGoogleToGuest()
+        {
+            AuthSession.SignInAsGuest();
+            SignOutFirebase();
+            if (!ShouldPreserveLiveRamSave())
+                LoadGameLocal();
+        }
+
+        private void BeginGoogleAuth(bool preferLink, bool confirmIfExistingSaves, Action<bool, string> onComplete)
         {
             if (_auth == null)
             {
@@ -208,6 +268,7 @@ namespace HeartOfTheNight.Hung
                 return;
 
             _googleAuthBusy = true;
+            _googleConfirmIfExistingSaves = confirmIfExistingSaves;
             int serial = ++_googleFlowSerial;
 
 #if UNITY_EDITOR || UNITY_STANDALONE
@@ -231,7 +292,7 @@ namespace HeartOfTheNight.Hung
 
             GoogleDesktopOAuth.RequestIdToken(clientId, clientSecret, port, (ok, idToken, accessToken, error) =>
             {
-                if (serial != _googleFlowSerial)
+                if (IsStaleGoogleFlow(serial))
                     return;
 
                 if (!ok)
@@ -253,35 +314,31 @@ namespace HeartOfTheNight.Hung
             {
                 current.LinkWithProviderAsync(provider).ContinueWithOnMainThread(task =>
                 {
-                    if (serial != _googleFlowSerial)
+                    if (IsStaleGoogleFlow(serial))
                         return;
 
-                    _googleAuthBusy = false;
                     if (task.IsFaulted && IsGoogleCredentialInUse(task.Exception))
                     {
                         Debug.Log("[Firebase] Google đã gắn tài khoản khác — chuyển sang SignIn.");
-                        _googleAuthBusy = true;
                         _auth.SignInWithProviderAsync(CreateGoogleProvider()).ContinueWithOnMainThread(signInTask =>
                         {
-                            if (serial != _googleFlowSerial)
+                            if (IsStaleGoogleFlow(serial))
                                 return;
-                            _googleAuthBusy = false;
-                            HandleGoogleAuthTask(signInTask);
+                            HandleGoogleAuthTask(signInTask, serial);
                         });
                         return;
                     }
 
-                    HandleGoogleAuthTask(task);
+                    HandleGoogleAuthTask(task, serial);
                 });
                 return;
             }
 
             _auth.SignInWithProviderAsync(provider).ContinueWithOnMainThread(task =>
             {
-                if (serial != _googleFlowSerial)
+                if (IsStaleGoogleFlow(serial))
                     return;
-                _googleAuthBusy = false;
-                HandleGoogleAuthTask(task);
+                HandleGoogleAuthTask(task, serial);
             });
         }
 
@@ -292,7 +349,7 @@ namespace HeartOfTheNight.Hung
             {
                 current.LinkWithCredentialAsync(credential).ContinueWithOnMainThread(task =>
                 {
-                    if (serial != _googleFlowSerial)
+                    if (IsStaleGoogleFlow(serial))
                         return;
 
                     if (task.IsFaulted && IsGoogleCredentialInUse(task.Exception))
@@ -315,7 +372,7 @@ namespace HeartOfTheNight.Hung
         {
             _auth.SignInWithCredentialAsync(credential).ContinueWithOnMainThread(task =>
             {
-                if (serial != _googleFlowSerial)
+                if (IsStaleGoogleFlow(serial))
                     return;
                 HandleCompletedAuthTask(task, serial);
             });
@@ -343,11 +400,84 @@ namespace HeartOfTheNight.Hung
                 return;
             }
 
+            FinishSuccessfulGoogleSignIn(user, serial);
+        }
+
+        private void FinishSuccessfulGoogleSignIn(FirebaseUser user, int serial)
+        {
             BindFirebaseUser(user);
-            LoadGameCloud();
             string label = ResolveAccountLabel(user);
             LogAuthDev("Google sign-in OK.");
-            CompleteGoogleAuth(serial, true, label);
+
+            if (!_googleConfirmIfExistingSaves)
+            {
+                LoadGameCloud();
+                CompleteGoogleAuth(serial, true, label);
+                return;
+            }
+
+            _pendingGuestGoogleRevert = true;
+            RefreshCloudSlotIndex(() =>
+            {
+                if (IsStaleGoogleFlow(serial))
+                    return;
+
+                if (GoogleAccountHasOccupiedSlot())
+                {
+                    CompleteGoogleAuth(serial, false, ExistingGoogleAccountNotice);
+                    return;
+                }
+
+                _pendingGuestGoogleRevert = false;
+                LoadGameCloud();
+                CompleteGoogleAuth(serial, true, label);
+            });
+        }
+
+        private bool GoogleAccountHasOccupiedSlot()
+        {
+            for (int i = 1; i <= SlotCount; i++)
+            {
+                if (HasSave(i))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool IsStaleGoogleFlow(int serial)
+        {
+            if (serial == _googleFlowSerial)
+                return false;
+
+            DiscardCancelledGoogleUser();
+            return true;
+        }
+
+        private void DiscardCancelledGoogleUser()
+        {
+            if (_auth == null)
+                return;
+
+            if (_pendingGuestGoogleRevert)
+            {
+                _pendingGuestGoogleRevert = false;
+                AuthSession.SignInAsGuest();
+                if (_auth.CurrentUser != null)
+                    _auth.SignOut();
+                BindFirebaseUser(null);
+                Data = new GameData { slotIndex = ActiveSlotIndex, hasSave = false };
+                if (!ShouldPreserveLiveRamSave())
+                    LoadGameLocal();
+                return;
+            }
+
+            if (!AuthSession.IsGuest)
+                return;
+
+            FirebaseUser current = _auth.CurrentUser;
+            if (current != null && !current.IsAnonymous)
+                _auth.SignOut();
         }
 
         private void CompleteGoogleAuth(int serial, bool ok, string message)
@@ -356,6 +486,8 @@ namespace HeartOfTheNight.Hung
                 return;
 
             _googleAuthBusy = false;
+            if (ok)
+                _googleConfirmIfExistingSaves = false;
             var callbacks = _googleCallbacks.ToArray();
             _googleCallbacks.Clear();
             for (int i = 0; i < callbacks.Length; i++)
@@ -415,41 +547,29 @@ namespace HeartOfTheNight.Hung
             return null;
         }
 
-        private void HandleGoogleAuthTask(System.Threading.Tasks.Task<AuthResult> task)
+        private void HandleGoogleAuthTask(System.Threading.Tasks.Task<AuthResult> task, int serial)
         {
-            bool ok = false;
-            string message = "Google sign-in failed.";
-
             if (task == null || task.IsCanceled)
             {
-                message = "Google sign-in was cancelled.";
-            }
-            else if (task.IsFaulted)
-            {
-                Debug.LogError("[Firebase] Google sign-in failed: " + task.Exception);
-                message = FormatAuthError(task.Exception);
-            }
-            else
-            {
-                FirebaseUser user = task.Result != null ? task.Result.User : _auth.CurrentUser;
-                if (user == null)
-                {
-                    message = "Google sign-in returned no user.";
-                }
-                else
-                {
-                    BindFirebaseUser(user);
-                    LoadGameCloud();
-                    message = ResolveAccountLabel(user);
-                    ok = true;
-                    LogAuthDev("Google sign-in OK.");
-                }
+                CompleteGoogleAuth(serial, false, "Google sign-in was cancelled.");
+                return;
             }
 
-            var callbacks = _googleCallbacks.ToArray();
-            _googleCallbacks.Clear();
-            for (int i = 0; i < callbacks.Length; i++)
-                callbacks[i]?.Invoke(ok, message);
+            if (task.IsFaulted)
+            {
+                Debug.LogError("[Firebase] Google sign-in failed: " + task.Exception);
+                CompleteGoogleAuth(serial, false, FormatAuthError(task.Exception));
+                return;
+            }
+
+            FirebaseUser user = task.Result != null ? task.Result.User : _auth.CurrentUser;
+            if (user == null)
+            {
+                CompleteGoogleAuth(serial, false, "Google sign-in returned no user.");
+                return;
+            }
+
+            FinishSuccessfulGoogleSignIn(user, serial);
         }
 
         private void BindFirebaseUser(FirebaseUser user)

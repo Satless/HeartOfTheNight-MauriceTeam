@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Đếm enemies / secrets / thời gian trong màn đang chơi.
+/// Enemies: chỉ slot spawn của RoomSpawnController / EnemySpawner (1 spawn point = 1 quái).
+/// Không tính quái đặt sẵn trong scene, minion, summon.
 /// Secret: cửa Counts As Secret — đi qua là tìm thấy (RAM). Ghi file lúc checkpoint.
 /// </summary>
 public class LevelStatsTracker : MonoBehaviour
@@ -24,7 +26,6 @@ public class LevelStatsTracker : MonoBehaviour
     private int _enemiesTotal;
     private string _sceneName = "";
     private Coroutine _censusRoutine;
-    private float _scanTimer;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Bootstrap()
@@ -85,20 +86,6 @@ public class LevelStatsTracker : MonoBehaviour
         _censusRoutine = StartCoroutine(CensusWhenReady());
     }
 
-    private void Update()
-    {
-        if (LevelCompleteUI.IsShowing || !DataManager.IsLevelScene(_sceneName))
-            return;
-
-        _scanTimer += Time.unscaledDeltaTime;
-        if (_scanTimer < 0.5f)
-            return;
-
-        _scanTimer = 0f;
-        CountTagged("Enemy");
-        CountTagged("Boss");
-    }
-
     private void ResetSession()
     {
         _trackedEnemyIds.Clear();
@@ -106,7 +93,6 @@ public class LevelStatsTracker : MonoBehaviour
         _foundSecrets.Clear();
         _enemiesKilled = 0;
         _enemiesTotal = 0;
-        _scanTimer = 0f;
     }
 
     private IEnumerator CensusWhenReady()
@@ -126,8 +112,8 @@ public class LevelStatsTracker : MonoBehaviour
         var tracker = Instance;
         float time = DataManager.Instance != null ? DataManager.Instance.LevelTimeSeconds : 0f;
 
-        int total = tracker != null ? Mathf.Max(tracker._enemiesTotal, tracker._enemiesKilled) : 0;
-        int killed = tracker != null ? tracker._enemiesKilled : 0;
+        int total = tracker != null ? Mathf.Max(0, tracker._enemiesTotal) : 0;
+        int killed = tracker != null ? Mathf.Clamp(tracker._enemiesKilled, 0, total) : 0;
         int secretTotal = tracker != null ? tracker._secretIds.Count : 0;
         int secretFound = tracker != null ? tracker._foundSecrets.Count : 0;
         if (secretFound > secretTotal)
@@ -145,16 +131,16 @@ public class LevelStatsTracker : MonoBehaviour
         return LastSnapshot;
     }
 
-    /// <summary>Enemy đã nằm sẵn trong scene (không phải spawn từ room/spawner đã cộng planned).</summary>
+    /// <summary>Quái đặt sẵn trong scene — không tính vào Level Complete.</summary>
     public static void BindExistingEnemy(GameObject enemy)
     {
-        EnsureExists()?.BindEnemy(enemy, incrementTotal: true);
+        _ = enemy;
     }
 
-    /// <summary>Enemy spawn từ wave/spawner — tổng đã cộng lúc census.</summary>
+    /// <summary>Enemy spawn từ wave/spawner — tổng đã cộng lúc census theo spawn point.</summary>
     public static void BindSpawnedEnemy(GameObject enemy)
     {
-        EnsureExists()?.BindEnemy(enemy, incrementTotal: false);
+        EnsureExists()?.BindSpawned(enemy);
     }
 
     public static void NotifyEnemyKilled(GameObject enemy)
@@ -164,14 +150,12 @@ public class LevelStatsTracker : MonoBehaviour
         if (LevelCompleteUI.IsShowing)
             return;
 
-        // Tag có thể đã đổi thành Untagged lúc Die — vẫn tính kill.
+        // Chỉ tính kill của quái do room/spawner đẻ ra. Tag lúc Die có thể đã Untagged.
         int id = enemy.transform.root.GetInstanceID();
-        if (Instance._trackedEnemyIds.Add(id))
-            Instance._enemiesTotal++;
+        if (!Instance._trackedEnemyIds.Contains(id))
+            return;
 
         Instance._enemiesKilled++;
-        if (Instance._enemiesKilled > Instance._enemiesTotal)
-            Instance._enemiesTotal = Instance._enemiesKilled;
     }
 
     public static void DiscoverSecret(string secretId)
@@ -208,29 +192,26 @@ public class LevelStatsTracker : MonoBehaviour
         }
     }
 
-    private void BindEnemy(GameObject enemy, bool incrementTotal)
+    private void BindSpawned(GameObject enemy)
     {
-        if (enemy == null || !IsCountableEnemy(enemy))
+        if (enemy == null)
             return;
 
         GameObject root = enemy.transform.root.gameObject;
+        if (CompareTagSafe(root, "Player") || root.GetComponent<HeartOfTheNight.Player.PlayerHealth>() != null)
+            return;
+
         int id = root.GetInstanceID();
         if (!_trackedEnemyIds.Add(id))
             return;
 
         if (root.GetComponent<EnemyKillReporter>() == null)
             root.AddComponent<EnemyKillReporter>();
-
-        if (incrementTotal)
-            _enemiesTotal++;
     }
 
     private void CensusEnemies()
     {
-        CountTagged("Enemy");
-        CountTagged("Boss");
-
-        var rooms = FindObjectsByType<RoomSpawnController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var rooms = FindObjectsByType<RoomSpawnController>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         for (int i = 0; i < rooms.Length; i++)
         {
             var room = rooms[i];
@@ -243,30 +224,14 @@ public class LevelStatsTracker : MonoBehaviour
                 _enemiesKilled += planned;
         }
 
-        var spawners = FindObjectsByType<EnemySpawner>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var spawners = FindObjectsByType<EnemySpawner>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         for (int i = 0; i < spawners.Length; i++)
         {
             var spawner = spawners[i];
-            if (spawner == null || spawner.HasSpawned)
+            if (spawner == null)
                 continue;
             _enemiesTotal += spawner.CountPlannedEnemies();
         }
-    }
-
-    private void CountTagged(string tag)
-    {
-        GameObject[] found;
-        try
-        {
-            found = GameObject.FindGameObjectsWithTag(tag);
-        }
-        catch (UnityException)
-        {
-            return;
-        }
-
-        for (int i = 0; i < found.Length; i++)
-            BindEnemy(found[i], incrementTotal: true);
     }
 
     private void CensusSecrets()
@@ -278,25 +243,6 @@ public class LevelStatsTracker : MonoBehaviour
             if (door != null && door.CountsAsSecret)
                 _secretIds.Add(door.SecretId);
         }
-    }
-
-    private static bool IsCountableEnemy(GameObject go)
-    {
-        if (go == null)
-            return false;
-
-        Transform root = go.transform.root;
-        if (CompareTagSafe(root.gameObject, "Player"))
-            return false;
-        if (root.GetComponent<HeartOfTheNight.Player.PlayerHealth>() != null)
-            return false;
-
-        return HasEnemyTag(go) || HasEnemyTag(root.gameObject);
-    }
-
-    private static bool HasEnemyTag(GameObject go)
-    {
-        return CompareTagSafe(go, "Enemy") || CompareTagSafe(go, "Boss");
     }
 
     private static bool CompareTagSafe(GameObject go, string tag)
