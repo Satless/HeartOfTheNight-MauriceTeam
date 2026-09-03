@@ -60,6 +60,13 @@ public class MissionHover : MonoBehaviour,
         ApplyIdleVisual();
     }
 
+    /// <summary>Mở khóa demo: chữ sáng lại, không xóa onClick Select Level đã bind.</summary>
+    public void RefreshVisualAfterUnlock()
+    {
+        if (missionText != null)
+            missionText.color = normalColor;
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (previewImage != null && missionImage != null)

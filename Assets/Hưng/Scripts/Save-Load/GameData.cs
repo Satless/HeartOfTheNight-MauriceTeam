@@ -240,6 +240,14 @@ namespace HeartOfTheNight.Hung
             return true;
         }
 
+        /// <summary>Demo hội đồng: mở hết 4 ô súng trên slot hiện tại.</summary>
+        public void UnlockAllWeapons()
+        {
+            EnsureUnlockedWeapons();
+            for (int i = 0; i < unlockedWeapons.Length; i++)
+                unlockedWeapons[i] = true;
+        }
+
         public bool IsRoomCleared(string roomId)
         {
             EnsureLists();
