@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -26,6 +25,7 @@ public class EndGameStory : MonoBehaviour
 
     [Header("Scene")]
     [SerializeField] private string mainMenuScene = "mainMenu";
+
 
     // ==============================
     // STORY 1
@@ -63,6 +63,12 @@ public class EndGameStory : MonoBehaviour
 
     private bool skipText = false;
 
+    // Đang chạy chữ
+    private bool isTyping = false;
+
+    // Đang trong khoảng delay
+    private bool isWaiting = false;
+
 
     // ==============================
     // START
@@ -80,7 +86,10 @@ public class EndGameStory : MonoBehaviour
         SetFadeAlpha(0f);
 
         // Xóa text
-        storyText.text = "";
+        if (storyText != null)
+        {
+            storyText.text = "";
+        }
 
         // Bắt đầu story
         StartCoroutine(PlayEndStory());
@@ -93,8 +102,21 @@ public class EndGameStory : MonoBehaviour
 
     private void Update()
     {
-        // Nhấn SPACE để bỏ qua đoạn text đang chạy
+        // ==========================
+        // SPACE
+        // ==========================
+
         if (Input.GetKeyDown(KeyCode.Space))
+        {
+            skipText = true;
+        }
+
+
+        // ==========================
+        // LEFT MOUSE CLICK
+        // ==========================
+
+        if (Input.GetMouseButtonDown(0))
         {
             skipText = true;
         }
@@ -111,15 +133,29 @@ public class EndGameStory : MonoBehaviour
         // BACKGROUND 1
         // --------------------------------
 
-        background.sprite = background1;
+        if (background != null)
+        {
+            background.sprite = background1;
+        }
 
-        storyText.text = "";
+        if (storyText != null)
+        {
+            storyText.text = "";
+        }
 
-        // Chạy Story 1
+
+        // --------------------------------
+        // STORY 1
+        // --------------------------------
+
         yield return StartCoroutine(TypeText(story1));
 
-        // Chờ một chút
-        yield return new WaitForSeconds(delayAfterStory);
+
+        // --------------------------------
+        // DELAY SAU STORY 1
+        // --------------------------------
+
+        yield return StartCoroutine(WaitForDelay(delayAfterStory));
 
 
         // --------------------------------
@@ -133,10 +169,15 @@ public class EndGameStory : MonoBehaviour
         // ĐỔI BACKGROUND
         // --------------------------------
 
-        background.sprite = background2;
+        if (background != null)
+        {
+            background.sprite = background2;
+        }
 
-        // Xóa Story 1
-        storyText.text = "";
+        if (storyText != null)
+        {
+            storyText.text = "";
+        }
 
 
         // --------------------------------
@@ -152,8 +193,12 @@ public class EndGameStory : MonoBehaviour
 
         yield return StartCoroutine(TypeText(story2));
 
-        // Chờ một chút
-        yield return new WaitForSeconds(delayAfterStory);
+
+        // --------------------------------
+        // DELAY SAU STORY 2
+        // --------------------------------
+
+        yield return StartCoroutine(WaitForDelay(delayAfterStory));
 
 
         // --------------------------------
@@ -170,26 +215,74 @@ public class EndGameStory : MonoBehaviour
 
     private IEnumerator TypeText(string text)
     {
-        storyText.text = "";
+        if (storyText == null)
+            yield break;
 
+        // Reset
+        storyText.text = "";
         skipText = false;
+        isTyping = true;
 
         foreach (char letter in text)
         {
-            // Nếu nhấn Space
+            // ==========================
+            // SKIP
+            // ==========================
+
             if (skipText)
             {
+                // Hiện toàn bộ text ngay lập tức
                 storyText.text = text;
+
+                skipText = false;
+                isTyping = false;
 
                 yield break;
             }
 
-            // Thêm từng chữ
+
+            // ==========================
+            // HIỆN TỪNG CHỮ
+            // ==========================
+
             storyText.text += letter;
 
-            // Tốc độ chạy chữ
             yield return new WaitForSeconds(textSpeed);
         }
+
+
+        // Đã gõ xong
+        isTyping = false;
+    }
+
+
+    // ==============================
+    // WAIT DELAY
+    // ==============================
+
+    private IEnumerator WaitForDelay(float delay)
+    {
+        isWaiting = true;
+
+        float timer = 0f;
+
+        while (timer < delay)
+        {
+            // Click hoặc Space
+            if (skipText)
+            {
+                skipText = false;
+                isWaiting = false;
+
+                yield break;
+            }
+
+            timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        isWaiting = false;
     }
 
 
@@ -199,6 +292,9 @@ public class EndGameStory : MonoBehaviour
 
     private IEnumerator Fade(float startAlpha, float endAlpha)
     {
+        if (fadePanel == null)
+            yield break;
+
         float timer = 0f;
 
         Color color = fadePanel.color;
@@ -232,6 +328,9 @@ public class EndGameStory : MonoBehaviour
 
     private void SetFadeAlpha(float alpha)
     {
+        if (fadePanel == null)
+            return;
+
         Color color = fadePanel.color;
 
         color.a = alpha;
@@ -259,7 +358,10 @@ public class EndGameStory : MonoBehaviour
 
     public void BackToMenu()
     {
-        string scene = string.IsNullOrEmpty(mainMenuScene) ? "mainMenu" : mainMenuScene;
+        string scene = string.IsNullOrEmpty(mainMenuScene)
+            ? "mainMenu"
+            : mainMenuScene;
+
         StoryFlow.LoadScene(scene);
     }
 
@@ -275,4 +377,3 @@ public class EndGameStory : MonoBehaviour
         Application.Quit();
     }
 }
-
