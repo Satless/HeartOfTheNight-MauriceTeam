@@ -8,24 +8,33 @@ public class UIMenuMusic : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.3f;
 
     private string previousTrackName = "";
+    private bool _switched;
 
     private void OnEnable()
     {
         if (MusicManager_New.Instance != null)
         {
-            // 1. Lưu lại thời điểm bài nhạc màn chơi đang chạy dở
             MusicManager_New.Instance.SaveCurrentMusicTime();
             previousTrackName = MusicManager_New.Instance.CurrentTrackName;
         }
 
-        // 2. Chuyển sang nhạc của Menu này
+        if (!string.IsNullOrEmpty(previousTrackName) && previousTrackName == menuTrackName)
+            return;
+
         AudioEvents.TriggerMusic(menuTrackName, fadeDuration);
+        _switched = true;
     }
 
     private void OnDisable()
     {
-        // 3. Khi đóng Menu, tiếp tục phát bài nhạc màn chơi từ vị trí đã dừng
-        if (MusicManager_New.Instance != null && !string.IsNullOrEmpty(previousTrackName))
+        if (!_switched)
+            return;
+
+        _switched = false;
+
+        if (MusicManager_New.Instance != null
+            && !string.IsNullOrEmpty(previousTrackName)
+            && previousTrackName != menuTrackName)
         {
             MusicManager_New.Instance.PlayMusicResume(previousTrackName, fadeDuration);
         }

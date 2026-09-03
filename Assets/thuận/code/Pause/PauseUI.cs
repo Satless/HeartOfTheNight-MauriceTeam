@@ -359,6 +359,15 @@ public class PauseUI : MonoBehaviour
         canvasGo.AddComponent<GraphicRaycaster>();
     }
 
+    private static GameObject InstantiateInactive(GameObject prefab, Transform parent)
+    {
+        bool wasActive = prefab.activeSelf;
+        prefab.SetActive(false);
+        GameObject instance = Instantiate(prefab, parent, false);
+        prefab.SetActive(wasActive);
+        return instance;
+    }
+
     private void EnsurePanel()
     {
         if (_panel != null)
@@ -373,7 +382,7 @@ public class PauseUI : MonoBehaviour
             return;
         }
 
-        _panel = Instantiate(prefab, _canvas.transform, false);
+        _panel = InstantiateInactive(prefab, _canvas.transform);
         _panel.name = "Pause";
         StretchFull(_panel.GetComponent<RectTransform>());
         WireButtons(_panel);
@@ -393,7 +402,7 @@ public class PauseUI : MonoBehaviour
         }
         else
         {
-            _settingsInstance = Instantiate(settingsPanel, _canvas.transform, false);
+            _settingsInstance = InstantiateInactive(settingsPanel, _canvas.transform);
             _settingsInstance.name = "SettingPanel";
         }
 

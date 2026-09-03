@@ -31,6 +31,9 @@ public class SoundLibrary_New : MonoBehaviour
     // Tìm clip theo đủ 3 tầng: Category -> SubCategory -> Action
     public AudioClip GetClipFromName(string categoryID, string subCategoryID, string actionName)
     {
+        if (categories == null)
+            return null;
+
         foreach (var category in categories)
         {
             if (category.categoryID == categoryID)
@@ -48,9 +51,15 @@ public class SoundLibrary_New : MonoBehaviour
                             if (action.actionID == actionName)
                             {
                                 if (action.clips == null || action.clips.Length == 0)
+                                {
+                                    Debug.LogWarning($"[SoundLibrary] '{categoryID}/{subCategoryID}/{actionName}' không có clip.");
                                     return null;
+                                }
 
-                                return action.clips[Random.Range(0, action.clips.Length)];
+                                AudioClip clip = action.clips[Random.Range(0, action.clips.Length)];
+                                if (clip == null)
+                                    Debug.LogWarning($"[SoundLibrary] '{categoryID}/{subCategoryID}/{actionName}' có slot clip trống.");
+                                return clip;
                             }
                         }
                     }
