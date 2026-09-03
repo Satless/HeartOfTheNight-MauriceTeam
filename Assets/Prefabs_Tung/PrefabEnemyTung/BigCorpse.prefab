@@ -289,7 +289,7 @@ MonoBehaviour:
   patrolSpeed: 3
   patrolDistance: 10
   detectionRangeX: 20
-  detectionRangeY: 1
+  detectionRangeY: 3
   attackRange: 1
   attackRangeY: 1.5
   attackRadius: 1.5
@@ -301,8 +301,8 @@ MonoBehaviour:
   isGrounded: 0
   edgeCheck: {fileID: 2441634690281828419}
   wallCheck: {fileID: 3823528332310706900}
-  edgeCheckDistance: 0
-  wallCheckDistance: 0
+  edgeCheckDistance: 1.5
+  wallCheckDistance: 0.5
   wallCheckHeight: 2.92
   flipCooldown: 0.5
   attackDamage: 30
