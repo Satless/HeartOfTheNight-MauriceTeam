@@ -91,6 +91,9 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
 
         // 1. NẾU THẤY PLAYER -> ƯU TIÊN SỐ 1 LÀ ĐUỔI HOẶC CHÉM
+        if (player == null)
+            player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
         if (player != null)
         {
             float distanceX = Mathf.Abs(player.position.x - transform.position.x);
@@ -142,14 +145,14 @@ public class BurningCorpseImg : MonoBehaviour, IDamageable
 
     bool IsNearEdge()
     {
-        if (edgeCheck == null) return false;
+        if (edgeCheck == null || edgeCheckDistance <= 0f) return false;
         RaycastHit2D hit = Physics2D.Raycast(edgeCheck.position, Vector2.down, edgeCheckDistance, groundLayer);
         return hit.collider == null;
     }
 
     bool IsHittingWall()
     {
-        if (wallCheck == null) return false;
+        if (wallCheck == null || wallCheckDistance <= 0f) return false;
         float dir = Mathf.Sign(transform.localScale.x);
 
         Vector2 boxCenter = (Vector2)wallCheck.position + new Vector2(0f, (wallCheckHeight / 2f) + 0.1f);

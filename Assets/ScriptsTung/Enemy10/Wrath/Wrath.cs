@@ -74,6 +74,9 @@ public class Wrath : MonoBehaviour, IDamageable
        if (isBusy || isDead) return;
         CheckGroundStatus();
         if (flipTimer > 0) flipTimer -= Time.deltaTime;
+        if (player == null)
+            player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
         if (player != null)
         {
 
@@ -106,14 +109,14 @@ public class Wrath : MonoBehaviour, IDamageable
 
     bool IsNearEdge()
     {
-        if (edgeCheck == null) return false;
+        if (edgeCheck == null || edgeCheckDistance <= 0f) return false;
         RaycastHit2D hit = Physics2D.Raycast(edgeCheck.position, Vector2.down, edgeCheckDistance, groundLayer);
         return hit.collider == null;
     }
 
     bool IsHittingWall()
     {
-        if (wallCheck == null) return false;
+        if (wallCheck == null || wallCheckDistance <= 0f) return false;
         float dir = Mathf.Sign(transform.localScale.x);
         Vector2 boxCenter = (Vector2)wallCheck.position + new Vector2(0f, (wallCheckHeight / 2f) + 0.1f);
         Vector2 boxSize = new Vector2(0.1f, wallCheckHeight);
@@ -161,7 +164,8 @@ public class Wrath : MonoBehaviour, IDamageable
     void ChasePlayer()
     {
         LookAtPlayer();
-        if (IsNearEdge() || IsHittingWall())
+        // Đang đuổi thì chỉ dừng khi đụng tường — không đứng im vì mép vực.
+        if (IsHittingWall())
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             if (anim != null) anim.SetFloat("Speed", 0);
