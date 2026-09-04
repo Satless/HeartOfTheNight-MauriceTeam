@@ -433,11 +433,11 @@ MonoBehaviour:
   transitionDelay: 1
   firePoint: {fileID: 9025711773550881348}
   bombPrefab: {fileID: 2712588724363217790, guid: a97ee60ba2eace8488795b7c440ee07b, type: 3}
-  bombFireRate: 1.2
+  bombFireRate: 1.45
   bombFlightTime: 0.5
   laserPrefab: {fileID: 1967479979405962215, guid: cec1e8ce19d768b48a5d76c1b16c8859, type: 3}
-  laserFireRate: 0.5
-  laserSpeed: 20
+  laserFireRate: 0.65
+  laserSpeed: 16
   kamikazePrefab: {fileID: 5053879339585731337, guid: 06d18fd6183baea42b85707be3870b23, type: 3}
   obstacleLayer:
     serializedVersion: 2
@@ -681,7 +681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 396304618f6227d43aa1448c2807b160, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageToDeal: 50
+  damageToDeal: 40
   dealDamageContinuously: 1
   damageInterval: 1
   destroyTrapOnHit: 0

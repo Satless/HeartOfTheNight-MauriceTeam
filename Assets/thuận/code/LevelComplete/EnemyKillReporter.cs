@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// Gắn lên gốc Enemy/Boss. Khi object bị Destroy trong lúc màn còn load thì cộng 1 kill.
-/// Không đếm lúc unload scene (chết / qua màn).
+/// Gắn lên gốc Enemy/Boss. Khi object bị Destroy trong lúc màn còn chơi thì cộng 1 kill.
+/// Không dùng scene.isLoaded: Unity 6 báo false cả khi Destroy từng con, nên kill luôn ra 0.
 /// </summary>
 [DisallowMultipleComponent]
 public class EnemyKillReporter : MonoBehaviour
@@ -12,9 +12,6 @@ public class EnemyKillReporter : MonoBehaviour
     private void OnDestroy()
     {
         if (_reported || !Application.isPlaying)
-            return;
-
-        if (!gameObject.scene.IsValid() || !gameObject.scene.isLoaded)
             return;
 
         _reported = true;
